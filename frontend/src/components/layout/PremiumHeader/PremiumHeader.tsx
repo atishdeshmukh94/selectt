@@ -989,7 +989,7 @@ export const PremiumHeader: React.FC = () => {
                 )}
               </div>
 
-              {/* BUY BY CATEGORY Grid (Clean 3D Animated Icons without Box Wrappers) */}
+              {/* BUY BY CATEGORY Grid (Clean Bordered Button Cards) */}
               <div>
                 <h3 className="text-[11px] font-black text-[#0C1B33] uppercase tracking-widest mb-3 text-left">BUY BY CATEGORY</h3>
                 <div className="grid grid-cols-4 gap-2">
@@ -1005,20 +1005,20 @@ export const PremiumHeader: React.FC = () => {
                         handleNavFilter(cat.query);
                         setMobileMenuOpen(false);
                       }}
-                      className="flex flex-col items-center justify-center p-2.5 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group"
+                      className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white border border-slate-200/90 hover:border-[#00C9AF] hover:bg-[#E6FAF7]/50 active:scale-95 transition-all duration-200 cursor-pointer group shadow-xs hover:shadow-md"
                     >
-                      {/* Direct 3D Animated Icon without Box Border */}
-                      <span className="text-3xl mb-1 group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300 filter drop-shadow-md">
+                      {/* 3D Animated Icon */}
+                      <span className="text-2.5xl mb-1 group-hover:scale-115 group-hover:-translate-y-0.5 transition-all duration-300 filter drop-shadow-sm">
                         {cat.icon}
                       </span>
-                      <span className="text-xs font-black text-[#0C1B33] text-center leading-tight">{cat.name}</span>
-                      <span className="text-[9px] text-slate-500 font-bold text-center leading-tight mt-0.5">{cat.subtitle}</span>
+                      <span className="text-[11px] font-black text-[#0C1B33] text-center leading-tight">{cat.name}</span>
+                      <span className="text-[9px] text-slate-500 font-bold text-center leading-tight mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis w-full">{cat.subtitle}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* BUY BY BODY TYPE Grid (Clean 3D Animated Icons without Box Wrappers) */}
+              {/* BUY BY BODY TYPE Grid (Clean Bordered Button Cards) */}
               <div className="pt-1">
                 <h3 className="text-[11px] font-black text-[#0C1B33] uppercase tracking-widest mb-3 text-left">BUY BY BODY TYPE</h3>
                 <div className="grid grid-cols-4 gap-2">
@@ -1034,13 +1034,13 @@ export const PremiumHeader: React.FC = () => {
                         handleNavFilter(type.query);
                         setMobileMenuOpen(false);
                       }}
-                      className="flex flex-col items-center justify-center p-2.5 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group"
+                      className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white border border-slate-200/90 hover:border-[#00C9AF] hover:bg-[#E6FAF7]/50 active:scale-95 transition-all duration-200 cursor-pointer group shadow-xs hover:shadow-md"
                     >
-                      {/* Direct 3D Animated Icon without Box Border */}
-                      <span className="text-3xl mb-1 group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300 filter drop-shadow-md">
+                      {/* 3D Animated Icon */}
+                      <span className="text-2.5xl mb-1 group-hover:scale-115 group-hover:-translate-y-0.5 transition-all duration-300 filter drop-shadow-sm">
                         {type.icon}
                       </span>
-                      <span className="text-xs font-black text-[#0C1B33] text-center">{type.name}</span>
+                      <span className="text-[11px] font-black text-[#0C1B33] text-center truncate w-full">{type.name}</span>
                     </button>
                   ))}
                 </div>

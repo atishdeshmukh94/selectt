@@ -610,12 +610,12 @@ const Header = () => {
                   <h4 className="text-xs font-black text-[#0C1B33] uppercase tracking-widest mb-3">BUY BY CATEGORY</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {categories.map((cat, idx) => (
-                      <div key={idx} className="flex flex-col items-center justify-center p-2.5 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group">
-                        <span className="text-3xl mb-1 group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300 filter drop-shadow-md">
+                      <div key={idx} className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white border border-slate-200/90 hover:border-[#00C9AF] hover:bg-[#E6FAF7]/50 active:scale-95 transition-all duration-200 cursor-pointer group shadow-xs hover:shadow-md">
+                        <span className="text-2.5xl mb-1 group-hover:scale-115 group-hover:-translate-y-0.5 transition-all duration-300 filter drop-shadow-sm">
                           {cat.icon}
                         </span>
-                        <div className="text-xs font-black text-[#0C1B33] text-center leading-tight">{cat.name}</div>
-                        <div className="text-[9px] text-slate-500 font-bold text-center leading-tight mt-0.5">{cat.subtitle}</div>
+                        <div className="text-[11px] font-black text-[#0C1B33] text-center leading-tight">{cat.name}</div>
+                        <div className="text-[9px] text-slate-500 font-bold text-center leading-tight mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis w-full">{cat.subtitle}</div>
                       </div>
                     ))}
                   </div>
@@ -626,11 +626,11 @@ const Header = () => {
                   <h4 className="text-xs font-black text-[#0C1B33] uppercase tracking-widest mb-3">BUY BY BODY TYPE</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {bodyTypes.map((type, idx) => (
-                      <div key={idx} className="flex flex-col items-center justify-center p-2.5 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group">
-                        <span className="text-3xl mb-1 group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300 filter drop-shadow-md">
+                      <div key={idx} className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white border border-slate-200/90 hover:border-[#00C9AF] hover:bg-[#E6FAF7]/50 active:scale-95 transition-all duration-200 cursor-pointer group shadow-xs hover:shadow-md">
+                        <span className="text-2.5xl mb-1 group-hover:scale-115 group-hover:-translate-y-0.5 transition-all duration-300 filter drop-shadow-sm">
                           {type.icon}
                         </span>
-                        <div className="text-xs font-black text-[#0C1B33] text-center">{type.name}</div>
+                        <div className="text-[11px] font-black text-[#0C1B33] text-center truncate w-full">{type.name}</div>
                       </div>
                     ))}
                   </div>
