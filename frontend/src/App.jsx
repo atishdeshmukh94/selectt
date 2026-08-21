@@ -65,13 +65,12 @@ function App() {
 
   useEffect(() => {
     const fetchSettings = async () => {
+      const startTime = Date.now();
       try {
-        const res = await fetch(`${API_URL}/api/settings/public`);
+        const res = await fetch(`${API_URL}/settings`);
         const data = await res.json();
-        if (data.admin_logo_dark) {
-          setLogo(data.admin_logo_dark);
-        } else if (data.auth_logo) {
-          setLogo(data.auth_logo);
+        if (data.site_logo) {
+          setLogo(data.site_logo);
         } else if (data.admin_logo) {
           setLogo(data.admin_logo);
         }
@@ -82,14 +81,18 @@ function App() {
       } catch (err) {
         console.error('Error fetching settings:', err);
       } finally {
-        setLoading(false);
+        const elapsedTime = Date.now() - startTime;
+        const remainingDelay = Math.max(0, 3500 - elapsedTime);
+        setTimeout(() => {
+          setLoading(false);
+        }, remainingDelay);
       }
     };
     fetchSettings();
   }, []);
 
   if (loading) {
-    return <PagePreloader message="Initializing Selectt..." />;
+    return <PagePreloader message="Initializing Selectt..." minDisplayTime={4000} />;
   }
 
   if (maintenanceMode) {
