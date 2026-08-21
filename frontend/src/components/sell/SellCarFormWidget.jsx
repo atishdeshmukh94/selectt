@@ -1773,12 +1773,12 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                 {/* Preloader Image GIF */}
                 <div className="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center mb-6">
                   <img
-                    src="/images/preloader.gif"
+                    src="/img/St.gif"
                     onError={(e) => {
-                      e.currentTarget.src = "https://www.gbflint.com/images/preloader.gif";
+                      e.currentTarget.src = "/St.gif";
                     }}
                     alt="Calculating Valuation Preloader"
-                    className="w-full h-full object-contain mix-blend-multiply"
+                    className="w-full h-full object-contain"
                   />
                 </div>
 

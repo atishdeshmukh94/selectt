@@ -1,13 +1,19 @@
 import React from 'react';
-import { Component as LumaSpin } from '../ui/luma-spin';
 
 export default function PagePreloader({ message = 'Loading Selectt...' }) {
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0c1b33] text-white transition-all duration-300">
-      <div className="flex flex-col items-center space-y-6">
-        <LumaSpin />
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white transition-all duration-300">
+      <div className="flex flex-col items-center justify-center space-y-4 p-4 text-center">
+        <img
+          src="/img/St.gif"
+          alt="Selectt Loading..."
+          className="w-48 sm:w-60 md:w-72 h-auto object-contain max-h-56"
+          onError={(e) => {
+            e.currentTarget.src = "/St.gif";
+          }}
+        />
         {message && (
-          <p className="text-base font-semibold tracking-wider text-slate-100 uppercase animate-pulse">
+          <p className="text-xs sm:text-sm font-semibold tracking-wider text-slate-700 uppercase">
             {message}
           </p>
         )}
