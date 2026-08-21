@@ -568,49 +568,54 @@ const Header = () => {
 
           {/* Sidebar */}
           <div className="fixed top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white z-[160] overflow-y-auto md:hidden">
-            {/* Header */}
-            <div className="bg-white text-[#0C1B33] p-4 flex items-center justify-between border-b border-slate-100 shadow-sm">
+            {/* Header (Navy Blue & White Theme) */}
+            <div className="bg-gradient-to-r from-[#0C1B33] via-[#162947] to-[#0A162A] text-white p-4 sm:p-5 flex items-center justify-between shadow-md">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-[#0C1B33]">
-                  <User size={20} />
+                <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#00C9AF] to-[#00FFDC] text-[#0C1B33] font-black flex items-center justify-center shadow-md shadow-[#00C9AF]/30 shrink-0 text-lg">
+                  {user?.first_name ? user.first_name[0].toUpperCase() : '👾'}
                 </div>
-                <div>
-                  <div className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-0.5">Hello,</div>
-                  {user.first_name ? (
+                <div className="text-left">
+                  {user?.first_name ? (
                     <>
-                      <div className="text-sm font-extrabold text-[#0C1B33]">{user.first_name} {user.last_name}</div>
-                      <div className="text-xs text-slate-500 font-medium">+91 {user.phone}</div>
+                      <div className="text-sm font-extrabold text-white leading-snug flex items-center gap-1.5">
+                        <span>{user.first_name} {user.last_name || ''}</span>
+                        <ChevronRight size={15} className="text-[#00FFDC]" />
+                      </div>
+                      <div className="text-xs text-slate-300 font-medium">+91 {user.phone}</div>
                     </>
                   ) : (
-                    <div className="text-sm font-extrabold text-[#0C1B33]">+91 {user.phone}</div>
+                    <div className="text-sm font-black text-white flex items-center gap-1.5">
+                      <span>Login / Signup</span>
+                      <ChevronRight size={16} className="text-[#00FFDC]" />
+                    </div>
                   )}
                 </div>
               </div>
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-[#0C1B33]"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-slate-200 hover:text-white transition-colors cursor-pointer shrink-0 ml-2"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
-            {/* Content */}
-            <div className="p-4 space-y-6">
+            {/* Content (Crisp Light Canvas) */}
+            <div className="p-4 space-y-6 bg-white text-[#0C1B33]">
               {/* BUY Section */}
               <div>
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">BUY</h3>
+                <h3 className="text-xs font-bold text-[#0C1B33] uppercase tracking-wider mb-4">BUY</h3>
 
                 {/* By category */}
                 <div className="mb-5">
-                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">BUY BY CATEGORY</h4>
+                  <h4 className="text-xs font-black text-[#0C1B33] uppercase tracking-widest mb-3">BUY BY CATEGORY</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {categories.map((cat, idx) => (
-                      <div key={idx} className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group">
-                        <span className="text-2xl mb-1 group-hover:scale-125 transition-transform duration-200 filter drop-shadow-sm">
+                      <div key={idx} className="flex flex-col items-center justify-center p-2.5 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group">
+                        <span className="text-3xl mb-1 group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300 filter drop-shadow-md">
                           {cat.icon}
                         </span>
-                        <div className="text-xs font-bold text-slate-800 text-center leading-tight">{cat.name}</div>
-                        <div className="text-[9px] text-slate-400 text-center leading-tight mt-0.5">{cat.subtitle}</div>
+                        <div className="text-xs font-black text-[#0C1B33] text-center leading-tight">{cat.name}</div>
+                        <div className="text-[9px] text-slate-500 font-bold text-center leading-tight mt-0.5">{cat.subtitle}</div>
                       </div>
                     ))}
                   </div>
@@ -618,14 +623,14 @@ const Header = () => {
 
                 {/* By body type */}
                 <div className="mb-4">
-                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">BUY BY BODY TYPE</h4>
+                  <h4 className="text-xs font-black text-[#0C1B33] uppercase tracking-widest mb-3">BUY BY BODY TYPE</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {bodyTypes.map((type, idx) => (
-                      <div key={idx} className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group">
-                        <span className="text-2xl mb-1 group-hover:scale-125 transition-transform duration-200 filter drop-shadow-sm">
+                      <div key={idx} className="flex flex-col items-center justify-center p-2.5 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group">
+                        <span className="text-3xl mb-1 group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300 filter drop-shadow-md">
                           {type.icon}
                         </span>
-                        <div className="text-xs font-bold text-slate-700 text-center">{type.name}</div>
+                        <div className="text-xs font-black text-[#0C1B33] text-center">{type.name}</div>
                       </div>
                     ))}
                   </div>

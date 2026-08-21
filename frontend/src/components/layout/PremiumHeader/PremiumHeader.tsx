@@ -991,7 +991,7 @@ export const PremiumHeader: React.FC = () => {
 
               {/* BUY BY CATEGORY Grid (Clean 3D Animated Icons without Box Wrappers) */}
               <div>
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 text-left">BUY BY CATEGORY</h3>
+                <h3 className="text-[11px] font-black text-[#0C1B33] uppercase tracking-widest mb-3 text-left">BUY BY CATEGORY</h3>
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { name: 'MAX', subtitle: 'Luxury cars', icon: '🏆', color: '#d97706', query: { budget: '10 L +' } },
@@ -1005,14 +1005,14 @@ export const PremiumHeader: React.FC = () => {
                         handleNavFilter(cat.query);
                         setMobileMenuOpen(false);
                       }}
-                      className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group"
+                      className="flex flex-col items-center justify-center p-2.5 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group"
                     >
                       {/* Direct 3D Animated Icon without Box Border */}
-                      <span className="text-2xl mb-1 group-hover:scale-125 transition-transform duration-200 filter drop-shadow-sm animate-bounce-short">
+                      <span className="text-3xl mb-1 group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300 filter drop-shadow-md">
                         {cat.icon}
                       </span>
-                      <span className="text-xs font-extrabold text-slate-800 text-center leading-tight">{cat.name}</span>
-                      <span className="text-[9px] text-slate-400 font-semibold text-center leading-tight mt-0.5">{cat.subtitle}</span>
+                      <span className="text-xs font-black text-[#0C1B33] text-center leading-tight">{cat.name}</span>
+                      <span className="text-[9px] text-slate-500 font-bold text-center leading-tight mt-0.5">{cat.subtitle}</span>
                     </button>
                   ))}
                 </div>
@@ -1020,7 +1020,7 @@ export const PremiumHeader: React.FC = () => {
 
               {/* BUY BY BODY TYPE Grid (Clean 3D Animated Icons without Box Wrappers) */}
               <div className="pt-1">
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 text-left">BUY BY BODY TYPE</h3>
+                <h3 className="text-[11px] font-black text-[#0C1B33] uppercase tracking-widest mb-3 text-left">BUY BY BODY TYPE</h3>
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
@@ -1034,13 +1034,13 @@ export const PremiumHeader: React.FC = () => {
                         handleNavFilter(type.query);
                         setMobileMenuOpen(false);
                       }}
-                      className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group"
+                      className="flex flex-col items-center justify-center p-2.5 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group"
                     >
                       {/* Direct 3D Animated Icon without Box Border */}
-                      <span className="text-2xl mb-1 group-hover:scale-125 transition-transform duration-200 filter drop-shadow-sm">
+                      <span className="text-3xl mb-1 group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300 filter drop-shadow-md">
                         {type.icon}
                       </span>
-                      <span className="text-xs font-bold text-slate-700 text-center">{type.name}</span>
+                      <span className="text-xs font-black text-[#0C1B33] text-center">{type.name}</span>
                     </button>
                   ))}
                 </div>
