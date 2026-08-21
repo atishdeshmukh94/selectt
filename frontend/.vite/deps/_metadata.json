@@ -1,0 +1,52 @@
+{
+  "hash": "8d34770b",
+  "configHash": "0cfd1d26",
+  "lockfileHash": "4a399283",
+  "browserHash": "ff7bf116",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "4ccd22bb",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "18406471",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "2580a752",
+      "needsInterop": false
+    },
+    "framer-motion": {
+      "src": "../../node_modules/framer-motion/dist/es/index.mjs",
+      "file": "framer-motion.js",
+      "fileHash": "8f3b32a2",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "9735cfcf",
+      "needsInterop": false
+    },
+    "@tabler/icons-react": {
+      "src": "../../node_modules/@tabler/icons-react/dist/esm/tabler-icons-react.mjs",
+      "file": "@tabler_icons-react.js",
+      "fileHash": "0f69a4db",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-A4MEDAQF": {
+      "file": "chunk-A4MEDAQF.js"
+    },
+    "chunk-HUOGFTF4": {
+      "file": "chunk-HUOGFTF4.js"
+    }
+  }
+}

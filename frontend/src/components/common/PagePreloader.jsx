@@ -1,5 +1,5 @@
 import React from 'react';
-import { Component as LumaSpin } from '@/components/ui/luma-spin';
+import { Component as LumaSpin } from '../ui/luma-spin';
 
 export default function PagePreloader({ message = 'Loading Selectt...' }) {
   return (
