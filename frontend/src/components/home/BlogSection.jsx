@@ -1,0 +1,85 @@
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+import { API_URL } from '../../config/api';
+const API = API_URL;
+
+const BlogSection = () => {
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API}/api/blog/posts?status=published&limit=4`)
+      .then(r => r.json())
+      .then(d => {
+        // Handle both array and object responses
+        const posts = Array.isArray(d) ? d : (d.posts || []);
+        setBlogs(posts);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading || (!loading && blogs.length === 0)) return null;
+
+  return (
+    <section className="pt-4 pb-12 md:pt-6 md:pb-24 px-4 bg-background-light dark:bg-background-dark">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="text-slate-500 dark:text-purple-200">
+              Expert car buying tips and trends
+            </p>
+          </div>
+          <Link
+            to="/blog"
+            className="text-[#00C9AF] font-bold flex items-center gap-1 hover:underline cursor-pointer"
+          >
+            Read all posts
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        <div className="relative group/slider">
+          <div className="flex lg:grid lg:grid-cols-4 gap-8 overflow-x-auto lg:overflow-visible hide-scrollbar snap-x snap-mandatory px-0 md:px-0">
+            {blogs.map((blog, index) => (
+              <Link to={`/blog/${blog.slug}`} key={index} className="group cursor-pointer min-w-[280px] md:min-w-0 snap-center flex flex-col">
+                <div className="aspect-[16/9] bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden mb-5 relative shadow-md">
+                  {blog.featured_image ? (
+                    <img
+                      alt={blog.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      src={blog.featured_image.startsWith('/') ? `${API}${blog.featured_image}` : blog.featured_image}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300"><FileText size={32} /></div>
+                  )}
+                </div>
+
+                {blog.categories && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {blog.categories.split(',').slice(0, 1).map((c, i) => (
+                      <span key={i} className={`inline-block px-3 py-1 bg-red-50 dark:bg-red-900/20 text-[#00C9AF] text-[10px] font-bold rounded-full uppercase tracking-wider`}>
+                        {c.trim()}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <h3 className="text-xl font-bold mb-2 group-hover:text-[#00C9AF] transition-colors text-navy dark:text-white line-clamp-2">
+                  {blog.title}
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
+                  {blog.excerpt}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default BlogSection;

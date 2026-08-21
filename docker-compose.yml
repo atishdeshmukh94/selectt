@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Node.js Express Backend API
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: selectt_api
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - selectt_net
+
+  # BullMQ Worker Service
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.worker
+    container_name: selectt_worker
+    restart: always
+    environment:
+      NODE_ENV: production
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - selectt_net
+
+  # Redis Cache & Queue Broker
+  redis:
+    image: redis:7-alpine
+    container_name: selectt_redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - selectt_net
+
+networks:
+  selectt_net:
+    driver: bridge
+
+volumes:
+  redis_data:

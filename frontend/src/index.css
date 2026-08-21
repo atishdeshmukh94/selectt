@@ -1,0 +1,430 @@
+@import "tailwindcss";
+
+:root {
+  /* Centralized Typography Configuration */
+  --font-heading: 'Noto Sans', sans-serif;
+  --font-heading-weight: 700;
+
+  --font-subheading: 'Noto Sans', sans-serif;
+  --font-subheading-weight: 600;
+
+  --font-body: 'Noto Sans', sans-serif;
+  --font-body-weight: 400;
+
+  --font-button: 'Noto Sans', sans-serif;
+  --font-button-weight: 600;
+
+  --font-price: 'Noto Sans', sans-serif;
+  --font-price-weight: 800;
+}
+
+/* Hide scrollbars completely across Chrome, Safari, Firefox, Edge */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar,
+.scrollbar-hide {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+@theme {
+  --color-primary: #00C9AF;
+  /* Teal Accent (10%) */
+  --color-secondary: #0c1b33;
+  /* Midnight Navy (70%) */
+  --color-accent: #00C9AF;
+  /* Teal Accent */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-background-light: #f0f5fa;
+  /* Ice White (20%) */
+  --color-background-dark: #0c1b33;
+  /* Midnight Navy */
+  --color-text-dark: #0c1b33;
+  --color-text-light: #6b7280;
+  --color-navy: #0c1b33;
+  --color-border: #e5e7eb;
+  --color-card-light: #ffffff;
+  --color-card-dark: #162947;
+  /* Slightly lighter midnight navy for cards */
+  --color-primary-soft: #e6faf7;
+  /* Soft Teal Accent */
+  --color-secondary-soft: #1a3052;
+  /* Soft Midnight Navy */
+  --color-header-light: #f0f5fa;
+  /* Ice White for header */
+
+  --font-heading: var(--font-heading);
+  --font-subheading: var(--font-subheading);
+  --font-body: var(--font-body);
+  --font-button: var(--font-button);
+  --font-price: var(--font-price);
+  --font-sans: var(--font-body);
+
+  /* Aliases for backwards compatibility */
+  --font-demi: var(--font-heading);
+  --font-book: var(--font-body);
+  --font-medium: var(--font-subheading);
+  --font-display: var(--font-heading);
+}
+
+/* Global Typography Default Rules */
+body, html {
+  font-family: var(--font-body) !important;
+  font-weight: var(--font-body-weight);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+}
+
+h4, h5, h6 {
+  font-family: var(--font-subheading);
+  font-weight: var(--font-subheading-weight);
+}
+
+button, input[type="button"], input[type="submit"] {
+  font-family: var(--font-button);
+  font-weight: var(--font-button-weight);
+}
+
+/* Utility Classes */
+@utility font-heading {
+  font-family: var(--font-heading);
+}
+
+@utility font-subheading {
+  font-family: var(--font-subheading);
+}
+
+@utility font-body {
+  font-family: var(--font-body);
+}
+
+@utility font-button {
+  font-family: var(--font-button);
+}
+
+@utility font-price {
+  font-family: var(--font-price);
+}
+
+/* Legacy Utility Mappings */
+@utility font-demi {
+  font-family: var(--font-heading);
+}
+
+@utility font-book {
+  font-family: var(--font-body);
+}
+
+@utility font-medium {
+  font-family: var(--font-subheading);
+}
+
+.barlow_condensed {
+  font-family: var(--font-heading) !important;
+}
+
+.price, .font-price, .google-sans, .font-google-sans {
+  font-family: var(--font-price), sans-serif !important;
+  font-optical-sizing: auto;
+}
+
+.font-noto-sans {
+  font-family: "Noto Sans", sans-serif !important;
+  font-optical-sizing: auto;
+}
+
+.font-cinzel {
+  font-family: "Cinzel", serif !important;
+  font-optical-sizing: auto;
+}
+
+/* Custom utilities */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom scrollbar matching reference design */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  /* slate-300 */
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  /* slate-400 */
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.animate-slideRight {
+  animation: slideRight 0.5s ease-out forwards;
+}
+
+@keyframes slideVerticalSlot {
+
+  0%,
+  45% {
+    transform: translateY(0);
+  }
+
+  50%,
+  95% {
+    transform: translateY(-33.333%);
+  }
+
+  100% {
+    transform: translateY(-66.666%);
+  }
+}
+
+.animate-slideVerticalSlot {
+  animation: slideVerticalSlot 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Custom transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Page preloader loader */
+.loader {
+  height: 80px;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  position: relative;
+  -webkit-mask:
+    radial-gradient(#0000 47%, #000 48% 71%, #0000 72%) exclude,
+    conic-gradient(#000 0 0) no-clip;
+  mask:
+    radial-gradient(#0000 47%, #000 48% 71%, #0000 72%) exclude,
+    conic-gradient(#000 0 0) no-clip;
+  animation: l11 1.5s linear infinite;
+}
+
+.loader:before {
+  content: "";
+  position: absolute;
+  inset: 0 35% 70%;
+  border-radius: 50%;
+  background: #00C9AF;
+  /* Match brand teal accent */
+  filter: blur(15px);
+}
+
+@keyframes l11 {
+  to {
+    rotate: 1turn
+  }
+}
+
+/* Marquee Animation */
+@keyframes marqueeLeft {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-left {
+  animation: marqueeLeft 55s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+.animate-marquee-left:hover {
+  animation-play-state: paused;
+}
+
+/* High Performance Animation Guidelines & Hardware Acceleration */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+}
+
+/* Shimmer Skeleton Placeholder Keyframes */
+@keyframes shimmerWave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.08) 20%,
+    rgba(255, 255, 255, 0.18) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmerWave 1.8s infinite;
+  content: '';
+}
+
+/* Button Pulse & Glow */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 201, 175, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 201, 175, 0.5);
+  }
+}
+
+.animate-glow {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+/* Phone Ringing & Vibration Keyframes */
+@keyframes phoneRing {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  10%, 30%, 50%, 70% {
+    transform: rotate(-14deg) scale(1.12);
+  }
+  20%, 40%, 60%, 80% {
+    transform: rotate(14deg) scale(1.12);
+  }
+  90% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.animate-phone-ring {
+  animation: phoneRing 1.8s ease-in-out infinite;
+}
+
+/* Gentle Low Vibration Animation Effect */
+@keyframes lowVibrate {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-3deg) scale(1.03);
+  }
+  75% {
+    transform: rotate(3deg) scale(1.03);
+  }
+}
+
+.animate-low-vibrate {
+  animation: lowVibrate 2.4s ease-in-out infinite;
+}
+
+/* Shimmer Light Wave Animation */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Accessibility: Respect user's prefers-reduced-motion setting */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Cache touch */
