@@ -601,45 +601,37 @@ const Header = () => {
 
             {/* Content (Crisp Light Canvas) */}
             <div className="p-4 space-y-5 bg-white text-[#0C1B33]">
-              {/* BUY Section (Spinny Competitor Style) */}
+              {/* BUY Section */}
               <div>
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 text-left">BUY</h3>
+                <h3 className="text-[11px] font-medium text-slate-400 uppercase tracking-widest mb-3 text-left">BUY</h3>
 
                 {/* By category */}
                 <div className="mb-4">
-                  <h4 className="text-xs font-bold text-[#0C1B33] mb-2.5 text-left">By category</h4>
+                  <h4 className="text-xs font-semibold text-[#0C1B33] mb-2.5 text-left">By category</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       {
                         name: 'MAX',
                         subtitle: 'Luxury cars',
                         icon: '🏆',
-                        bgColor: 'bg-[#FDF2F4]',
-                        textColor: 'text-[#E11D48]',
                         query: { budget: '10 L +' }
                       },
                       {
                         name: 'Assured+',
                         subtitle: 'Premium benefits',
                         icon: '⭐',
-                        bgColor: 'bg-[#F5F3FF]',
-                        textColor: 'text-[#7C3AED]',
                         query: { certification: 'Assured+' }
                       },
                       {
                         name: 'Assured',
                         subtitle: 'Quality cars',
                         icon: '✅',
-                        bgColor: 'bg-[#ECFDF5]',
-                        textColor: 'text-[#059669]',
                         query: { certification: 'Assured' }
                       },
                       {
                         name: 'budget',
                         subtitle: 'Value picks',
                         icon: '💸',
-                        bgColor: 'bg-[#EFF6FF]',
-                        textColor: 'text-[#2563EB]',
                         query: { budget: 'Under 3 L' }
                       }
                     ].map((cat, idx) => (
@@ -651,13 +643,13 @@ const Header = () => {
                         }}
                         className="flex flex-col items-center cursor-pointer group text-center"
                       >
-                        {/* Soft Pastel Box containing Logo + Category Name */}
-                        <div className={`w-full h-16 ${cat.bgColor} ${cat.textColor} rounded-2xl flex flex-col items-center justify-center p-1 shadow-xs group-hover:scale-105 active:scale-95 transition-all duration-200`}>
-                          <span className="text-xl leading-none mb-0.5 group-hover:scale-110 transition-transform">{cat.icon}</span>
-                          <span className="text-[11px] font-black leading-tight tracking-tight">{cat.name}</span>
+                        {/* Clean Brand Styling Box (No random pastel colors) */}
+                        <div className="w-full h-15 bg-slate-50 hover:bg-[#13EDE5]/10 border border-slate-200/80 hover:border-[#13EDE5] text-[#0C1B33] rounded-2xl flex flex-col items-center justify-center p-1 transition-all duration-200">
+                          <span className="text-lg leading-none mb-0.5 group-hover:scale-110 transition-transform">{cat.icon}</span>
+                          <span className="text-[11px] font-semibold text-[#0C1B33] leading-tight tracking-tight">{cat.name}</span>
                         </div>
-                        {/* Subtitle written BELOW the pastel box */}
-                        <span className="text-[9px] text-slate-500 font-semibold leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
+                        {/* Subtitle written BELOW the box */}
+                        <span className="text-[9px] text-slate-500 font-normal leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
                       </button>
                     ))}
                   </div>
@@ -665,7 +657,7 @@ const Header = () => {
 
                 {/* By body type */}
                 <div className="mb-4">
-                  <h4 className="text-xs font-bold text-[#0C1B33] mb-2 text-left">By body type</h4>
+                  <h4 className="text-xs font-semibold text-[#0C1B33] mb-2 text-left">By body type</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
@@ -681,10 +673,10 @@ const Header = () => {
                         }}
                         className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group text-center"
                       >
-                        <span className="text-3xl mb-1 group-hover:scale-115 transition-transform duration-200 filter drop-shadow-xs">
+                        <span className="text-2.5xl mb-1 group-hover:scale-115 transition-transform duration-200 filter drop-shadow-xs">
                           {type.icon}
                         </span>
-                        <span className="text-xs font-semibold text-slate-700">{type.name}</span>
+                        <span className="text-xs font-medium text-slate-700">{type.name}</span>
                       </button>
                     ))}
                   </div>
@@ -694,7 +686,7 @@ const Header = () => {
                 <Link
                   to="/buy-cars"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-[#0C1B33] font-extrabold text-xs rounded-full flex items-center justify-center gap-1.5 transition-colors no-underline shadow-xs"
+                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#0C1B33] font-semibold text-xs rounded-full flex items-center justify-center gap-1.5 transition-colors no-underline"
                 >
                   <span>View all cars</span>
                   <ChevronRight size={16} className="text-[#0C1B33]" />
@@ -705,44 +697,42 @@ const Header = () => {
 
               {/* SELL Section */}
               <div className="text-left font-sans">
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">SELL</h3>
-                <div className="space-y-1">
+                <h3 className="text-[11px] font-medium text-slate-400 uppercase tracking-widest mb-3">SELL</h3>
+                <div className="space-y-0.5">
                   <Link
                     to="/sell-car"
-                    className="flex items-center gap-3.5 p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center gap-3 p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <span className="text-lg text-purple-600 group-hover:scale-110 transition-transform">🚘</span>
+                    <span className="text-base group-hover:scale-110 transition-transform">🚘</span>
                     <span>Sell car</span>
                   </Link>
 
                   <Link
                     to="/sell-car"
-                    className="flex items-center gap-3.5 p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center gap-3 p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <span className="text-lg text-purple-600 group-hover:scale-110 transition-transform">🛠️</span>
+                    <span className="text-base group-hover:scale-110 transition-transform">🛠️</span>
                     <span>Scrap car</span>
                   </Link>
 
                   <Link
                     to="/sell-car"
-                    className="flex items-center gap-3.5 p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center gap-3 p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <span className="text-lg text-purple-600 group-hover:scale-110 transition-transform">🏷️</span>
+                    <span className="text-base group-hover:scale-110 transition-transform">🏷️</span>
                     <span>Car valuation</span>
                   </Link>
 
-                  <div className="h-px bg-slate-100 my-2" />
-
                   <Link
                     to="/used-car-loan"
-                    className="flex items-center gap-3.5 p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center gap-3 p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <span className="text-lg text-purple-600 group-hover:scale-110 transition-transform">🏦</span>
-                    <span>Finance</span>
+                    <span className="text-base group-hover:scale-110 transition-transform">🏦</span>
+                    <span>Finance & Car Loan</span>
                   </Link>
                 </div>
               </div>
@@ -751,44 +741,44 @@ const Header = () => {
 
               {/* SERVICES & MORE Section */}
               <div className="text-left font-sans">
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">SERVICES & MORE</h3>
+                <h3 className="text-[11px] font-medium text-slate-400 uppercase tracking-widest mb-3">SERVICES & MORE</h3>
                 <div className="space-y-0.5">
 
                   <Link
                     to="/selectt-buyback"
-                    className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg group-hover:scale-115 transition-transform">🔄</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">🔄</span>
                       <span>Exchange & Buyback</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded-full bg-[#13EDE5] text-[#0A1C3A] shadow-xs tracking-wider">
+                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/selectt-assured"
-                    className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg group-hover:scale-115 transition-transform">🛠️</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">🛠️</span>
                       <span>Pro Service & Warranty</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded-full bg-[#13EDE5] text-[#0A1C3A] shadow-xs tracking-wider">
+                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/car-insurance"
-                    className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg group-hover:scale-115 transition-transform">🛡️</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">🛡️</span>
                       <span>Car Insurance</span>
                     </div>
                     <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
@@ -796,25 +786,25 @@ const Header = () => {
 
                   <Link
                     to="/e-challan"
-                    className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg group-hover:scale-115 transition-transform">📄</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">📄</span>
                       <span>Check Challan</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded-full bg-[#13EDE5] text-[#0A1C3A] shadow-xs tracking-wider">
+                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/pricing"
-                    className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg group-hover:scale-115 transition-transform">⛽</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">⛽</span>
                       <span>Recharge FASTag & EMI</span>
                     </div>
                     <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
@@ -822,11 +812,11 @@ const Header = () => {
 
                   <Link
                     to="/profile?tab=wishlisted"
-                    className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg group-hover:scale-115 transition-transform">💖</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">💖</span>
                       <span>Wishlist & Shortlist</span>
                     </div>
                     <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
@@ -834,11 +824,11 @@ const Header = () => {
 
                   <Link
                     to="/car-hub-locations"
-                    className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg group-hover:scale-115 transition-transform">📍</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">📍</span>
                       <span>Car Hub Locations</span>
                     </div>
                     <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
@@ -846,11 +836,11 @@ const Header = () => {
 
                   <Link
                     to="/customer-reviews"
-                    className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg group-hover:scale-115 transition-transform">🌟</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">🌟</span>
                       <span>Customer Reviews</span>
                     </div>
                     <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
@@ -858,11 +848,11 @@ const Header = () => {
 
                   <Link
                     to="/about-us"
-                    className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg group-hover:scale-115 transition-transform">ℹ️</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">ℹ️</span>
                       <span>About Us & FAQ</span>
                     </div>
                     <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
