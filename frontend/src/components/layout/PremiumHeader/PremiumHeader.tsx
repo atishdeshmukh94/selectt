@@ -989,227 +989,179 @@ export const PremiumHeader: React.FC = () => {
                 )}
               </div>
 
-              {/* BUY BY CATEGORY Grid (Clean Bordered Button Cards) */}
+              {/* BUY Section (Spinny Competitor Style) */}
               <div>
-                <h3 className="text-[11px] font-black text-[#0C1B33] uppercase tracking-widest mb-3 text-left">BUY BY CATEGORY</h3>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { name: 'MAX', subtitle: 'Luxury cars', icon: '🏆', color: '#d97706', query: { budget: '10 L +' } },
-                    { name: 'Assured+', subtitle: 'Premium perks', icon: '⭐', color: '#8b5cf6', query: { certification: 'Assured+' } },
-                    { name: 'Assured', subtitle: 'Quality cars', icon: '✅', color: '#10b981', query: { certification: 'Assured' } },
-                    { name: 'Budget', subtitle: 'Value picks', icon: '💸', color: '#2563eb', query: { budget: 'Under 3 L' } }
-                  ].map((cat, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        handleNavFilter(cat.query);
-                        setMobileMenuOpen(false);
-                      }}
-                      className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white border border-slate-200/90 hover:border-[#00C9AF] hover:bg-[#E6FAF7]/50 active:scale-95 transition-all duration-200 cursor-pointer group shadow-xs hover:shadow-md"
-                    >
-                      {/* 3D Animated Icon */}
-                      <span className="text-2.5xl mb-1 group-hover:scale-115 group-hover:-translate-y-0.5 transition-all duration-300 filter drop-shadow-sm">
-                        {cat.icon}
-                      </span>
-                      <span className="text-[11px] font-black text-[#0C1B33] text-center leading-tight">{cat.name}</span>
-                      <span className="text-[9px] text-slate-500 font-bold text-center leading-tight mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis w-full">{cat.subtitle}</span>
-                    </button>
-                  ))}
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 text-left">BUY</h3>
+
+                {/* By category */}
+                <div className="mb-4">
+                  <h4 className="text-xs font-bold text-[#0C1B33] mb-2.5 text-left">By category</h4>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      {
+                        name: 'MAX',
+                        subtitle: 'Luxury cars',
+                        icon: '🏆',
+                        bgColor: 'bg-[#FDF2F4]',
+                        textColor: 'text-[#E11D48]',
+                        query: { budget: '10 L +' }
+                      },
+                      {
+                        name: 'Assured+',
+                        subtitle: 'Premium benefits',
+                        icon: '⭐',
+                        bgColor: 'bg-[#F5F3FF]',
+                        textColor: 'text-[#7C3AED]',
+                        query: { certification: 'Assured+' }
+                      },
+                      {
+                        name: 'Assured',
+                        subtitle: 'Quality cars',
+                        icon: '✅',
+                        bgColor: 'bg-[#ECFDF5]',
+                        textColor: 'text-[#059669]',
+                        query: { certification: 'Assured' }
+                      },
+                      {
+                        name: 'budget',
+                        subtitle: 'Value picks',
+                        icon: '💸',
+                        bgColor: 'bg-[#EFF6FF]',
+                        textColor: 'text-[#2563EB]',
+                        query: { budget: 'Under 3 L' }
+                      }
+                    ].map((cat, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          handleNavFilter(cat.query);
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex flex-col items-center cursor-pointer group text-center"
+                      >
+                        {/* Soft Pastel Box containing Logo + Category Name */}
+                        <div className={`w-full h-16 ${cat.bgColor} ${cat.textColor} rounded-2xl flex flex-col items-center justify-center p-1 shadow-xs group-hover:scale-105 active:scale-95 transition-all duration-200`}>
+                          <span className="text-xl leading-none mb-0.5 group-hover:scale-110 transition-transform">{cat.icon}</span>
+                          <span className="text-[11px] font-black leading-tight tracking-tight">{cat.name}</span>
+                        </div>
+                        {/* Subtitle written BELOW the pastel box */}
+                        <span className="text-[9px] text-slate-500 font-semibold leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* BUY BY BODY TYPE Grid (Clean Bordered Button Cards) */}
-              <div className="pt-1">
-                <h3 className="text-[11px] font-black text-[#0C1B33] uppercase tracking-widest mb-3 text-left">BUY BY BODY TYPE</h3>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
-                    { name: 'MUV', icon: '🚐', query: { body_type: ['MUV'] } },
-                    { name: 'Hatchback', icon: '🚗', query: { body_type: ['Hatchback'] } },
-                    { name: 'Sedan', icon: '🏎️', query: { body_type: ['Sedan'] } }
-                  ].map((type, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        handleNavFilter(type.query);
-                        setMobileMenuOpen(false);
-                      }}
-                      className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white border border-slate-200/90 hover:border-[#00C9AF] hover:bg-[#E6FAF7]/50 active:scale-95 transition-all duration-200 cursor-pointer group shadow-xs hover:shadow-md"
-                    >
-                      {/* 3D Animated Icon */}
-                      <span className="text-2.5xl mb-1 group-hover:scale-115 group-hover:-translate-y-0.5 transition-all duration-300 filter drop-shadow-sm">
-                        {type.icon}
-                      </span>
-                      <span className="text-[11px] font-black text-[#0C1B33] text-center truncate w-full">{type.name}</span>
-                    </button>
-                  ))}
+                {/* By body type */}
+                <div className="mb-4">
+                  <h4 className="text-xs font-bold text-[#0C1B33] mb-2 text-left">By body type</h4>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
+                      { name: 'MUV', icon: '🚐', query: { body_type: ['MUV'] } },
+                      { name: 'Hatchback', icon: '🚗', query: { body_type: ['Hatchback'] } },
+                      { name: 'Sedan', icon: '🏎️', query: { body_type: ['Sedan'] } }
+                    ].map((type, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          handleNavFilter(type.query);
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group text-center"
+                      >
+                        <span className="text-3xl mb-1 group-hover:scale-115 transition-transform duration-200 filter drop-shadow-xs">
+                          {type.icon}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-700">{type.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <div className="h-px bg-slate-100 my-2" />
-
-              {/* Spinny-Style Clean List Items Navigation */}
-              <div className="space-y-0.5 text-left font-sans">
-
+                {/* Full-width View All Cars Pill Button */}
                 <Link
                   to="/buy-cars"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
                   onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-[#0C1B33] font-extrabold text-xs rounded-full flex items-center justify-center gap-1.5 transition-colors no-underline shadow-xs"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">🚗</span>
-                    <span>Buy Car</span>
-                  </div>
-                  <IconChevronRight size={16} className="text-slate-400 group-hover:text-[#00A884] group-hover:translate-x-0.5 transition-all" />
-                </Link>
-
-                <Link
-                  to="/sell-car"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">🏷️</span>
-                    <span>Car Valuation & Sell Car</span>
-                  </div>
-                  <IconChevronRight size={16} className="text-slate-400 group-hover:text-[#00A884] group-hover:translate-x-0.5 transition-all" />
-                </Link>
-
-                <Link
-                  to="/used-car-loan"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">🏦</span>
-                    <span>Car Loan & Finance</span>
-                  </div>
-                  <IconChevronRight size={16} className="text-slate-400 group-hover:text-[#00A884] group-hover:translate-x-0.5 transition-all" />
-                </Link>
-
-                <Link
-                  to="/selectt-buyback"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">🔄</span>
-                    <span>Exchange & Buyback</span>
-                  </div>
-                  <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded-full bg-[#00E9C2] text-[#0A1C3A] shadow-sm tracking-wider">
-                    NEW
-                  </span>
-                </Link>
-
-                <Link
-                  to="/selectt-assured"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">🛠️</span>
-                    <span>Pro Service & Warranty</span>
-                  </div>
-                  <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded-full bg-[#00E9C2] text-[#0A1C3A] shadow-sm tracking-wider">
-                    NEW
-                  </span>
-                </Link>
-
-                <Link
-                  to="/car-insurance"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">🛡️</span>
-                    <span>Car Insurance</span>
-                  </div>
-                  <IconChevronRight size={16} className="text-slate-400 group-hover:text-[#00A884] group-hover:translate-x-0.5 transition-all" />
-                </Link>
-
-                <Link
-                  to="/e-challan"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">📄</span>
-                    <span>Check Challan</span>
-                  </div>
-                  <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded-full bg-[#00E9C2] text-[#0A1C3A] shadow-sm tracking-wider">
-                    NEW
-                  </span>
-                </Link>
-
-                <Link
-                  to="/pricing"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">⛽</span>
-                    <span>Recharge FASTag & EMI</span>
-                  </div>
-                  <IconChevronRight size={16} className="text-slate-400 group-hover:text-[#00A884] group-hover:translate-x-0.5 transition-all" />
-                </Link>
-
-                <Link
-                  to="/profile?tab=wishlisted"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">💖</span>
-                    <span>Wishlist & Shortlist</span>
-                  </div>
-                  <IconChevronRight size={16} className="text-slate-400 group-hover:text-[#00A884] group-hover:translate-x-0.5 transition-all" />
-                </Link>
-
-                <Link
-                  to="/car-hub-locations"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">📍</span>
-                    <span>Car Hub Locations</span>
-                  </div>
-                  <IconChevronRight size={16} className="text-slate-400 group-hover:text-[#00A884] group-hover:translate-x-0.5 transition-all" />
-                </Link>
-
-                <Link
-                  to="/customer-reviews"
-                  className="flex items-center justify-between p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 hover:text-[#00A884] transition-colors no-underline group"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg group-hover:scale-115 transition-transform">🌟</span>
-                    <span>Customer Reviews</span>
-                  </div>
-                  <IconChevronRight size={16} className="text-slate-400 group-hover:text-[#00A884] group-hover:translate-x-0.5 transition-all" />
+                  <span>View all cars</span>
+                  <IconChevronRight size={16} className="text-[#0C1B33]" />
                 </Link>
               </div>
 
-              {/* Spinny-Style Soft Lavender Help Banner at Bottom */}
-              <div className="pt-2 pb-4">
+              <div className="h-px bg-slate-100 my-4" />
+
+              {/* SELL Section */}
+              <div className="text-left font-sans">
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">SELL</h3>
+                <div className="space-y-1">
+                  <Link
+                    to="/sell-car"
+                    className="flex items-center gap-3.5 p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span className="text-lg text-purple-600 group-hover:scale-110 transition-transform">🚘</span>
+                    <span>Sell car</span>
+                  </Link>
+
+                  <Link
+                    to="/sell-car"
+                    className="flex items-center gap-3.5 p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span className="text-lg text-purple-600 group-hover:scale-110 transition-transform">🛠️</span>
+                    <span>Scrap car</span>
+                  </Link>
+
+                  <Link
+                    to="/sell-car"
+                    className="flex items-center gap-3.5 p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span className="text-lg text-purple-600 group-hover:scale-110 transition-transform">🏷️</span>
+                    <span>Car valuation</span>
+                  </Link>
+
+                  <div className="h-px bg-slate-100 my-2" />
+
+                  <Link
+                    to="/used-car-loan"
+                    className="flex items-center gap-3.5 p-3 rounded-xl text-slate-800 font-extrabold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span className="text-lg text-purple-600 group-hover:scale-110 transition-transform">🏦</span>
+                    <span>Finance</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="h-px bg-slate-100 my-3" />
+
+              {/* Spinny-Style Soft Lavender Help Banner & App CTA */}
+              <div className="space-y-2 pt-1 pb-4">
                 <a
                   href="tel:+91-857466-7466"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between p-3.5 bg-gradient-to-r from-teal-50/80 via-emerald-50/60 to-teal-50/80 border border-[#00E9C2]/40 rounded-2xl shadow-sm text-left no-underline group hover:border-[#00E9C2] transition-colors"
+                  className="flex items-center gap-3.5 p-3.5 bg-[#F3E8FF] border border-[#E9D5FF] rounded-2xl shadow-xs text-left no-underline group hover:bg-[#E9D5FF]/60 transition-colors"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#00E9C2] text-[#0A1C3A] flex items-center justify-center shadow-md shadow-[#00E9C2]/30 group-hover:scale-110 transition-transform shrink-0">
-                      <IconPhone size={18} />
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-extrabold text-[#00A884] uppercase tracking-widest">Need Help?</div>
-                      <div className="text-xs font-black text-slate-900">Call us at 727-727-7275</div>
-                    </div>
+                  <div className="w-10 h-10 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-md shrink-0 group-hover:scale-105 transition-transform">
+                    <IconPhone size={18} />
                   </div>
-                  <IconChevronRight size={18} className="text-[#00A884] group-hover:translate-x-0.5 transition-transform" />
+                  <div>
+                    <div className="text-[10px] font-extrabold text-[#7C3AED] uppercase tracking-wider">Need help?</div>
+                    <div className="text-xs font-black text-[#4C1D95]">Call us at 8574667466</div>
+                  </div>
                 </a>
-              </div>
 
+                <Link
+                  to="/buy-cars"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-[#0C1B33] font-black text-xs rounded-full flex items-center justify-center gap-2 transition-colors no-underline shadow-xs"
+                >
+                  <span className="text-sm">📱</span>
+                  <span>Get the Selectt App</span>
+                </Link>
+              </div>
             </div>
           </div>
         </>
