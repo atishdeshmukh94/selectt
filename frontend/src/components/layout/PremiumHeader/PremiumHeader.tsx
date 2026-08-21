@@ -1137,30 +1137,21 @@ export const PremiumHeader: React.FC = () => {
 
               <div className="h-px bg-slate-100 my-3" />
 
-              {/* Spinny-Style Soft Lavender Help Banner & App CTA */}
-              <div className="space-y-2 pt-1 pb-4">
+              {/* Brand Color #13EDE5 Help Banner at Bottom */}
+              <div className="pt-1 pb-4">
                 <a
                   href="tel:+91-857466-7466"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3.5 p-3.5 bg-[#F3E8FF] border border-[#E9D5FF] rounded-2xl shadow-xs text-left no-underline group hover:bg-[#E9D5FF]/60 transition-colors"
+                  className="flex items-center gap-3.5 p-3.5 bg-[#13EDE5]/15 border border-[#13EDE5]/40 rounded-2xl shadow-xs text-left no-underline group hover:bg-[#13EDE5]/25 transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-md shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-10 h-10 rounded-full bg-[#13EDE5] text-[#0C1B33] flex items-center justify-center shadow-md shadow-[#13EDE5]/30 shrink-0 group-hover:scale-105 transition-transform">
                     <IconPhone size={18} />
                   </div>
                   <div>
-                    <div className="text-[10px] font-extrabold text-[#7C3AED] uppercase tracking-wider">Need help?</div>
-                    <div className="text-xs font-black text-[#4C1D95]">Call us at 8574667466</div>
+                    <div className="text-[10px] font-extrabold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
+                    <div className="text-xs font-black text-[#0C1B33]">Call us at 8574667466</div>
                   </div>
                 </a>
-
-                <Link
-                  to="/buy-cars"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-[#0C1B33] font-black text-xs rounded-full flex items-center justify-center gap-2 transition-colors no-underline shadow-xs"
-                >
-                  <span className="text-sm">📱</span>
-                  <span>Get the Selectt App</span>
-                </Link>
               </div>
             </div>
           </div>
