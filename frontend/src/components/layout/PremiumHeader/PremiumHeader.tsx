@@ -886,13 +886,13 @@ export const PremiumHeader: React.FC = () => {
                 }}
                 className="flex items-center gap-3 text-white no-underline flex-1"
               >
-                <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#13EDE5] to-[#00FFDC] text-[#0C1B33] font-black flex items-center justify-center shadow-md shadow-[#13EDE5]/30 shrink-0 overflow-hidden p-1.5 border border-white/20">
+                <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-md shadow-[#13EDE5]/30 shrink-0 overflow-hidden p-2 border border-white/30">
                   <img
-                    src={logoUrl || "/img/light-logo.svg"}
-                    alt="Selectt Logo"
-                    className="w-full h-full object-contain filter drop-shadow-xs"
+                    src="/img/favicon.png"
+                    alt="Selectt Favicon"
+                    className="w-full h-full object-contain"
                     onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
+                      (e.target as HTMLImageElement).src = logoUrl || "/img/light-logo.svg";
                     }}
                   />
                 </div>
