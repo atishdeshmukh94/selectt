@@ -92,7 +92,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return <PagePreloader message="Initializing Selectt..." minDisplayTime={4000} />;
+    return <PagePreloader minDisplayTime={4000} />;
   }
 
   if (maintenanceMode) {
