@@ -606,103 +606,107 @@ const Header = () => {
               </button>
             </div>
 
-            {/* Content (Crisp Light Canvas) */}
-            <div className="p-4 space-y-5 bg-white text-[#0C1B33]">
-              {/* BUY Section */}
-              <div>
-                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-left">BUY</h3>
+            {/* Scrollable Drawer Body with Seamless 3-Zone Flow */}
+            <div className="bg-white text-[#0C1B33]">
 
-                {/* By category */}
-                <div className="mb-4">
-                  <h4 className="text-xs font-semibold text-[#0C1B33] mb-2.5 text-left">By category</h4>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[
-                      {
-                        name: 'MAX',
-                        subtitle: 'Luxury cars',
-                        icon: '🏆',
-                        query: { budget: '10 L +' }
-                      },
-                      {
-                        name: 'Assured+',
-                        subtitle: 'Premium benefits',
-                        icon: '⭐',
-                        query: { certification: 'Assured+' }
-                      },
-                      {
-                        name: 'Assured',
-                        subtitle: 'Quality cars',
-                        icon: '✅',
-                        query: { certification: 'Assured' }
-                      },
-                      {
-                        name: 'budget',
-                        subtitle: 'Value picks',
-                        icon: '💸',
-                        query: { budget: 'Under 3 L' }
-                      }
-                    ].map((cat, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          handleNavFilter(cat.query);
-                          setMobileMenuOpen(false);
-                        }}
-                        className="flex flex-col items-center cursor-pointer group text-center"
-                      >
-                        {/* Clean Brand Styling Box */}
-                        <div className="w-full h-15 bg-slate-50 hover:bg-[#13EDE5]/10 border border-slate-200 hover:border-[#13EDE5] text-[#0C1B33] rounded-2xl flex flex-col items-center justify-center p-1 transition-all duration-200">
-                          <span className="text-lg leading-none mb-0.5 group-hover:scale-110 transition-transform">{cat.icon}</span>
-                          <span className="text-[11px] font-semibold text-[#0C1B33] leading-tight tracking-tight">{cat.name}</span>
-                        </div>
-                        {/* Subtitle written BELOW the box */}
-                        <span className="text-[9px] text-slate-500 font-medium leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
-                      </button>
-                    ))}
+              {/* 1. TOP ZONE (WHITE): BUY */}
+              <div className="p-4 space-y-5 bg-white">
+                {/* BUY Section */}
+                <div>
+                  <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-left">BUY</h3>
+
+                  {/* By category */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-[#0C1B33] mb-2.5 text-left">By category</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        {
+                          name: 'MAX',
+                          subtitle: 'Luxury cars',
+                          icon: '🏆',
+                          query: { budget: '10 L +' }
+                        },
+                        {
+                          name: 'Assured+',
+                          subtitle: 'Premium benefits',
+                          icon: '⭐',
+                          query: { certification: 'Assured+' }
+                        },
+                        {
+                          name: 'Assured',
+                          subtitle: 'Quality cars',
+                          icon: '✅',
+                          query: { certification: 'Assured' }
+                        },
+                        {
+                          name: 'budget',
+                          subtitle: 'Value picks',
+                          icon: '💸',
+                          query: { budget: 'Under 3 L' }
+                        }
+                      ].map((cat, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            handleNavFilter(cat.query);
+                            setMobileMenuOpen(false);
+                          }}
+                          className="flex flex-col items-center cursor-pointer group text-center"
+                        >
+                          {/* Clean Brand Styling Box */}
+                          <div className="w-full h-15 bg-slate-50 hover:bg-[#13EDE5]/10 border border-slate-200 hover:border-[#13EDE5] text-[#0C1B33] rounded-2xl flex flex-col items-center justify-center p-1 transition-all duration-200">
+                            <span className="text-lg leading-none mb-0.5 group-hover:scale-110 transition-transform">{cat.icon}</span>
+                            <span className="text-[11px] font-semibold text-[#0C1B33] leading-tight tracking-tight">{cat.name}</span>
+                          </div>
+                          {/* Subtitle written BELOW the box */}
+                          <span className="text-[9px] text-slate-500 font-medium leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* By body type */}
-                <div className="mb-4">
-                  <h4 className="text-xs font-semibold text-[#0C1B33] mb-2 text-left">By body type</h4>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[
-                      { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
-                      { name: 'MUV', icon: '🚐', query: { body_type: ['MUV'] } },
-                      { name: 'Hatchback', icon: '🚗', query: { body_type: ['Hatchback'] } },
-                      { name: 'Sedan', icon: '🏎️', query: { body_type: ['Sedan'] } }
-                    ].map((type, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          handleNavFilter(type.query);
-                          setMobileMenuOpen(false);
-                        }}
-                        className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group text-center"
-                      >
-                        <span className="text-2.5xl mb-1 group-hover:scale-115 transition-transform duration-200 filter drop-shadow-xs">
-                          {type.icon}
-                        </span>
-                        <span className="text-xs font-semibold text-slate-800">{type.name}</span>
-                      </button>
-                    ))}
+                  {/* By body type */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-[#0C1B33] mb-2 text-left">By body type</h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
+                        { name: 'MUV', icon: '🚐', query: { body_type: ['MUV'] } },
+                        { name: 'Hatchback', icon: '🚗', query: { body_type: ['Hatchback'] } },
+                        { name: 'Sedan', icon: '🏎️', query: { body_type: ['Sedan'] } }
+                      ].map((type, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            handleNavFilter(type.query);
+                            setMobileMenuOpen(false);
+                          }}
+                          className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-slate-50 active:scale-95 transition-all cursor-pointer group text-center"
+                        >
+                          <span className="text-2.5xl mb-1 group-hover:scale-115 transition-transform duration-200 filter drop-shadow-xs">
+                            {type.icon}
+                          </span>
+                          <span className="text-xs font-semibold text-slate-800">{type.name}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Full-width View All Cars Pill Button */}
-                <Link
-                  to="/buy-cars"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#0C1B33] font-semibold text-xs rounded-full flex items-center justify-center gap-1.5 transition-colors no-underline"
-                >
-                  <span>View all cars</span>
-                  <ChevronRight size={16} className="text-[#0C1B33]" />
-                </Link>
+                  {/* Full-width View All Cars Pill Button */}
+                  <Link
+                    to="/buy-cars"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#0C1B33] font-semibold text-xs rounded-full flex items-center justify-center gap-1.5 transition-colors no-underline"
+                  >
+                    <span>View all cars</span>
+                    <ChevronRight size={16} className="text-[#0C1B33]" />
+                  </Link>
+                </div>
               </div>
 
-              {/* SELL Section (Dark Navy #0C1B33 Theme) */}
-              <div className="bg-[#0C1B33] text-white rounded-3xl p-4 shadow-md text-left font-sans my-4 border border-[#0C1B33]">
-                <h3 className="text-[11px] font-bold text-[#13EDE5] uppercase tracking-widest mb-2.5">SELL</h3>
+              {/* 2. CENTER ZONE (NAVY BLUE #0C1B33): SELL (Full Bleed Edge-to-Edge, Square) */}
+              <div className="bg-[#0C1B33] text-white px-4 py-5 text-left font-sans shadow-inner">
+                <h3 className="text-[11px] font-bold text-[#13EDE5] uppercase tracking-widest mb-3">SELL</h3>
                 <div className="space-y-1">
                   <Link
                     to="/sell-car"
@@ -742,147 +746,147 @@ const Header = () => {
                 </div>
               </div>
 
-              <div className="h-px bg-slate-100 my-4" />
+              {/* 3. BOTTOM ZONE (LIGHT WHITE): SERVICES & MORE */}
+              <div className="p-4 bg-white space-y-4">
+                <div className="text-left font-sans">
+                  <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">SERVICES & MORE</h3>
+                  <div className="space-y-0.5">
 
-              {/* SERVICES & MORE Section */}
-              <div className="text-left font-sans">
-                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">SERVICES & MORE</h3>
-                <div className="space-y-0.5">
+                    <Link
+                      to="/selectt-buyback"
+                      className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base group-hover:scale-110 transition-transform">🔄</span>
+                        <span>Exchange & Buyback</span>
+                      </div>
+                      <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                        NEW
+                      </span>
+                    </Link>
 
-                  <Link
-                    to="/selectt-buyback"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">🔄</span>
-                      <span>Exchange & Buyback</span>
-                    </div>
-                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
-                      NEW
-                    </span>
-                  </Link>
+                    <Link
+                      to="/selectt-assured"
+                      className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base group-hover:scale-110 transition-transform">🛠️</span>
+                        <span>Pro Service & Warranty</span>
+                      </div>
+                      <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                        NEW
+                      </span>
+                    </Link>
 
-                  <Link
-                    to="/selectt-assured"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">🛠️</span>
-                      <span>Pro Service & Warranty</span>
-                    </div>
-                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
-                      NEW
-                    </span>
-                  </Link>
+                    <Link
+                      to="/car-insurance"
+                      className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base group-hover:scale-110 transition-transform">🛡️</span>
+                        <span>Car Insurance</span>
+                      </div>
+                      <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    </Link>
 
-                  <Link
-                    to="/car-insurance"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">🛡️</span>
-                      <span>Car Insurance</span>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
-                  </Link>
+                    <Link
+                      to="/e-challan"
+                      className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base group-hover:scale-110 transition-transform">📄</span>
+                        <span>Check Challan</span>
+                      </div>
+                      <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                        NEW
+                      </span>
+                    </Link>
 
-                  <Link
-                    to="/e-challan"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">📄</span>
-                      <span>Check Challan</span>
-                    </div>
-                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
-                      NEW
-                    </span>
-                  </Link>
+                    <Link
+                      to="/pricing"
+                      className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base group-hover:scale-110 transition-transform">⛽</span>
+                        <span>Recharge FASTag & EMI</span>
+                      </div>
+                      <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    </Link>
 
-                  <Link
-                    to="/pricing"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">⛽</span>
-                      <span>Recharge FASTag & EMI</span>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
-                  </Link>
+                    <Link
+                      to="/profile?tab=wishlisted"
+                      className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base group-hover:scale-110 transition-transform">💖</span>
+                        <span>Wishlist & Shortlist</span>
+                      </div>
+                      <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    </Link>
 
-                  <Link
-                    to="/profile?tab=wishlisted"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">💖</span>
-                      <span>Wishlist & Shortlist</span>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
-                  </Link>
+                    <Link
+                      to="/car-hub-locations"
+                      className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base group-hover:scale-110 transition-transform">📍</span>
+                        <span>Car Hub Locations</span>
+                      </div>
+                      <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    </Link>
 
-                  <Link
-                    to="/car-hub-locations"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">📍</span>
-                      <span>Car Hub Locations</span>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
-                  </Link>
+                    <Link
+                      to="/customer-reviews"
+                      className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base group-hover:scale-110 transition-transform">🌟</span>
+                        <span>Customer Reviews</span>
+                      </div>
+                      <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    </Link>
 
-                  <Link
-                    to="/customer-reviews"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">🌟</span>
-                      <span>Customer Reviews</span>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
-                  </Link>
+                    <Link
+                      to="/about-us"
+                      className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base group-hover:scale-110 transition-transform">ℹ️</span>
+                        <span>About Us & FAQ</span>
+                      </div>
+                      <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    </Link>
 
-                  <Link
-                    to="/about-us"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">ℹ️</span>
-                      <span>About Us & FAQ</span>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
-                  </Link>
-
+                  </div>
                 </div>
-              </div>
 
-              <div className="h-px bg-slate-100 my-3" />
+                <div className="h-px bg-slate-100 my-3" />
 
-              {/* Brand Color #13EDE5 Help Banner at Bottom */}
-              <div className="pt-1 pb-4">
-                <a
-                  href="tel:+91-857466-7466"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3.5 p-3.5 bg-[#13EDE5]/15 border border-[#13EDE5]/40 rounded-2xl shadow-xs text-left no-underline group hover:bg-[#13EDE5]/25 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-full bg-[#13EDE5] text-[#0C1B33] flex items-center justify-center shadow-md shadow-[#13EDE5]/30 shrink-0 group-hover:scale-105 transition-transform">
-                    <Phone size={18} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-extrabold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
-                    <div className="text-xs font-black text-[#0C1B33]">Call us at 8574667466</div>
-                  </div>
-                </a>
+                {/* Brand Color #13EDE5 Help Banner at Bottom */}
+                <div className="pt-1 pb-4">
+                  <a
+                    href="tel:+91-857466-7466"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3.5 p-3.5 bg-[#13EDE5]/15 border border-[#13EDE5]/40 rounded-2xl shadow-xs text-left no-underline group hover:bg-[#13EDE5]/25 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-[#13EDE5] text-[#0C1B33] flex items-center justify-center shadow-md shadow-[#13EDE5]/30 shrink-0 group-hover:scale-105 transition-transform">
+                      <Phone size={18} />
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-extrabold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
+                      <div className="text-xs font-black text-[#0C1B33]">Call us at 8574667466</div>
+                    </div>
+                  </a>
+                </div>
               </div>
             </div>
           </div>

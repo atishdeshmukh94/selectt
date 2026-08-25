@@ -67,16 +67,18 @@ function App() {
     const fetchSettings = async () => {
       const startTime = Date.now();
       try {
-        const res = await fetch(`${API_URL}/settings`);
-        const data = await res.json();
-        if (data.site_logo) {
-          setLogo(data.site_logo);
-        } else if (data.admin_logo) {
-          setLogo(data.admin_logo);
-        }
-        if (data.maintenance_mode === true) {
-          setMaintenanceMode(true);
-          setMaintenanceMessage(data.maintenance_message);
+        const res = await fetch(`${API_URL}/api/settings/public`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.site_logo) {
+            setLogo(data.site_logo);
+          } else if (data.admin_logo_dark || data.auth_logo) {
+            setLogo(data.admin_logo_dark || data.auth_logo);
+          }
+          if (data.maintenance_mode === true) {
+            setMaintenanceMode(true);
+            setMaintenanceMessage(data.maintenance_message || 'Site is under maintenance');
+          }
         }
       } catch (err) {
         console.error('Error fetching settings:', err);
