@@ -2073,8 +2073,18 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                     <div className="divide-y divide-slate-100 max-h-[380px] overflow-y-auto no-scrollbar scrollbar-hide pr-1">
                       {activeModelList
                         .filter(m => m.toLowerCase().includes(searchQuery.toLowerCase()))
-                        .map((m) => {
-                          const modelImg = getModelImageUrl(formData.brandName, m);
+                        .map((m, idx) => {
+                          const carIcons = ['🚘', '🚗', '🚙', '🏎️'];
+                          const badgeGradients = [
+                            'bg-gradient-to-br from-cyan-100/80 to-blue-100/60 border-cyan-200 text-cyan-700',
+                            'bg-gradient-to-br from-amber-100/80 to-orange-100/60 border-amber-200 text-amber-700',
+                            'bg-gradient-to-br from-emerald-100/80 to-teal-100/60 border-emerald-200 text-emerald-700',
+                            'bg-gradient-to-br from-purple-100/80 to-indigo-100/60 border-purple-200 text-purple-700',
+                            'bg-gradient-to-br from-rose-100/80 to-pink-100/60 border-rose-200 text-rose-700'
+                          ];
+                          const icon = carIcons[idx % carIcons.length];
+                          const gradient = badgeGradients[idx % badgeGradients.length];
+
                           return (
                             <button
                               key={m}
@@ -2083,22 +2093,18 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                                 setActiveTab(3);
                                 setSearchQuery('');
                               }}
-                              className="w-full py-3.5 px-3 flex items-center justify-between font-bold text-sm sm:text-base text-slate-800 hover:text-[#00C9AF] hover:bg-[#00C9AF]/10 transition-colors rounded-xl group text-left"
+                              className="w-full py-3 px-3 flex items-center justify-between font-bold text-sm sm:text-base text-slate-800 hover:text-[#0C1B33] hover:bg-[#15E6E3]/10 transition-all rounded-2xl group text-left my-0.5"
                             >
                               <div className="flex items-center gap-3.5">
-                                <div className="w-14 h-10 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-center p-1 shrink-0 overflow-hidden group-hover:border-[#00C9AF]/50 transition-colors">
-                                  <img
-                                    src={modelImg}
-                                    alt={m}
-                                    className="w-full h-full object-contain"
-                                    onError={(e) => {
-                                      e.currentTarget.src = "/img/suv.png";
-                                    }}
-                                  />
+                                {/* Colorful 3D Model Pointer / Icon Badge */}
+                                <div className={`w-10 h-10 rounded-2xl ${gradient} border flex items-center justify-center shrink-0 transition-all shadow-xs group-hover:scale-110 text-xl`}>
+                                  <span className="leading-none filter drop-shadow-xs">{icon}</span>
                                 </div>
-                                <span>{m}</span>
+                                <span className="font-bold text-slate-800 group-hover:text-[#0C1B33]">{m}</span>
                               </div>
-                              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#00C9AF] group-hover:translate-x-1 transition-all" />
+                              <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-[#15E6E3] text-slate-400 group-hover:text-[#0C1B33] flex items-center justify-center transition-all shrink-0">
+                                <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                              </div>
                             </button>
                           );
                         })}

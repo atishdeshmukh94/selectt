@@ -700,15 +700,13 @@ const Header = () => {
                 </Link>
               </div>
 
-              <div className="h-px bg-slate-100 my-4" />
-
-              {/* SELL Section */}
-              <div className="text-left font-sans">
-                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">SELL</h3>
-                <div className="space-y-0.5">
+              {/* SELL Section (Dark Navy #0C1B33 Theme) */}
+              <div className="bg-[#0C1B33] text-white rounded-3xl p-4 shadow-md text-left font-sans my-4 border border-[#0C1B33]">
+                <h3 className="text-[11px] font-bold text-[#13EDE5] uppercase tracking-widest mb-2.5">SELL</h3>
+                <div className="space-y-1">
                   <Link
                     to="/sell-car"
-                    className="flex items-center gap-3 p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
+                    className="flex items-center gap-3 p-2.5 rounded-xl text-white font-semibold text-sm hover:bg-white/10 hover:text-[#13EDE5] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="text-base group-hover:scale-110 transition-transform">🚘</span>
@@ -717,7 +715,7 @@ const Header = () => {
 
                   <Link
                     to="/sell-car"
-                    className="flex items-center gap-3 p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
+                    className="flex items-center gap-3 p-2.5 rounded-xl text-white font-semibold text-sm hover:bg-white/10 hover:text-[#13EDE5] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="text-base group-hover:scale-110 transition-transform">🛠️</span>
@@ -726,7 +724,7 @@ const Header = () => {
 
                   <Link
                     to="/sell-car"
-                    className="flex items-center gap-3 p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
+                    className="flex items-center gap-3 p-2.5 rounded-xl text-white font-semibold text-sm hover:bg-white/10 hover:text-[#13EDE5] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="text-base group-hover:scale-110 transition-transform">🏷️</span>
@@ -735,7 +733,7 @@ const Header = () => {
 
                   <Link
                     to="/used-car-loan"
-                    className="flex items-center gap-3 p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
+                    className="flex items-center gap-3 p-2.5 rounded-xl text-white font-semibold text-sm hover:bg-white/10 hover:text-[#13EDE5] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="text-base group-hover:scale-110 transition-transform">🏦</span>
