@@ -302,6 +302,106 @@ const MODEL_VARIANTS_MAP = {
   }
 };
 
+const MODEL_IMAGE_MAP = {
+  // Mahindra
+  'Scorpio': '/img/suv.png',
+  'Thar': '/img/suv.png',
+  'XUV300': '/img/suv.png',
+  'XUV700': '/img/suv.png',
+  'ScorpioN': '/img/suv.png',
+  'Bolero': '/img/suv.png',
+
+  // Maruti Suzuki
+  'Swift': '/img/hatchback.png',
+  'Baleno': '/img/hatchback.png',
+  'Brezza': '/img/suv.png',
+  'Grand Vitara': '/img/suv.png',
+  'Dzire': '/img/sedan.png',
+  'Fronx': '/img/suv.png',
+  'Ertiga': '/img/muv.png',
+  'Alto': '/img/hatchback.png',
+  'WagonR': '/img/hatchback.png',
+  'Ciaz': '/img/sedan.png',
+
+  // Hyundai
+  'Creta': '/img/suv.png',
+  'i20': '/img/hatchback.png',
+  'Venue': '/img/suv.png',
+  'Verna': '/img/sedan.png',
+  'Exter': '/img/suv.png',
+  'Grand i10 Nios': '/img/hatchback.png',
+  'Tucson': '/img/luxury-suv.png',
+
+  // Tata
+  'Nexon': '/img/suv.png',
+  'Punch': '/img/suv.png',
+  'Harrier': '/img/luxury-suv.png',
+  'Safari': '/img/luxury-suv.png',
+  'Altroz': '/img/hatchback.png',
+  'Tiago': '/img/hatchback.png',
+  'Tigor': '/img/sedan.png',
+
+  // Honda
+  'City': '/img/sedan.png',
+  'Amaze': '/img/sedan.png',
+  'Elevate': '/img/suv.png',
+  'Jazz': '/img/hatchback.png',
+  'Civic': '/img/luxury-sedan.png',
+
+  // Toyota
+  'Fortuner': '/img/luxury-suv.png',
+  'InnovaCrysta': '/img/muv.png',
+  'Innova': '/img/muv.png',
+  'Glanza': '/img/hatchback.png',
+  'Urban Cruiser Hyryder': '/img/suv.png',
+
+  // Kia
+  'Seltos': '/img/suv.png',
+  'Sonet': '/img/suv.png',
+  'Carens': '/img/muv.png',
+
+  // Volkswagen & Skoda
+  'Virtus': '/img/sedan.png',
+  'Taigun': '/img/suv.png',
+  'Slavia': '/img/sedan.png',
+  'Kushaq': '/img/suv.png',
+  'Kylaq': '/img/suv.png',
+
+  // Luxury
+  '3 Series': '/img/luxury-sedan.png',
+  '5 Series': '/img/luxury-sedan.png',
+  'X1': '/img/luxury-suv.png',
+  'X5': '/img/luxury-suv.png',
+  'C-Class': '/img/luxury-sedan.png',
+  'E-Class': '/img/luxury-sedan.png',
+  'GLC': '/img/luxury-suv.png',
+  'GLE': '/img/luxury-suv.png',
+  'A4': '/img/luxury-sedan.png',
+  'A6': '/img/luxury-sedan.png',
+  'Q3': '/img/luxury-suv.png',
+  'Q5': '/img/luxury-suv.png',
+};
+
+const getModelImageUrl = (brandName, modelName) => {
+  if (!modelName) return '/img/suv.png';
+  if (MODEL_IMAGE_MAP[modelName]) return MODEL_IMAGE_MAP[modelName];
+
+  const lower = modelName.toLowerCase();
+  if (lower.includes('suv') || lower.includes('thar') || lower.includes('scorpio') || lower.includes('xuv') || lower.includes('creta') || lower.includes('nexon') || lower.includes('fortuner')) {
+    return '/img/suv.png';
+  }
+  if (lower.includes('sedan') || lower.includes('city') || lower.includes('verna') || lower.includes('dzire') || lower.includes('ciaz') || lower.includes('virtus') || lower.includes('slavia')) {
+    return '/img/sedan.png';
+  }
+  if (lower.includes('muv') || lower.includes('ertiga') || lower.includes('innova') || lower.includes('carens') || lower.includes('triber')) {
+    return '/img/muv.png';
+  }
+  if (lower.includes('hatch') || lower.includes('swift') || lower.includes('baleno') || lower.includes('i20') || lower.includes('altroz') || lower.includes('kwid')) {
+    return '/img/hatchback.png';
+  }
+  return '/img/suv.png';
+};
+
 const FUEL_TYPES = [
   { name: 'Petrol', icon: '⛽' },
   { name: 'Petrol + CNG', icon: '⛽' },
@@ -1974,7 +2074,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                       {activeModelList
                         .filter(m => m.toLowerCase().includes(searchQuery.toLowerCase()))
                         .map((m) => {
-                          const modelData = (MAKES_AND_MODELS[formData.brandName] || {})[m];
+                          const modelImg = getModelImageUrl(formData.brandName, m);
                           return (
                             <button
                               key={m}
@@ -1986,11 +2086,16 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                               className="w-full py-3.5 px-3 flex items-center justify-between font-bold text-sm sm:text-base text-slate-800 hover:text-[#00C9AF] hover:bg-[#00C9AF]/10 transition-colors rounded-xl group text-left"
                             >
                               <div className="flex items-center gap-3.5">
-                                <img
-                                  src={modelData?.img || "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=100&auto=format&fit=crop&q=80"}
-                                  alt={m}
-                                  className="w-12 h-8 object-contain rounded"
-                                />
+                                <div className="w-14 h-10 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-center p-1 shrink-0 overflow-hidden group-hover:border-[#00C9AF]/50 transition-colors">
+                                  <img
+                                    src={modelImg}
+                                    alt={m}
+                                    className="w-full h-full object-contain"
+                                    onError={(e) => {
+                                      e.currentTarget.src = "/img/suv.png";
+                                    }}
+                                  />
+                                </div>
                                 <span>{m}</span>
                               </div>
                               <ChevronRight size={18} className="text-slate-400 group-hover:text-[#00C9AF] group-hover:translate-x-1 transition-all" />
