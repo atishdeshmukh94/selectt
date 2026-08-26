@@ -789,8 +789,8 @@ const Header = () => {
 
               {/* 3. SERVICES & MORE Section */}
               <div className="text-left">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
                     SERVICES & MORE
                   </span>
                   <div className="flex-1 h-px bg-slate-100" />
@@ -799,116 +799,116 @@ const Header = () => {
 
                   <Link
                     to="/selectt-buyback"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">🔄</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm group-hover:scale-110 transition-transform">🔄</span>
                       <span>Exchange & Buyback</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/selectt-assured"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">🛠️</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm group-hover:scale-110 transition-transform">🛠️</span>
                       <span>Pro Service & Warranty</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/car-insurance"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">🛡️</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm group-hover:scale-110 transition-transform">🛡️</span>
                       <span>Car Insurance</span>
                     </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                   <Link
                     to="/e-challan"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">📄</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm group-hover:scale-110 transition-transform">📄</span>
                       <span>Check Challan</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/pricing"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">⛽</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm group-hover:scale-110 transition-transform">⛽</span>
                       <span>Recharge FASTag & EMI</span>
                     </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                   <Link
                     to="/profile?tab=wishlisted"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">💖</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm group-hover:scale-110 transition-transform">💖</span>
                       <span>Wishlist & Shortlist</span>
                     </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                   <Link
                     to="/car-hub-locations"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">📍</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm group-hover:scale-110 transition-transform">📍</span>
                       <span>Car Hub Locations</span>
                     </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                   <Link
                     to="/customer-reviews"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">🌟</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm group-hover:scale-110 transition-transform">🌟</span>
                       <span>Customer Reviews</span>
                     </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                   <Link
                     to="/about-us"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base group-hover:scale-110 transition-transform">ℹ️</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm group-hover:scale-110 transition-transform">ℹ️</span>
                       <span>About Us & FAQ</span>
                     </div>
-                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                 </div>
