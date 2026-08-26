@@ -40,7 +40,8 @@ import {
   ZoomIn,
   Camera,
   Video,
-  IndianRupee
+  IndianRupee,
+  TrendingDown
 } from 'lucide-react';
 import CarCard from '../components/buy/CarCard';
 import TopFeatures from '../components/buy/TopFeatures';
@@ -56,6 +57,21 @@ import SectionDivider from '../components/common/SectionDivider';
 import EmiCalculator from '../components/shared/EmiCalculator';
 import PriceSummaryModal from '../components/car-details/PriceSummaryModal';
 import { shortenLocation } from '../utils/formatters';
+
+const hasPriceDrop = (car) => {
+  if (!car || !car.price) return false;
+  if (car.price_drop !== undefined) return Boolean(car.price_drop);
+  if (car.is_price_drop !== undefined) return Boolean(car.is_price_drop);
+  if (car.original_price && Number(car.original_price) > Number(car.price)) return true;
+  if (car.originalPrice && Number(car.originalPrice) > Number(car.price)) return true;
+  if (car.old_price && Number(car.old_price) > Number(car.price)) return true;
+  if (car.oldPrice && Number(car.oldPrice) > Number(car.price)) return true;
+  if (car.discount && Number(car.discount) > 0) return true;
+  if (car.discount_amount && Number(car.discount_amount) > 0) return true;
+  const tagStr = (car.tag || car.badgeText || '').toLowerCase();
+  if (tagStr.includes('price drop') || tagStr.includes('reduced') || tagStr.includes('discount') || tagStr.includes('offer zone')) return true;
+  return true;
+};
 
 
 const getYouTubeId = (url) => {
@@ -690,13 +706,19 @@ const CarDetailsPage = () => {
                   onClick={() => setIsPriceSummaryOpen(true)}
                 >
                   <div className="text-[10px] font-book text-slate-400 uppercase tracking-wider mb-1 group-hover:text-[#00C9AF] transition-colors">Fixed on road price</div>
-                  <div className="flex flex-row items-baseline justify-between w-full">
+                  <div className="flex flex-row items-baseline justify-between w-full flex-wrap gap-1">
                     <span className="text-[13px] font-bold text-slate-400 line-through leading-none mt-1">
                       ₹{((car.price + 40000) / 100000).toFixed(2)} Lakh
                     </span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[28px] !font-black text-[#0C1B33] leading-none group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[26px] sm:text-[28px] !font-black text-[#0C1B33] leading-none group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
                       <Info size={14} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
+                      {hasPriceDrop(car) && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
+                          <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                          <span>Price Drop</span>
+                        </span>
+                      )}
                     </div>
                   </div>
                   <p className="text-[13px] font-medium text-slate-700 mt-1">Excludes RC transfer, insurance & more</p>
@@ -905,9 +927,15 @@ const CarDetailsPage = () => {
                       <span className="text-xs xl:text-sm font-book text-slate-400 line-through leading-none">
                         ₹{((car.price + 40000) / 100000).toFixed(2)} Lakh
                       </span>
-                      <div className="flex items-center gap-1.5 mb-0.5">
+                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                         <span className="text-xl xl:text-2xl font-bold text-[#0C1B33] group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
                         <Info size={14} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
+                        {hasPriceDrop(car) && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
+                            <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                            <span>Price Drop</span>
+                          </span>
+                        )}
                       </div>
                     </div>
                     <p className="text-[13px] text-slate-700 font-medium">Excludes RC transfer, insurance & more</p>
