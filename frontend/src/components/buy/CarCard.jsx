@@ -167,12 +167,24 @@ const CarCard = ({ car, lightBg = false }) => {
         {/* Content details */}
         <div className="px-5 pb-5 pt-1 flex-grow flex flex-col justify-between gap-3">
           <div>
-            <h3 className={`text-[14px] font-heading font-bold leading-snug truncate transition-colors duration-200 ${lightBg ? 'text-slate-800 group-hover:text-[#00C9AF]' : 'text-white group-hover:text-[#00C9AF]'}`}>
-              {car.year} {car.make} {car.model}
-            </h3>
-            <span className={`text-[11px] font-medium block truncate mt-0.5 ${lightBg ? 'text-slate-500' : 'text-slate-400'}`}>
-              {car.variant || car.fuelType}
-            </span>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h3 className={`text-[14px] font-heading font-bold leading-snug truncate transition-colors duration-200 ${lightBg ? 'text-slate-800 group-hover:text-[#00C9AF]' : 'text-white group-hover:text-[#00C9AF]'}`}>
+                  {car.year} {car.make} {car.model}
+                </h3>
+                <span className={`text-[11px] font-medium block truncate mt-0.5 ${lightBg ? 'text-slate-500' : 'text-slate-400'}`}>
+                  {car.variant || car.fuelType}
+                </span>
+              </div>
+              {hasPriceDrop(car) && (
+                <div className="shrink-0 pt-0.5">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
+                    <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                    <span>Price Drop</span>
+                  </span>
+                </div>
+              )}
+            </div>
 
             {/* Spec pills */}
             <div className="flex flex-wrap gap-1.5 mt-2.5">
@@ -196,22 +208,12 @@ const CarCard = ({ car, lightBg = false }) => {
           {/* Pricing and Action button */}
           <div className={`flex items-center justify-between border-t pt-3.5 mt-1 pb-0 ${lightBg ? 'border-slate-100' : 'border-white/5'}`}>
             <div className="flex flex-col items-start text-left">
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className={`text-[11px] font-body line-through leading-none ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
-                  ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice || (car.price + 40000))) / 100000).toFixed(2)}L
-                </span>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`text-[20px] sm:text-[22px] font-price !font-black tracking-tight leading-none ${lightBg ? 'text-[#0C1B33]' : 'text-white'}`}>
-                  ₹{(car.price / 100000).toFixed(2)} Lakh
-                </span>
-                {hasPriceDrop(car) && (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9.5px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
-                    <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
-                    <span>Price Drop</span>
-                  </span>
-                )}
-              </div>
+              <span className={`text-[11px] font-body line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
+                ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice || (car.price + 40000))) / 100000).toFixed(2)}L
+              </span>
+              <span className={`text-[20px] sm:text-[22px] font-price !font-black tracking-tight leading-none ${lightBg ? 'text-[#0C1B33]' : 'text-white'}`}>
+                ₹{(car.price / 100000).toFixed(2)} Lakh
+              </span>
               <span className={`text-[11px] font-medium leading-none mt-2.5 ${lightBg ? 'text-teal-600' : 'text-[#00C9AF]'}`}>
                 EMI ₹{car.emi ? car.emi.toLocaleString('en-IN') : '0'}/m*
               </span>
