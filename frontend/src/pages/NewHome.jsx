@@ -235,6 +235,7 @@ function BodyTypeButton({ type, isActive, onClick }) {
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      data-active={isActive ? "true" : "false"}
       style={isActive ? {
         background: 'linear-gradient(135deg, rgba(0,204,179,0.35) 0%, rgba(0,180,160,0.18) 100%)',
         backdropFilter: 'blur(12px)',
@@ -763,6 +764,8 @@ const NewHome = () => {
   const [activeBodyType, setActiveBodyType] = useState('Hatchback');
   const [bodyTypeCarouselIdx, setBodyTypeCarouselIdx] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
+  const [bodyTypeHovered, setBodyTypeHovered] = useState(false);
+  const bodyTypeTabsContainerRef = useRef(null);
   const [selectedForYouCars, setSelectedForYouCars] = useState([]);
   const [featuredTab, setFeaturedTab] = useState('featured');
 
@@ -1172,6 +1175,59 @@ const NewHome = () => {
       clearTimeout(hideTimer);
     };
   }, []);
+
+  // Responsive itemsPerView handler
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1280) {
+        setItemsPerView(4);
+      } else if (window.innerWidth >= 1024) {
+        setItemsPerView(3);
+      } else if (window.innerWidth >= 640) {
+        setItemsPerView(2);
+      } else {
+        setItemsPerView(1);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Auto-Slide Effect for Browse by Body Type (Slides cards & cycles categories automatically)
+  useEffect(() => {
+    if (bodyTypeHovered) return;
+
+    const timer = setInterval(() => {
+      const filtered = getFilteredCars();
+      const maxIdx = Math.max(0, filtered.length - itemsPerView);
+
+      // If current body type has more cards to slide, slide to next card
+      if (maxIdx > 0 && bodyTypeCarouselIdx < maxIdx) {
+        setBodyTypeCarouselIdx(prev => prev + 1);
+      } else {
+        // Otherwise smoothly switch to the next body type and reset index
+        setBodyTypeCarouselIdx(0);
+        setActiveBodyType(prevType => {
+          const currentIdx = BODY_TYPES.findIndex(b => b.name === prevType);
+          const nextIdx = (currentIdx + 1) % BODY_TYPES.length;
+          return BODY_TYPES[nextIdx].name;
+        });
+      }
+    }, 3500);
+
+    return () => clearInterval(timer);
+  }, [bodyTypeHovered, activeBodyType, bodyTypeCarouselIdx, allCars, city, itemsPerView]);
+
+  // Smoothly scroll active tab button into view on mobile
+  useEffect(() => {
+    if (bodyTypeTabsContainerRef.current) {
+      const activeEl = bodyTypeTabsContainerRef.current.querySelector('[data-active="true"]');
+      if (activeEl) {
+        activeEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  }, [activeBodyType]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -2439,7 +2495,13 @@ const NewHome = () => {
 
 
       {/* 7.1 EXPLORE BY BODY TYPE (LIGHT PREMIUM SECTION) */}
-      <section className="py-12 px-6 md:px-12 bg-[#fff] border-t border-white/5 relative overflow-hidden z-10">
+      <section
+        onMouseEnter={() => setBodyTypeHovered(true)}
+        onMouseLeave={() => setBodyTypeHovered(false)}
+        onTouchStart={() => setBodyTypeHovered(true)}
+        onTouchEnd={() => setBodyTypeHovered(false)}
+        className="py-12 px-6 md:px-12 bg-[#fff] border-t border-white/5 relative overflow-hidden z-10"
+      >
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_60%_60%_at_50%_50%,rgba(0,196,175,0.05)_0%,transparent_60%)]"></div>
         </div>
@@ -2497,7 +2559,10 @@ const NewHome = () => {
           </div>
 
           {/* Body Type Filter Tabs (Horizontal List) - No counts */}
-          <div className="mb-10 border border-white/5 rounded-2xl max-w-full md:max-w-[960px] mx-auto bg-[#0C1B33] p-2 flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-3 md:gap-6 overflow-x-auto scrollbar-none w-full md:w-full">
+          <div
+            ref={bodyTypeTabsContainerRef}
+            className="mb-10 border border-white/5 rounded-2xl max-w-full md:max-w-[960px] mx-auto bg-[#0C1B33] p-2 flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-3 md:gap-6 overflow-x-auto scrollbar-none w-full md:w-full"
+          >
             {BODY_TYPES.map((type, index) => {
               const isActive = activeBodyType === type.name;
               return (
@@ -2505,25 +2570,28 @@ const NewHome = () => {
                   key={index}
                   type={type}
                   isActive={isActive}
-                  onClick={() => { setActiveBodyType(type.name); }}
+                  onClick={() => {
+                    setActiveBodyType(type.name);
+                    setBodyTypeCarouselIdx(0);
+                  }}
                 />
               );
             })}
           </div>
 
           {/* Carousel Slide Container */}
-          <div className="overflow-x-auto sm:overflow-hidden pb-4 sm:pb-0 -mx-6 px-6 sm:mx-0 sm:px-0 snap-x snap-mandatory scrollbar-none">
+          <div className="overflow-hidden pb-4 sm:pb-0 -mx-6 px-6 sm:mx-0 sm:px-0">
             {getFilteredCars().length > 0 ? (
               <div
-                className="flex gap-4 transition-transform duration-500 ease-out"
+                className="flex gap-4 transition-transform duration-700 ease-out will-change-transform"
                 style={{
-                  transform: itemsPerView === 1 ? 'none' : `translateX(calc(-${bodyTypeCarouselIdx} * (100% + 16px) / ${itemsPerView}))`
+                  transform: `translateX(calc(-${bodyTypeCarouselIdx} * (100% + 16px) / ${itemsPerView}))`
                 }}
               >
                 {getFilteredCars().map((car) => (
                   <div
                     key={car.id}
-                    className="flex-none snap-center sm:snap-start"
+                    className="flex-none transition-all duration-500"
                     style={{
                       width: itemsPerView === 1 ? 'calc(100vw - 48px)' : `calc((100% - (${itemsPerView} - 1) * 16px) / ${itemsPerView})`
                     }}
