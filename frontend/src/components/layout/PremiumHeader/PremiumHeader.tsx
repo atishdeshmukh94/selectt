@@ -1117,23 +1117,25 @@ export const PremiumHeader: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className="relative flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-[#0C1B33] via-[#112344] to-[#0C1B33] text-white shadow-md shadow-[#0C1B33]/15 mb-2.5 no-underline group hover:shadow-lg transition-all"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-[#13EDE5]/20 border border-[#13EDE5]/40 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#13EDE5]/20 border border-[#13EDE5]/40 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
                       🚘
                     </div>
-                    <div>
-                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                        <span>Sell Your Car Online</span>
-                        <span className="text-[9px] font-black bg-[#13EDE5] text-[#0C1B33] px-1.5 py-0.2 rounded">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-extrabold text-white whitespace-nowrap">
+                          Sell Your Car
+                        </span>
+                        <span className="text-[9px] font-black bg-[#13EDE5] text-[#0C1B33] px-1.5 py-0.5 rounded leading-none">
                           INSTANT
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-300 font-medium">
-                        Doorstep inspection • Instant payment
+                      <div className="text-[10px] text-slate-300 font-medium truncate mt-0.5">
+                        Instant payment • Free doorstep pickup
                       </div>
                     </div>
                   </div>
-                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-[#13EDE5] group-hover:bg-[#13EDE5] group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all">
+                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-[#13EDE5] group-hover:bg-[#13EDE5] group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all shrink-0 ml-2">
                     <IconChevronRight size={15} />
                   </div>
                 </Link>
