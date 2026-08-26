@@ -565,33 +565,43 @@ const Header = () => {
             className="fixed inset-0 bg-black/50 z-[150] md:hidden"
             onClick={() => setMobileMenuOpen(false)}
           />
-
-          {/* Sidebar */}
-          <div className="fixed top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white z-[160] overflow-y-auto md:hidden">
-            {/* Header (Navy Blue & White Theme) */}
+          {/* Slide-In White Drawer Canvas */}
+          <div className={`fixed inset-y-0 right-0 z-50 w-[85%] max-w-[340px] bg-white shadow-2xl overflow-y-auto transition-transform duration-300 transform font-['Plus_Jakarta_Sans',sans-serif] ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`} aria-label="Mobile Navigation Menu">
+            
+            {/* Top User Profile Header (Dark Navy Theme) */}
             <div className="bg-gradient-to-r from-[#0C1B33] via-[#162947] to-[#0A162A] text-white p-4 sm:p-5 flex items-center justify-between shadow-md">
-              <div className="flex items-center gap-3">
+              <div
+                onClick={() => {
+                  if (!user) {
+                    openLoginModal && openLoginModal();
+                  } else {
+                    navigate("/profile");
+                  }
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center gap-3 text-white no-underline flex-1 cursor-pointer"
+              >
                 <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-md shadow-[#13EDE5]/30 shrink-0 overflow-hidden p-2 border border-white/30">
                   <img
                     src="/img/favicon.png"
                     alt="Selectt Favicon"
                     className="w-full h-full object-contain"
                     onError={(e) => {
-                      e.target.src = frontendHeaderLogo || "/img/light-logo.svg";
+                      e.target.src = logoUrl || "/img/light-logo.svg";
                     }}
                   />
                 </div>
                 <div className="text-left">
-                  {user?.first_name ? (
+                  {user ? (
                     <>
-                      <div className="text-sm font-extrabold text-white leading-snug flex items-center gap-1.5">
-                        <span>{user.first_name} {user.last_name || ''}</span>
+                      <div className="text-sm font-bold text-white leading-snug flex items-center gap-1.5">
+                        <span>{user.first_name ? `${user.first_name} ${user.last_name || ''}` : `User (${user.phone})`}</span>
                         <ChevronRight size={15} className="text-[#00FFDC]" />
                       </div>
-                      <div className="text-xs text-slate-300 font-medium">+91 {user.phone}</div>
+                      <div className="text-xs text-slate-300 font-normal mt-0.5">+91 {user.phone}</div>
                     </>
                   ) : (
-                    <div className="text-sm font-black text-white flex items-center gap-1.5">
+                    <div className="text-sm font-bold text-white flex items-center gap-1.5 hover:text-[#00FFDC] transition-colors">
                       <span>Login / Signup</span>
                       <ChevronRight size={16} className="text-[#00FFDC]" />
                     </div>
@@ -610,7 +620,7 @@ const Header = () => {
             <div className="p-4 space-y-6 bg-white text-[#0C1B33]">
 
               {/* 1. BUY Section */}
-              <div className="text-left font-sans">
+              <div className="text-left">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
                     BUY
@@ -620,7 +630,7 @@ const Header = () => {
 
                 {/* By category */}
                 <div className="mb-4">
-                  <h4 className="text-xs font-semibold text-[#0C1B33] mb-2.5 text-left">By category</h4>
+                  <h4 className="text-xs font-bold text-[#0C1B33] mb-2.5 text-left">By category</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       {
@@ -659,10 +669,10 @@ const Header = () => {
                         {/* Clean Brand Styling Box */}
                         <div className="w-full h-15 bg-slate-50 hover:bg-[#13EDE5]/10 border border-slate-200 hover:border-[#13EDE5] text-[#0C1B33] rounded-2xl flex flex-col items-center justify-center p-1 transition-all duration-200">
                           <span className="text-lg leading-none mb-0.5 group-hover:scale-110 transition-transform">{cat.icon}</span>
-                          <span className="text-[11px] font-semibold text-[#0C1B33] leading-tight tracking-tight">{cat.name}</span>
+                          <span className="text-[11px] font-bold text-[#0C1B33] leading-tight tracking-tight">{cat.name}</span>
                         </div>
                         {/* Subtitle written BELOW the box */}
-                        <span className="text-[9px] text-slate-500 font-medium leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
+                        <span className="text-[9px] text-slate-500 font-normal leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
                       </button>
                     ))}
                   </div>
@@ -670,7 +680,7 @@ const Header = () => {
 
                 {/* By body type */}
                 <div className="mb-4">
-                  <h4 className="text-xs font-semibold text-[#0C1B33] mb-2 text-left">By body type</h4>
+                  <h4 className="text-xs font-bold text-[#0C1B33] mb-2 text-left">By body type</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
@@ -689,7 +699,7 @@ const Header = () => {
                         <span className="text-2.5xl mb-1 group-hover:scale-115 transition-transform duration-200 filter drop-shadow-xs">
                           {type.icon}
                         </span>
-                        <span className="text-xs font-semibold text-slate-800">{type.name}</span>
+                        <span className="text-xs font-bold text-slate-800">{type.name}</span>
                       </button>
                     ))}
                   </div>
@@ -707,19 +717,19 @@ const Header = () => {
               </div>
 
               {/* 2. SELL Section (Highlighted Ultra-Premium Card) */}
-              <div className="relative overflow-hidden rounded-2xl border border-cyan-200/80 bg-gradient-to-br from-cyan-50/70 via-white to-sky-50/60 p-3.5 shadow-sm shadow-cyan-500/10 text-left font-sans">
+              <div className="relative overflow-hidden rounded-2xl border border-cyan-200/80 bg-gradient-to-br from-cyan-50/70 via-white to-sky-50/60 p-3.5 shadow-sm shadow-cyan-500/10 text-left">
                 {/* Subtle ambient cyan glow in corner */}
                 <div className="absolute -right-8 -top-8 w-24 h-24 bg-[#13EDE5]/20 rounded-full blur-2xl pointer-events-none" />
 
                 {/* Header with Badges */}
                 <div className="flex items-center justify-between mb-3 relative z-10">
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-extrabold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5] text-[#0C1B33] shadow-xs">
+                    <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5] text-[#0C1B33] shadow-xs">
                       SELL
                     </span>
                     <span className="text-xs font-bold text-[#0C1B33]">Sell In 24 Hours</span>
                   </div>
-                  <span className="text-[9px] font-extrabold text-[#00A884] bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-200 uppercase tracking-wide">
+                  <span className="text-[9px] font-bold text-[#00A884] bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-200 uppercase tracking-wide">
                     BEST PRICE
                   </span>
                 </div>
@@ -736,14 +746,14 @@ const Header = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-extrabold text-white whitespace-nowrap">
+                        <span className="text-xs font-bold text-white whitespace-nowrap">
                           Sell Your Car
                         </span>
-                        <span className="text-[9px] font-black bg-[#13EDE5] text-[#0C1B33] px-1.5 py-0.5 rounded leading-none">
+                        <span className="text-[9px] font-bold bg-[#13EDE5] text-[#0C1B33] px-1.5 py-0.5 rounded leading-none">
                           INSTANT
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-300 font-medium truncate mt-0.5">
+                      <div className="text-[10px] text-slate-300 font-normal truncate mt-0.5">
                         Instant payment • Free doorstep pickup
                       </div>
                     </div>
@@ -762,7 +772,7 @@ const Header = () => {
                   >
                     <span className="text-xl mb-0.5 group-hover:scale-110 transition-transform">🏷️</span>
                     <span className="text-xs font-bold text-[#0C1B33] leading-tight">Valuation</span>
-                    <span className="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Free instant quote</span>
+                    <span className="text-[10px] text-slate-500 font-normal leading-tight mt-0.5">Free instant quote</span>
                   </Link>
 
                   <Link
@@ -772,13 +782,13 @@ const Header = () => {
                   >
                     <span className="text-xl mb-0.5 group-hover:scale-110 transition-transform">🏦</span>
                     <span className="text-xs font-bold text-[#0C1B33] leading-tight">Car Loan</span>
-                    <span className="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Lowest EMI rates</span>
+                    <span className="text-[10px] text-slate-500 font-normal leading-tight mt-0.5">Lowest EMI rates</span>
                   </Link>
                 </div>
               </div>
 
               {/* 3. SERVICES & MORE Section */}
-              <div className="text-left font-sans">
+              <div className="text-left">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
                     SERVICES & MORE
@@ -789,35 +799,35 @@ const Header = () => {
 
                   <Link
                     to="/selectt-buyback"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-base group-hover:scale-110 transition-transform">🔄</span>
                       <span>Exchange & Buyback</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/selectt-assured"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-base group-hover:scale-110 transition-transform">🛠️</span>
                       <span>Pro Service & Warranty</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/car-insurance"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -829,21 +839,21 @@ const Header = () => {
 
                   <Link
                     to="/e-challan"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-base group-hover:scale-110 transition-transform">📄</span>
                       <span>Check Challan</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/pricing"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -855,7 +865,7 @@ const Header = () => {
 
                   <Link
                     to="/profile?tab=wishlisted"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -867,7 +877,7 @@ const Header = () => {
 
                   <Link
                     to="/car-hub-locations"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -879,7 +889,7 @@ const Header = () => {
 
                   <Link
                     to="/customer-reviews"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -891,7 +901,7 @@ const Header = () => {
 
                   <Link
                     to="/about-us"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -917,8 +927,8 @@ const Header = () => {
                     <Phone size={18} />
                   </div>
                   <div>
-                    <div className="text-[10px] font-extrabold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
-                    <div className="text-xs font-black text-[#0C1B33]">Call us at 8574667466</div>
+                    <div className="text-[10px] font-bold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
+                    <div className="text-xs font-normal text-[#0C1B33]">Call us at 8574667466</div>
                   </div>
                 </a>
               </div>

@@ -871,7 +871,7 @@ export const PremiumHeader: React.FC = () => {
           <div className={styles.mobileMenuBackdrop} onClick={() => setMobileMenuOpen(false)} />
 
           {/* Slide-In White Drawer Canvas */}
-          <div className={styles.mobileMenu} aria-label="Mobile Navigation Menu">
+          <div className={`${styles.mobileMenu} font-['Plus_Jakarta_Sans',sans-serif]`} aria-label="Mobile Navigation Menu">
             
             {/* Top User Profile Header (Dark Navy Theme) */}
             <div className="bg-gradient-to-r from-[#0C1B33] via-[#162947] to-[#0A162A] text-white p-4 sm:p-5 flex items-center justify-between shadow-md">
@@ -899,14 +899,14 @@ export const PremiumHeader: React.FC = () => {
                 <div className="text-left">
                   {user ? (
                     <>
-                      <div className="text-sm font-extrabold text-white leading-snug flex items-center gap-1.5">
+                      <div className="text-sm font-bold text-white leading-snug flex items-center gap-1.5">
                         <span>{user.first_name ? `${user.first_name} ${user.last_name || ''}` : `User (${user.phone})`}</span>
                         <IconChevronRight size={15} className="text-[#00FFDC]" />
                       </div>
-                      <div className="text-xs text-slate-300 font-medium">+91 {user.phone}</div>
+                      <div className="text-xs text-slate-300 font-normal mt-0.5">+91 {user.phone}</div>
                     </>
                   ) : (
-                    <div className="text-sm font-black text-white flex items-center gap-1.5 hover:text-[#00FFDC] transition-colors">
+                    <div className="text-sm font-bold text-white flex items-center gap-1.5 hover:text-[#00FFDC] transition-colors">
                       <span>Login / Signup</span>
                       <IconChevronRight size={16} className="text-[#00FFDC]" />
                     </div>
@@ -928,7 +928,7 @@ export const PremiumHeader: React.FC = () => {
               {/* Mobile Search Input */}
               <div className={styles.mobileSearch} ref={mobileSearchContainerRef}>
                 <input
-                  className="w-full pl-10 pr-4 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-full text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#13EDE5] focus:ring-2 focus:ring-[#13EDE5]/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 text-xs font-normal bg-slate-50 border border-slate-200 rounded-full text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#13EDE5] focus:ring-2 focus:ring-[#13EDE5]/20 transition-all"
                   type="text"
                   value={searchText}
                   onChange={(e) => {
@@ -946,7 +946,7 @@ export const PremiumHeader: React.FC = () => {
                 {showDropdown && (searchText.trim().length >= 2) && (
                   <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden">
                     {searchLoading ? (
-                      <div className="p-3 text-xs text-slate-500 font-medium text-center">Loading related cars...</div>
+                      <div className="p-3 text-xs text-slate-500 font-normal text-center">Loading related cars...</div>
                     ) : searchResults.length > 0 ? (
                       <>
                         <div className="divide-y divide-slate-100 max-h-60 overflow-y-auto">
@@ -967,11 +967,11 @@ export const PremiumHeader: React.FC = () => {
                                   <div className="text-xs font-bold text-slate-900 truncate">
                                     {car.year} {car.make} {car.model}
                                   </div>
-                                  <div className="text-[10px] text-slate-500 font-medium truncate">
+                                  <div className="text-[10px] text-slate-500 font-normal truncate">
                                     {(car.km || 0).toLocaleString()} km • {car.fuelType}
                                   </div>
                                 </div>
-                                <div className="text-xs font-extrabold text-[#00A884]">
+                                <div className="text-xs font-bold text-[#00A884]">
                                   ₹{(car.price / 100000).toFixed(2)} L
                                 </div>
                               </Link>
@@ -990,14 +990,14 @@ export const PremiumHeader: React.FC = () => {
                         </button>
                       </>
                     ) : (
-                      <div className="p-3 text-xs text-slate-500 font-medium text-center">No cars found matching "{searchText}"</div>
+                      <div className="p-3 text-xs text-slate-500 font-normal text-center">No cars found matching "{searchText}"</div>
                     )}
                   </div>
                 )}
               </div>
 
               {/* 1. BUY Section */}
-              <div className="text-left font-sans">
+              <div className="text-left">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
                     BUY
@@ -1007,7 +1007,7 @@ export const PremiumHeader: React.FC = () => {
 
                 {/* By category */}
                 <div className="mb-4">
-                  <h4 className="text-xs font-semibold text-[#0C1B33] mb-2.5 text-left">By category</h4>
+                  <h4 className="text-xs font-bold text-[#0C1B33] mb-2.5 text-left">By category</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       {
@@ -1046,10 +1046,10 @@ export const PremiumHeader: React.FC = () => {
                         {/* Clean Brand Styling Box */}
                         <div className="w-full h-15 bg-slate-50 hover:bg-[#13EDE5]/10 border border-slate-200 hover:border-[#13EDE5] text-[#0C1B33] rounded-2xl flex flex-col items-center justify-center p-1 transition-all duration-200">
                           <span className="text-lg leading-none mb-0.5 group-hover:scale-110 transition-transform">{cat.icon}</span>
-                          <span className="text-[11px] font-semibold text-[#0C1B33] leading-tight tracking-tight">{cat.name}</span>
+                          <span className="text-[11px] font-bold text-[#0C1B33] leading-tight tracking-tight">{cat.name}</span>
                         </div>
                         {/* Subtitle written BELOW the box */}
-                        <span className="text-[9px] text-slate-500 font-medium leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
+                        <span className="text-[9px] text-slate-500 font-normal leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
                       </button>
                     ))}
                   </div>
@@ -1057,7 +1057,7 @@ export const PremiumHeader: React.FC = () => {
 
                 {/* By body type */}
                 <div className="mb-4">
-                  <h4 className="text-xs font-semibold text-[#0C1B33] mb-2 text-left">By body type</h4>
+                  <h4 className="text-xs font-bold text-[#0C1B33] mb-2 text-left">By body type</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
@@ -1076,7 +1076,7 @@ export const PremiumHeader: React.FC = () => {
                         <span className="text-2.5xl mb-1 group-hover:scale-115 transition-transform duration-200 filter drop-shadow-xs">
                           {type.icon}
                         </span>
-                        <span className="text-xs font-semibold text-slate-800">{type.name}</span>
+                        <span className="text-xs font-bold text-slate-800">{type.name}</span>
                       </button>
                     ))}
                   </div>
@@ -1094,19 +1094,19 @@ export const PremiumHeader: React.FC = () => {
               </div>
 
               {/* 2. SELL Section (Highlighted Ultra-Premium Card) */}
-              <div className="relative overflow-hidden rounded-2xl border border-cyan-200/80 bg-gradient-to-br from-cyan-50/70 via-white to-sky-50/60 p-3.5 shadow-sm shadow-cyan-500/10 text-left font-sans">
+              <div className="relative overflow-hidden rounded-2xl border border-cyan-200/80 bg-gradient-to-br from-cyan-50/70 via-white to-sky-50/60 p-3.5 shadow-sm shadow-cyan-500/10 text-left">
                 {/* Subtle ambient cyan glow in corner */}
                 <div className="absolute -right-8 -top-8 w-24 h-24 bg-[#13EDE5]/20 rounded-full blur-2xl pointer-events-none" />
 
                 {/* Header with Badges */}
                 <div className="flex items-center justify-between mb-3 relative z-10">
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-extrabold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5] text-[#0C1B33] shadow-xs">
+                    <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5] text-[#0C1B33] shadow-xs">
                       SELL
                     </span>
                     <span className="text-xs font-bold text-[#0C1B33]">Sell In 24 Hours</span>
                   </div>
-                  <span className="text-[9px] font-extrabold text-[#00A884] bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-200 uppercase tracking-wide">
+                  <span className="text-[9px] font-bold text-[#00A884] bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-200 uppercase tracking-wide">
                     BEST PRICE
                   </span>
                 </div>
@@ -1123,14 +1123,14 @@ export const PremiumHeader: React.FC = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-extrabold text-white whitespace-nowrap">
+                        <span className="text-xs font-bold text-white whitespace-nowrap">
                           Sell Your Car
                         </span>
-                        <span className="text-[9px] font-black bg-[#13EDE5] text-[#0C1B33] px-1.5 py-0.5 rounded leading-none">
+                        <span className="text-[9px] font-bold bg-[#13EDE5] text-[#0C1B33] px-1.5 py-0.5 rounded leading-none">
                           INSTANT
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-300 font-medium truncate mt-0.5">
+                      <div className="text-[10px] text-slate-300 font-normal truncate mt-0.5">
                         Instant payment • Free doorstep pickup
                       </div>
                     </div>
@@ -1149,7 +1149,7 @@ export const PremiumHeader: React.FC = () => {
                   >
                     <span className="text-xl mb-0.5 group-hover:scale-110 transition-transform">🏷️</span>
                     <span className="text-xs font-bold text-[#0C1B33] leading-tight">Valuation</span>
-                    <span className="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Free instant quote</span>
+                    <span className="text-[10px] text-slate-500 font-normal leading-tight mt-0.5">Free instant quote</span>
                   </Link>
 
                   <Link
@@ -1159,13 +1159,13 @@ export const PremiumHeader: React.FC = () => {
                   >
                     <span className="text-xl mb-0.5 group-hover:scale-110 transition-transform">🏦</span>
                     <span className="text-xs font-bold text-[#0C1B33] leading-tight">Car Loan</span>
-                    <span className="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Lowest EMI rates</span>
+                    <span className="text-[10px] text-slate-500 font-normal leading-tight mt-0.5">Lowest EMI rates</span>
                   </Link>
                 </div>
               </div>
 
               {/* 3. SERVICES & MORE Section */}
-              <div className="text-left font-sans">
+              <div className="text-left">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
                     SERVICES & MORE
@@ -1176,35 +1176,35 @@ export const PremiumHeader: React.FC = () => {
 
                   <Link
                     to="/selectt-buyback"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-base group-hover:scale-110 transition-transform">🔄</span>
                       <span>Exchange & Buyback</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/selectt-assured"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-base group-hover:scale-110 transition-transform">🛠️</span>
                       <span>Pro Service & Warranty</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/car-insurance"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -1216,21 +1216,21 @@ export const PremiumHeader: React.FC = () => {
 
                   <Link
                     to="/e-challan"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-base group-hover:scale-110 transition-transform">📄</span>
                       <span>Check Challan</span>
                     </div>
-                    <span className="px-2 py-0.5 text-[9px] font-semibold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/pricing"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -1242,7 +1242,7 @@ export const PremiumHeader: React.FC = () => {
 
                   <Link
                     to="/profile?tab=wishlisted"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -1254,7 +1254,7 @@ export const PremiumHeader: React.FC = () => {
 
                   <Link
                     to="/car-hub-locations"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -1266,7 +1266,7 @@ export const PremiumHeader: React.FC = () => {
 
                   <Link
                     to="/customer-reviews"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -1278,7 +1278,7 @@ export const PremiumHeader: React.FC = () => {
 
                   <Link
                     to="/about-us"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2.5 rounded-xl text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -1304,8 +1304,8 @@ export const PremiumHeader: React.FC = () => {
                     <IconPhone size={18} />
                   </div>
                   <div>
-                    <div className="text-[10px] font-extrabold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
-                    <div className="text-xs font-black text-[#0C1B33]">Call us at 8574667466</div>
+                    <div className="text-[10px] font-bold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
+                    <div className="text-xs font-normal text-[#0C1B33]">Call us at 8574667466</div>
                   </div>
                 </a>
               </div>
