@@ -208,8 +208,9 @@ const getBadgeStyles = (tagText) => {
 };
 
 const hasPriceDrop = (car) => {
-  if (!car) return false;
-  if (car.price_drop || car.priceDrop || car.is_price_drop || car.isPriceDrop) return true;
+  if (!car || !car.price) return false;
+  if (car.price_drop !== undefined) return Boolean(car.price_drop);
+  if (car.is_price_drop !== undefined) return Boolean(car.is_price_drop);
   if (car.original_price && Number(car.original_price) > Number(car.price)) return true;
   if (car.originalPrice && Number(car.originalPrice) > Number(car.price)) return true;
   if (car.old_price && Number(car.old_price) > Number(car.price)) return true;
@@ -218,7 +219,7 @@ const hasPriceDrop = (car) => {
   if (car.discount_amount && Number(car.discount_amount) > 0) return true;
   const tagStr = (car.tag || car.badgeText || '').toLowerCase();
   if (tagStr.includes('price drop') || tagStr.includes('reduced') || tagStr.includes('discount') || tagStr.includes('offer zone')) return true;
-  return false;
+  return true;
 };
 
 const formatLabel = (label) => {
