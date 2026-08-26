@@ -1233,12 +1233,19 @@ const NewHome = () => {
     return () => clearInterval(timer);
   }, [bodyTypeHovered, activeBodyType, bodyTypeCarouselIdx, allCars, city, itemsPerView]);
 
-  // Smoothly scroll active tab button into view on mobile
+  // Smoothly scroll active tab button inside horizontal container ONLY (never scrolls the window/page)
   useEffect(() => {
-    if (bodyTypeTabsContainerRef.current) {
-      const activeEl = bodyTypeTabsContainerRef.current.querySelector('[data-active="true"]');
+    const container = bodyTypeTabsContainerRef.current;
+    if (container) {
+      const activeEl = container.querySelector('[data-active="true"]');
       if (activeEl) {
-        activeEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        const containerRect = container.getBoundingClientRect();
+        const activeRect = activeEl.getBoundingClientRect();
+        const targetScrollLeft = container.scrollLeft + (activeRect.left - containerRect.left) - (containerRect.width / 2) + (activeRect.width / 2);
+        container.scrollTo({
+          left: Math.max(0, targetScrollLeft),
+          behavior: 'smooth'
+        });
       }
     }
   }, [activeBodyType]);
