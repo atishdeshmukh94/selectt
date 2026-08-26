@@ -164,12 +164,12 @@ const CityServicesSection = () => {
     }
   ];
 
-  // Automatic Smooth Card Rotation Timer
+  // Automatic Smooth & Responsive Card Rotation Timer
   useEffect(() => {
     if (isHovered) return;
     const timer = setInterval(() => {
       setActiveIdx(prev => (prev === services.length - 1 ? 0 : prev + 1));
-    }, 3200);
+    }, 2200);
     return () => clearInterval(timer);
   }, [isHovered, services.length]);
 
@@ -210,7 +210,7 @@ const CityServicesSection = () => {
             </div>
           </div>
 
-          {/* Right Column: Exact 3D Stacked Card Fan Carousel (Compact Size with Auto Rotation) */}
+          {/* Right Column: Exact 3D Stacked Card Fan Carousel (Smooth Auto-Shift Animation) */}
           <div
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -242,7 +242,7 @@ const CityServicesSection = () => {
 
                   if (!isVisible) return null;
 
-                  // Compact Fan-Out Transform Math
+                  // Fluid Fan-Out Transform Math
                   const translateX = offset * 22; // Compact horizontal spacing
                   const translateY = Math.abs(offset) * 2; // Slight vertical stack depth
                   const rotateDeg = offset * 3.2; // Symmetrical card fan rotation
@@ -257,10 +257,10 @@ const CityServicesSection = () => {
                         transform: `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg) scale(${scale})`,
                         zIndex,
                       }}
-                      className={`absolute top-0 left-0 w-full h-full bg-white rounded-[1.3rem] shadow-lg border border-slate-100 flex flex-col justify-between overflow-hidden transition-all duration-500 ease-out cursor-pointer select-none ${
+                      className={`absolute top-0 left-0 w-full h-full bg-white rounded-[1.3rem] shadow-lg border border-slate-100 flex flex-col justify-between overflow-hidden transition-all duration-600 ease-[cubic-bezier(0.34,1.2,0.64,1)] cursor-pointer select-none ${
                         isCenter
-                          ? 'shadow-[0_16px_40px_rgba(0,0,0,0.12)] ring-1 ring-black/5'
-                          : 'hover:opacity-100 opacity-95'
+                          ? 'shadow-[0_20px_45px_rgba(0,0,0,0.14)] ring-2 ring-[#00C9AF]/30'
+                          : 'hover:opacity-100 opacity-90'
                       }`}
                     >
                       {/* Top Title inside card */}
@@ -304,16 +304,16 @@ const CityServicesSection = () => {
               </button>
             </div>
 
-            {/* Pagination Indicator Dots */}
+            {/* Pagination Indicator Dots with Smooth Active Pill */}
             <div className="flex items-center gap-1.5 mt-6 z-40">
               {services.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveIdx(i)}
-                  className={`rounded-full transition-all duration-300 cursor-pointer ${
+                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                     activeIdx === i
-                      ? 'w-2.5 h-2.5 bg-[#00C9AF] scale-110'
-                      : 'w-1.5 h-1.5 bg-slate-300 hover:bg-slate-400'
+                      ? 'w-6 bg-[#00C9AF] shadow-xs'
+                      : 'w-2 bg-slate-300 hover:bg-slate-400'
                   }`}
                   aria-label={`Go to slide ${i + 1}`}
                 />
