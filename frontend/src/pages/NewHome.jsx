@@ -207,6 +207,20 @@ const getBadgeStyles = (tagText) => {
   };
 };
 
+const hasPriceDrop = (car) => {
+  if (!car) return false;
+  if (car.price_drop || car.priceDrop || car.is_price_drop || car.isPriceDrop) return true;
+  if (car.original_price && Number(car.original_price) > Number(car.price)) return true;
+  if (car.originalPrice && Number(car.originalPrice) > Number(car.price)) return true;
+  if (car.old_price && Number(car.old_price) > Number(car.price)) return true;
+  if (car.oldPrice && Number(car.oldPrice) > Number(car.price)) return true;
+  if (car.discount && Number(car.discount) > 0) return true;
+  if (car.discount_amount && Number(car.discount_amount) > 0) return true;
+  const tagStr = (car.tag || car.badgeText || '').toLowerCase();
+  if (tagStr.includes('price drop') || tagStr.includes('reduced') || tagStr.includes('discount') || tagStr.includes('offer zone')) return true;
+  return false;
+};
+
 const formatLabel = (label) => {
   if (!label) return '';
   return label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
@@ -1660,9 +1674,17 @@ const NewHome = () => {
                     </div>
 
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-lg font-black text-[#0C1B33] leading-none">
-                        ₹{(car.price / 100000).toFixed(2)}L
-                      </span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-lg font-black text-[#0C1B33] leading-none">
+                          ₹{(car.price / 100000).toFixed(2)}L
+                        </span>
+                        {hasPriceDrop(car) && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
+                            <TrendingDown size={10} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                            <span>Price Drop</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, MapPin, Gauge, Fuel, ArrowUpRight } from 'lucide-react';
+import { Heart, MapPin, Gauge, Fuel, ArrowUpRight, TrendingDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { API_URL } from '../../config/api';
@@ -7,6 +7,20 @@ import { useAuth } from '../../context/AuthContext';
 import { shortenLocation, getCarDetailsUrl } from '../../utils/formatters';
 import SkeletonImage from '../animation/SkeletonImage';
 import { cardHoverVariants } from '../../utils/animationVariants';
+
+const hasPriceDrop = (car) => {
+  if (!car) return false;
+  if (car.price_drop || car.priceDrop || car.is_price_drop || car.isPriceDrop) return true;
+  if (car.original_price && Number(car.original_price) > Number(car.price)) return true;
+  if (car.originalPrice && Number(car.originalPrice) > Number(car.price)) return true;
+  if (car.old_price && Number(car.old_price) > Number(car.price)) return true;
+  if (car.oldPrice && Number(car.oldPrice) > Number(car.price)) return true;
+  if (car.discount && Number(car.discount) > 0) return true;
+  if (car.discount_amount && Number(car.discount_amount) > 0) return true;
+  const tagStr = (car.tag || car.badgeText || '').toLowerCase();
+  if (tagStr.includes('price drop') || tagStr.includes('reduced') || tagStr.includes('discount') || tagStr.includes('offer zone')) return true;
+  return false;
+};
 
 const getBadgeStyles = (tagText) => {
   const text = (tagText || '').trim().toLowerCase();
@@ -181,9 +195,17 @@ const CarCard = ({ car, lightBg = false }) => {
           {/* Pricing and Action button */}
           <div className={`flex items-center justify-between border-t pt-3.5 mt-1 pb-0 ${lightBg ? 'border-slate-100' : 'border-white/5'}`}>
             <div className="flex flex-col items-start text-left">
-              <span className={`text-[11px] font-body line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
-                ₹{((car.price + 40000) / 100000).toFixed(2)}L
-              </span>
+              <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                <span className={`text-[11px] font-body line-through leading-none ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
+                  ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice || (car.price + 40000))) / 100000).toFixed(2)}L
+                </span>
+                {hasPriceDrop(car) && (
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
+                    <TrendingDown size={10} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                    <span>Price Drop</span>
+                  </span>
+                )}
+              </div>
               <span className={`text-[20px] sm:text-[22px] font-price !font-black tracking-tight leading-none ${lightBg ? 'text-[#0C1B33]' : 'text-white'}`}>
                 ₹{(car.price / 100000).toFixed(2)} Lakh
               </span>
