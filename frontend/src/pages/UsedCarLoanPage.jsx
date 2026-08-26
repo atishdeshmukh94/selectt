@@ -23,7 +23,7 @@ const CityServicesSection = () => {
       id: 1,
       title: "Business Loan",
       illustration: (
-        <svg viewBox="0 0 160 120" className="w-36 h-32 object-contain">
+        <svg viewBox="0 0 160 120" className="w-40 h-32 object-contain">
           {/* Briefcase */}
           <rect x="35" y="42" width="90" height="62" rx="10" fill="#B47B57" stroke="#1E1E1E" strokeWidth="3.5" />
           <path d="M60 42 V32 C60 28 64 24 68 24 H92 C96 24 100 28 100 32 V42" fill="none" stroke="#1E1E1E" strokeWidth="3.5" strokeLinecap="round" />
@@ -36,10 +36,10 @@ const CityServicesSection = () => {
           {/* Lock latch */}
           <rect x="75" y="55" width="10" height="7" rx="2" fill="#FDE047" stroke="#1E1E1E" strokeWidth="2" />
           {/* Gold Coin */}
-          <g transform="translate(100, 10)">
-            <circle cx="22" cy="22" r="18" fill="#FACC15" stroke="#1E1E1E" strokeWidth="3.5" />
-            <circle cx="22" cy="22" r="14" fill="#FDE047" stroke="#1E1E1E" strokeWidth="2" />
-            <text x="17" y="29" fill="#1E1E1E" fontSize="20" fontWeight="900">$</text>
+          <g transform="translate(95, 6)">
+            <circle cx="22" cy="22" r="20" fill="#FACC15" stroke="#1E1E1E" strokeWidth="3.5" />
+            <circle cx="22" cy="22" r="16" fill="#FDE047" stroke="#1E1E1E" strokeWidth="2" />
+            <text x="22" y="23" textAnchor="middle" dominantBaseline="central" fill="#1E1E1E" fontSize="22" fontWeight="900">₹</text>
           </g>
         </svg>
       )
@@ -48,7 +48,7 @@ const CityServicesSection = () => {
       id: 2,
       title: "Loan Against Car",
       illustration: (
-        <svg viewBox="0 0 160 120" className="w-36 h-32 object-contain">
+        <svg viewBox="0 0 160 120" className="w-40 h-32 object-contain">
           {/* Car */}
           <rect x="25" y="55" width="110" height="35" rx="10" fill="#EF4444" stroke="#1E1E1E" strokeWidth="3.5" />
           <path d="M45 55 L60 32 L100 32 L115 55 Z" fill="#F87171" stroke="#1E1E1E" strokeWidth="3.5" />
@@ -58,10 +58,9 @@ const CityServicesSection = () => {
           <circle cx="112" cy="90" r="5" fill="#94A3B8" />
           <circle cx="132" cy="68" r="4" fill="#FDE047" />
           {/* Loan Tag */}
-          <g transform="translate(68, 10) rotate(12)">
-            <rect x="0" y="0" width="56" height="32" rx="6" fill="#F97316" stroke="#1E1E1E" strokeWidth="2.5" />
-            <circle cx="10" cy="16" r="3" fill="#FFFFFF" />
-            <text x="18" y="21" fill="#FFFFFF" fontSize="12" fontWeight="900">% LOAN</text>
+          <g transform="translate(54, 6) rotate(4)">
+            <rect x="0" y="0" width="76" height="30" rx="8" fill="#F97316" stroke="#1E1E1E" strokeWidth="3" />
+            <text x="38" y="15" textAnchor="middle" dominantBaseline="central" fill="#FFFFFF" fontSize="14" fontWeight="900">LOAN</text>
           </g>
         </svg>
       )
@@ -70,7 +69,7 @@ const CityServicesSection = () => {
       id: 3,
       title: "Used Car Refinance",
       illustration: (
-        <svg viewBox="0 0 160 120" className="w-36 h-32 object-contain">
+        <svg viewBox="0 0 160 120" className="w-40 h-32 object-contain">
           {/* Car */}
           <rect x="25" y="55" width="110" height="35" rx="10" fill="#3B82F6" stroke="#1E1E1E" strokeWidth="3.5" />
           <path d="M45 55 L60 32 L100 32 L115 55 Z" fill="#60A5FA" stroke="#1E1E1E" strokeWidth="3.5" />
@@ -79,9 +78,9 @@ const CityServicesSection = () => {
           <circle cx="112" cy="90" r="12" fill="#1E293B" stroke="#1E1E1E" strokeWidth="3" />
           <circle cx="112" cy="90" r="5" fill="#94A3B8" />
           {/* Refinance Tag */}
-          <g transform="translate(62, 8)">
-            <rect x="0" y="0" width="62" height="32" rx="6" fill="#6366F1" stroke="#1E1E1E" strokeWidth="2.5" />
-            <text x="7" y="21" fill="#FFFFFF" fontSize="10" fontWeight="900">REFINANCE</text>
+          <g transform="translate(46, 6)">
+            <rect x="0" y="0" width="86" height="30" rx="8" fill="#6366F1" stroke="#1E1E1E" strokeWidth="3" />
+            <text x="43" y="15" textAnchor="middle" dominantBaseline="central" fill="#FFFFFF" fontSize="12.5" fontWeight="900">REFINANCE</text>
           </g>
         </svg>
       )
@@ -90,7 +89,7 @@ const CityServicesSection = () => {
       id: 4,
       title: "Used Car Purchase Loan",
       illustration: (
-        <svg viewBox="0 0 160 120" className="w-36 h-32 object-contain">
+        <svg viewBox="0 0 160 120" className="w-40 h-32 object-contain">
           {/* Car */}
           <rect x="25" y="55" width="110" height="35" rx="10" fill="#00C9AF" stroke="#1E1E1E" strokeWidth="3.5" />
           <path d="M45 55 L60 32 L100 32 L115 55 Z" fill="#2DD4BF" stroke="#1E1E1E" strokeWidth="3.5" />
@@ -99,9 +98,9 @@ const CityServicesSection = () => {
           <circle cx="112" cy="90" r="12" fill="#1E293B" stroke="#1E1E1E" strokeWidth="3" />
           <circle cx="112" cy="90" r="5" fill="#94A3B8" />
           {/* Approved Tag */}
-          <g transform="translate(62, 10)">
-            <rect x="0" y="0" width="60" height="32" rx="6" fill="#10B981" stroke="#1E1E1E" strokeWidth="2.5" />
-            <text x="6" y="21" fill="#FFFFFF" fontSize="10" fontWeight="900">APPROVED</text>
+          <g transform="translate(48, 6)">
+            <rect x="0" y="0" width="84" height="30" rx="8" fill="#10B981" stroke="#1E1E1E" strokeWidth="3" />
+            <text x="42" y="15" textAnchor="middle" dominantBaseline="central" fill="#FFFFFF" fontSize="13" fontWeight="900">APPROVED</text>
           </g>
         </svg>
       )
@@ -110,7 +109,7 @@ const CityServicesSection = () => {
       id: 5,
       title: "Pre-Owned Car Top-Up",
       illustration: (
-        <svg viewBox="0 0 160 120" className="w-36 h-32 object-contain">
+        <svg viewBox="0 0 160 120" className="w-40 h-32 object-contain">
           <rect x="25" y="55" width="110" height="35" rx="10" fill="#8B5CF6" stroke="#1E1E1E" strokeWidth="3.5" />
           <path d="M45 55 L60 32 L100 32 L115 55 Z" fill="#A78BFA" stroke="#1E1E1E" strokeWidth="3.5" />
           <circle cx="48" cy="90" r="12" fill="#1E293B" stroke="#1E1E1E" strokeWidth="3" />
@@ -118,9 +117,9 @@ const CityServicesSection = () => {
           <circle cx="112" cy="90" r="12" fill="#1E293B" stroke="#1E1E1E" strokeWidth="3" />
           <circle cx="112" cy="90" r="5" fill="#94A3B8" />
           {/* Top-Up Tag */}
-          <g transform="translate(64, 10)">
-            <rect x="0" y="0" width="56" height="32" rx="6" fill="#EC4899" stroke="#1E1E1E" strokeWidth="2.5" />
-            <text x="8" y="21" fill="#FFFFFF" fontSize="10" fontWeight="900">TOP-UP</text>
+          <g transform="translate(52, 6)">
+            <rect x="0" y="0" width="76" height="30" rx="8" fill="#EC4899" stroke="#1E1E1E" strokeWidth="3" />
+            <text x="38" y="15" textAnchor="middle" dominantBaseline="central" fill="#FFFFFF" fontSize="14" fontWeight="900">TOP-UP</text>
           </g>
         </svg>
       )
@@ -129,7 +128,7 @@ const CityServicesSection = () => {
       id: 6,
       title: "Balance Transfer",
       illustration: (
-        <svg viewBox="0 0 160 120" className="w-36 h-32 object-contain">
+        <svg viewBox="0 0 160 120" className="w-40 h-32 object-contain">
           <rect x="25" y="55" width="110" height="35" rx="10" fill="#F59E0B" stroke="#1E1E1E" strokeWidth="3.5" />
           <path d="M45 55 L60 32 L100 32 L115 55 Z" fill="#FBBF24" stroke="#1E1E1E" strokeWidth="3.5" />
           <circle cx="48" cy="90" r="12" fill="#1E293B" stroke="#1E1E1E" strokeWidth="3" />
@@ -137,9 +136,9 @@ const CityServicesSection = () => {
           <circle cx="112" cy="90" r="12" fill="#1E293B" stroke="#1E1E1E" strokeWidth="3" />
           <circle cx="112" cy="90" r="5" fill="#94A3B8" />
           {/* Transfer Tag */}
-          <g transform="translate(60, 10)">
-            <rect x="0" y="0" width="62" height="32" rx="6" fill="#3B82F6" stroke="#1E1E1E" strokeWidth="2.5" />
-            <text x="5" y="21" fill="#FFFFFF" fontSize="10" fontWeight="900">TRANSFER</text>
+          <g transform="translate(48, 6)">
+            <rect x="0" y="0" width="84" height="30" rx="8" fill="#3B82F6" stroke="#1E1E1E" strokeWidth="3" />
+            <text x="42" y="15" textAnchor="middle" dominantBaseline="central" fill="#FFFFFF" fontSize="13" fontWeight="900">TRANSFER</text>
           </g>
         </svg>
       )
@@ -148,16 +147,17 @@ const CityServicesSection = () => {
       id: 7,
       title: "Personal Car Loan",
       illustration: (
-        <svg viewBox="0 0 160 120" className="w-36 h-32 object-contain">
+        <svg viewBox="0 0 160 120" className="w-40 h-32 object-contain">
           <rect x="25" y="55" width="110" height="35" rx="10" fill="#10B981" stroke="#1E1E1E" strokeWidth="3.5" />
           <path d="M45 55 L60 32 L100 32 L115 55 Z" fill="#34D399" stroke="#1E1E1E" strokeWidth="3.5" />
           <circle cx="48" cy="90" r="12" fill="#1E293B" stroke="#1E1E1E" strokeWidth="3" />
           <circle cx="48" cy="90" r="5" fill="#94A3B8" />
           <circle cx="112" cy="90" r="12" fill="#1E293B" stroke="#1E1E1E" strokeWidth="3" />
           <circle cx="112" cy="90" r="5" fill="#94A3B8" />
-          <g transform="translate(64, 10)">
-            <rect x="0" y="0" width="56" height="32" rx="6" fill="#8B5CF6" stroke="#1E1E1E" strokeWidth="2.5" />
-            <text x="8" y="21" fill="#FFFFFF" fontSize="10" fontWeight="900">INSTANT</text>
+          {/* Instant Tag */}
+          <g transform="translate(50, 6)">
+            <rect x="0" y="0" width="78" height="30" rx="8" fill="#8B5CF6" stroke="#1E1E1E" strokeWidth="3" />
+            <text x="39" y="15" textAnchor="middle" dominantBaseline="central" fill="#FFFFFF" fontSize="14" fontWeight="900">INSTANT</text>
           </g>
         </svg>
       )
