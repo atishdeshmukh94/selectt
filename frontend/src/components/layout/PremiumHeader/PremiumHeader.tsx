@@ -1093,49 +1093,81 @@ export const PremiumHeader: React.FC = () => {
                 </Link>
               </div>
 
-              {/* 2. SELL Section */}
-              <div className="text-left font-sans">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
-                    SELL
+              {/* 2. SELL Section (Highlighted Ultra-Premium Card) */}
+              <div className="relative overflow-hidden rounded-2xl border border-cyan-200/80 bg-gradient-to-br from-cyan-50/70 via-white to-sky-50/60 p-3.5 shadow-sm shadow-cyan-500/10 text-left font-sans">
+                {/* Subtle ambient cyan glow in corner */}
+                <div className="absolute -right-8 -top-8 w-24 h-24 bg-[#13EDE5]/20 rounded-full blur-2xl pointer-events-none" />
+
+                {/* Header with Badges */}
+                <div className="flex items-center justify-between mb-3 relative z-10">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-extrabold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5] text-[#0C1B33] shadow-xs">
+                      SELL
+                    </span>
+                    <span className="text-xs font-bold text-[#0C1B33]">Sell In 24 Hours</span>
+                  </div>
+                  <span className="text-[9px] font-extrabold text-[#00A884] bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-200 uppercase tracking-wide">
+                    BEST PRICE
                   </span>
-                  <div className="flex-1 h-px bg-slate-100" />
                 </div>
-                <div className="space-y-0.5">
+
+                {/* Primary Hero CTA Card */}
+                <Link
+                  to="/sell-car"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="relative flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-[#0C1B33] via-[#112344] to-[#0C1B33] text-white shadow-md shadow-[#0C1B33]/15 mb-2.5 no-underline group hover:shadow-lg transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-[#13EDE5]/20 border border-[#13EDE5]/40 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+                      🚘
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <span>Sell Your Car Online</span>
+                        <span className="text-[9px] font-black bg-[#13EDE5] text-[#0C1B33] px-1.5 py-0.2 rounded">
+                          INSTANT
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-300 font-medium">
+                        Doorstep inspection • Instant payment
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-[#13EDE5] group-hover:bg-[#13EDE5] group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all">
+                    <IconChevronRight size={15} />
+                  </div>
+                </Link>
+
+                {/* 3 Quick-Action Secondary Cards */}
+                <div className="grid grid-cols-3 gap-2">
                   <Link
                     to="/sell-car"
-                    className="flex items-center gap-3.5 p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
+                    className="flex flex-col items-center justify-center p-2 rounded-xl bg-white border border-slate-200/90 hover:border-[#13EDE5] hover:bg-cyan-50/50 active:scale-95 transition-all no-underline group text-center shadow-2xs"
                   >
-                    <span className="text-base group-hover:scale-110 transition-transform">🚘</span>
-                    <span>Sell car</span>
+                    <span className="text-lg mb-0.5 group-hover:scale-110 transition-transform">🏷️</span>
+                    <span className="text-[11px] font-bold text-[#0C1B33] leading-tight">Valuation</span>
+                    <span className="text-[9px] text-slate-500 font-medium leading-tight mt-0.5">Free quote</span>
                   </Link>
 
                   <Link
                     to="/sell-car"
-                    className="flex items-center gap-3.5 p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
+                    className="flex flex-col items-center justify-center p-2 rounded-xl bg-white border border-slate-200/90 hover:border-[#13EDE5] hover:bg-cyan-50/50 active:scale-95 transition-all no-underline group text-center shadow-2xs"
                   >
-                    <span className="text-base group-hover:scale-110 transition-transform">🛠️</span>
-                    <span>Scrap car</span>
-                  </Link>
-
-                  <Link
-                    to="/sell-car"
-                    className="flex items-center gap-3.5 p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <span className="text-base group-hover:scale-110 transition-transform">🏷️</span>
-                    <span>Car valuation</span>
+                    <span className="text-lg mb-0.5 group-hover:scale-110 transition-transform">🛠️</span>
+                    <span className="text-[11px] font-bold text-[#0C1B33] leading-tight">Scrap Car</span>
+                    <span className="text-[9px] text-slate-500 font-medium leading-tight mt-0.5">RTO scrap</span>
                   </Link>
 
                   <Link
                     to="/used-car-loan"
-                    className="flex items-center gap-3.5 p-2.5 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 hover:text-[#0C1B33] transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
+                    className="flex flex-col items-center justify-center p-2 rounded-xl bg-white border border-slate-200/90 hover:border-[#13EDE5] hover:bg-cyan-50/50 active:scale-95 transition-all no-underline group text-center shadow-2xs"
                   >
-                    <span className="text-base group-hover:scale-110 transition-transform">🏦</span>
-                    <span>Finance & Car Loan</span>
+                    <span className="text-lg mb-0.5 group-hover:scale-110 transition-transform">🏦</span>
+                    <span className="text-[11px] font-bold text-[#0C1B33] leading-tight">Car Loan</span>
+                    <span className="text-[9px] text-slate-500 font-medium leading-tight mt-0.5">Lowest EMI</span>
                   </Link>
                 </div>
               </div>
