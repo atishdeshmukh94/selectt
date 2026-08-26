@@ -345,20 +345,24 @@ const CheckoutPage = () => {
               {/* Car Snapshot & Breakdown */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
                 {/* Header Car Info */}
-                <div className="p-5 sm:p-6 flex gap-4 border-b border-slate-100">
-                  <div className="w-28 h-20 sm:w-32 sm:h-24 bg-slate-100 rounded-xl overflow-hidden shrink-0 shadow-sm">
+                <div className="p-4 sm:p-6 flex items-center gap-3.5 sm:gap-4 border-b border-slate-100">
+                  <div className="w-24 h-20 sm:w-32 sm:h-24 bg-slate-100 rounded-xl overflow-hidden shrink-0 shadow-sm">
                     <img src={car.image} alt={car.model} className="w-full h-full object-cover" />
                   </div>
-                  <div className="flex flex-col justify-center">
-                    <h3 className="font-black text-[#0C1B33] text-base sm:text-lg leading-tight mb-1">
+                  <div className="flex flex-col justify-center min-w-0 flex-1">
+                    <h3 className="font-black text-[#0C1B33] text-base sm:text-lg leading-tight mb-1 truncate">
                       {car.year} {car.make} {car.model}
                     </h3>
-                    <div className="text-xs sm:text-sm text-slate-500 font-semibold flex gap-1.5 mb-2">
+                    <div className="text-[11px] sm:text-xs text-slate-500 font-semibold flex items-center gap-1.5 mb-1.5 truncate">
                       <span>{(car.km || 0).toLocaleString()} Km</span> • <span>{car.fuelType}</span> • <span>{car.transmission}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-black text-[#0C1B33] text-xl sm:text-2xl leading-none">₹{(car.price / 100000).toFixed(2)} Lakh</span>
-                      <span className="text-xs sm:text-sm text-slate-400 line-through font-bold">₹{((car.price + 22000) / 100000).toFixed(2)} Lakh</span>
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <span className="font-black text-[#0C1B33] text-lg sm:text-2xl whitespace-nowrap leading-none">
+                        ₹{(car.price / 100000).toFixed(2)} Lakh
+                      </span>
+                      <span className="text-xs sm:text-sm text-slate-400 line-through font-bold whitespace-nowrap">
+                        ₹{((car.price + 22000) / 100000).toFixed(2)} Lakh
+                      </span>
                     </div>
                   </div>
                 </div>
