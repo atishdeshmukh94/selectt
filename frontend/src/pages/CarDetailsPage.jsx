@@ -70,7 +70,7 @@ const hasPriceDrop = (car) => {
   if (car.discount_amount && Number(car.discount_amount) > 0) return true;
   const tagStr = (car.tag || car.badgeText || '').toLowerCase();
   if (tagStr.includes('price drop') || tagStr.includes('reduced') || tagStr.includes('discount') || tagStr.includes('offer zone')) return true;
-  return true;
+  return false;
 };
 
 
@@ -707,9 +707,12 @@ const CarDetailsPage = () => {
                 >
                   <div className="text-[10px] font-book text-slate-400 uppercase tracking-wider mb-1 group-hover:text-[#00C9AF] transition-colors">Fixed on road price</div>
                   <div className="flex flex-row items-baseline justify-between w-full flex-wrap gap-1">
-                    <span className="text-[13px] font-bold text-slate-400 line-through leading-none mt-1">
-                      ₹{((car.price + 40000) / 100000).toFixed(2)} Lakh
-                    </span>
+                    {/* Only show strikethrough if real original price exists */}
+                    {(car.original_price || car.originalPrice || car.old_price || car.oldPrice) && (
+                      <span className="text-[13px] font-bold text-slate-400 line-through leading-none mt-1">
+                        ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)} Lakh
+                      </span>
+                    )}
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-[26px] sm:text-[28px] !font-black text-[#0C1B33] leading-none group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
                       <Info size={14} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
@@ -924,9 +927,12 @@ const CarDetailsPage = () => {
                   >
                     <div className="text-[10px] text-slate-400 font-book uppercase tracking-wider mb-0.5 group-hover:text-[#00C9AF] transition-colors">Fixed on road price</div>
                     <div className="flex flex-col items-start gap-0.5">
-                      <span className="text-xs xl:text-sm font-book text-slate-400 line-through leading-none">
-                        ₹{((car.price + 40000) / 100000).toFixed(2)} Lakh
-                      </span>
+                      {/* Only show strikethrough if real original price exists */}
+                      {(car.original_price || car.originalPrice || car.old_price || car.oldPrice) && (
+                        <span className="text-xs xl:text-sm font-book text-slate-400 line-through leading-none">
+                          ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)} Lakh
+                        </span>
+                      )}
                       <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                         <span className="text-xl xl:text-2xl font-bold text-[#0C1B33] group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
                         <Info size={14} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />

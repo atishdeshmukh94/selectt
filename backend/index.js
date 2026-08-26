@@ -347,7 +347,8 @@ const createNotification = (type, message, userId = null, referenceId = null) =>
     });
 };
 
-app.get('/api/admin/notifications', (req, res) => {
+// SEC-001 FIX: Admin notifications now require authentication
+app.get('/api/admin/notifications', authMiddleware, (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     db.query('SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT ?', [limit], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -362,14 +363,14 @@ app.get('/api/admin/notifications', (req, res) => {
     });
 });
 
-app.put('/api/admin/notifications/:id/read', (req, res) => {
+app.put('/api/admin/notifications/:id/read', authMiddleware, (req, res) => {
     db.query('UPDATE admin_notifications SET is_read = TRUE WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true });
     });
 });
 
-app.put('/api/admin/notifications/read-all', (req, res) => {
+app.put('/api/admin/notifications/read-all', authMiddleware, (req, res) => {
     db.query('UPDATE admin_notifications SET is_read = TRUE WHERE is_read = FALSE', (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true, updated: result.affectedRows });
@@ -834,8 +835,8 @@ app.post('/api/auth/verify-otp', async (req, res) => {
             return res.status(400).json({ message: 'Invalid or expired OTP' });
         }
 
-        // OTP valid -> Delete it so it can't be reused
-
+        // SEC-003 FIX: Delete OTP immediately after validation to prevent reuse
+        await queryAsync('DELETE FROM otps WHERE phone = ?', [cleanPhone]);
 
         // Check if customer exists
         // Match either 91X or X (10 digit) just in case
@@ -874,9 +875,6 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 
         // Login user
         const token = jwt.sign({ id: customer.id, phone: customer.phone, role: 'customer' }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        
-        // OTP valid and process complete (login or registration) -> Delete it now
-        await queryAsync('DELETE FROM otps WHERE phone = ?', [cleanPhone]);
         
         res.json({ 
             success: true, 
@@ -2224,33 +2222,8 @@ app.delete('/api/media', authMiddleware, (req, res) => {
     });
 });
 
-app.get('/api/profile', authMiddleware, (req, res) => {
-    db.query('SELECT * FROM users WHERE id = ?', [req.user.id], (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (results.length === 0) return res.status(404).json({ message: 'User not found' });
-        const user = results[0];
-        delete user.password; // Don't send password hash
-        res.json(user);
-    });
-});
-
-app.put('/api/profile', authMiddleware, async (req, res) => {
-    const data = { ...req.body };
-    delete data.id;
-    if (req.user.role !== 'admin') {
-        delete data.role;
-    }
-    if (data.password && data.password.trim() !== "") {
-        data.password = await bcrypt.hash(data.password, 10);
-    } else {
-        delete data.password;
-    }
-    
-    db.query('UPDATE users SET ? WHERE id = ?', [data, req.user.id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Profile updated' });
-    });
-});
+// NOTE: /api/profile GET and PUT are defined above (lines ~1394-1418)
+// Duplicate definitions removed to avoid dead code
 
 // Login
 app.post('/api/login', (req, res) => {
@@ -2261,8 +2234,8 @@ app.post('/api/login', (req, res) => {
 
         const user = results[0];
         let isMatch = false;
+        // SEC-002 FIX: Only use bcrypt comparison — removed plaintext password fallback
         try { isMatch = await bcrypt.compare(password, user.password); } catch {}
-        if (!isMatch && password === user.password) isMatch = true;
         if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
 
         const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
@@ -3084,16 +3057,15 @@ app.post('/api/admin/video-testimonials/reorder', authMiddleware, isAdmin, (req,
 
 // ──────────────────────────────────────────────────────────────────────────────
 
-// Global Error Handler
+// Global Error Handler (production-aware: no stack traces exposed)
 app.use((err, req, res, next) => {
     const statusCode = err.status || 500;
     const isProduction = process.env.NODE_ENV === 'production';
     
-    console.error(`[Error] ${req.method} ${req.url}:`, err);
+    console.error(`[Error] ${req.method} ${req.url}:`, err.message);
 
     res.status(statusCode).json({
-        message: statusCode === 500 && isProduction ? "Internal Server Error" : err.message,
-        // Shield stack trace in production
+        message: statusCode === 500 && isProduction ? 'Internal Server Error' : err.message,
         ...(isProduction ? {} : { stack: err.stack })
     });
 });
@@ -3101,8 +3073,8 @@ app.use((err, req, res, next) => {
 const server = app.listen(port, () => console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${port}`));
 
 // Graceful Shutdown
-process.on('SIGTERM', () => {
-    console.log('SIGTERM signal received: closing HTTP server');
+const shutdown = (signal) => {
+    console.log(`${signal} signal received: closing HTTP server`);
     server.close(() => {
         console.log('HTTP server closed');
         db.end((err) => {
@@ -3110,36 +3082,8 @@ process.on('SIGTERM', () => {
             process.exit(err ? 1 : 0);
         });
     });
-});
+};
 
-// Standardized Error Handler
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(err.status || 500).json({
-        message: err.message || 'Internal Server Error',
-        error: process.env.NODE_ENV === 'production' ? {} : err
-    });
-});
-
-process.on('SIGTERM', () => {
-    console.log('SIGTERM signal received: closing HTTP server');
-    server.close(() => {
-        console.log('HTTP server closed');
-        db.end((err) => {
-            console.log('MySQL Pool closed');
-            process.exit(err ? 1 : 0);
-        });
-    });
-});
-
-process.on('SIGINT', () => {
-    console.log('SIGINT signal received: closing HTTP server');
-    server.close(() => {
-        console.log('HTTP server closed');
-        db.end((err) => {
-            console.log('MySQL Pool closed');
-            process.exit(err ? 1 : 0);
-        });
-    });
-});
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 

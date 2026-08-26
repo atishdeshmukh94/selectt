@@ -20,7 +20,7 @@ const hasPriceDrop = (car) => {
   if (car.discount_amount && Number(car.discount_amount) > 0) return true;
   const tagStr = (car.tag || car.badgeText || '').toLowerCase();
   if (tagStr.includes('price drop') || tagStr.includes('reduced') || tagStr.includes('discount') || tagStr.includes('offer zone')) return true;
-  return true;
+  return false;
 };
 
 const getBadgeStyles = (tagText) => {
@@ -208,9 +208,12 @@ const CarCard = ({ car, lightBg = false }) => {
           {/* Pricing and Action button */}
           <div className={`flex items-center justify-between border-t pt-3.5 mt-1 pb-0 ${lightBg ? 'border-slate-100' : 'border-white/5'}`}>
             <div className="flex flex-col items-start text-left">
-              <span className={`text-[11px] font-body line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
-                ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice || (car.price + 40000))) / 100000).toFixed(2)}L
-              </span>
+              {/* Only show strikethrough if there's a real original price */}
+              {(car.original_price || car.originalPrice || car.old_price || car.oldPrice) && (
+                <span className={`text-[11px] font-body line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
+                  ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)}L
+                </span>
+              )}
               <span className={`text-[20px] sm:text-[22px] font-price !font-black tracking-tight leading-none ${lightBg ? 'text-[#0C1B33]' : 'text-white'}`}>
                 ₹{(car.price / 100000).toFixed(2)} Lakh
               </span>

@@ -219,7 +219,7 @@ const hasPriceDrop = (car) => {
   if (car.discount_amount && Number(car.discount_amount) > 0) return true;
   const tagStr = (car.tag || car.badgeText || '').toLowerCase();
   if (tagStr.includes('price drop') || tagStr.includes('reduced') || tagStr.includes('discount') || tagStr.includes('offer zone')) return true;
-  return true;
+  return false;
 };
 
 const formatLabel = (label) => {
