@@ -13,6 +13,10 @@ import {
   Loader2,
   Check,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Image,
   Video,
 } from "lucide-react";
@@ -341,16 +345,122 @@ const MediaLibrary: React.FC = () => {
       return 0;
     });
 
-  // Pagination slice
-  const totalPages = Math.ceil(filteredMedia.length / PAGE_SIZE);
-  const visibleMedia = filteredMedia.slice(0, page * PAGE_SIZE);
-  const hasMore = page * PAGE_SIZE < filteredMedia.length;
+  // Pagination slice (Strictly 50 items per page)
+  const totalPages = Math.max(1, Math.ceil(filteredMedia.length / PAGE_SIZE));
+  const startIndex = (page - 1) * PAGE_SIZE;
+  const endIndex = Math.min(startIndex + PAGE_SIZE, filteredMedia.length);
+  const visibleMedia = filteredMedia.slice(startIndex, endIndex);
 
   // Statistics (always from full list)
   const totalCount = media.length;
   const imageCount = media.filter((item) => !isVideoFile(item.url)).length;
   const videoCount = media.filter((item) => isVideoFile(item.url)).length;
   const totalSize = media.reduce((acc, item) => acc + item.size, 0);
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (page <= 4) {
+        pages.push(1, 2, 3, 4, 5, "...", totalPages);
+      } else if (page >= totalPages - 3) {
+        pages.push(1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, "...", page - 1, page, page + 1, "...", totalPages);
+      }
+    }
+    return pages;
+  };
+
+  const renderPagination = () => {
+    if (filteredMedia.length === 0) return null;
+    return (
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-gray-100 dark:border-gray-850">
+        {/* Counter Info */}
+        <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+          Showing <span className="font-bold text-gray-900 dark:text-white">{filteredMedia.length === 0 ? 0 : startIndex + 1}</span> to{" "}
+          <span className="font-bold text-gray-900 dark:text-white">{endIndex}</span> of{" "}
+          <span className="font-bold text-gray-900 dark:text-white">{filteredMedia.length}</span> items
+          {totalPages > 1 && (
+            <span className="ml-2 text-indigo-600 dark:text-indigo-400 font-semibold">
+              (Page {page} of {totalPages})
+            </span>
+          )}
+        </div>
+
+        {/* Page Buttons */}
+        {totalPages > 1 && (
+          <div className="flex items-center gap-1.5 flex-wrap justify-center">
+            {/* First Page */}
+            <button
+              onClick={() => { setPage(1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              disabled={page === 1}
+              className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              title="First Page"
+            >
+              <ChevronsLeft size={16} />
+            </button>
+
+            {/* Previous */}
+            <button
+              onClick={() => { setPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              disabled={page === 1}
+              className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronLeft size={16} />
+              <span className="hidden sm:inline">Prev</span>
+            </button>
+
+            {/* Page Numbers */}
+            {getPageNumbers().map((pNum, idx) => {
+              if (pNum === "...") {
+                return (
+                  <span key={`ellipsis-${idx}`} className="px-2 py-1 text-gray-400 text-xs font-bold select-none">
+                    ...
+                  </span>
+                );
+              }
+              const isActive = pNum === page;
+              return (
+                <button
+                  key={`page-${pNum}`}
+                  onClick={() => { setPage(pNum as number); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className={`min-w-[36px] h-9 px-3 rounded-xl text-xs font-bold transition-all ${
+                    isActive
+                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none"
+                      : "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-indigo-400 dark:hover:border-indigo-600 hover:text-indigo-600"
+                  }`}
+                >
+                  {pNum}
+                </button>
+              );
+            })}
+
+            {/* Next */}
+            <button
+              onClick={() => { setPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              disabled={page === totalPages}
+              className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight size={16} />
+            </button>
+
+            {/* Last Page */}
+            <button
+              onClick={() => { setPage(totalPages); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              disabled={page === totalPages}
+              className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              title="Last Page"
+            >
+              <ChevronsRight size={16} />
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const inpClass =
     "w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:bg-gray-800 dark:border-gray-700 dark:text-white";
@@ -616,47 +726,8 @@ const MediaLibrary: React.FC = () => {
               })}
             </div>
 
-            {/* Load More / Pagination */}
-            {hasMore && (
-              <div className="flex flex-col items-center gap-3 mt-10">
-                <p className="text-xs text-gray-400 font-semibold">
-                  Showing {visibleMedia.length} of {filteredMedia.length} files
-                </p>
-                <button
-                  onClick={() => setPage((p) => p + 1)}
-                  className="flex items-center gap-2 bg-white dark:bg-gray-950 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 text-indigo-600 border-2 border-indigo-200 dark:border-indigo-800 hover:border-indigo-400 px-8 py-3 rounded-2xl font-black text-sm transition-all shadow-sm hover:shadow-md"
-                >
-                  <ChevronDown size={18} />
-                  Load More ({filteredMedia.length - visibleMedia.length} remaining)
-                </button>
-
-                {/* Page indicator dots */}
-                <div className="flex gap-1.5 mt-1">
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setPage(i + 1)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        i < page
-                          ? "bg-indigo-500 w-4"
-                          : "bg-gray-200 dark:bg-gray-700"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* All loaded state */}
-            {!hasMore && filteredMedia.length > PAGE_SIZE && (
-              <div className="flex items-center justify-center mt-10 gap-3">
-                <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
-                <span className="text-xs text-gray-400 font-bold px-3">
-                  All {filteredMedia.length} files loaded
-                </span>
-                <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
-              </div>
-            )}
+            {/* Pagination Controls */}
+            {renderPagination()}
           </>
         ) : (
           <>
@@ -747,31 +818,8 @@ const MediaLibrary: React.FC = () => {
               </div>
             </div>
 
-            {/* Load More for list view */}
-            {hasMore && (
-              <div className="flex flex-col items-center gap-3 mt-8">
-                <p className="text-xs text-gray-400 font-semibold">
-                  Showing {visibleMedia.length} of {filteredMedia.length} files
-                </p>
-                <button
-                  onClick={() => setPage((p) => p + 1)}
-                  className="flex items-center gap-2 bg-white dark:bg-gray-950 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 text-indigo-600 border-2 border-indigo-200 dark:border-indigo-800 hover:border-indigo-400 px-8 py-3 rounded-2xl font-black text-sm transition-all shadow-sm hover:shadow-md"
-                >
-                  <ChevronDown size={18} />
-                  Load More ({filteredMedia.length - visibleMedia.length} remaining)
-                </button>
-              </div>
-            )}
-
-            {!hasMore && filteredMedia.length > PAGE_SIZE && (
-              <div className="flex items-center justify-center mt-8 gap-3">
-                <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
-                <span className="text-xs text-gray-400 font-bold px-3">
-                  All {filteredMedia.length} files loaded
-                </span>
-                <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
-              </div>
-            )}
+            {/* Pagination Controls */}
+            {renderPagination()}
           </>
         )}
 

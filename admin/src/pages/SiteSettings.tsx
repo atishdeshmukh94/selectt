@@ -19,9 +19,14 @@ interface SiteSettingsProps {
 }
 
 const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
+  const [activeSection, setActiveSection] = useState<string>(section);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (section) setActiveSection(section);
+  }, [section]);
 
   useEffect(() => {
     fetchSettings();
@@ -78,19 +83,42 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
 
   if (loading) return (
     <>
-      <PageMeta title={`Site Settings - ${section.charAt(0).toUpperCase() + section.slice(1)} | Selectt Admin`} description="Configure global website settings." />
+      <PageMeta title={`Site Settings - ${activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} | Selectt Admin`} description="Configure global website settings." />
       <div className="p-6 text-center">Loading settings...</div>
     </>
   );
 
   return (
     <>
-      <PageMeta title={`Site Settings - ${section.charAt(0).toUpperCase() + section.slice(1)} | Selectt Admin`} description="Configure global website settings." />
+      <PageMeta title={`Site Settings - ${activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} | Selectt Admin`} description="Configure global website settings." />
       <div className="p-4 md:p-6">
-        <PageBreadCrumb pageTitle={`Site Settings - ${section.charAt(0).toUpperCase() + section.slice(1)}`} />
+        <PageBreadCrumb pageTitle={`Site Settings - ${activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}`} />
+
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 border-b border-gray-200 dark:border-gray-800">
+          {[
+            { id: "payment", label: "💳 Payment Gateway" },
+            { id: "smtp", label: "✉️ SMTP & Email" },
+            { id: "whatsapp", label: "💬 WhatsApp API" },
+            { id: "maintenance", label: "🚧 Maintenance Mode" },
+            { id: "location", label: "📍 Location & Contact" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveSection(tab.id as any)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                activeSection === tab.id
+                  ? "bg-indigo-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none"
+                  : "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-indigo-600 hover:border-indigo-300"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
       <div className="grid grid-cols-1 gap-6">
-        {section === "payment" && (
+        {activeSection === "payment" && (
           <>
             <ComponentCard title="Payment Gateway (Razorpay)">
               <form onSubmit={handleSave} className="space-y-6">
@@ -139,7 +167,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
           </>
         )}
 
-        {section === "location" && (
+        {activeSection === "location" && (
           <ComponentCard title="Location & Contact Settings">
             <form onSubmit={handleSave} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -178,7 +206,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
           </ComponentCard>
         )}
 
-        {section === "smtp" && (
+        {activeSection === "smtp" && (
           <ComponentCard title="SMTP & Email Settings">
             <form onSubmit={handleSave} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -225,7 +253,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
             </form>
           </ComponentCard>
         )}
-        {section === "maintenance" && (
+        {activeSection === "maintenance" && (
           <ComponentCard title="Site Maintenance Mode">
             <form onSubmit={handleSave} className="space-y-6">
               <div className="grid grid-cols-1 gap-6">
@@ -262,7 +290,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
           </ComponentCard>
         )}
 
-        {section === "whatsapp" && (
+        {activeSection === "whatsapp" && (
           <div className="space-y-6">
             <ComponentCard title="WhatsApp Settings">
               <form onSubmit={handleSave} className="space-y-6">

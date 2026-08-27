@@ -75,12 +75,15 @@ export default function App() {
                   <Route path="/media-library" element={<MediaLibrary />} />
 
                   {/* Site Settings */}
+                  <Route path="/settings" element={<SiteSettings section="payment" />} />
+                  <Route path="/site-settings" element={<SiteSettings section="payment" />} />
                   <Route path="/image-settings" element={<ImageSettings />} />
                   <Route path="/settings/images" element={<ImageSettings />} />
                   <Route path="/settings/branding" element={<ImageSettings />} />
                   <Route path="/banners" element={<ImageSettings />} />
                   <Route path="/testimonials-video" element={<TestimonialsVideo />} />
                   <Route path="/locations" element={<Locations />} />
+                  <Route path="/settings/location" element={<SiteSettings section="location" />} />
                   <Route path="/settings/car-hubs" element={<CarHubs />} />
                   <Route path="/settings/customer-reviews" element={<CustomerReviews />} />
                   <Route path="/settings/payment" element={<SiteSettings section="payment" />} />
