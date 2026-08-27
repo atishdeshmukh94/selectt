@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PageMeta from '../components/common/PageMeta';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ShieldCheck,
@@ -699,16 +700,7 @@ const NewHome = () => {
 
   const [coords, setCoords] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    document.title = "Selectt - Buy & Sell Certified Used Cars with Confidence";
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-      metaDesc = document.createElement('meta');
-      metaDesc.name = "description";
-      document.head.appendChild(metaDesc);
-    }
-    metaDesc.content = "Browse 200+ certified pre-owned cars on Selectt. Sell your car instantly from home with maximum value and instant payments. Enjoy transparent and hassle-free processing.";
-  }, []);
+  // SEO handled via PageMeta component in return
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -1342,6 +1334,11 @@ const NewHome = () => {
 
   return (
     <div className="relative bg-gradient-to-b from-[#162947] via-[#0C1B33] to-[#050B16] text-white min-h-screen overflow-x-hidden font-sans">
+      <PageMeta
+        title="Buy & Sell Certified Pre-Owned Cars in Raipur | Selectt"
+        description="Selectt is Raipur's most trusted used car marketplace. Browse 200+ certified pre-owned cars with 200-point inspection, free doorstep test drives, and easy financing. India's trusted destination for pre-owned cars."
+        canonical="/"
+      />
       {/* Global blueprint grid lines background */}
       <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
 

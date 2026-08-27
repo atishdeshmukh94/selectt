@@ -1,53 +1,74 @@
 import { useEffect } from 'react';
 
-const PageMeta = ({ title, description, image, schema }) => {
+const SITE_URL = 'https://selectt.in';
+
+/**
+ * PageMeta — Sets page title, meta description, OG tags, Twitter card, canonical URL, and JSON-LD schema.
+ * Usage: <PageMeta title="..." description="..." canonical="/page-path" image="/img/og.jpg" schema={{...}} />
+ */
+const PageMeta = ({ title, description, canonical, image, schema }) => {
   useEffect(() => {
-    // Update title
-    if (title) {
-      document.title = title;
-      
-      // Open Graph title
-      let ogTitle = document.querySelector('meta[property="og:title"]');
-      if (!ogTitle) {
-        ogTitle = document.createElement('meta');
-        ogTitle.setAttribute('property', 'og:title');
-        document.head.appendChild(ogTitle);
-      }
-      ogTitle.setAttribute('content', title);
-    }
+    const ogImage = image
+      ? (image.startsWith('http') ? image : `${SITE_URL}${image}`)
+      : `${SITE_URL}/img/og-image.jpg`;
 
-    // Update meta description
+    const canonicalUrl = canonical
+      ? `${SITE_URL}${canonical}`
+      : SITE_URL;
+
+    const fullTitle = title || 'Selectt — Buy & Sell Certified Pre-Owned Cars in Raipur';
+
+    // ── Title ──────────────────────────────────────────
+    document.title = fullTitle;
+
+    // ── Helper: upsert a meta tag ──────────────────────
+    const setMeta = (attr, value, content) => {
+      let el = document.querySelector(`meta[${attr}="${value}"]`);
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute(attr, value);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    };
+
+    // ── Helper: upsert a link tag ──────────────────────
+    const setLink = (rel, href) => {
+      let el = document.querySelector(`link[rel="${rel}"]`);
+      if (!el) {
+        el = document.createElement('link');
+        el.setAttribute('rel', rel);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('href', href);
+    };
+
+    // Description
     if (description) {
-      let metaDesc = document.querySelector('meta[name="description"]');
-      if (!metaDesc) {
-        metaDesc = document.createElement('meta');
-        metaDesc.setAttribute('name', 'description');
-        document.head.appendChild(metaDesc);
-      }
-      metaDesc.setAttribute('content', description);
-
-      // Open Graph description
-      let ogDesc = document.querySelector('meta[property="og:description"]');
-      if (!ogDesc) {
-        ogDesc = document.createElement('meta');
-        ogDesc.setAttribute('property', 'og:description');
-        document.head.appendChild(ogDesc);
-      }
-      ogDesc.setAttribute('content', description);
-    }
-    
-    // Open Graph image
-    if (image) {
-      let ogImage = document.querySelector('meta[property="og:image"]');
-      if (!ogImage) {
-        ogImage = document.createElement('meta');
-        ogImage.setAttribute('property', 'og:image');
-        document.head.appendChild(ogImage);
-      }
-      ogImage.setAttribute('content', image);
+      setMeta('name', 'description', description);
     }
 
-    // Structured JSON-LD Schema
+    // Canonical
+    setLink('canonical', canonicalUrl);
+
+    // Open Graph
+    setMeta('property', 'og:title', fullTitle);
+    setMeta('property', 'og:url', canonicalUrl);
+    setMeta('property', 'og:image', ogImage);
+    setMeta('property', 'og:type', 'website');
+    if (description) {
+      setMeta('property', 'og:description', description);
+    }
+
+    // Twitter Card
+    setMeta('name', 'twitter:card', 'summary_large_image');
+    setMeta('name', 'twitter:title', fullTitle);
+    setMeta('name', 'twitter:image', ogImage);
+    if (description) {
+      setMeta('name', 'twitter:description', description);
+    }
+
+    // JSON-LD Schema
     let schemaScript = document.getElementById('jsonld-schema');
     if (schema) {
       if (!schemaScript) {
@@ -62,13 +83,12 @@ const PageMeta = ({ title, description, image, schema }) => {
     }
 
     return () => {
-      // Cleanup schema script on unmount
       const script = document.getElementById('jsonld-schema');
       if (script) script.remove();
     };
-  }, [title, description, image, schema]);
+  }, [title, description, canonical, image, schema]);
 
-  return null; // This component doesn't render anything
+  return null;
 };
 
 export default PageMeta;

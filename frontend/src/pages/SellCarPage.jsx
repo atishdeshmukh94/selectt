@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PageMeta from '../components/common/PageMeta';
 import {
   CheckCircle2,
   MapPin,
@@ -393,6 +394,11 @@ const SellCarPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0C1B33] font-sans pb-20 w-full overflow-x-hidden">
+      <PageMeta
+        title="Sell Your Car Online in Raipur — Get Best Price | Selectt"
+        description="Sell your used car at the best price in Raipur. Free home inspection, instant payment, zero paperwork hassle. Get an instant valuation now on Selectt."
+        canonical="/sell-car"
+      />
 
       {/* 1. FULL BLEED HERO WIDGET SECTION */}
       <section className="relative w-full overflow-hidden bg-[#F8FAFC]">

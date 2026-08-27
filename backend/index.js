@@ -347,6 +347,96 @@ const createNotification = (type, message, userId = null, referenceId = null) =>
     });
 };
 
+// ============================================================
+// SEO — Dynamic XML Sitemap & Robots
+// ============================================================
+
+const SITE_URL = process.env.SITE_URL || 'https://selectt.in';
+
+const STATIC_PAGES = [
+    { url: '/',                     changefreq: 'daily',   priority: '1.0' },
+    { url: '/buy-cars',             changefreq: 'daily',   priority: '0.9' },
+    { url: '/sell-car',             changefreq: 'weekly',  priority: '0.8' },
+    { url: '/used-car-loan',        changefreq: 'weekly',  priority: '0.8' },
+    { url: '/selectt-assured',      changefreq: 'weekly',  priority: '0.8' },
+    { url: '/selectt-buyback',      changefreq: 'monthly', priority: '0.7' },
+    { url: '/selectt-partners',     changefreq: 'monthly', priority: '0.7' },
+    { url: '/car-hub-locations',    changefreq: 'weekly',  priority: '0.7' },
+    { url: '/how-it-works/buying',  changefreq: 'monthly', priority: '0.7' },
+    { url: '/how-it-works/selling', changefreq: 'monthly', priority: '0.7' },
+    { url: '/blog',                 changefreq: 'daily',   priority: '0.8' },
+    { url: '/car-insurance',        changefreq: 'monthly', priority: '0.6' },
+    { url: '/customer-reviews',     changefreq: 'weekly',  priority: '0.6' },
+    { url: '/about-us',             changefreq: 'monthly', priority: '0.6' },
+    { url: '/contact-us',           changefreq: 'monthly', priority: '0.6' },
+    { url: '/careers',              changefreq: 'weekly',  priority: '0.5' },
+    { url: '/faq',                  changefreq: 'monthly', priority: '0.5' },
+    { url: '/pricing',              changefreq: 'monthly', priority: '0.6' },
+    { url: '/privacy-policy',       changefreq: 'yearly',  priority: '0.3' },
+    { url: '/terms-conditions',     changefreq: 'yearly',  priority: '0.3' },
+    { url: '/cookie-policy',        changefreq: 'yearly',  priority: '0.3' },
+];
+
+const seoSlugify = (text) => {
+    if (!text) return '';
+    return String(text).toLowerCase().trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]+/g, '')
+        .replace(/--+/g, '-');
+};
+
+// Dynamic XML Sitemap
+app.get('/api/sitemap.xml', async (req, res) => {
+    try {
+        const cars = await queryAsync(
+            "SELECT id, make, model, variant, updated_at, created_at FROM cars WHERE status = 'active' OR status IS NULL OR status = '' ORDER BY updated_at DESC LIMIT 5000"
+        );
+
+        let blogs = [];
+        try {
+            blogs = await queryAsync(
+                "SELECT slug, updated_at FROM blog_posts WHERE status = 'published' ORDER BY updated_at DESC LIMIT 1000"
+            );
+        } catch (_) { /* blog table may not exist */ }
+
+        const today = new Date().toISOString().split('T')[0];
+        let urls = '';
+
+        for (const page of STATIC_PAGES) {
+            urls += `  <url>\n    <loc>${SITE_URL}${page.url}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
+        }
+
+        for (const car of cars) {
+            const make = seoSlugify(car.make || 'car');
+            const model = seoSlugify(car.model || 'model');
+            const variant = seoSlugify(car.variant || `${car.make}-${car.model}`);
+            const lastmod = car.updated_at ? new Date(car.updated_at).toISOString().split('T')[0] : today;
+            urls += `  <url>\n    <loc>${SITE_URL}/car/${make}/${model}/${variant}/${car.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+        }
+
+        for (const post of blogs) {
+            const lastmod = post.updated_at ? new Date(post.updated_at).toISOString().split('T')[0] : today;
+            urls += `  <url>\n    <loc>${SITE_URL}/blog/${post.slug}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
+        }
+
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}</urlset>`;
+        res.set('Content-Type', 'application/xml');
+        res.set('Cache-Control', 'public, max-age=3600');
+        res.send(xml);
+    } catch (err) {
+        console.error('Sitemap error:', err.message);
+        res.status(500).send('Error generating sitemap');
+    }
+});
+
+// Robots.txt fallback from backend
+app.get('/robots.txt', (req, res) => {
+    res.set('Content-Type', 'text/plain');
+    res.send(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /profile\nDisallow: /checkout\nSitemap: ${SITE_URL}/api/sitemap.xml\n`);
+});
+
+// ============================================================
+
 // SEC-001 FIX: Admin notifications now require authentication
 app.get('/api/admin/notifications', authMiddleware, (req, res) => {
     const limit = parseInt(req.query.limit) || 20;

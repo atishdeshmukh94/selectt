@@ -1,0 +1,37 @@
+# Selectt robots.txt — https://selectt.in
+
+User-agent: *
+Allow: /
+Allow: /buy-cars
+Allow: /sell-car
+Allow: /used-car-loan
+Allow: /blog
+Allow: /about-us
+Allow: /contact-us
+Allow: /faq
+Allow: /careers
+Allow: /car-insurance
+Allow: /selectt-assured
+Allow: /selectt-buyback
+Allow: /selectt-partners
+Allow: /car-hub-locations
+Allow: /how-it-works
+Allow: /pricing
+Allow: /customer-reviews
+
+# Block private/user-specific pages
+Disallow: /profile
+Disallow: /checkout
+Disallow: /e-challan
+Disallow: /challan
+Disallow: /error-404
+Disallow: /sitemap
+Disallow: /new-home2
+Disallow: /home-2
+Disallow: /api/
+
+# Block admin panel (served on separate port/subdomain in production)
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://selectt.in/api/sitemap.xml

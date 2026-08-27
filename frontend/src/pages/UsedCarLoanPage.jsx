@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PageMeta from '../components/common/PageMeta';
 import {
   CheckCircle2,
   ShieldCheck,
@@ -183,6 +184,11 @@ const CityServicesSection = () => {
 
   return (
     <section className="py-10 lg:py-14 bg-[#f4f8fc] overflow-hidden relative border-t border-slate-200/60">
+      <PageMeta
+        title="Used Car Loan in Raipur — Low EMI, Fast Approval | Selectt"
+        description="Get a used car loan in Raipur with the lowest EMI and fastest approval. Up to 90% financing, flexible tenure, and minimal documentation on Selectt."
+        canonical="/used-car-loan"
+      />
       {/* Background Subtle Lines Texture */}
       <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
