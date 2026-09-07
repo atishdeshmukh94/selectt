@@ -2588,30 +2588,40 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                 </div>
               </div>
 
-              {/* BOOK INSPECTION BUTTON (HIGH CONTRAST BOLD DESIGN) */}
-              <div ref={inlineBtnRef} className="flex justify-center pt-4 pb-2">
+              {/* BOOK INSPECTION BUTTON (ULTRA PREMIUM GLOWING DESIGN) */}
+              <div ref={inlineBtnRef} className="flex justify-center pt-5 pb-2">
                 <button
                   type="button"
                   onClick={() => setStep(5)}
-                  className="w-full max-w-lg bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] p-4 sm:p-4.5 rounded-2xl font-black transition-all shadow-xl shadow-[#00C9AF]/30 hover:shadow-2xl hover:shadow-[#00C9AF]/45 hover:-translate-y-0.5 active:scale-[0.99] cursor-pointer flex items-center justify-between gap-4 group"
+                  className="relative overflow-hidden w-full max-w-lg bg-gradient-to-r from-[#00C9AF] via-[#14FFEC] to-[#00C9AF] bg-[length:200%_auto] hover:bg-right text-[#0C1B33] p-4 sm:p-5 rounded-2xl sm:rounded-3xl font-black transition-all duration-500 shadow-[0_14px_40px_-8px_rgba(0,201,175,0.45)] hover:shadow-[0_20px_50px_-5px_rgba(0,201,175,0.65)] hover:-translate-y-1 active:scale-[0.98] cursor-pointer flex items-center justify-between gap-4 group border border-white/50"
                 >
+                  {/* Subtle Light Reflection Sweep */}
+                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
+
                   {/* Left Calendar Check Icon Badge */}
-                  <div className="w-12 h-12 rounded-xl bg-[#0C1B33] text-[#00C9AF] flex items-center justify-center shadow-md shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="relative w-12 h-12 sm:w-13 sm:h-13 rounded-2xl bg-[#0C1B33] text-[#14FFEC] border border-white/10 flex items-center justify-center shadow-lg shadow-[#0C1B33]/25 shrink-0 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300">
                     <CalendarCheck size={24} className="stroke-[2.5]" />
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#14FFEC] rounded-full border-2 border-[#0C1B33] animate-ping" />
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#14FFEC] rounded-full border-2 border-[#0C1B33]" />
                   </div>
 
                   {/* Middle Text Block */}
-                  <div className="text-left flex-1">
-                    <div className="text-lg sm:text-xl font-black text-[#0C1B33] leading-tight">
-                      Book Inspection
+                  <div className="text-left flex-1 relative z-10">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg sm:text-xl font-heading font-black text-[#0C1B33] tracking-tight leading-tight">
+                        Book Inspection
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-[#0C1B33]/15 text-[#0C1B33] text-[10px] font-black uppercase tracking-wider backdrop-blur-xs">
+                        100% Free
+                      </span>
                     </div>
-                    <div className="text-xs sm:text-sm font-extrabold text-[#0C1B33]/85 leading-tight">
+                    <div className="text-xs sm:text-sm font-bold text-[#0C1B33]/85 leading-tight mt-0.5">
                       Get final price after expert inspection
                     </div>
                   </div>
 
                   {/* Right Arrow Circle Badge */}
-                  <div className="w-11 h-11 rounded-full bg-[#0C1B33] text-[#00C9AF] flex items-center justify-center shadow-md shrink-0 group-hover:translate-x-1 transition-transform">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#0C1B33] text-[#14FFEC] group-hover:bg-[#060D19] group-hover:text-white border border-white/10 flex items-center justify-center shadow-lg shrink-0 group-hover:translate-x-1.5 transition-all duration-300">
                     <ArrowRight size={20} className="stroke-[3]" />
                   </div>
                 </button>
@@ -2626,20 +2636,25 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
               <button
                 type="button"
                 onClick={() => setStep(5)}
-                className="pointer-events-auto w-full max-w-2xl sm:max-w-3xl bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] p-4 sm:p-4.5 rounded-t-3xl rounded-b-none font-black transition-all shadow-2xl shadow-[#00C9AF]/50 hover:shadow-cyan-400/60 active:scale-[0.99] cursor-pointer flex items-center justify-between gap-4 group border-t border-x border-white/40"
+                className="pointer-events-auto relative overflow-hidden w-full max-w-2xl sm:max-w-3xl bg-gradient-to-r from-[#00C9AF] via-[#14FFEC] to-[#00C9AF] bg-[length:200%_auto] hover:bg-right text-[#0C1B33] p-4 sm:p-4.5 rounded-t-3xl rounded-b-none font-black transition-all duration-500 shadow-[0_-15px_40px_-5px_rgba(0,201,175,0.45)] hover:shadow-[0_-20px_50px_-3px_rgba(0,201,175,0.65)] active:scale-[0.99] cursor-pointer flex items-center justify-between gap-4 group border-t-2 border-x-2 border-white/60"
               >
-                <div className="w-12 h-12 rounded-2xl bg-[#0C1B33] text-[#00C9AF] flex items-center justify-center shadow-md shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-[#0C1B33] text-[#14FFEC] border border-white/10 flex items-center justify-center shadow-lg shrink-0 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300">
                   <CalendarCheck size={24} className="stroke-[2.5]" />
                 </div>
                 <div className="text-left flex-1">
-                  <div className="text-lg sm:text-xl font-black text-[#0C1B33] leading-tight">
-                    Book Inspection
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg sm:text-xl font-heading font-black text-[#0C1B33] tracking-tight leading-tight">
+                      Book Inspection
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-[#0C1B33]/15 text-[#0C1B33] text-[10px] font-black uppercase tracking-wider">
+                      Free
+                    </span>
                   </div>
-                  <div className="text-xs sm:text-sm font-extrabold text-[#0C1B33]/85 leading-tight">
+                  <div className="text-xs sm:text-sm font-bold text-[#0C1B33]/85 leading-tight mt-0.5">
                     Get final price after expert inspection
                   </div>
                 </div>
-                <div className="w-11 h-11 rounded-full bg-[#0C1B33] text-[#00C9AF] flex items-center justify-center shadow-md shrink-0 group-hover:translate-x-1 transition-transform">
+                <div className="w-11 h-11 rounded-2xl bg-[#0C1B33] text-[#14FFEC] group-hover:bg-[#060D19] group-hover:text-white border border-white/10 flex items-center justify-center shadow-md shrink-0 group-hover:translate-x-1.5 transition-all duration-300">
                   <ArrowRight size={20} className="stroke-[3]" />
                 </div>
               </button>
