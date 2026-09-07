@@ -9,6 +9,8 @@ interface User {
   email: string;
   role: string;
   image?: string;
+  job_title?: string;
+  permissions?: string[];
 }
 
 interface AuthContextType {
@@ -17,6 +19,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (data: Partial<User>) => void;
+  hasPermission: (permissionKey: string) => boolean;
   isLoading: boolean;
 }
 
@@ -33,10 +36,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedUser = localStorage.getItem("adminUser");
     if (storedToken && storedUser) {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        setUser(null);
+      }
     }
     setIsLoading(false);
   }, []);
+
+  const hasPermission = (permissionKey: string): boolean => {
+    if (!user) return false;
+    if (user.role === "admin") return true;
+    if (!user.permissions || !Array.isArray(user.permissions)) return false;
+    return user.permissions.includes(permissionKey) || user.permissions.includes("all");
+  };
 
   const login = async (email: string, password: string) => {
     const res = await fetch(`${API_URL}/api/login`, {
@@ -75,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, updateUser, isLoading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser, hasPermission, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

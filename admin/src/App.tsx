@@ -27,8 +27,8 @@ import BrandModels from "./pages/BrandModels";
 import WishlistReport from "./pages/WishlistReport";
 import TestimonialsVideo from "./pages/TestimonialsVideo";
 import MediaLibrary from "./pages/MediaLibrary";
-import CustomerReviews from "./pages/CustomerReviews";
 import CarHubs from "./pages/CarHubs";
+import VisitorReports from "./pages/VisitorReports";
 
 export default function App() {
   return (
@@ -64,6 +64,8 @@ export default function App() {
                   {/* Reports */}
                   <Route path="/reports/payments" element={<PaymentReports />} />
                   <Route path="/reports/wishlist" element={<WishlistReport />} />
+                  <Route path="/reports/visitors" element={<VisitorReports />} />
+                  <Route path="/reports/traffic" element={<VisitorReports />} />
 
                   {/* Staff */}
                   <Route path="/staff" element={<StaffManagement />} />
@@ -85,7 +87,6 @@ export default function App() {
                   <Route path="/locations" element={<Locations />} />
                   <Route path="/settings/location" element={<SiteSettings section="location" />} />
                   <Route path="/settings/car-hubs" element={<CarHubs />} />
-                  <Route path="/settings/customer-reviews" element={<CustomerReviews />} />
                   <Route path="/settings/payment" element={<SiteSettings section="payment" />} />
                   <Route path="/settings/smtp" element={<SiteSettings section="smtp" />} />
                   <Route path="/settings/maintenance" element={<SiteSettings section="maintenance" />} />

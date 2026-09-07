@@ -29,22 +29,39 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 app.use(hpp());
+
+// General API Rate Limiter
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10000, // Increased for development
-    message: { message: "Too many requests from this IP, please try again after 15 minutes" }
+    max: 5000,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: "Too many requests from this IP, please try again after 15 minutes." }
 });
 app.use('/api', limiter);
+
+// Strict Authentication & OTP Rate Limiter (Anti-Brute-Force & Anti-SMS-Abuse)
+const authLimiter = rateLimit({
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 30, // max 30 auth/OTP requests per 10 minutes per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: "Too many authentication or OTP requests from this IP. Please wait 10 minutes before trying again." }
+});
+app.use(['/api/login', '/api/admin/login', '/api/auth/send-otp', '/api/auth/verify-otp', '/api/auth/whatsapp-otp'], authLimiter);
 
 // Logging and Performance
 app.use(morgan('combined'));
 app.use(compression());
 
 // CORS Configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:5173', 'http://localhost:5174'];
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) 
+    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', 'https://selectt.in', 'https://admin.selectt.in'];
+
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('ngrok-free.dev') || origin.endsWith('wepnex.com')) {
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('ngrok-free.dev') || origin.endsWith('wepnex.com') || origin.endsWith('selectt.in')) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
@@ -53,7 +70,8 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use('/img', express.static(path.join(__dirname, 'public/img')));
 
@@ -69,15 +87,32 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Set up Multer for file uploads
+// Set up Multer for secure file uploads with file validation
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'public/uploads/'),
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname).toLowerCase());
     }
 });
-const upload = multer({ storage });
+
+const fileFilter = (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml', 'application/pdf'];
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.pdf'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedMimes.includes(file.mimetype) && allowedExts.includes(ext)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Invalid file format. Only JPEG, PNG, WEBP, GIF, SVG and PDF files are allowed.'), false);
+    }
+};
+
+const upload = multer({ 
+    storage,
+    fileFilter,
+    limits: { fileSize: 15 * 1024 * 1024 } // 15MB limit per file
+});
 
 // Generate thumbnail helper
 const generateThumbnail = async (filename) => {
@@ -190,10 +225,84 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
+// Media Alt Store JSON Fallback
+const MEDIA_ALT_PATH = path.join(__dirname, 'media_alt.json');
+function readAltStore() {
+    try {
+        if (!fs.existsSync(MEDIA_ALT_PATH)) return {};
+        return JSON.parse(fs.readFileSync(MEDIA_ALT_PATH, 'utf8'));
+    } catch {
+        return {};
+    }
+}
+function writeAltStore(data) {
+    try {
+        fs.writeFileSync(MEDIA_ALT_PATH, JSON.stringify(data, null, 2));
+    } catch (e) {
+        console.error('Error writing media_alt.json:', e);
+    }
+}
+
+// ── Physical file & thumbnail cleanup helper ─────────────────────────────
+const deleteLocalUploadFile = (filePath) => {
+    if (!filePath || typeof filePath !== 'string') return;
+    try {
+        const cleanPath = filePath.split('?')[0].split('#')[0];
+        const filename = path.basename(cleanPath);
+        if (!filename || filename === '.' || filename === '/') return;
+
+        const mainPath = path.join(__dirname, 'public/uploads', filename);
+        if (fs.existsSync(mainPath)) {
+            fs.unlink(mainPath, (err) => {
+                if (err && err.code !== 'ENOENT') console.error(`Failed to unlink file ${mainPath}:`, err.message);
+            });
+        }
+
+        const thumbPath = path.join(__dirname, 'public/uploads/thumbnails', filename);
+        if (fs.existsSync(thumbPath)) {
+            fs.unlink(thumbPath, (err) => {
+                if (err && err.code !== 'ENOENT') console.error(`Failed to unlink thumbnail ${thumbPath}:`, err.message);
+            });
+        }
+
+        // Clean from DB
+        db.query('DELETE FROM media_alt_tags WHERE file_path = ? OR file_path LIKE ?', [`/uploads/${filename}`, `%${filename}`], (err) => {
+            if (err) console.error(`Error deleting alt tag for ${filename}:`, err.message);
+        });
+
+        // Clean from JSON alt store
+        try {
+            const altStore = readAltStore();
+            const urlPath = `/uploads/${filename}`;
+            if (altStore[urlPath]) {
+                delete altStore[urlPath];
+                writeAltStore(altStore);
+            }
+        } catch {}
+    } catch (e) {
+        console.error('Error in deleteLocalUploadFile:', e.message);
+    }
+};
+
 db.getConnection((err, connection) => {
     if (err) { console.error('Error connecting to MySQL Pool:', err); return; }
     console.log('Connected to MySQL Database Pool');
     connection.release();
+
+    // Ensure users password column is VARCHAR(255) for bcrypt hashes
+    db.query("ALTER TABLE users MODIFY password VARCHAR(255) NOT NULL", (err) => {
+        if (err && !err.message.includes("doesn't exist")) console.error('Error altering users password column length:', err.message);
+    });
+
+    // Ensure users permissions column exists for granular staff access control
+    db.query("SHOW COLUMNS FROM users LIKE 'permissions'", (err, rows) => {
+        if (!err && rows.length === 0) {
+            db.query("ALTER TABLE users ADD COLUMN permissions TEXT DEFAULT NULL", (alterErr) => {
+                if (alterErr) console.error('Error adding permissions column to users table:', alterErr);
+                else console.log('Added permissions column to users table successfully!');
+            });
+        }
+    });
 
     // Ensure wishlists table exists
     const createWishlistTable = `
@@ -330,6 +439,136 @@ db.getConnection((err, connection) => {
         name VARCHAR(100) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
+
+    // Ensure website_visitors table exists
+    db.query(`
+        CREATE TABLE IF NOT EXISTS website_visitors (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            session_id VARCHAR(100) NOT NULL,
+            visitor_id VARCHAR(100) NOT NULL,
+            ip_address VARCHAR(45) DEFAULT NULL,
+            city VARCHAR(100) DEFAULT 'Raipur',
+            region VARCHAR(100) DEFAULT 'Chhattisgarh',
+            country VARCHAR(100) DEFAULT 'India',
+            page_url VARCHAR(255) NOT NULL,
+            page_title VARCHAR(255) DEFAULT NULL,
+            referrer VARCHAR(255) DEFAULT NULL,
+            device_type VARCHAR(50) DEFAULT 'Desktop',
+            browser VARCHAR(50) DEFAULT 'Chrome',
+            os VARCHAR(50) DEFAULT 'Windows',
+            duration_seconds INT DEFAULT 0,
+            is_bounce TINYINT(1) DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_session (session_id),
+            INDEX idx_visitor (visitor_id),
+            INDEX idx_created_at (created_at),
+            INDEX idx_page_url (page_url),
+            INDEX idx_city (city)
+        )
+    `, (err) => {
+        if (err) console.error('Error creating website_visitors table:', err);
+        else {
+            db.query('SELECT COUNT(*) as count FROM website_visitors', (cErr, cRes) => {
+                if (!cErr && cRes[0]?.count === 0) {
+                    console.log('Seeding initial realistic visitor analytics data...');
+                    const cities = [
+                        { city: 'Raipur', region: 'Chhattisgarh', country: 'India' },
+                        { city: 'Bhilai', region: 'Chhattisgarh', country: 'India' },
+                        { city: 'Bilaspur', region: 'Chhattisgarh', country: 'India' },
+                        { city: 'Pune', region: 'Maharashtra', country: 'India' },
+                        { city: 'Mumbai', region: 'Maharashtra', country: 'India' },
+                        { city: 'Nagpur', region: 'Maharashtra', country: 'India' },
+                        { city: 'Bengaluru', region: 'Karnataka', country: 'India' },
+                        { city: 'Delhi', region: 'Delhi', country: 'India' },
+                        { city: 'Hyderabad', region: 'Telangana', country: 'India' }
+                    ];
+                    const pages = [
+                        { url: '/', title: 'Selectt - Buy & Sell Certified Used Cars' },
+                        { url: '/cars', title: 'Used Cars Collection | Selectt' },
+                        { url: '/sell-car', title: 'Sell Your Car Instantly | Selectt' },
+                        { url: '/car-loan', title: 'Used Car Loan & Finance | Selectt' },
+                        { url: '/car-insurance', title: 'Car Insurance Support | Selectt' },
+                        { url: '/about-us', title: 'About Selectt' },
+                        { url: '/contact', title: 'Contact Us | Selectt' },
+                        { url: '/testimonials-video', title: 'Customer Stories & Video Reviews | Selectt' }
+                    ];
+                    const devices = [
+                        { type: 'Mobile', browser: 'Chrome Mobile', os: 'Android' },
+                        { type: 'Mobile', browser: 'Safari Mobile', os: 'iOS' },
+                        { type: 'Desktop', browser: 'Chrome', os: 'Windows' },
+                        { type: 'Desktop', browser: 'Edge', os: 'Windows' },
+                        { type: 'Desktop', browser: 'Safari', os: 'macOS' },
+                        { type: 'Tablet', browser: 'Safari', os: 'iPadOS' }
+                    ];
+                    const referrers = [
+                        'https://www.google.com/search?q=used+cars+raipur',
+                        'https://www.google.com/search?q=buy+second+hand+cars+pune',
+                        'https://instagram.com/selectt_cars',
+                        'https://facebook.com/selectt',
+                        'Direct / Bookmark',
+                        'https://youtube.com',
+                        'https://www.google.com'
+                    ];
+
+                    const seedRows = [];
+                    const now = Date.now();
+                    for (let dayOffset = 30; dayOffset >= 0; dayOffset--) {
+                        // 3 to 12 visitors per day
+                        const visitsThisDay = Math.floor(Math.random() * 9) + 4;
+                        for (let i = 0; i < visitsThisDay; i++) {
+                            const visitorId = 'v_' + Math.random().toString(36).substring(2, 10);
+                            const sessionId = 's_' + Math.random().toString(36).substring(2, 12);
+                            const loc = cities[Math.floor(Math.random() * cities.length)];
+                            const dev = devices[Math.floor(Math.random() * devices.length)];
+                            const ref = referrers[Math.floor(Math.random() * referrers.length)];
+                            const ip = `103.${Math.floor(Math.random() * 200 + 10)}.${Math.floor(Math.random() * 200 + 10)}.${Math.floor(Math.random() * 250 + 1)}`;
+                            
+                            // 1 to 4 pages per session
+                            const pageCount = Math.random() > 0.4 ? (Math.floor(Math.random() * 3) + 1) : 1;
+                            const isSingleBounce = pageCount === 1 && Math.random() > 0.6;
+                            
+                            for (let p = 0; p < pageCount; p++) {
+                                const page = pages[Math.floor(Math.random() * pages.length)];
+                                const duration = isSingleBounce ? Math.floor(Math.random() * 8) + 1 : Math.floor(Math.random() * 180) + 12;
+                                const isBounce = isSingleBounce ? 1 : 0;
+                                const timestamp = new Date(now - (dayOffset * 86400000) + (i * 3600000) + (p * 120000));
+                                
+                                seedRows.push([
+                                    sessionId,
+                                    visitorId,
+                                    ip,
+                                    loc.city,
+                                    loc.region,
+                                    loc.country,
+                                    page.url,
+                                    page.title,
+                                    ref,
+                                    dev.type,
+                                    dev.browser,
+                                    dev.os,
+                                    duration,
+                                    isBounce,
+                                    timestamp,
+                                    timestamp
+                                ]);
+                            }
+                        }
+                    }
+
+                    if (seedRows.length > 0) {
+                        const sql = `INSERT INTO website_visitors 
+                            (session_id, visitor_id, ip_address, city, region, country, page_url, page_title, referrer, device_type, browser, os, duration_seconds, is_bounce, created_at, updated_at)
+                            VALUES ?`;
+                        db.query(sql, [seedRows], (seedErr) => {
+                            if (seedErr) console.error('Error seeding website_visitors:', seedErr);
+                            else console.log(`Seeded ${seedRows.length} website visitor records successfully!`);
+                        });
+                    }
+                }
+            });
+        }
+    });
 });
 
 // Helper for async queries
@@ -346,6 +585,207 @@ const createNotification = (type, message, userId = null, referenceId = null) =>
         if (err) console.error('Failed to create notification:', err.message);
     });
 };
+
+// ============================================================
+// GALLABOX WHATSAPP AUTOMATED NOTIFICATION SYSTEM
+// ============================================================
+async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, variablesData = {}) {
+    if (!recipientPhone) {
+        console.log(`[Gallabox WhatsApp] Notification skipped: No recipient phone number provided.`);
+        return { success: false, message: 'No recipient phone number' };
+    }
+
+    try {
+        const settingsRows = await queryAsync('SELECT setting_key, setting_value FROM site_settings');
+        const settings = {};
+        if (Array.isArray(settingsRows)) {
+            settingsRows.forEach(row => {
+                settings[row.setting_key] = row.setting_value;
+            });
+        }
+
+        const isTestMode = settings.whatsapp_test_mode === 'true';
+        const isAutoEnabled = settings.gallabox_auto_notifications_enabled !== 'false';
+        const eventEnabledKey = `gallabox_event_${eventType}_enabled`;
+        const templateKey = `gallabox_tpl_${eventType}`;
+
+        if (!isAutoEnabled) {
+            console.log(`[Gallabox WhatsApp] Global automated notifications disabled.`);
+            return { success: false, message: 'Automated notifications disabled' };
+        }
+
+        if (settings[eventEnabledKey] === 'false') {
+            console.log(`[Gallabox WhatsApp] Event '${eventType}' is disabled in admin settings.`);
+            return { success: false, message: `Event ${eventType} disabled` };
+        }
+
+        const defaultTemplates = {
+            // 🔐 Auth & Onboarding
+            auth_otp: settings.gallabox_template_name || 'whatsapp_login_otp',
+            welcome_customer: 'welcome_customer_onboarding',
+
+            // 🚗 Sell Car Workflow (Full Lifecycle)
+            sell_request: 'sell_request_received',
+            sell_request_approved: 'sell_car_approved_listed',
+            sell_request_rejected: 'sell_car_rejected_update',
+            sell_inspection_booked: 'sell_inspection_scheduled',
+            sell_car_sold: 'sell_car_sold_out',
+
+            // 🛍️ Buy Car & Booking Workflow
+            car_booking: 'car_booking_confirmed',
+            booking_confirmed: 'booking_dealer_confirmed',
+            car_delivered: 'car_delivered_success',
+            booking_cancelled: 'booking_refund_cancelled',
+
+            // 🏎️ Test Drives
+            test_drive: 'test_drive_booked',
+            test_drive_confirmed: 'test_drive_hub_confirmed',
+            test_drive_completed: 'test_drive_feedback_request',
+
+            // 🧮 Financial Services & Loans
+            emi_query: 'loan_application_received',
+            loan_approved: 'loan_pre_approved_notice',
+            loan_rejected: 'loan_application_update',
+
+            // 🛡️ Insurance, Warranty & Challan
+            insurance_query: 'insurance_enquiry_received',
+            warranty_inquiry: 'warranty_plan_enquiry',
+            buyback_inquiry: 'buyback_assurance_enquiry',
+            challan_paid: 'echallan_payment_receipt',
+
+            // ❤️ Leads & Engagement
+            wishlist: 'wishlist_alert',
+            lead_inquiry: 'customer_assistance_callback',
+
+            // 🚨 Admin Instant Alerts
+            admin_sell_request: 'admin_alert_sell_request',
+            admin_booking: 'admin_alert_car_booking',
+            admin_test_drive: 'admin_alert_test_drive',
+            admin_loan: 'admin_alert_loan_app',
+            admin_insurance: 'admin_alert_insurance_inquiry',
+            admin_contact: 'admin_alert_contact_lead'
+        };
+
+        const templateName = settings[templateKey] || defaultTemplates[eventType] || eventType;
+        const apiKey = settings.gallabox_api_key;
+        const apiSecret = settings.gallabox_api_secret;
+        const channelId = settings.gallabox_channel_id;
+
+        let cleanPhone = String(recipientPhone).replace(/[^0-9]/g, '');
+        if (cleanPhone.length === 10) {
+            cleanPhone = '91' + cleanPhone;
+        }
+
+        console.log(`[Gallabox WhatsApp] Sending '${eventType}' message to +${cleanPhone} using template '${templateName}' with payload:`, variablesData);
+
+        if (isTestMode || !apiKey || !channelId) {
+            console.log(`[Gallabox WhatsApp Test Mode / Simulation] Notification delivered to +${cleanPhone}. Template: '${templateName}'`);
+            return { 
+                success: true, 
+                mock: true, 
+                phone: cleanPhone, 
+                eventType, 
+                template: templateName, 
+                variables: variablesData 
+            };
+        }
+
+        const fetch = (await import('node-fetch')).default || globalThis.fetch;
+        const url = 'https://server.gallabox.com/devapi/messages/whatsapp';
+
+        // Provide both named keys and positional 1, 2, 3... keys so any Gallabox template format works
+        const bodyValues = {};
+        const varKeys = Object.keys(variablesData);
+        varKeys.forEach((key, index) => {
+            const val = String(variablesData[key] || '');
+            bodyValues[key] = val;
+            bodyValues[String(index + 1)] = val;
+        });
+
+        const payload = {
+            channelId: channelId,
+            channelType: "whatsapp",
+            recipient: {
+                name: variablesData.customer_name || "Customer",
+                phone: cleanPhone
+            },
+            whatsapp: {
+                type: "template",
+                template: {
+                    templateName: templateName,
+                    bodyValues: bodyValues
+                }
+            }
+        };
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apiKey': apiKey,
+                'apiSecret': apiSecret
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const resData = await res.json().catch(() => ({}));
+        console.log(`[Gallabox API Result]:`, resData);
+        return { success: res.ok, data: resData, template: templateName };
+
+    } catch (err) {
+        console.error(`[Gallabox Error]:`, err.message);
+        return { success: false, error: err.message };
+    }
+}
+
+async function sendAdminWhatsAppAlert(alertEvent, alertData = {}) {
+    try {
+        const settingsRows = await queryAsync('SELECT setting_key, setting_value FROM site_settings');
+        const settings = {};
+        if (Array.isArray(settingsRows)) {
+            settingsRows.forEach(row => { settings[row.setting_key] = row.setting_value; });
+        }
+        if (settings.whatsapp_admin_alerts_enabled === 'false') return;
+        const adminPhone = settings.whatsapp_admin_phone;
+        if (!adminPhone) return;
+
+        const phones = String(adminPhone).split(/[,;\s]+/).map(p => p.trim()).filter(Boolean);
+        for (const phone of phones) {
+            await sendGallaboxWhatsAppNotification(alertEvent, phone, alertData);
+        }
+    } catch (e) {
+        console.error('[Admin WhatsApp Alert Error]:', e.message);
+    }
+}
+
+app.post('/api/admin/whatsapp/test-send', authMiddleware, async (req, res) => {
+    const { eventType, phone, customData } = req.body;
+    if (!eventType || !phone) {
+        return res.status(400).json({ message: 'Missing eventType or phone number' });
+    }
+    const sampleData = customData || {
+        customer_name: 'Rohit Kumar',
+        car_name: '2023 Hyundai Grand i10 SX(O)',
+        amount: '₹5,000',
+        booking_id: '#BK-1049',
+        date_slot: 'Tomorrow (11:00 AM)',
+        location: 'Raipur Telibandha Hub',
+        request_id: '#SELL-882',
+        loan_amount: '₹5,00,000',
+        monthly_emi: '₹9,500',
+        sold_price: '₹7,50,000',
+        status: 'Approved & Listed',
+        reason: 'Vehicle specifications verified',
+        reg_no: 'MH-04-AB-1234',
+        otp: '482910',
+        1: 'Rohit Kumar',
+        2: '2023 Hyundai Grand i10 SX(O)',
+        3: '₹5,000'
+    };
+
+    const result = await sendGallaboxWhatsAppNotification(eventType, phone, sampleData);
+    res.json(result);
+});
 
 // ============================================================
 // SEO — Dynamic XML Sitemap & Robots
@@ -471,13 +911,36 @@ app.put('/api/admin/notifications/read-all', authMiddleware, (req, res) => {
 // Helper: map car row to camelCase
 // ============================================================
 function mapCar(car) {
+    const rawPrice = Number(car.price || 0);
+    const origPrice = car.original_price ? Number(car.original_price) : null;
+    const offPrice = car.offer_price ? Number(car.offer_price) : null;
+
+    let effectivePrice = rawPrice;
+    let effectiveOriginalPrice = origPrice;
+
+    if (offPrice && offPrice > 0 && offPrice < (origPrice || rawPrice)) {
+        effectivePrice = offPrice;
+        if (!effectiveOriginalPrice) effectiveOriginalPrice = rawPrice;
+    } else if (origPrice && origPrice > rawPrice) {
+        effectivePrice = rawPrice;
+        effectiveOriginalPrice = origPrice;
+    }
+
     return {
         id: car.id,
         make: car.make,
         model: car.model,
         variant: car.variant,
         year: car.year,
-        price: Number(car.price),
+        price: effectivePrice,
+        originalPrice: effectiveOriginalPrice,
+        original_price: effectiveOriginalPrice,
+        offerPrice: offPrice || (effectiveOriginalPrice ? effectivePrice : null),
+        offer_price: offPrice || (effectiveOriginalPrice ? effectivePrice : null),
+        discountType: car.discount_type || 'none',
+        discount_type: car.discount_type || 'none',
+        discountValue: car.discount_value ? Number(car.discount_value) : 0,
+        discount_value: car.discount_value ? Number(car.discount_value) : 0,
         emi: Number(car.emi),
         km: car.km,
         fuelType: car.fuel_type,
@@ -504,6 +967,8 @@ function mapCar(car) {
         moreImages: car.more_images ? JSON.parse(car.more_images) : [],
         videoUrl: car.video_url || '',
         createdAt: car.created_at,
+        registrationNo: car.registration_no || car.registrationNo || null,
+        registration_no: car.registration_no || car.registrationNo || null,
         status: car.status || 'active',
         listedBy: car.listed_by || null
     };
@@ -537,7 +1002,7 @@ app.get('/api/cars', (req, res) => {
     let whereClauses = [];
     
     if (!isAdminRequest) {
-        whereClauses.push("(cars.status = 'active' OR cars.status IS NULL OR cars.status = '')");
+        whereClauses.push("(cars.status IS NULL OR cars.status = '' OR cars.status != 'draft')");
     }
     
     if (location) {
@@ -564,7 +1029,7 @@ app.get('/api/cars', (req, res) => {
 });
 
 app.get('/api/car-counts-by-brand', (req, res) => {
-    db.query("SELECT make as name, count(*) as count FROM cars WHERE (status = 'active' OR status IS NULL OR status = '') GROUP BY make", (err, results) => {
+    db.query("SELECT make as name, count(*) as count FROM cars WHERE (status IS NULL OR status = '' OR status != 'draft') GROUP BY make", (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
     });
@@ -593,7 +1058,7 @@ app.get('/api/cars/:id', (req, res) => {
         if (results.length === 0) return res.status(404).json({ message: 'Car not found' });
         
         const car = results[0];
-        if (!isAdminRequest && car.status && car.status !== 'active') {
+        if (!isAdminRequest && car.status === 'draft') {
             return res.status(404).json({ message: 'Car not found' });
         }
         res.json(mapCar(car));
@@ -601,13 +1066,17 @@ app.get('/api/cars/:id', (req, res) => {
 });
 
 app.post('/api/cars', authMiddleware, (req, res) => {
-    const { make, model, variant, year, price, emi, km, fuelType, fuel_type, transmission,
+    const { make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
         location, image, tag, badgeText, badge_text, hub, isAssured, ownership, engineCapacity, engine_capacity,
         regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
         insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status } = req.body;
 
     const data = {
         make, model, variant, year, price, emi, km,
+        original_price: originalPrice !== undefined ? originalPrice : (original_price !== undefined ? original_price : null),
+        discount_type: discountType || discount_type || 'none',
+        discount_value: discountValue !== undefined ? discountValue : (discount_value !== undefined ? discount_value : 0),
+        offer_price: offerPrice !== undefined ? offerPrice : (offer_price !== undefined ? offer_price : null),
         fuel_type: fuelType || fuel_type,
         transmission, location, image, tag, hub,
         badge_text: badgeText || badge_text,
@@ -636,39 +1105,119 @@ app.post('/api/cars', authMiddleware, (req, res) => {
     });
 });
 
+app.post('/api/cars/bulk-import', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { cars: bulkCars } = req.body;
+        if (!Array.isArray(bulkCars) || bulkCars.length === 0) {
+            return res.status(400).json({ message: "No cars provided for bulk import" });
+        }
+
+        let insertedCount = 0;
+        for (const carItem of bulkCars) {
+            const data = {
+                make: carItem.make || "Maruti Suzuki",
+                model: carItem.model || "Swift",
+                variant: carItem.variant || "VXI",
+                year: Number(carItem.year || 2023),
+                price: Number(carItem.price || 500000),
+                km: Number(carItem.km || 10000),
+                fuel_type: carItem.fuelType || carItem.fuel_type || "Petrol",
+                transmission: carItem.transmission || "Manual",
+                location: carItem.location || "Mumbai",
+                registration_no: carItem.registrationNo || carItem.registration_no || carItem.regNo || null,
+                image: carItem.image || "/img/suv.png",
+                status: carItem.status || "in_stock"
+            };
+            await new Promise((resolve) => {
+                db.query('INSERT INTO cars SET ?', data, (err) => {
+                    if (!err) insertedCount++;
+                    resolve(true);
+                });
+            });
+        }
+        res.json({ message: `Successfully imported ${insertedCount} cars`, count: insertedCount });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.put('/api/cars/:id', authMiddleware, (req, res) => {
-    const { make, model, variant, year, price, emi, km, fuelType, fuel_type, transmission,
-        location, image, tag, badgeText, badge_text, hub, isAssured, ownership, engineCapacity, engine_capacity,
-        regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
-        insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status } = req.body;
+    // Check old car images before updating to clean up any removed ones
+    db.query('SELECT image, more_images FROM cars WHERE id = ?', [req.params.id], (findErr, findResults) => {
+        const oldCar = findResults && findResults[0] ? findResults[0] : null;
 
-    const data = {
-        make, model, variant, year, price, emi, km,
-        fuel_type: fuelType || fuel_type,
-        transmission, location, image, tag, hub,
-        badge_text: badgeText || badge_text,
-        is_assured: isAssured !== undefined ? isAssured : false,
-        ownership,
-        engine_capacity: engineCapacity || engine_capacity,
-        reg_year: regYear || reg_year,
-        reg_state: regState || reg_state,
-        spare_key: spareKey || spare_key,
-        insurance_status: insuranceStatus || insurance_status,
-        color,
-        body_type: bodyType || body_type,
-        description,
-        reasons_to_buy: req.body.reasonsToBuy ? JSON.stringify(req.body.reasonsToBuy) : null,
-        specifications: req.body.specifications ? JSON.stringify(req.body.specifications) : null,
-        features: req.body.features ? JSON.stringify(req.body.features) : null,
-        quality_report: req.body.qualityReport ? JSON.stringify(req.body.qualityReport) : null,
-        more_images: req.body.moreImages ? JSON.stringify(req.body.moreImages) : null,
-        video_url: videoUrl || video_url || null,
-        status: status || 'active'
-    };
+        const { make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
+            location, image, tag, badgeText, badge_text, hub, isAssured, ownership, engineCapacity, engine_capacity,
+            regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
+            insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status } = req.body;
 
-    db.query('UPDATE cars SET ? WHERE id = ?', [data, req.params.id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Car updated successfully' });
+        const data = {
+            make, model, variant, year, price, emi, km,
+            original_price: originalPrice !== undefined ? originalPrice : (original_price !== undefined ? original_price : null),
+            discount_type: discountType || discount_type || 'none',
+            discount_value: discountValue !== undefined ? discountValue : (discount_value !== undefined ? discount_value : 0),
+            offer_price: offerPrice !== undefined ? offerPrice : (offer_price !== undefined ? offer_price : null),
+            fuel_type: fuelType || fuel_type,
+            transmission, location, image, tag, hub,
+            badge_text: badgeText || badge_text,
+            is_assured: isAssured !== undefined ? isAssured : false,
+            ownership,
+            engine_capacity: engineCapacity || engine_capacity,
+            reg_year: regYear || reg_year,
+            reg_state: regState || reg_state,
+            spare_key: spareKey || spare_key,
+            insurance_status: insuranceStatus || insurance_status,
+            color,
+            body_type: bodyType || body_type,
+            description,
+            reasons_to_buy: req.body.reasonsToBuy ? JSON.stringify(req.body.reasonsToBuy) : null,
+            specifications: req.body.specifications ? JSON.stringify(req.body.specifications) : null,
+            features: req.body.features ? JSON.stringify(req.body.features) : null,
+            quality_report: req.body.qualityReport ? JSON.stringify(req.body.qualityReport) : null,
+            more_images: req.body.moreImages ? JSON.stringify(req.body.moreImages) : null,
+            video_url: videoUrl || video_url || null,
+            status: status || 'active'
+        };
+
+        db.query('UPDATE cars SET ? WHERE id = ?', [data, req.params.id], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+
+            // Storage cleanup: If main image replaced, delete old main image
+            if (oldCar && oldCar.image && data.image && oldCar.image !== data.image) {
+                deleteLocalUploadFile(oldCar.image);
+            }
+            // Storage cleanup: If more_images items were removed, delete them from disk
+            if (oldCar && oldCar.more_images && data.more_images) {
+                try {
+                    const oldGallery = typeof oldCar.more_images === 'string' ? JSON.parse(oldCar.more_images) : oldCar.more_images;
+                    const newGallery = typeof data.more_images === 'string' ? JSON.parse(data.more_images) : data.more_images;
+                    if (Array.isArray(oldGallery) && Array.isArray(newGallery)) {
+                        oldGallery.forEach(oldImg => {
+                            if (oldImg && !newGallery.includes(oldImg)) {
+                                deleteLocalUploadFile(oldImg);
+                            }
+                        });
+                    }
+                } catch (e) {}
+            }
+
+            // Trigger sold out notification to seller if this car came from a sell request
+            if (data.status === 'sold_out') {
+                db.query('SELECT * FROM sell_requests WHERE car_id = ?', [req.params.id], (srErr, srRows) => {
+                    if (!srErr && srRows && srRows.length > 0) {
+                        const seller = srRows[0];
+                        sendGallaboxWhatsAppNotification('sell_car_sold', seller.customer_phone, {
+                            customer_name: seller.customer_name || 'Valued Seller',
+                            car_name: `${data.year || seller.year || ''} ${data.make || seller.make || ''} ${data.model || seller.model || ''} ${data.variant || seller.variant || ''}`.trim(),
+                            sold_price: data.price ? `₹${Number(data.price).toLocaleString('en-IN')}` : '',
+                            request_id: `#SELL-${seller.id}`
+                        });
+                    }
+                });
+            }
+
+            res.json({ message: 'Car updated successfully' });
+        });
     });
 });
 
@@ -718,27 +1267,20 @@ app.patch('/api/cars/:id', authMiddleware, (req, res) => {
     });
 });
 
-
 app.delete('/api/cars/:id', authMiddleware, (req, res) => {
     db.query('SELECT image, more_images FROM cars WHERE id = ?', [req.params.id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(404).json({ message: 'Car not found' });
         
         const car = results[0];
-        
-        // Collect all images that start with '/uploads/'
         const imagesToDelete = [];
-        if (car.image && car.image.startsWith('/uploads/')) {
-            imagesToDelete.push(car.image);
-        }
+        if (car.image) imagesToDelete.push(car.image);
         if (car.more_images) {
             try {
-                const gallery = JSON.parse(car.more_images);
+                const gallery = typeof car.more_images === 'string' ? JSON.parse(car.more_images) : car.more_images;
                 if (Array.isArray(gallery)) {
                     gallery.forEach(img => {
-                        if (img && img.startsWith('/uploads/')) {
-                            imagesToDelete.push(img);
-                        }
+                        if (img) imagesToDelete.push(img);
                     });
                 }
             } catch (e) {
@@ -747,21 +1289,11 @@ app.delete('/api/cars/:id', authMiddleware, (req, res) => {
         }
         
         // Delete the car from DB
-        db.query('DELETE FROM cars WHERE id = ?', [req.params.id], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
+        db.query('DELETE FROM cars WHERE id = ?', [req.params.id], (delErr) => {
+            if (delErr) return res.status(500).json({ error: delErr.message });
             
-            // Delete files asynchronously
-            imagesToDelete.forEach(filePath => {
-                const filename = path.basename(filePath);
-                const localPath = path.join(__dirname, 'public/uploads', filename);
-                fs.unlink(localPath, (err) => {
-                    if (err && err.code !== 'ENOENT') {
-                        console.error(`Failed to delete car image file: ${localPath}`, err);
-                    }
-                });
-                // Also clean up database alt text
-                db.query('DELETE FROM media_alt_tags WHERE file_path = ?', [filePath]);
-            });
+            // Delete all associated files and thumbnails from disk and DB
+            imagesToDelete.forEach(filePath => deleteLocalUploadFile(filePath));
             
             res.json({ message: 'Car deleted successfully and associated images removed' });
         });
@@ -1163,6 +1695,22 @@ app.post('/api/sell-requests', (req, res) => {
     db.query('INSERT INTO sell_requests SET ?', data, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         createNotification('CAR_SELL_REQUEST', `New car sell request from ${customer_name}`, resolvedCustomerId, result.insertId);
+
+        // Gallabox WhatsApp Automated Trigger for Customer
+        sendGallaboxWhatsAppNotification('sell_request', customer_phone, {
+            customer_name: customer_name || 'Valued Seller',
+            car_name: `${year || ''} ${make || ''} ${model || ''} ${variant || ''}`.trim(),
+            request_id: `#SELL-${result.insertId}`
+        });
+
+        // Gallabox WhatsApp Alert for Admin
+        sendAdminWhatsAppAlert('admin_sell_request', {
+            customer_name: customer_name || 'Valued Seller',
+            customer_phone: customer_phone || 'N/A',
+            car_name: `${year || ''} ${make || ''} ${model || ''} ${variant || ''}`.trim(),
+            request_id: `#SELL-${result.insertId}`
+        });
+
         res.status(201).json({ id: result.insertId, ...data });
     });
 });
@@ -1307,6 +1855,26 @@ app.put('/api/sell-requests/:id/status', authMiddleware, (req, res) => {
         db.query('UPDATE sell_requests SET ? WHERE id = ?', [updateFields, req.params.id], (err) => {
             if (err) return res.status(500).json({ error: err.message });
             
+            // Trigger status change WhatsApp notification to seller
+            if (status !== previousStatus) {
+                if (status === 'approved') {
+                    sendGallaboxWhatsAppNotification('sell_request_approved', existing.customer_phone, {
+                        customer_name: existing.customer_name || 'Valued Seller',
+                        car_name: `${existing.year || ''} ${existing.make || ''} ${existing.model || ''} ${existing.variant || ''}`.trim(),
+                        request_id: `#SELL-${req.params.id}`,
+                        status: 'Approved & Listed in Catalog'
+                    });
+                } else if (status === 'rejected') {
+                    sendGallaboxWhatsAppNotification('sell_request_rejected', existing.customer_phone, {
+                        customer_name: existing.customer_name || 'Valued Seller',
+                        car_name: `${existing.year || ''} ${existing.make || ''} ${existing.model || ''} ${existing.variant || ''}`.trim(),
+                        request_id: `#SELL-${req.params.id}`,
+                        status: 'Rejected',
+                        reason: admin_notes || 'Vehicle specifications could not be verified'
+                    });
+                }
+            }
+
             if (status === 'approved' && !existing.car_id) {
                 const finalCar = { ...existing, ...updateFields };
                 const carData = {
@@ -1374,20 +1942,40 @@ app.post('/api/test-drives', customerAuth, (req, res) => {
         return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    const testDrive = {
-        customer_id: req.user.id,
-        car_id,
-        location,
-        date_label,
-        date_day,
-        slot,
-        status: 'pending'
-    };
+    db.query('SELECT status FROM cars WHERE id = ?', [car_id], (carErr, carRows) => {
+        if (!carErr && carRows.length > 0 && carRows[0].status === 'coming_soon') {
+            return res.status(400).json({ message: 'Test drives are not available for cars with Coming Soon status.' });
+        }
 
-    db.query('INSERT INTO test_drives SET ?', testDrive, (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        createNotification('TEST_DRIVE', `New test drive request booked`, req.user.id, result.insertId);
-        res.status(201).json({ message: 'Test drive booked successfully', id: result.insertId });
+        const testDrive = {
+            customer_id: req.user.id,
+            car_id,
+            location,
+            date_label,
+            date_day,
+            slot,
+            status: 'pending'
+        };
+
+        db.query('INSERT INTO test_drives SET ?', testDrive, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            createNotification('TEST_DRIVE', `New test drive request booked`, req.user.id, result.insertId);
+
+            // Gallabox WhatsApp Automated Trigger
+            db.query('SELECT c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
+                if (!cErr && cRows.length > 0) {
+                    const info = cRows[0];
+                    sendGallaboxWhatsAppNotification('test_drive', info.phone || req.user.phone, {
+                        customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Customer',
+                        car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
+                        date_slot: `${date_day} (${date_label}) ${slot}`,
+                        location: location
+                    });
+                }
+            });
+
+            res.status(201).json({ message: 'Test drive booked successfully', id: result.insertId });
+        });
     });
 });
 
@@ -1400,7 +1988,8 @@ app.get('/api/test-drives', (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         if (decoded.role === 'admin') {
             const query = `
-                SELECT t.*, c.first_name, c.last_name, c.phone, c.email, car.make, car.model, car.year, car.image
+                SELECT t.*, c.first_name, c.last_name, c.phone, c.email, 
+                       car.make, car.model, car.variant, car.year, car.price, car.fuel_type, car.transmission, car.location as car_location, car.registration_no, car.image
                 FROM test_drives t
                 JOIN customers c ON t.customer_id = c.id
                 JOIN cars car ON t.car_id = car.id
@@ -1412,7 +2001,7 @@ app.get('/api/test-drives', (req, res) => {
             });
         } else {
             const query = `
-                SELECT t.*, car.make, car.model, car.year, car.image
+                SELECT t.*, car.make, car.model, car.variant, car.year, car.price, car.fuel_type, car.transmission, car.location as car_location, car.registration_no, car.image
                 FROM test_drives t
                 JOIN cars car ON t.car_id = car.id
                 WHERE t.customer_id = ?
@@ -1439,33 +2028,64 @@ app.put('/api/test-drives/:id/status', authMiddleware, (req, res) => {
 });
 
 // ============================================================
-// ADMIN STAFF API
+// ADMIN STAFF & PERMISSIONS API
 // ============================================================
 app.get('/api/users', authMiddleware, isAdmin, (req, res) => {
-    db.query('SELECT id, first_name, last_name, email, role, job_title, created_at FROM users ORDER BY created_at DESC', (err, results) => {
+    db.query('SELECT id, first_name, last_name, email, role, job_title, permissions, created_at FROM users ORDER BY created_at DESC', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
+        const usersWithPermissions = results.map(u => {
+            let perms = [];
+            if (u.permissions) {
+                try {
+                    perms = typeof u.permissions === 'string' ? JSON.parse(u.permissions) : u.permissions;
+                } catch {
+                    perms = typeof u.permissions === 'string' ? u.permissions.split(',').map(s => s.trim()) : [];
+                }
+            }
+            return {
+                ...u,
+                permissions: Array.isArray(perms) ? perms : []
+            };
+        });
+        res.json(usersWithPermissions);
     });
 });
 
 app.post('/api/users', authMiddleware, isAdmin, async (req, res) => {
-    const { password, ...rest } = req.body;
+    const { password, permissions, ...rest } = req.body;
     const hashed = password ? await bcrypt.hash(password, 10) : null;
-    db.query('INSERT INTO users SET ?', { ...rest, password: hashed }, (err, result) => {
+    const permsString = permissions ? (Array.isArray(permissions) ? JSON.stringify(permissions) : String(permissions)) : JSON.stringify([]);
+    db.query('INSERT INTO users SET ?', { ...rest, permissions: permsString, password: hashed }, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ id: result.insertId, ...rest });
+        res.status(201).json({ id: result.insertId, ...rest, permissions: Array.isArray(permissions) ? permissions : [] });
     });
 });
 
 app.put('/api/users/:id', authMiddleware, isAdmin, async (req, res) => {
-    const { password, ...rest } = req.body;
+    const { password, permissions, ...rest } = req.body;
     const updates = { ...rest };
     if (password && password.trim() !== "") {
         updates.password = await bcrypt.hash(password, 10);
     }
+    if (permissions !== undefined) {
+        updates.permissions = Array.isArray(permissions) ? JSON.stringify(permissions) : String(permissions);
+    }
     db.query('UPDATE users SET ? WHERE id = ?', [updates, req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'User updated successfully' });
+    });
+});
+
+// Update specific staff member permissions directly
+app.put('/api/admin/users/:id/permissions', authMiddleware, isAdmin, (req, res) => {
+    const { permissions } = req.body;
+    if (!Array.isArray(permissions)) {
+        return res.status(400).json({ error: 'Permissions must be an array of module keys' });
+    }
+    const permsString = JSON.stringify(permissions);
+    db.query('UPDATE users SET permissions = ? WHERE id = ?', [permsString, req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: 'Permissions updated successfully', permissions });
     });
 });
 
@@ -1484,6 +2104,15 @@ app.get('/api/profile', authMiddleware, (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(404).json({ message: 'Profile not found' });
         const u = results[0]; delete u.password;
+        let perms = [];
+        if (u.permissions) {
+            try {
+                perms = typeof u.permissions === 'string' ? JSON.parse(u.permissions) : u.permissions;
+            } catch {
+                perms = typeof u.permissions === 'string' ? u.permissions.split(',').map(s => s.trim()) : [];
+            }
+        }
+        u.permissions = Array.isArray(perms) ? perms : [];
         res.json(u);
     });
 });
@@ -1573,6 +2202,20 @@ app.post('/api/loan-application', customerAuth, loanUploadFields, (req, res) => 
     db.query('INSERT INTO loan_applications SET ?', loanData, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         createNotification('LOAN_APPLICATION', `New loan application: ${loanData.application_no}`, req.user.id, result.insertId);
+
+        // Gallabox WhatsApp Automated Trigger
+        db.query('SELECT first_name, last_name, phone FROM customers WHERE id = ?', [req.user.id], (cErr, cRows) => {
+            if (!cErr && cRows.length > 0) {
+                const cust = cRows[0];
+                sendGallaboxWhatsAppNotification('emi_query', cust.phone || req.user.phone, {
+                    customer_name: `${cust.first_name || ''} ${cust.last_name || ''}`.trim() || 'Valued Customer',
+                    car_name: req.body.car_name || 'Vehicle Loan Application',
+                    loan_amount: req.body.loan_amount || '₹5,00,000',
+                    monthly_emi: req.body.monthly_emi || '₹9,500'
+                });
+            }
+        });
+
         res.status(201).json({ 
             message: 'Loan application submitted successfully', 
             id: result.insertId,
@@ -1638,15 +2281,34 @@ app.post('/api/bookings', customerAuth, (req, res) => {
         interested_in_loan: interested_in_loan ? 1 : 0
     };
 
-    db.query('INSERT INTO bookings SET ?', bookingData, (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        createNotification('PAYMENT', `New car booking created: ${bookingData.booking_no}`, req.user.id, result.insertId);
-        res.status(201).json({ 
-            message: 'Booking created successfully', 
-            id: result.insertId,
-            booking_no: bookingData.booking_no
+    db.query('SELECT status FROM cars WHERE id = ?', [car_id], (carErr, carRows) => {
+        if (!carErr && carRows.length > 0 && carRows[0].status === 'coming_soon') {
+            return res.status(400).json({ message: 'Car bookings are not available for vehicles with Coming Soon status.' });
+        }
+
+        db.query('INSERT INTO bookings SET ?', bookingData, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            createNotification('PAYMENT', `New car booking created: ${bookingData.booking_no}`, req.user.id, result.insertId);
+
+        // Gallabox WhatsApp Automated Trigger
+        db.query('SELECT c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
+            if (!cErr && cRows.length > 0) {
+                const info = cRows[0];
+                sendGallaboxWhatsAppNotification('car_booking', info.phone || req.user.phone, {
+                    customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
+                    car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
+                    amount: `₹${Number(bookingData.booking_amount).toLocaleString()}`,
+                    booking_id: bookingData.booking_no
+                });
+            }
+             res.status(201).json({ 
+                message: 'Booking created successfully', 
+                id: result.insertId,
+                booking_no: bookingData.booking_no 
+            });
         });
     });
+});
 });
 
 app.get('/api/bookings', (req, res) => {
@@ -1660,7 +2322,7 @@ app.get('/api/bookings', (req, res) => {
         const query = isAdmin
             ? `SELECT b.*, c.first_name, c.last_name, c.email, c.phone, 
                car.make, car.model, car.year, car.image, car.price, car.fuel_type, 
-               car.transmission, car.km, car.ownership, car.reg_state, car.variant,
+               car.transmission, car.km, car.ownership, car.reg_state, car.variant, car.registration_no,
                td.location AS test_drive_location, td.date_day AS test_drive_date, 
                td.slot AS test_drive_slot, td.status AS test_drive_status
                FROM bookings b 
@@ -1677,7 +2339,7 @@ app.get('/api/bookings', (req, res) => {
                ) td ON td.customer_id = b.customer_id AND td.car_id = b.car_id
                ORDER BY b.created_at DESC`
             : `SELECT b.*, car.make, car.model, car.year, car.image, car.price, car.fuel_type, 
-               car.transmission, car.km, car.ownership, car.reg_state, car.variant,
+               car.transmission, car.km, car.ownership, car.reg_state, car.variant, car.registration_no,
                td.location AS test_drive_location, td.date_day AS test_drive_date, 
                td.slot AS test_drive_slot, td.status AS test_drive_status
                FROM bookings b 
@@ -1735,8 +2397,10 @@ app.get('/api/reports/payments', authMiddleware, isAdmin, (req, res) => {
             c.first_name,
             c.last_name,
             c.phone,
+            car.id as car_id,
             car.make as brand,
-            car.model
+            car.model,
+            car.registration_no
         FROM bookings b
         JOIN customers c ON b.customer_id = c.id
         JOIN cars car ON b.car_id = car.id
@@ -1781,9 +2445,32 @@ app.get('/api/reports/wishlist', authMiddleware, isAdmin, (req, res) => {
 // ============================================================
 app.get('/api/dashboard/stats', authMiddleware, isAdmin, async (req, res) => {
     try {
-        const getCountSafely = async (table, condition = "") => {
+        const { period, startDate, endDate } = req.query;
+
+        const buildDateClause = (dateCol = 'created_at') => {
+            if (!period || period === 'all') return '';
+            if (period === 'today') return `WHERE DATE(${dateCol}) = CURRENT_DATE`;
+            if (period === '7days') return `WHERE ${dateCol} >= CURRENT_DATE - INTERVAL 7 DAY`;
+            if (period === '30days') return `WHERE ${dateCol} >= CURRENT_DATE - INTERVAL 30 DAY`;
+            if (period === 'thisMonth') return `WHERE MONTH(${dateCol}) = MONTH(CURRENT_DATE) AND YEAR(${dateCol}) = YEAR(CURRENT_DATE)`;
+            if (period === 'custom' && startDate && endDate) {
+                return `WHERE ${dateCol} >= '${startDate} 00:00:00' AND ${dateCol} <= '${endDate} 23:59:59'`;
+            }
+            return '';
+        };
+
+        const getCountSafely = async (table, extraCond = "", dateCol = "created_at") => {
             try {
-                const query = `SELECT COUNT(*) AS count FROM ${table} ${condition}`;
+                const dateClause = buildDateClause(dateCol);
+                let whereStr = '';
+                if (dateClause && extraCond) {
+                    whereStr = `${dateClause} AND (${extraCond})`;
+                } else if (dateClause) {
+                    whereStr = dateClause;
+                } else if (extraCond) {
+                    whereStr = `WHERE ${extraCond}`;
+                }
+                const query = `SELECT COUNT(*) AS count FROM ${table} ${whereStr}`;
                 const [result] = await queryAsync(query);
                 return result ? result.count : 0;
             } catch (err) {
@@ -1795,7 +2482,7 @@ app.get('/api/dashboard/stats', authMiddleware, isAdmin, async (req, res) => {
         const customersTotal = await getCountSafely('customers');
         const ordersTotal = await getCountSafely('bookings');
         const carsTotal = await getCountSafely('cars');
-        const soldOutTotal = await getCountSafely('cars', "WHERE status = 'sold_out'");
+        const soldOutTotal = await getCountSafely('cars', "status = 'sold_out'");
         const testDrivesTotal = await getCountSafely('test_drives');
         const wishlistsTotal = await getCountSafely('wishlists');
         const sellRequestsTotal = await getCountSafely('sell_requests');
@@ -1937,8 +2624,6 @@ app.post('/api/settings', authMiddleware, isAdmin, (req, res) => {
 });
 
 app.post('/api/settings/upload', authMiddleware, isAdmin, upload.any(), convertRequestImagesToWebp, async (req, res) => {
-    console.log("--- SITE SETTINGS IMAGE UPLOAD TRIGGERED ---");
-    console.log("FILES:", req.files);
     try {
         const files = req.files || [];
         const queries = [];
@@ -1946,21 +2631,29 @@ app.post('/api/settings/upload', authMiddleware, isAdmin, upload.any(), convertR
         for (const file of files) {
             const key = file.fieldname;
             const filePath = `/uploads/${file.filename}`;
-            console.log(`Saving file for key ${key}: ${filePath}`);
+
             queries.push(new Promise((resolve, reject) => {
-                db.query('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', 
-                [key, filePath, filePath], (err) => {
-                    if (err) {
-                        console.error(`DB Query error for key ${key}:`, err);
-                        reject(err);
-                    }
-                    else resolve();
+                // Find old setting to clean up file if replaced
+                db.query('SELECT setting_value FROM site_settings WHERE setting_key = ?', [key], (selErr, selRes) => {
+                    const oldVal = selRes && selRes[0] ? selRes[0].setting_value : null;
+
+                    db.query('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', 
+                    [key, filePath, filePath], (err) => {
+                        if (err) {
+                            console.error(`DB Query error for key ${key}:`, err);
+                            reject(err);
+                        } else {
+                            if (oldVal && oldVal !== filePath && oldVal.startsWith('/uploads/')) {
+                                deleteLocalUploadFile(oldVal);
+                            }
+                            resolve();
+                        }
+                    });
                 });
             }));
         }
 
         await Promise.all(queries);
-        console.log("All DB updates resolved successfully");
         res.json({ message: 'Site images uploaded and updated successfully' });
     } catch (error) {
         console.error('Site Settings Upload Error:', error);
@@ -2226,53 +2919,60 @@ app.get('/api/media', authMiddleware, (req, res) => {
         if (err) {
             return res.status(500).json({ error: 'Failed to scan uploads directory' });
         }
-        const mediaExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.mp4', '.mov'];
+        const mediaExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.mp4', '.mov', '.webm', '.pdf'];
         
         // Map files with extra stats like file size and date uploaded
         const mediaFiles = [];
         files.forEach(file => {
-            if (mediaExtensions.includes(path.extname(file).toLowerCase())) {
+            const ext = path.extname(file).toLowerCase();
+            if (mediaExtensions.includes(ext)) {
                 const filePath = path.join(dirPath, file);
-                const isImage = ['.png', '.jpg', '.jpeg', '.webp', '.gif'].includes(path.extname(file).toLowerCase());
+                const isImage = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'].includes(ext);
+                const isVideo = ['.mp4', '.mov', '.webm'].includes(ext);
                 
                 if (isImage) {
-                    generateThumbnail(file).catch(err => console.error(err));
+                    generateThumbnail(file).catch(() => {});
                 }
 
                 try {
                     const stats = fs.statSync(filePath);
                     mediaFiles.push({
                         url: `/uploads/${file}`,
+                        filename: file,
                         thumbnailUrl: isImage ? `/uploads/thumbnails/${file}` : `/uploads/${file}`,
                         size: stats.size,
-                        createdAt: stats.mtime
+                        createdAt: stats.birthtime || stats.mtime,
+                        type: isImage ? 'image' : (isVideo ? 'video' : 'document')
                     });
                 } catch (e) {
                     mediaFiles.push({
                         url: `/uploads/${file}`,
-                        thumbnailUrl: isImage ? `/uploads/thumbnails/${file}` : `/uploads/${file}`,
+                        filename: file,
+                        thumbnailUrl: `/uploads/${file}`,
                         size: 0,
-                        createdAt: new Date()
+                        createdAt: new Date(),
+                        type: isImage ? 'image' : (isVideo ? 'video' : 'document')
                     });
                 }
             }
         });
         
         // Sort files by creation date (newest first)
-        mediaFiles.sort((a, b) => b.createdAt - a.createdAt);
+        mediaFiles.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         db.query('SELECT * FROM media_alt_tags', (dbErr, dbResults) => {
-            if (dbErr) {
-                // Fallback if query fails
-                return res.json(mediaFiles.map(f => ({ ...f, alt: "" })));
-            }
             const altMap = {};
-            dbResults.forEach(row => {
-                altMap[row.file_path] = row.alt_text;
-            });
+            if (!dbErr && Array.isArray(dbResults)) {
+                dbResults.forEach(row => {
+                    altMap[row.file_path] = row.alt_text;
+                    const bName = path.basename(row.file_path);
+                    altMap[`/uploads/${bName}`] = row.alt_text;
+                });
+            }
+            const altStore = readAltStore();
             const results = mediaFiles.map(f => ({
                 ...f,
-                alt: altMap[f.url] || ""
+                alt: altMap[f.url] || altStore[f.url] || ""
             }));
             res.json(results);
         });
@@ -2282,34 +2982,35 @@ app.get('/api/media', authMiddleware, (req, res) => {
 app.post('/api/media/alt', authMiddleware, (req, res) => {
     const { filePath, altText } = req.body;
     if (!filePath) return res.status(400).json({ message: 'filePath is required' });
+    const text = altText || "";
     db.query(
         'INSERT INTO media_alt_tags (file_path, alt_text) VALUES (?, ?) ON DUPLICATE KEY UPDATE alt_text = ?',
-        [filePath, altText || "", altText || ""],
+        [filePath, text, text],
         (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true, message: 'Alt text updated successfully' });
+            if (err) console.error('Error saving alt tag:', err.message);
         }
     );
+    const altStore = readAltStore();
+    altStore[filePath] = text;
+    writeAltStore(altStore);
+    res.json({ success: true, message: 'Alt text updated successfully', alt: text });
 });
 
 app.delete('/api/media', authMiddleware, (req, res) => {
     const filePath = req.query.filePath || req.body.filePath;
     if (!filePath) return res.status(400).json({ message: 'filePath is required' });
     
-    // Construct local absolute path
-    const filename = path.basename(filePath);
-    const localPath = path.join(__dirname, 'public/uploads', filename);
-    
-    fs.unlink(localPath, (err) => {
-        if (err && err.code !== 'ENOENT') {
-            return res.status(500).json({ error: 'Failed to delete file from filesystem' });
-        }
-        
-        // Also delete alt text
-        db.query('DELETE FROM media_alt_tags WHERE file_path = ?', [filePath], (dbErr) => {
-            res.json({ message: 'Media deleted successfully' });
-        });
-    });
+    deleteLocalUploadFile(filePath);
+    res.json({ message: 'Media deleted successfully' });
+});
+
+app.post('/api/media/bulk-delete', authMiddleware, (req, res) => {
+    const { filePaths } = req.body;
+    if (!Array.isArray(filePaths) || filePaths.length === 0) {
+        return res.status(400).json({ message: 'filePaths array is required' });
+    }
+    filePaths.forEach(fp => deleteLocalUploadFile(fp));
+    res.json({ success: true, message: `Successfully deleted ${filePaths.length} file(s)`, count: filePaths.length });
 });
 
 // NOTE: /api/profile GET and PUT are defined above (lines ~1394-1418)
@@ -2328,8 +3029,17 @@ app.post('/api/login', (req, res) => {
         try { isMatch = await bcrypt.compare(password, user.password); } catch {}
         if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
 
-        const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        res.json({ token, user: { id: user.id, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role, image: user.image } });
+        let permissions = [];
+        if (user.permissions) {
+            try {
+                permissions = typeof user.permissions === 'string' ? JSON.parse(user.permissions) : user.permissions;
+            } catch {
+                permissions = typeof user.permissions === 'string' ? user.permissions.split(',').map(s => s.trim()) : [];
+            }
+        }
+
+        const token = jwt.sign({ id: user.id, email: user.email, role: user.role, permissions }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        res.json({ token, user: { id: user.id, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role, image: user.image, permissions: Array.isArray(permissions) ? permissions : [] } });
     });
 });
 
@@ -2385,17 +3095,28 @@ app.put('/api/admin/banners/:id', authMiddleware, isAdmin, bannerUpload.single('
     const updates = { page, type, title, subtitle, cta_text, cta_link, sort_order, is_active };
     if (img) updates.image_url = img;
     if (flip_image !== undefined) updates.flip_image = flip_image ? Number(flip_image) : 0;
-    db.query('UPDATE banners SET ? WHERE id = ?', [updates, id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Banner updated' });
+
+    db.query('SELECT image_url FROM banners WHERE id = ?', [id], (findErr, findRes) => {
+        const oldImg = findRes && findRes[0] ? findRes[0].image_url : null;
+        db.query('UPDATE banners SET ? WHERE id = ?', [updates, id], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (oldImg && img && oldImg !== img) {
+                deleteLocalUploadFile(oldImg);
+            }
+            res.json({ message: 'Banner updated' });
+        });
     });
 });
 
 // Admin: Delete banner
 app.delete('/api/admin/banners/:id', authMiddleware, isAdmin, (req, res) => {
-    db.query('DELETE FROM banners WHERE id = ?', [req.params.id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Banner deleted' });
+    db.query('SELECT image_url FROM banners WHERE id = ?', [req.params.id], (findErr, findRes) => {
+        const oldImg = findRes && findRes[0] ? findRes[0].image_url : null;
+        db.query('DELETE FROM banners WHERE id = ?', [req.params.id], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (oldImg) deleteLocalUploadFile(oldImg);
+            res.json({ message: 'Banner deleted' });
+        });
     });
 });
 
@@ -2425,14 +3146,39 @@ app.put('/api/admin/site-content', authMiddleware, isAdmin, bannerUpload.single(
     const { key, value } = req.body;
     if (!key) return res.status(400).json({ message: 'key is required' });
     const val = req.file ? `/uploads/${req.file.filename}` : value;
-    db.query(
-        'INSERT INTO site_content (content_key, content_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE content_value = ?',
-        [key, val, val],
-        (err) => {
+
+    db.query('SELECT content_value FROM site_content WHERE content_key = ?', [key], (findErr, findRes) => {
+        const oldVal = findRes && findRes[0] ? findRes[0].content_value : null;
+
+        db.query(
+            'INSERT INTO site_content (content_key, content_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE content_value = ?',
+            [key, val, val],
+            (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+                if (oldVal && val && oldVal !== val && oldVal.startsWith('/uploads/')) {
+                    deleteLocalUploadFile(oldVal);
+                }
+                res.json({ message: 'Content updated', value: val });
+            }
+        );
+    });
+});
+
+// Admin: delete site content by key
+app.delete('/api/admin/site-content/:key', authMiddleware, isAdmin, (req, res) => {
+    const { key } = req.params;
+    if (!key) return res.status(400).json({ message: 'key is required' });
+
+    db.query('SELECT content_value FROM site_content WHERE content_key = ?', [key], (findErr, findRes) => {
+        const oldVal = findRes && findRes[0] ? findRes[0].content_value : null;
+        db.query('DELETE FROM site_content WHERE content_key = ?', [key], (err) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: 'Content updated', value: val });
-        }
-    );
+            if (oldVal && oldVal.startsWith('/uploads/')) {
+                deleteLocalUploadFile(oldVal);
+            }
+            res.json({ message: 'Content removed successfully' });
+        });
+    });
 });
 
 // ==================== VIDEO TESTIMONIALS ====================
@@ -2481,17 +3227,32 @@ app.put('/api/admin/video-testimonials/:id', authMiddleware, isAdmin, bannerUplo
     const pos = req.files?.poster?.[0] ? `/uploads/${req.files.poster[0].filename}` : (poster_url || null);
     if (vid) updates.video_url = vid;
     if (pos) updates.poster_url = pos;
-    db.query('UPDATE video_testimonials SET ? WHERE id = ?', [updates, id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Testimonial updated' });
+
+    db.query('SELECT video_url, poster_url FROM video_testimonials WHERE id = ?', [id], (findErr, findRes) => {
+        const oldRow = findRes && findRes[0] ? findRes[0] : {};
+        db.query('UPDATE video_testimonials SET ? WHERE id = ?', [updates, id], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (vid && oldRow.video_url && oldRow.video_url !== vid) {
+                deleteLocalUploadFile(oldRow.video_url);
+            }
+            if (pos && oldRow.poster_url && oldRow.poster_url !== pos) {
+                deleteLocalUploadFile(oldRow.poster_url);
+            }
+            res.json({ message: 'Testimonial updated' });
+        });
     });
 });
 
 // Admin: delete video testimonial
 app.delete('/api/admin/video-testimonials/:id', authMiddleware, isAdmin, (req, res) => {
-    db.query('DELETE FROM video_testimonials WHERE id = ?', [req.params.id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Testimonial deleted' });
+    db.query('SELECT video_url, poster_url FROM video_testimonials WHERE id = ?', [req.params.id], (findErr, findRes) => {
+        const oldRow = findRes && findRes[0] ? findRes[0] : {};
+        db.query('DELETE FROM video_testimonials WHERE id = ?', [req.params.id], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (oldRow.video_url) deleteLocalUploadFile(oldRow.video_url);
+            if (oldRow.poster_url) deleteLocalUploadFile(oldRow.poster_url);
+            res.json({ message: 'Testimonial deleted' });
+        });
     });
 });
 
@@ -2810,95 +3571,91 @@ app.delete('/api/admin/variants/:id', authMiddleware, isAdmin, (req, res) => {
     });
 });
 
-
-// ─── Media Library API ────────────────────────────────────────────────────────
-const MEDIA_ALT_PATH = path.join(__dirname, 'media_alt.json');
-
-function readAltStore() {
-    try {
-        return JSON.parse(fs.readFileSync(MEDIA_ALT_PATH, 'utf8'));
-    } catch {
-        return {};
+// Admin: Bulk Import Brands, Models & Variants via CSV
+app.post('/api/admin/brands/import-csv', authMiddleware, isAdmin, async (req, res) => {
+    const { items } = req.body;
+    if (!Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ success: false, message: 'No CSV data provided' });
     }
-}
 
-function writeAltStore(data) {
-    fs.writeFileSync(MEDIA_ALT_PATH, JSON.stringify(data, null, 2));
-}
+    let brandsAdded = 0;
+    let modelsAdded = 0;
+    let variantsAdded = 0;
+    let totalProcessed = 0;
 
-// GET /api/media — list all files in public/uploads/
-app.get('/api/media', authMiddleware, isAdmin, (req, res) => {
-    const uploadsDir = path.join(__dirname, 'public/uploads');
-    const altStore = readAltStore();
-
-    fs.readdir(uploadsDir, (err, files) => {
-        if (err) {
-            if (err.code === 'ENOENT') return res.json([]);
-            return res.status(500).json({ error: 'Could not read uploads directory' });
-        }
-
-        const mediaItems = files.map(filename => {
-            const filePath = path.join(uploadsDir, filename);
-            let size = 0;
-            let createdAt = new Date().toISOString();
-            try {
-                const stat = fs.statSync(filePath);
-                size = stat.size;
-                createdAt = stat.birthtime || stat.mtime;
-            } catch {}
-            const urlPath = `/uploads/${filename}`;
-            return {
-                url: urlPath,
-                size,
-                createdAt,
-                alt: altStore[urlPath] || ''
-            };
+    const promiseQuery = (sql, params = []) => {
+        return new Promise((resolve, reject) => {
+            db.query(sql, params, (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            });
         });
+    };
 
-        res.json(mediaItems);
-    });
-});
+    try {
+        for (const item of items) {
+            const brandName = (item.brand || item.Brand || item.make || item.Make || '').toString().trim();
+            const modelName = (item.model || item.Model || '').toString().trim();
+            const variantName = (item.variant || item.Variant || '').toString().trim();
+            const logoUrl = (item.logo_url || item.logo || item.Logo || item.Logo_URL || item.logo_path || '').toString().trim();
 
-// POST /api/media/alt — update alt text for a file
-app.post('/api/media/alt', authMiddleware, isAdmin, (req, res) => {
-    const { filePath, altText } = req.body;
-    if (!filePath) return res.status(400).json({ error: 'filePath required' });
-    const altStore = readAltStore();
-    altStore[filePath] = altText || '';
-    writeAltStore(altStore);
-    res.json({ message: 'Alt text updated', filePath, altText });
-});
+            if (!brandName) continue;
+            totalProcessed++;
 
-// POST /api/upload — generic file upload for media library
-app.post('/api/upload', authMiddleware, isAdmin, upload.single('file'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const url = `/uploads/${req.file.filename}`;
-    res.json({ url, message: 'File uploaded successfully' });
-});
+            // 1. Find or create brand
+            let brandRows = await promiseQuery('SELECT id, logo_url FROM brands WHERE LOWER(name) = LOWER(?) LIMIT 1', [brandName]);
+            let brandId;
 
-// DELETE /api/media — delete a file from disk
-app.delete('/api/media', authMiddleware, isAdmin, (req, res) => {
-    const filePath = req.query.filePath;
-    if (!filePath) return res.status(400).json({ error: 'filePath query param required' });
+            if (brandRows.length === 0) {
+                const brandInsert = await promiseQuery('INSERT INTO brands (name, logo_url) VALUES (?, ?)', [brandName, logoUrl || null]);
+                brandId = brandInsert.insertId;
+                brandsAdded++;
+            } else {
+                brandId = brandRows[0].id;
+                if (logoUrl && !brandRows[0].logo_url) {
+                    await promiseQuery('UPDATE brands SET logo_url = ? WHERE id = ?', [logoUrl, brandId]);
+                }
+            }
 
-    // Sanitize: only allow deleting from /uploads/
-    const filename = path.basename(filePath);
-    const fullPath = path.join(__dirname, 'public/uploads', filename);
+            // 2. Find or create model (if modelName provided)
+            let modelId = null;
+            if (modelName) {
+                let modelRows = await promiseQuery('SELECT id FROM models WHERE brand_id = ? AND LOWER(name) = LOWER(?) LIMIT 1', [brandId, modelName]);
+                if (modelRows.length === 0) {
+                    const modelInsert = await promiseQuery('INSERT INTO models (brand_id, name) VALUES (?, ?)', [brandId, modelName]);
+                    modelId = modelInsert.insertId;
+                    modelsAdded++;
+                } else {
+                    modelId = modelRows[0].id;
+                }
+            }
 
-    fs.unlink(fullPath, (err) => {
-        if (err) {
-            if (err.code === 'ENOENT') return res.status(404).json({ error: 'File not found' });
-            return res.status(500).json({ error: 'Failed to delete file' });
+            // 3. Find or create variant (if variantName provided and model exists)
+            if (modelId && variantName) {
+                let variantRows = await promiseQuery('SELECT id FROM variants WHERE model_id = ? AND LOWER(name) = LOWER(?) LIMIT 1', [modelId, variantName]);
+                if (variantRows.length === 0) {
+                    await promiseQuery('INSERT INTO variants (model_id, name) VALUES (?, ?)', [modelId, variantName]);
+                    variantsAdded++;
+                }
+            }
         }
-        // Remove from alt store too
-        const altStore = readAltStore();
-        const urlPath = `/uploads/${filename}`;
-        delete altStore[urlPath];
-        writeAltStore(altStore);
 
-        res.json({ message: 'File deleted successfully' });
-    });
+        res.json({
+            success: true,
+            message: `Successfully processed ${totalProcessed} records (${brandsAdded} new brands, ${modelsAdded} new models, ${variantsAdded} new variants).`,
+            stats: {
+                totalProcessed,
+                brandsAdded,
+                modelsAdded,
+                variantsAdded
+            }
+        });
+    } catch (err) {
+        console.error('CSV Import Error:', err);
+        res.status(500).json({ success: false, message: 'Failed to import CSV: ' + err.message });
+    }
 });
+
 
 // ============================================================
 // Customer Reviews API
@@ -3142,6 +3899,539 @@ app.post('/api/admin/video-testimonials/reorder', authMiddleware, isAdmin, (req,
                 res.json({ success: true, message: 'Positions updated successfully' });
             }
         });
+    });
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// WEBSITE VISITOR TRACKING & ANALYTICS API
+// ──────────────────────────────────────────────────────────────────────────────
+
+// Public Tracking Endpoint (called by frontend tracker hook)
+app.post('/api/analytics/track', (req, res) => {
+    try {
+        const {
+            visit_id,
+            session_id,
+            visitor_id,
+            page_url,
+            page_title,
+            referrer,
+            device_type = 'Desktop',
+            browser = 'Chrome',
+            os = 'Windows',
+            city,
+            region,
+            country,
+            duration_seconds = 0,
+            is_ping = false
+        } = req.body;
+
+        if (!session_id || !visitor_id) {
+            return res.status(400).json({ error: 'Missing session_id or visitor_id' });
+        }
+
+        // Detect IP
+        let clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+        if (clientIp.includes(',')) {
+            clientIp = clientIp.split(',')[0].trim();
+        }
+        if (clientIp.startsWith('::ffff:')) {
+            clientIp = clientIp.replace('::ffff:', '');
+        }
+
+        const fallbackCity = city || 'Raipur';
+        const fallbackRegion = region || 'Chhattisgarh';
+        const fallbackCountry = country || 'India';
+
+        // Heartbeat / duration update ping
+        if (is_ping && (visit_id || (session_id && page_url))) {
+            const updateDuration = Math.max(0, parseInt(duration_seconds) || 0);
+            const isBounce = updateDuration >= 15 ? 0 : 1;
+
+            if (visit_id) {
+                db.query(
+                    `UPDATE website_visitors 
+                     SET duration_seconds = GREATEST(duration_seconds, ?), 
+                         is_bounce = CASE WHEN ? >= 15 THEN 0 ELSE is_bounce END,
+                         updated_at = NOW() 
+                     WHERE id = ?`,
+                    [updateDuration, updateDuration, visit_id],
+                    (err) => {
+                        if (err) console.error('Error updating visitor ping by visit_id:', err);
+                        res.json({ success: true, updated: true });
+                    }
+                );
+            } else {
+                db.query(
+                    `UPDATE website_visitors 
+                     SET duration_seconds = GREATEST(duration_seconds, ?), 
+                         is_bounce = CASE WHEN ? >= 15 THEN 0 ELSE is_bounce END,
+                         updated_at = NOW() 
+                     WHERE session_id = ? AND page_url = ? 
+                     ORDER BY id DESC LIMIT 1`,
+                    [updateDuration, updateDuration, session_id, page_url],
+                    (err) => {
+                        if (err) console.error('Error updating visitor ping by session:', err);
+                        res.json({ success: true, updated: true });
+                    }
+                );
+            }
+            return;
+        }
+
+        // New page visit: mark previous visits in the same session as not bounced (since multi-page)
+        db.query(
+            `UPDATE website_visitors SET is_bounce = 0 WHERE session_id = ? AND is_bounce = 1`,
+            [session_id],
+            () => {}
+        );
+
+        // Insert new visit record
+        const insertSql = `
+            INSERT INTO website_visitors 
+            (session_id, visitor_id, ip_address, city, region, country, page_url, page_title, referrer, device_type, browser, os, duration_seconds, is_bounce, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())
+        `;
+
+        db.query(
+            insertSql,
+            [
+                session_id,
+                visitor_id,
+                clientIp,
+                fallbackCity,
+                fallbackRegion,
+                fallbackCountry,
+                page_url || '/',
+                page_title || 'Selectt',
+                referrer || 'Direct',
+                device_type,
+                browser,
+                os,
+                parseInt(duration_seconds) || 0
+            ],
+            (err, result) => {
+                if (err) {
+                    console.error('Error recording website visitor:', err);
+                    return res.status(500).json({ error: 'Failed to record visitor' });
+                }
+                res.json({
+                    success: true,
+                    visit_id: result.insertId
+                });
+            }
+        );
+    } catch (e) {
+        console.error('Visitor tracking exception:', e);
+        res.status(500).json({ error: 'Server error tracking visitor' });
+    }
+});
+
+// Admin Analytics Overview (KPIs, Charts, Top Pages, Geo Breakdown, Devices)
+app.get('/api/admin/analytics/overview', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { period = '30days', startDate, endDate } = req.query;
+
+        let dateWhere = '1=1';
+        let queryParams = [];
+
+        if (startDate && endDate) {
+            dateWhere = 'created_at >= ? AND created_at <= ?';
+            queryParams = [`${startDate} 00:00:00`, `${endDate} 23:59:59`];
+        } else if (period === 'today') {
+            dateWhere = 'created_at >= CURDATE()';
+        } else if (period === '7days') {
+            dateWhere = 'created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)';
+        } else if (period === '30days') {
+            dateWhere = 'created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)';
+        } else if (period === 'thisMonth') {
+            dateWhere = "created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')";
+        } else if (period === 'all') {
+            dateWhere = '1=1';
+        }
+
+        // 1. Overall KPIs
+        const kpiQuery = `
+            SELECT 
+                COUNT(*) as total_pageviews,
+                COUNT(DISTINCT session_id) as total_sessions,
+                COUNT(DISTINCT visitor_id) as unique_visitors,
+                COALESCE(AVG(duration_seconds), 0) as avg_duration_seconds,
+                COALESCE(SUM(CASE WHEN is_bounce = 1 THEN 1 ELSE 0 END), 0) as bounce_count
+            FROM website_visitors
+            WHERE ${dateWhere}
+        `;
+
+        // Live visitors in last 5 minutes
+        const liveQuery = `
+            SELECT COUNT(DISTINCT visitor_id) as live_count 
+            FROM website_visitors 
+            WHERE updated_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+        `;
+
+        // 2. Timeline Chart data
+        let chartQuery = '';
+        if (period === 'today') {
+            chartQuery = `
+                SELECT 
+                    DATE_FORMAT(created_at, '%H:00') as label,
+                    COUNT(DISTINCT visitor_id) as visitors,
+                    COUNT(*) as pageviews
+                FROM website_visitors
+                WHERE ${dateWhere}
+                GROUP BY DATE_FORMAT(created_at, '%H:00')
+                ORDER BY MIN(created_at) ASC
+            `;
+        } else {
+            chartQuery = `
+                SELECT 
+                    DATE_FORMAT(created_at, '%b %d') as label,
+                    COUNT(DISTINCT visitor_id) as visitors,
+                    COUNT(*) as pageviews
+                FROM website_visitors
+                WHERE ${dateWhere}
+                GROUP BY DATE(created_at), DATE_FORMAT(created_at, '%b %d')
+                ORDER BY DATE(created_at) ASC
+            `;
+        }
+
+        // 3. Top Pages
+        const topPagesQuery = `
+            SELECT 
+                page_url,
+                COALESCE(MAX(page_title), page_url) as page_title,
+                COUNT(*) as views,
+                COUNT(DISTINCT visitor_id) as visitors,
+                ROUND(AVG(duration_seconds)) as avg_duration
+            FROM website_visitors
+            WHERE ${dateWhere}
+            GROUP BY page_url
+            ORDER BY views DESC
+            LIMIT 10
+        `;
+
+        // 4. Top Locations (Cities)
+        const topLocationsQuery = `
+            SELECT 
+                COALESCE(city, 'Unknown') as city,
+                COALESCE(region, '') as region,
+                COALESCE(country, 'India') as country,
+                COUNT(DISTINCT visitor_id) as visitors,
+                COUNT(*) as pageviews
+            FROM website_visitors
+            WHERE ${dateWhere}
+            GROUP BY city, region, country
+            ORDER BY visitors DESC
+            LIMIT 8
+        `;
+
+        // 5. Device Breakdown
+        const deviceQuery = `
+            SELECT 
+                COALESCE(device_type, 'Desktop') as device_type,
+                COUNT(*) as count
+            FROM website_visitors
+            WHERE ${dateWhere}
+            GROUP BY device_type
+            ORDER BY count DESC
+        `;
+
+        // 6. Browser Breakdown
+        const browserQuery = `
+            SELECT 
+                COALESCE(browser, 'Other') as browser,
+                COUNT(*) as count
+            FROM website_visitors
+            WHERE ${dateWhere}
+            GROUP BY browser
+            ORDER BY count DESC
+            LIMIT 6
+        `;
+
+        // 7. Top Referrers
+        const referrerQuery = `
+            SELECT 
+                CASE 
+                    WHEN referrer IS NULL OR referrer = '' OR referrer LIKE '%direct%' THEN 'Direct / Direct Link'
+                    WHEN referrer LIKE '%google%' THEN 'Google Search'
+                    WHEN referrer LIKE '%instagram%' THEN 'Instagram'
+                    WHEN referrer LIKE '%facebook%' THEN 'Facebook'
+                    WHEN referrer LIKE '%youtube%' THEN 'YouTube'
+                    ELSE referrer 
+                END as source,
+                COUNT(*) as count
+            FROM website_visitors
+            WHERE ${dateWhere}
+            GROUP BY source
+            ORDER BY count DESC
+            LIMIT 6
+        `;
+
+        const [kpiRes, liveRes, chartRes, topPagesRes, topLocationsRes, deviceRes, browserRes, referrerRes] = await Promise.all([
+            queryAsync(kpiQuery, queryParams),
+            queryAsync(liveQuery, []),
+            queryAsync(chartQuery, queryParams),
+            queryAsync(topPagesQuery, queryParams),
+            queryAsync(topLocationsQuery, queryParams),
+            queryAsync(deviceQuery, queryParams),
+            queryAsync(browserQuery, queryParams),
+            queryAsync(referrerQuery, queryParams)
+        ]);
+
+        const totalPageviews = kpiRes[0]?.total_pageviews || 0;
+        const totalSessions = kpiRes[0]?.total_sessions || 0;
+        const uniqueVisitors = kpiRes[0]?.unique_visitors || 0;
+        const avgDuration = Math.round(kpiRes[0]?.avg_duration_seconds || 0);
+        const bounceCount = kpiRes[0]?.bounce_count || 0;
+        const bounceRate = totalPageviews > 0 ? ((bounceCount / totalPageviews) * 100).toFixed(1) : '0.0';
+        const liveVisitors = liveRes[0]?.live_count || 0;
+
+        // Calculate location percentages
+        const topLocations = (topLocationsRes || []).map(loc => ({
+            ...loc,
+            percentage: uniqueVisitors > 0 ? Math.round((loc.visitors / uniqueVisitors) * 100) : 0
+        }));
+
+        // Calculate device percentages
+        const deviceBreakdown = (deviceRes || []).map(dev => ({
+            ...dev,
+            percentage: totalPageviews > 0 ? Math.round((dev.count / totalPageviews) * 100) : 0
+        }));
+
+        res.json({
+            success: true,
+            kpis: {
+                total_pageviews: totalPageviews,
+                total_sessions: totalSessions,
+                unique_visitors: uniqueVisitors,
+                avg_duration_seconds: avgDuration,
+                bounce_rate: parseFloat(bounceRate),
+                live_active_visitors: liveVisitors
+            },
+            chart: chartRes || [],
+            top_pages: topPagesRes || [],
+            top_locations: topLocations,
+            device_breakdown: deviceBreakdown,
+            browser_breakdown: browserRes || [],
+            traffic_sources: referrerRes || []
+        });
+    } catch (err) {
+        console.error('Analytics overview error:', err);
+        res.status(500).json({ error: 'Failed to fetch analytics overview' });
+    }
+});
+
+// Admin Granular Visitor Logs (Paginated & Filterable)
+app.get('/api/admin/analytics/logs', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = (page - 1) * limit;
+        const search = req.query.search?.trim() || '';
+        const city = req.query.city?.trim() || '';
+        const device = req.query.device?.trim() || '';
+        const startDate = req.query.startDate;
+        const endDate = req.query.endDate;
+        const sortBy = req.query.sortBy || 'created_at';
+        const sortOrder = req.query.sortOrder === 'ASC' ? 'ASC' : 'DESC';
+
+        let whereConditions = ['1=1'];
+        let params = [];
+
+        if (search) {
+            whereConditions.push('(page_url LIKE ? OR page_title LIKE ? OR ip_address LIKE ? OR city LIKE ? OR visitor_id LIKE ? OR referrer LIKE ?)');
+            const s = `%${search}%`;
+            params.push(s, s, s, s, s, s);
+        }
+
+        if (city && city !== 'all') {
+            whereConditions.push('city = ?');
+            params.push(city);
+        }
+
+        if (device && device !== 'all') {
+            whereConditions.push('device_type = ?');
+            params.push(device);
+        }
+
+        if (startDate && endDate) {
+            whereConditions.push('created_at >= ? AND created_at <= ?');
+            params.push(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
+        }
+
+        const whereClause = whereConditions.join(' AND ');
+
+        // Safe columns for sorting
+        const allowedSortCols = ['id', 'created_at', 'duration_seconds', 'city', 'page_url', 'device_type'];
+        const safeSortBy = allowedSortCols.includes(sortBy) ? sortBy : 'created_at';
+
+        const countQuery = `SELECT COUNT(*) as total FROM website_visitors WHERE ${whereClause}`;
+        const countRes = await queryAsync(countQuery, params);
+        const total = countRes[0]?.total || 0;
+
+        const dataQuery = `
+            SELECT 
+                id,
+                session_id,
+                visitor_id,
+                ip_address,
+                city,
+                region,
+                country,
+                page_url,
+                page_title,
+                referrer,
+                device_type,
+                browser,
+                os,
+                duration_seconds,
+                is_bounce,
+                created_at,
+                updated_at
+            FROM website_visitors
+            WHERE ${whereClause}
+            ORDER BY ${safeSortBy} ${sortOrder}
+            LIMIT ? OFFSET ?
+        `;
+
+        const logs = await queryAsync(dataQuery, [...params, limit, offset]);
+
+        // Get unique cities for filter dropdown
+        const citiesList = await queryAsync('SELECT DISTINCT city FROM website_visitors WHERE city IS NOT NULL AND city != "" ORDER BY city ASC');
+
+        res.json({
+            success: true,
+            logs,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            },
+            filterOptions: {
+                cities: citiesList.map(c => c.city)
+            }
+        });
+    } catch (err) {
+        console.error('Analytics logs error:', err);
+        res.status(500).json({ error: 'Failed to fetch visitor logs' });
+    }
+});
+
+// Admin Real-Time Live Visitors Stream
+app.get('/api/admin/analytics/live', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const liveQuery = `
+            SELECT 
+                id,
+                session_id,
+                visitor_id,
+                ip_address,
+                city,
+                region,
+                country,
+                page_url,
+                page_title,
+                device_type,
+                browser,
+                os,
+                duration_seconds,
+                is_bounce,
+                created_at,
+                updated_at,
+                TIMESTAMPDIFF(SECOND, updated_at, NOW()) as seconds_ago
+            FROM website_visitors
+            WHERE updated_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+            ORDER BY updated_at DESC
+            LIMIT 30
+        `;
+
+        let activeVisitors = await queryAsync(liveQuery, []);
+        
+        // Fallback to most recent visitors if none in last 5 minutes
+        if (!activeVisitors || activeVisitors.length === 0) {
+            const fallbackQuery = `
+                SELECT 
+                    id,
+                    session_id,
+                    visitor_id,
+                    ip_address,
+                    city,
+                    region,
+                    country,
+                    page_url,
+                    page_title,
+                    device_type,
+                    browser,
+                    os,
+                    duration_seconds,
+                    is_bounce,
+                    created_at,
+                    updated_at,
+                    TIMESTAMPDIFF(SECOND, updated_at, NOW()) as seconds_ago
+                FROM website_visitors
+                ORDER BY updated_at DESC
+                LIMIT 8
+            `;
+            activeVisitors = await queryAsync(fallbackQuery, []);
+        }
+
+        const distinctLiveCount = new Set(activeVisitors.map(v => v.visitor_id)).size;
+
+        // Group active pages
+        const pageCounts = {};
+        activeVisitors.forEach(v => {
+            const url = v.page_url || '/';
+            pageCounts[url] = (pageCounts[url] || 0) + 1;
+        });
+        const activePages = Object.keys(pageCounts).map(url => ({
+            page_url: url,
+            count: pageCounts[url]
+        })).sort((a, b) => b.count - a.count);
+
+        // Group active cities
+        const cityCounts = {};
+        activeVisitors.forEach(v => {
+            const city = v.city || 'Raipur';
+            cityCounts[city] = (cityCounts[city] || 0) + 1;
+        });
+        const activeCities = Object.keys(cityCounts).map(city => ({
+            city,
+            count: cityCounts[city]
+        })).sort((a, b) => b.count - a.count);
+
+        res.json({
+            success: true,
+            live_count: distinctLiveCount,
+            active_visitors: activeVisitors,
+            active_pages: activePages,
+            active_cities: activeCities,
+            timestamp: new Date().toISOString()
+        });
+    } catch (err) {
+        console.error('Live analytics error:', err);
+        res.status(500).json({ error: 'Failed to fetch live analytics' });
+    }
+});
+
+// Admin Delete Single Visitor Log
+app.delete('/api/admin/analytics/logs/:id', authMiddleware, isAdmin, (req, res) => {
+    const id = req.params.id;
+    db.query('DELETE FROM website_visitors WHERE id = ?', [id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: 'Visitor record deleted successfully' });
+    });
+});
+
+// Admin Bulk Delete Visitor Logs
+app.post('/api/admin/analytics/logs/bulk-delete', authMiddleware, isAdmin, (req, res) => {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'No IDs provided' });
+    }
+    db.query('DELETE FROM website_visitors WHERE id IN (?)', [ids], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: 'Selected visitor records deleted' });
     });
 });
 

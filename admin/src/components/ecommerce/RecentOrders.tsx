@@ -7,63 +7,38 @@ import {
   TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
+import { Link } from "react-router";
+import { ShoppingBag, ArrowRight } from "lucide-react";
 
 const API = API_URL;
 
 export default function RecentOrders({ orders = [] }: { orders: any[] }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
-      <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Recent Orders
-          </h3>
+    <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white p-4 sm:p-5 dark:border-gray-800 dark:bg-white/[0.03] shadow-2xs">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400">
+            <ShoppingBag className="size-4" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+              Recent Bookings
+            </h3>
+            <p className="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
+              Latest sales transactions
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
-            <svg
-              className="stroke-current fill-white dark:fill-gray-800"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2.29004 5.90393H17.7067"
-                stroke=""
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M17.7075 14.0961H2.29085"
-                stroke=""
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M12.0826 3.33331C13.5024 3.33331 14.6534 4.48431 14.6534 5.90414C14.6534 7.32398 13.5024 8.47498 12.0826 8.47498C10.6627 8.47498 9.51172 7.32398 9.51172 5.90415C9.51172 4.48432 10.6627 3.33331 12.0826 3.33331Z"
-                fill=""
-                stroke=""
-                strokeWidth="1.5"
-              />
-              <path
-                d="M7.91745 11.525C6.49762 11.525 5.34662 12.676 5.34662 14.0959C5.34661 15.5157 6.49762 16.6667 7.91745 16.6667C9.33728 16.6667 10.4883 15.5157 10.4883 14.0959C10.4883 12.676 9.33728 11.525 7.91745 11.525Z"
-                fill=""
-                stroke=""
-                strokeWidth="1.5"
-              />
-            </svg>
-            Filter
-          </button>
-          <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
-            See all
-          </button>
-        </div>
+        <Link
+          to="/booked-cars"
+          className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-bold text-gray-700 hover:bg-[#1C3EB9] hover:text-[#0C1B33] hover:border-[#1C3EB9] transition-all dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+        >
+          <span>View All</span>
+          <ArrowRight className="size-3" />
+        </Link>
       </div>
+
       <div className="max-w-full overflow-x-auto">
         <Table>
           {/* Table Header */}
@@ -71,25 +46,25 @@ export default function RecentOrders({ orders = [] }: { orders: any[] }) {
             <TableRow>
               <TableCell
                 isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="py-2 font-bold text-gray-400 uppercase tracking-wider text-start text-[10px] dark:text-gray-400"
               >
-                Products
+                Vehicle
               </TableCell>
               <TableCell
                 isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="py-2 font-bold text-gray-400 uppercase tracking-wider text-start text-[10px] dark:text-gray-400"
               >
-                Category
+                Type
               </TableCell>
               <TableCell
                 isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="py-2 font-bold text-gray-400 uppercase tracking-wider text-start text-[10px] dark:text-gray-400"
               >
                 Price
               </TableCell>
               <TableCell
                 isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="py-2 font-bold text-gray-400 uppercase tracking-wider text-start text-[10px] dark:text-gray-400"
               >
                 Status
               </TableCell>
@@ -97,11 +72,12 @@ export default function RecentOrders({ orders = [] }: { orders: any[] }) {
           </TableHeader>
 
           {/* Table Body */}
-
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
             {orders.length === 0 && (
               <TableRow>
-                <TableCell className="py-8 text-center text-gray-500 font-medium">No recent bookings found.</TableCell>
+                <TableCell className="py-6 text-center text-gray-400 font-medium text-xs">
+                  No recent bookings.
+                </TableCell>
               </TableRow>
             )}
             {orders.map((order) => {
@@ -112,52 +88,57 @@ export default function RecentOrders({ orders = [] }: { orders: any[] }) {
                   imageUrl = parsed[0];
                 }
               } catch (e) {
-                // Not a JSON string, use as is
+                // Not JSON
               }
-              const finalImageUrl = imageUrl.startsWith('http') ? imageUrl : `${API}${imageUrl}`;
+              const finalImageUrl = imageUrl.startsWith("http")
+                ? imageUrl
+                : `${API}${imageUrl}`;
 
               return (
-              <TableRow key={order.orderId} className="">
-                <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-[50px] w-[60px] overflow-hidden rounded-md border border-slate-200">
-                      <img
-                        src={finalImageUrl}
-                        className="h-full w-full object-cover"
-                        alt={`${order.make} ${order.model}`}
-                      />
+                <TableRow key={order.id || order.orderId} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition-colors">
+                  <TableCell className="py-2.5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-9 w-12 overflow-hidden rounded-lg border border-gray-200/80 bg-gray-100 shrink-0">
+                        <img
+                          src={finalImageUrl}
+                          className="h-full w-full object-cover"
+                          alt={`${order.make} ${order.model}`}
+                          onError={(e: any) => {
+                            e.target.src = "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=200";
+                          }}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-gray-800 text-xs dark:text-white truncate">
+                          {order.make} {order.model}
+                        </p>
+                        <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 block truncate">
+                          {order.orderId}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {order.make} {order.model}
-                      </p>
-                      <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                        {order.orderId}
-                      </span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {order.category || 'N/A'}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  ₹{(order.price / 100000).toFixed(2)} Lakh
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <Badge
-                    size="sm"
-                    color={
-                      order.status === "paid" || order.status === "completed"
-                        ? "success"
-                        : order.status === "pending"
-                        ? "warning"
-                        : "error"
-                    }
-                  >
-                    {order.status}
-                  </Badge>
-                </TableCell>
-              </TableRow>
+                  </TableCell>
+                  <TableCell className="py-2.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                    {order.category || "Car"}
+                  </TableCell>
+                  <TableCell className="py-2.5 text-xs font-black text-gray-900 dark:text-white">
+                    ₹{(order.price / 100000).toFixed(2)}L
+                  </TableCell>
+                  <TableCell className="py-2.5">
+                    <Badge
+                      size="sm"
+                      color={
+                        order.status === "paid" || order.status === "completed" || order.status === "confirmed"
+                          ? "success"
+                          : order.status === "pending"
+                          ? "warning"
+                          : "error"
+                      }
+                    >
+                      {order.status || 'confirmed'}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
               );
             })}
           </TableBody>

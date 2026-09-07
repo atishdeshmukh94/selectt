@@ -99,14 +99,14 @@ const HowItWorksSellingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/talk-about-car.svg?q=85&w=360&dpr=1.3" alt="Let's talk about your car" className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/loan-eligibility.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-1.jpeg" alt="Let's talk about your car" className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
 
               {/* Dotted Line 1→2 */}
               <div className="hidden lg:flex justify-center pointer-events-none select-none -my-10">
-                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&w=900&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
+                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
               {/* ── Step 2 (Scroll Reveal) ── */}
@@ -136,14 +136,14 @@ const HowItWorksSellingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/good-quote.svg?q=85&w=360&dpr=1.3" alt="The good quote" className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/upload-document.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-2.jpeg" alt="The good quote" className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
 
               {/* Dotted Line 2→3 */}
               <div className="hidden lg:flex justify-center pointer-events-none select-none -my-10">
-                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterEvenLine.svg?q=85&w=900&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
+                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterEvenLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
               {/* ── Step 3 (Scroll Reveal) ── */}
@@ -173,14 +173,14 @@ const HowItWorksSellingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/car-worth.svg?q=85&w=360&dpr=1.3" alt="What's your car's worth?" className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/loan-approval.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-3.jpeg" alt="What's your car's worth?" className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
 
               {/* Dotted Line 3→4 */}
               <div className="hidden lg:flex justify-center pointer-events-none select-none -my-10">
-                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&w=900&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
+                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
               {/* ── Step 4 (Scroll Reveal) ── */}
@@ -210,14 +210,14 @@ const HowItWorksSellingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/credited-same-day.svg?q=85&w=360&dpr=1.3" alt="Credited, the same day." className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/home-delivery.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-4.jpeg" alt="Credited, the same day." className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
 
               {/* Dotted Line 4→5 */}
               <div className="hidden lg:flex justify-center pointer-events-none select-none -my-10">
-                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterEvenLine.svg?q=85&w=900&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
+                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterEvenLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
               {/* ── Step 5 (Scroll Reveal) ── */}
@@ -247,7 +247,7 @@ const HowItWorksSellingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/car-in-transit.svg?q=85&w=360&dpr=1.3" alt="Sit back, relax. Car in transit." className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/home-delivery.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-4.jpeg" alt="Sit back, relax. Car in transit." className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>

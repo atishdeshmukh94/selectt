@@ -369,14 +369,60 @@ const BuyCarsPage = () => {
 
     const visibleCars = sortedCars.slice(0, displayLimit);
 
+    // 3 In-Grid Banners configured in Admin
+    const banner1 = {
+      logoUrl: extraCardData?.extra_card_logo_url,
+      btnLink: extraCardData?.extra_card_btn_link || "/used-car-loan",
+      isActive: extraCardData?.extra_card_is_active !== false && extraCardData?.extra_card_is_active !== "false" && extraCardData?.extra_card_is_active !== "0",
+      title: "Loan & Finance Banner",
+    };
+
+    const banner2 = {
+      logoUrl: extraCardData?.buy_grid_banner_2_img,
+      btnLink: extraCardData?.buy_grid_banner_2_link || "/car-insurance",
+      isActive: extraCardData?.buy_grid_banner_2_active !== "false" && extraCardData?.buy_grid_banner_2_active !== "0",
+      title: "Insurance & Warranty Banner",
+    };
+
+    const banner3 = {
+      logoUrl: extraCardData?.buy_grid_banner_3_img,
+      btnLink: extraCardData?.buy_grid_banner_3_link || "/sell-car",
+      isActive: extraCardData?.buy_grid_banner_3_active !== "false" && extraCardData?.buy_grid_banner_3_active !== "0",
+      title: "Instant Valuation & Buyback Banner",
+    };
+
+    // Filter active banners (that have an image or active status)
+    const activeInGridBanners = [
+      banner1.isActive && (banner1.logoUrl || banner1.isActive) ? banner1 : null,
+      banner2.isActive && banner2.logoUrl ? banner2 : null,
+      banner3.isActive && banner3.logoUrl ? banner3 : null,
+    ].filter(Boolean);
+
+    let bannerIndex = 0;
+
     visibleCars.forEach((car) => {
       elements.push(<CarCard key={`car-${car.id}`} car={car} lightBg={true} />);
       carCount++;
 
-      // Insert extra promotional card (Position 3, then repeats every 15 cars)
-      const extraActive = extraCardData?.extra_card_is_active;
-      if (extraActive && (carCount === 2 || (carCount > 2 && (carCount - 2) % 15 === 0))) {
-        elements.push(<ExtraPromoCard key={`extra-promo-${carCount}`} data={extraCardData} />);
+      // Insert In-Grid Banner with 3 lines (9 cars) gap:
+      // Position 1: carCount === 2 (Slot 3 of Row 1)
+      // Position 2: carCount === 11 (+9 cars / 3 lines gap)
+      // Position 3: carCount === 20 (+9 cars / 3 lines gap)
+      // Position 4+: repeats every 9 cars
+      const shouldInsertBanner = (carCount === 2) || (carCount > 2 && (carCount - 2) % 9 === 0);
+
+      if (shouldInsertBanner && activeInGridBanners.length > 0) {
+        const curBanner = activeInGridBanners[bannerIndex % activeInGridBanners.length];
+        elements.push(
+          <ExtraPromoCard
+            key={`extra-promo-${carCount}-${bannerIndex}`}
+            logoUrl={curBanner.logoUrl}
+            btnLink={curBanner.btnLink}
+            isActive={curBanner.isActive}
+            title={curBanner.title}
+          />
+        );
+        bannerIndex++;
       }
 
       // Benefits strip
@@ -385,7 +431,7 @@ const BuyCarsPage = () => {
       }
 
       // Promo Sunday Sale
-      if (carCount === 9) {
+      if (carCount === 15) {
         elements.push(
           <PromoBanner
             key="promo-hotwheels"
@@ -398,7 +444,7 @@ const BuyCarsPage = () => {
       }
 
       // Buyback banner
-      if (carCount === 12) {
+      if (carCount === 24) {
         elements.push(
           <PromoBanner
             key="promo-buyback"

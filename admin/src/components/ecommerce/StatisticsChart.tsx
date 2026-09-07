@@ -4,6 +4,7 @@ import { ApexOptions } from "apexcharts";
 import flatpickr from "flatpickr";
 import ChartTab from "../common/ChartTab";
 import { CalenderIcon } from "../../icons";
+import { BarChart3 } from "lucide-react";
 
 export default function StatisticsChart({ charts }: { charts: { sales: number[], revenue: number[] } }) {
   const datePickerRef = useRef<HTMLInputElement>(null);
@@ -39,11 +40,11 @@ export default function StatisticsChart({ charts }: { charts: { sales: number[],
   const getSubTitle = () => {
     switch (activeTab) {
       case "monthly":
-        return "Sales and revenue metrics by month";
+        return "Monthly sales volume & revenue";
       case "quarterly":
-        return "Sales and revenue metrics by quarter";
+        return "Quarterly sales volume & revenue";
       case "annually":
-        return "Sales and revenue metrics by year";
+        return "Annual sales volume & revenue";
       default:
         return "Sales and revenue statistics";
     }
@@ -100,24 +101,26 @@ export default function StatisticsChart({ charts }: { charts: { sales: number[],
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Outfit, sans-serif",
+      fontSize: "12px",
+      fontWeight: 600,
     },
-    colors: ["#465FFF", "#10B981"], // Blue for Sales bars, Emerald for Revenue area
+    colors: ["#3B82F6", "#1C3EB9"],
     chart: {
       fontFamily: "Outfit, sans-serif",
-      height: 310,
-      type: "line", // General type for mixed charts
+      height: 280,
+      type: "line",
       toolbar: {
         show: false,
       },
     },
     stroke: {
       curve: "smooth",
-      width: [0, 3], // 0 stroke width for columns, 3 stroke width for the revenue line
+      width: [0, 2.5],
     },
     plotOptions: {
       bar: {
-        columnWidth: activeTab === "annually" ? "15%" : activeTab === "quarterly" ? "25%" : "35%",
+        columnWidth: activeTab === "annually" ? "12%" : activeTab === "quarterly" ? "20%" : "30%",
         borderRadius: 4,
         borderRadiusApplication: "end",
       },
@@ -126,13 +129,13 @@ export default function StatisticsChart({ charts }: { charts: { sales: number[],
       type: ["solid", "gradient"],
       gradient: {
         shadeIntensity: 1,
-        opacityFrom: 0.45,
+        opacityFrom: 0.35,
         opacityTo: 0.05,
         stops: [0, 90, 100],
       },
     },
     markers: {
-      size: [0, 4], // Size of marker points: 0 for columns, 4 for the area line
+      size: [0, 4],
       strokeColors: "#fff",
       strokeWidth: 2,
       hover: {
@@ -150,6 +153,7 @@ export default function StatisticsChart({ charts }: { charts: { sales: number[],
           show: true,
         },
       },
+      borderColor: "rgba(156, 163, 175, 0.12)",
     },
     dataLabels: {
       enabled: false,
@@ -158,12 +162,13 @@ export default function StatisticsChart({ charts }: { charts: { sales: number[],
       enabled: true,
       shared: true,
       intersect: false,
+      theme: "dark",
       y: {
         formatter: (val: number, opts: any) => {
           if (opts.seriesIndex === 0) {
             return `${val} Cars`;
           }
-          return `₹${val.toLocaleString()}`;
+          return `₹${(val / 100000).toFixed(2)} Lakh`;
         }
       }
     },
@@ -176,8 +181,12 @@ export default function StatisticsChart({ charts }: { charts: { sales: number[],
       axisTicks: {
         show: false,
       },
-      tooltip: {
-        enabled: false,
+      labels: {
+        style: {
+          fontSize: "11px",
+          colors: "#9CA3AF",
+          fontWeight: 600,
+        },
       },
     },
     yaxis: [
@@ -185,15 +194,15 @@ export default function StatisticsChart({ charts }: { charts: { sales: number[],
         title: {
           text: "Sales (Cars)",
           style: {
-            fontSize: "12px",
+            fontSize: "11px",
             fontFamily: "Outfit, sans-serif",
-            fontWeight: 500,
-            color: "#465FFF",
+            fontWeight: 600,
+            color: "#3B82F6",
           },
         },
         labels: {
           style: {
-            fontSize: "12px",
+            fontSize: "11px",
             colors: ["#6B7280"],
           },
           formatter: (val: number) => Math.round(val).toString(),
@@ -204,18 +213,18 @@ export default function StatisticsChart({ charts }: { charts: { sales: number[],
         title: {
           text: "Revenue (₹ Lakh)",
           style: {
-            fontSize: "12px",
+            fontSize: "11px",
             fontFamily: "Outfit, sans-serif",
-            fontWeight: 500,
-            color: "#10B981",
+            fontWeight: 600,
+            color: "#1C3EB9",
           },
         },
         labels: {
           style: {
-            fontSize: "12px",
+            fontSize: "11px",
             colors: ["#6B7280"],
           },
-          formatter: (val: number) => `₹${(val / 100000).toFixed(2)} L`,
+          formatter: (val: number) => `₹${(val / 100000).toFixed(1)} L`,
         },
       },
     ],
@@ -224,43 +233,44 @@ export default function StatisticsChart({ charts }: { charts: { sales: number[],
   const series = [
     {
       name: "Sales (Cars)",
-      type: "column", // Bar chart
+      type: "column",
       data: currentData.sales,
     },
     {
       name: "Revenue (₹)",
-      type: "area", // Area line chart
+      type: "area",
       data: currentData.revenue,
     },
   ];
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-      <div className="flex flex-col gap-5 mb-6 sm:flex-row sm:justify-between">
-        <div className="w-full">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Statistics
+    <div className="rounded-2xl border border-gray-200/80 bg-white p-4 sm:p-5 dark:border-gray-800 dark:bg-white/[0.03] shadow-2xs h-full flex flex-col justify-between">
+      <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:justify-between sm:items-center">
+        <div>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <BarChart3 className="size-4 text-[#1C3EB9]" />
+            Sales & Revenue Performance
           </h3>
-          <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
+          <p className="mt-0.5 text-[11px] font-medium text-gray-400 dark:text-gray-500">
             {getSubTitle()}
           </p>
         </div>
-        <div className="flex items-center gap-3 sm:justify-end">
+        <div className="flex items-center gap-2.5 flex-wrap sm:justify-end">
           <ChartTab selected={activeTab} onChange={setActiveTab} />
           <div className="relative inline-flex items-center">
-            <CalenderIcon className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:left-3 lg:top-1/2 lg:translate-x-0 lg:-translate-y-1/2 size-5 text-gray-500 dark:text-gray-400 pointer-events-none z-10" />
+            <CalenderIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-gray-400 pointer-events-none z-10" />
             <input
               ref={datePickerRef}
-              className="h-10 w-10 lg:w-40 lg:h-auto  lg:pl-10 lg:pr-3 lg:py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-transparent lg:text-gray-700 outline-none dark:border-gray-700 dark:bg-gray-800 dark:lg:text-gray-300 cursor-pointer"
-              placeholder="Select date range"
+              className="h-8 w-32 pl-8 pr-2.5 rounded-lg border border-gray-200 bg-gray-50 text-[11px] font-bold text-gray-700 outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 cursor-pointer"
+              placeholder="Select range"
             />
           </div>
         </div>
       </div>
 
       <div className="max-w-full overflow-x-auto custom-scrollbar">
-        <div className="min-w-[1000px] xl:min-w-full">
-          <Chart options={options} series={series} type="area" height={310} />
+        <div className="min-w-[650px] xl:min-w-full">
+          <Chart options={options} series={series} type="area" height={280} />
         </div>
       </div>
     </div>

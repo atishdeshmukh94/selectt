@@ -468,11 +468,11 @@ const SellCarPage = () => {
                           <img
                             src={step.imageUrl}
                             alt={step.title}
-                            className="absolute inset-0 w-full h-full object-contain bg-black"
+                            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                           />
 
                           {/* Dark gradient overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/100 via-black/45 to-transparent z-10" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10" />
 
                           {/* Content over image */}
                           <div className="absolute inset-x-0 bottom-0 p-5 md:p-7 z-20 flex flex-col text-left">

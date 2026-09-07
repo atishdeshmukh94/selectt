@@ -1,201 +1,138 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Link } from "react-router";
 import { toast } from "react-hot-toast";
 import {
   Search,
   Grid,
-  List,
+  List as ListIcon,
   Trash2,
-  Edit2,
+  Edit3,
   X,
   Upload,
   Play,
   FileText,
   Loader2,
   Check,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Image,
-  Video,
+  Image as ImageIcon,
+  Video as VideoIcon,
+  Copy,
+  ExternalLink,
+  Download,
+  Filter,
+  ArrowUpDown,
+  CheckSquare,
+  Square,
+  Eye,
+  RefreshCw,
+  Sliders,
+  AlertTriangle,
+  FolderOpen
 } from "lucide-react";
 import { API_URL } from "../config/api";
 import PageMeta from "../components/common/PageMeta";
+import PageBreadCrumb from "../components/common/PageBreadCrumb";
 
 interface MediaItem {
   url: string;
+  filename?: string;
   thumbnailUrl?: string;
   size: number;
   createdAt: string;
   alt: string;
+  type?: "image" | "video" | "document";
 }
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 48;
 
-// ── Lazy image wrapper ──────────────────────────────────────────────────────
-const LazyImage: React.FC<{ src: string; alt: string; className?: string }> = ({
-  src,
-  alt,
-  className = "",
-}) => {
-  const imgRef = useRef<HTMLImageElement>(null);
-  const [visible, setVisible] = useState(false);
+// ── Helpers ────────────────────────────────────────────────────────────────
+function formatBytes(bytes: number, decimals = 1) {
+  if (!bytes || bytes === 0) return "0 B";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
 
-  useEffect(() => {
-    const el = imgRef.current;
-    if (!el) return;
+function formatDate(dateStr: string) {
+  if (!dateStr) return "—";
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+  } catch {
+    return dateStr;
+  }
+}
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "200px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+function getFileType(url: string): "image" | "video" | "document" {
+  const ext = url.split(".").pop()?.toLowerCase() || "";
+  if (["png", "jpg", "jpeg", "webp", "gif", "svg", "avif"].includes(ext)) return "image";
+  if (["mp4", "mov", "webm", "m4v", "avi", "mkv"].includes(ext)) return "video";
+  return "document";
+}
 
-  return (
-    <img
-      ref={imgRef}
-      src={visible ? src : undefined}
-      data-src={src}
-      alt={alt}
-      className={`${className} transition-opacity duration-500 ${
-        visible ? "opacity-100" : "opacity-0"
-      }`}
-      loading="lazy"
-    />
-  );
-};
+function getFullUrl(url: string) {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${API_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
 
-// ── Lazy video thumbnail (canvas frame capture) ─────────────────────────────
-const VideoThumbnail: React.FC<{ src: string; className?: string }> = ({
-  src,
-  className = "",
-}) => {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [captured, setCaptured] = useState(false);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        observer.disconnect();
-
-        const video = document.createElement("video");
-        video.src = src;
-        video.muted = true;
-        video.playsInline = true;
-        video.preload = "metadata";
-        video.crossOrigin = "anonymous";
-
-        const draw = () => {
-          const canvas = canvasRef.current;
-          if (!canvas) return;
-          canvas.width = video.videoWidth || 320;
-          canvas.height = video.videoHeight || 180;
-          try {
-            canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
-            setCaptured(true);
-          } catch {
-            setError(true);
-          }
-          video.src = ""; // free memory
-        };
-
-        video.addEventListener("seeked", draw, { once: true });
-        video.addEventListener("error", () => setError(true), { once: true });
-        video.addEventListener("loadedmetadata", () => {
-          video.currentTime = Math.min(1, video.duration * 0.1);
-        }, { once: true });
-
-        video.load();
-      },
-      { rootMargin: "300px" }
-    );
-    observer.observe(wrapper);
-    return () => observer.disconnect();
-  }, [src]);
-
-  return (
-    <div ref={wrapperRef} className={`relative w-full h-full ${className}`}>
-      {/* Canvas thumbnail */}
-      <canvas
-        ref={canvasRef}
-        className={`w-full h-full object-cover transition-opacity duration-500 ${
-          captured ? "opacity-100" : "opacity-0"
-        }`}
-      />
-      {/* Fallback dark bg when not yet captured or error */}
-      {!captured && (
-        <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-        </div>
-      )}
-      {/* Play button overlay */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center shadow-lg">
-          <Play size={16} className="fill-white text-white ml-0.5" />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ──────────────────────────────────────────────────────────────────────────────
-
-const MediaLibrary: React.FC = () => {
+// ── Component ──────────────────────────────────────────────────────────────
+export default function MediaLibrary() {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+
+  // Filtering & Sorting
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "largest">("newest");
-  const [typeFilter, setTypeFilter] = useState<"all" | "image" | "video">("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | "image" | "video" | "document">("all");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "largest" | "smallest" | "name">("newest");
+
+  // Selection & Bulk Actions
+  const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
 
   // Pagination
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Alt text editing modal state
-  const [selectedMediaForAlt, setSelectedMediaForAlt] = useState<MediaItem | null>(null);
-  const [altTextVal, setAltTextVal] = useState("");
+  // Modals
+  const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
+  const [editAltItem, setEditAltItem] = useState<MediaItem | null>(null);
+  const [altTextInput, setAltTextInput] = useState("");
+  const [isSavingAlt, setIsSavingAlt] = useState(false);
 
-  // Deletion modal state
-  const [selectedMediaForDelete, setSelectedMediaForDelete] = useState<MediaItem | null>(null);
+  // Delete Confirmations
+  const [deleteSingleItem, setDeleteSingleItem] = useState<MediaItem | null>(null);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Video lightbox
-  const [playingVideo, setPlayingVideo] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load-more sentinel for auto infinite scroll (optional)
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-
+  // Fetch Media
   const fetchMedia = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/media`, {
+      const res = await fetch(`${API_URL}/api/media`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
         },
       });
-      if (response.ok) {
-        const data = await response.json();
+      if (res.ok) {
+        const data: MediaItem[] = await res.json();
         setMedia(data);
       } else {
-        toast.error("Failed to load media items");
+        toast.error("Failed to load media files");
       }
-    } catch (e) {
-      console.error("Failed to fetch media", e);
+    } catch (err) {
+      console.error("Error fetching media:", err);
       toast.error("Error connecting to server");
     } finally {
       setLoading(false);
@@ -206,12 +143,8 @@ const MediaLibrary: React.FC = () => {
     fetchMedia();
   }, []);
 
-  // Reset to page 1 whenever search, sort, or type filter changes
-  useEffect(() => {
-    setPage(1);
-  }, [searchQuery, sortBy, typeFilter]);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Upload handler
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -224,7 +157,7 @@ const MediaLibrary: React.FC = () => {
       formData.append("file", file);
 
       try {
-        const response = await fetch(`${API_URL}/api/upload`, {
+        const res = await fetch(`${API_URL}/api/upload`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -232,61 +165,86 @@ const MediaLibrary: React.FC = () => {
           body: formData,
         });
 
-        if (response.ok) {
+        if (res.ok) {
           successCount++;
         } else {
           toast.error(`Failed to upload ${file.name}`);
         }
-      } catch (err) {
+      } catch {
         toast.error(`Error uploading ${file.name}`);
       }
     }
 
     setIsUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
     if (successCount > 0) {
       toast.success(`Successfully uploaded ${successCount} file(s)`);
       fetchMedia();
     }
-    e.target.value = "";
   };
 
-  const handleOpenAltModal = (item: MediaItem) => {
-    setSelectedMediaForAlt(item);
-    setAltTextVal(item.alt);
+  // Copy Link
+  const handleCopyLink = (url: string) => {
+    const full = getFullUrl(url);
+    navigator.clipboard.writeText(full);
+    toast.success("Image URL copied to clipboard!");
   };
 
+  // Download File
+  const handleDownload = (url: string, filename?: string) => {
+    const full = getFullUrl(url);
+    const a = document.createElement("a");
+    a.href = full;
+    a.download = filename || url.split("/").pop() || "media";
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  // Save Alt Text
   const handleSaveAlt = async () => {
-    if (!selectedMediaForAlt) return;
+    if (!editAltItem) return;
+    setIsSavingAlt(true);
     try {
-      const response = await fetch(`${API_URL}/api/media/alt`, {
+      const res = await fetch(`${API_URL}/api/media/alt`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
         },
         body: JSON.stringify({
-          filePath: selectedMediaForAlt.url,
-          altText: altTextVal,
+          filePath: editAltItem.url,
+          altText: altTextInput.trim(),
         }),
       });
-      if (response.ok) {
-        toast.success("Alt text updated successfully!");
-        setSelectedMediaForAlt(null);
-        fetchMedia();
+
+      if (res.ok) {
+        toast.success("Alt text saved successfully");
+        setMedia((prev) =>
+          prev.map((item) =>
+            item.url === editAltItem.url ? { ...item, alt: altTextInput.trim() } : item
+          )
+        );
+        setEditAltItem(null);
       } else {
         toast.error("Failed to update alt text");
       }
-    } catch (e) {
+    } catch {
       toast.error("Error updating alt text");
+    } finally {
+      setIsSavingAlt(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (!selectedMediaForDelete) return;
+  // Delete Single Item
+  const confirmDeleteSingle = async () => {
+    if (!deleteSingleItem) return;
     setIsDeleting(true);
     try {
-      const response = await fetch(
-        `${API_URL}/api/media?filePath=${encodeURIComponent(selectedMediaForDelete.url)}`,
+      const res = await fetch(
+        `${API_URL}/api/media?filePath=${encodeURIComponent(deleteSingleItem.url)}`,
         {
           method: "DELETE",
           headers: {
@@ -294,694 +252,980 @@ const MediaLibrary: React.FC = () => {
           },
         }
       );
-      if (response.ok) {
-        toast.success("Media deleted successfully!");
-        setSelectedMediaForDelete(null);
-        fetchMedia();
+
+      if (res.ok) {
+        toast.success("Media deleted and storage cleared");
+        setMedia((prev) => prev.filter((item) => item.url !== deleteSingleItem.url));
+        setSelectedUrls((prev) => {
+          const next = new Set(prev);
+          next.delete(deleteSingleItem.url);
+          return next;
+        });
+        if (previewItem?.url === deleteSingleItem.url) setPreviewItem(null);
+        setDeleteSingleItem(null);
       } else {
-        toast.error("Failed to delete media");
+        toast.error("Failed to delete file");
       }
-    } catch (e) {
-      toast.error("Error deleting media");
+    } catch {
+      toast.error("Error deleting file");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const formatBytes = (bytes: number, decimals = 2) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  };
+  // Bulk Delete
+  const confirmBulkDelete = async () => {
+    if (selectedUrls.size === 0) return;
+    setIsDeleting(true);
+    const urlsArray = Array.from(selectedUrls);
 
-  const isVideoFile = (url: string) => {
-    const ext = url.split(".").pop()?.toLowerCase();
-    return ext === "mp4" || ext === "mov" || ext === "webm";
-  };
+    try {
+      const res = await fetch(`${API_URL}/api/media/bulk-delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+        body: JSON.stringify({ filePaths: urlsArray }),
+      });
 
-  // Filtering & Sorting
-  const filteredMedia = media
-    .filter((item) => {
-      const filename = item.url.split("/").pop() || "";
-      const matchesSearch =
-        filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.alt.toLowerCase().includes(searchQuery.toLowerCase());
-      const isVideo = isVideoFile(item.url);
-      const matchesType =
-        typeFilter === "all" ||
-        (typeFilter === "video" && isVideo) ||
-        (typeFilter === "image" && !isVideo);
-      return matchesSearch && matchesType;
-    })
-    .sort((a, b) => {
-      if (sortBy === "newest")
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      if (sortBy === "oldest")
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      if (sortBy === "largest") return b.size - a.size;
-      return 0;
-    });
-
-  // Pagination slice (Strictly 50 items per page)
-  const totalPages = Math.max(1, Math.ceil(filteredMedia.length / PAGE_SIZE));
-  const startIndex = (page - 1) * PAGE_SIZE;
-  const endIndex = Math.min(startIndex + PAGE_SIZE, filteredMedia.length);
-  const visibleMedia = filteredMedia.slice(startIndex, endIndex);
-
-  // Statistics (always from full list)
-  const totalCount = media.length;
-  const imageCount = media.filter((item) => !isVideoFile(item.url)).length;
-  const videoCount = media.filter((item) => isVideoFile(item.url)).length;
-  const totalSize = media.reduce((acc, item) => acc + item.size, 0);
-
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (page <= 4) {
-        pages.push(1, 2, 3, 4, 5, "...", totalPages);
-      } else if (page >= totalPages - 3) {
-        pages.push(1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      if (res.ok) {
+        toast.success(`Deleted ${urlsArray.length} files from storage`);
+        setMedia((prev) => prev.filter((item) => !selectedUrls.has(item.url)));
+        setSelectedUrls(new Set());
+        setShowBulkDeleteConfirm(false);
       } else {
-        pages.push(1, "...", page - 1, page, page + 1, "...", totalPages);
+        toast.error("Failed to delete selected files");
       }
+    } catch {
+      toast.error("Error performing bulk deletion");
+    } finally {
+      setIsDeleting(false);
     }
-    return pages;
   };
 
-  const renderPagination = () => {
-    if (filteredMedia.length === 0) return null;
-    return (
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-gray-100 dark:border-gray-850">
-        {/* Counter Info */}
-        <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-          Showing <span className="font-bold text-gray-900 dark:text-white">{filteredMedia.length === 0 ? 0 : startIndex + 1}</span> to{" "}
-          <span className="font-bold text-gray-900 dark:text-white">{endIndex}</span> of{" "}
-          <span className="font-bold text-gray-900 dark:text-white">{filteredMedia.length}</span> items
-          {totalPages > 1 && (
-            <span className="ml-2 text-indigo-600 dark:text-indigo-400 font-semibold">
-              (Page {page} of {totalPages})
-            </span>
-          )}
-        </div>
-
-        {/* Page Buttons */}
-        {totalPages > 1 && (
-          <div className="flex items-center gap-1.5 flex-wrap justify-center">
-            {/* First Page */}
-            <button
-              onClick={() => { setPage(1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              disabled={page === 1}
-              className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              title="First Page"
-            >
-              <ChevronsLeft size={16} />
-            </button>
-
-            {/* Previous */}
-            <button
-              onClick={() => { setPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              disabled={page === 1}
-              className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <ChevronLeft size={16} />
-              <span className="hidden sm:inline">Prev</span>
-            </button>
-
-            {/* Page Numbers */}
-            {getPageNumbers().map((pNum, idx) => {
-              if (pNum === "...") {
-                return (
-                  <span key={`ellipsis-${idx}`} className="px-2 py-1 text-gray-400 text-xs font-bold select-none">
-                    ...
-                  </span>
-                );
-              }
-              const isActive = pNum === page;
-              return (
-                <button
-                  key={`page-${pNum}`}
-                  onClick={() => { setPage(pNum as number); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className={`min-w-[36px] h-9 px-3 rounded-xl text-xs font-bold transition-all ${
-                    isActive
-                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none"
-                      : "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-indigo-400 dark:hover:border-indigo-600 hover:text-indigo-600"
-                  }`}
-                >
-                  {pNum}
-                </button>
-              );
-            })}
-
-            {/* Next */}
-            <button
-              onClick={() => { setPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              disabled={page === totalPages}
-              className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <span className="hidden sm:inline">Next</span>
-              <ChevronRight size={16} />
-            </button>
-
-            {/* Last Page */}
-            <button
-              onClick={() => { setPage(totalPages); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              disabled={page === totalPages}
-              className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              title="Last Page"
-            >
-              <ChevronsRight size={16} />
-            </button>
-          </div>
-        )}
-      </div>
-    );
+  // Toggle selection
+  const toggleSelect = (url: string) => {
+    setSelectedUrls((prev) => {
+      const next = new Set(prev);
+      if (next.has(url)) next.delete(url);
+      else next.add(url);
+      return next;
+    });
   };
 
-  const inpClass =
-    "w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:bg-gray-800 dark:border-gray-700 dark:text-white";
+  // Filtered & Sorted Media
+  const filteredMedia = useMemo(() => {
+    return media
+      .filter((item) => {
+        const itemType = item.type || getFileType(item.url);
+        if (typeFilter !== "all" && itemType !== typeFilter) return false;
+
+        if (searchQuery.trim()) {
+          const query = searchQuery.toLowerCase();
+          const filename = (item.filename || item.url.split("/").pop() || "").toLowerCase();
+          const alt = (item.alt || "").toLowerCase();
+          return filename.includes(query) || alt.includes(query) || item.url.toLowerCase().includes(query);
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === "newest") {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }
+        if (sortBy === "oldest") {
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        }
+        if (sortBy === "largest") {
+          return (b.size || 0) - (a.size || 0);
+        }
+        if (sortBy === "smallest") {
+          return (a.size || 0) - (b.size || 0);
+        }
+        if (sortBy === "name") {
+          const nameA = a.filename || a.url.split("/").pop() || "";
+          const nameB = b.filename || b.url.split("/").pop() || "";
+          return nameA.localeCompare(nameB);
+        }
+        return 0;
+      });
+  }, [media, typeFilter, searchQuery, sortBy]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredMedia.length / PAGE_SIZE) || 1;
+  const paginatedMedia = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredMedia.slice(start, start + PAGE_SIZE);
+  }, [filteredMedia, currentPage]);
+
+  const allCurrentPageSelected =
+    paginatedMedia.length > 0 && paginatedMedia.every((item) => selectedUrls.has(item.url));
+
+  const toggleSelectCurrentPage = () => {
+    setSelectedUrls((prev) => {
+      const next = new Set(prev);
+      if (allCurrentPageSelected) {
+        paginatedMedia.forEach((item) => next.delete(item.url));
+      } else {
+        paginatedMedia.forEach((item) => next.add(item.url));
+      }
+      return next;
+    });
+  };
+
+  const selectAllFiltered = () => {
+    setSelectedUrls(new Set(filteredMedia.map((m) => m.url)));
+  };
+
+  const clearSelection = () => {
+    setSelectedUrls(new Set());
+  };
 
   return (
     <>
       <PageMeta
         title="Media Library | Selectt Admin"
-        description="View and manage all website media uploads."
+        description="Unified media storage management with bulk cleanup and direct section configuration."
       />
-      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto min-h-screen">
 
-        {/* Title Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">
-              Media Library
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-              Manage and describe all media files uploaded across the website.
-            </p>
-          </div>
+      <div className="p-4 md:p-6 space-y-6 max-w-[1600px] mx-auto">
+        {/* Top Header / Breadcrumb */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <PageBreadCrumb pageTitle="Media Library" />
 
-          <label className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold cursor-pointer transition-all shadow-xl shadow-indigo-100 dark:shadow-none self-start md:self-auto">
-            {isUploading ? (
-              <>
-                <Loader2 size={20} className="animate-spin" />
-                <span>Uploading...</span>
-              </>
-            ) : (
-              <>
-                <Upload size={20} />
-                <span>Upload Media</span>
-              </>
-            )}
-            <input
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              className="hidden"
-              onChange={handleFileChange}
+          {/* Action Header Buttons */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <Link
+              to="/image-settings"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-[#1C3EB9] hover:text-[#1C3EB9] shadow-sm transition-all"
+            >
+              <Sliders size={16} className="text-[#1C3EB9]" />
+              Image Settings (By Section)
+            </Link>
+
+            <button
+              onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-            />
-          </label>
-        </div>
-
-        {/* Stats Section — cards are clickable type filters */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Total Assets", val: totalCount, type: "all" as const, icon: null },
-            { label: "Images", val: imageCount, type: "image" as const, icon: <Image size={16} /> },
-            { label: "Videos", val: videoCount, type: "video" as const, icon: <Play size={16} /> },
-            { label: "Storage Used", val: formatBytes(totalSize), type: null, icon: null },
-          ].map((st, i) => {
-            const isActive = st.type !== null && typeFilter === st.type;
-            const isClickable = st.type !== null;
-            return (
-              <div
-                key={i}
-                onClick={() => {
-                  if (isClickable) {
-                    setTypeFilter(typeFilter === st.type ? "all" : st.type!);
-                    setPage(1);
-                  }
-                }}
-                className={`p-5 rounded-2xl border shadow-sm flex flex-col justify-center transition-all ${
-                  isClickable ? "cursor-pointer" : ""
-                } ${
-                  isActive
-                    ? "bg-indigo-600 border-indigo-500 text-white shadow-indigo-200 dark:shadow-none"
-                    : "bg-white dark:bg-gray-950 border-gray-100 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-800"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-[10px] uppercase font-black tracking-wider ${
-                    isActive ? "text-indigo-100" : "text-gray-400"
-                  }`}>
-                    {st.label}
-                  </span>
-                  {st.icon && (
-                    <span className={isActive ? "text-indigo-200" : "text-gray-300"}>
-                      {st.icon}
-                    </span>
-                  )}
-                </div>
-                <span className={`text-xl md:text-2xl font-black mt-0.5 ${
-                  isActive ? "text-white" : "text-gray-900 dark:text-white"
-                }`}>
-                  {st.val}
-                </span>
-                {isActive && (
-                  <span className="text-[9px] text-indigo-200 font-bold mt-1 uppercase tracking-wider">Active filter ✕</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Control bar */}
-        <div className="bg-white dark:bg-gray-950 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <div className="relative flex-1 max-w-md">
-            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
-              <Search size={18} />
-            </span>
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-[#1C3EB9] hover:bg-[#153299] text-white shadow-md shadow-[#1C3EB9]/20 transition-all cursor-pointer disabled:opacity-50"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload size={16} />
+                  Upload Media
+                </>
+              )}
+            </button>
             <input
-              type="text"
-              className={inpClass + " pl-10"}
-              placeholder="Search by file name or alt text..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*,video/*,.pdf"
+              className="hidden"
+              onChange={handleUpload}
             />
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Type Filter Pill Toggle */}
-            <div className="flex bg-gray-50 dark:bg-gray-900 p-1 rounded-xl border border-gray-200 dark:border-gray-700 gap-0.5">
-              {(["all", "image", "video"] as const).map((t) => (
+        {/* Toolbar & Filters */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+            {/* Search Bar */}
+            <div className="relative flex-1 max-w-md">
+              <Search
+                size={16}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+              />
+              <input
+                type="text"
+                placeholder="Search by filename or alt text..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#1C3EB9] transition-all text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+              />
+              {searchQuery && (
                 <button
-                  key={t}
-                  onClick={() => { setTypeFilter(t); setPage(1); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    typeFilter === t
-                      ? "bg-white dark:bg-gray-800 text-indigo-600 shadow-sm"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Pills, Sort & View Mode */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Type Filter Pills */}
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+                <button
+                  onClick={() => {
+                    setTypeFilter("all");
+                    setCurrentPage(1);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    typeFilter === "all"
+                      ? "bg-white dark:bg-slate-900 text-[#1C3EB9] shadow-xs font-bold"
+                      : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
                   }`}
                 >
-                  {t === "image" && <Image size={12} />}
-                  {t === "video" && <Video size={12} />}
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                  All ({media.length})
                 </button>
-              ))}
-            </div>
+                <button
+                  onClick={() => {
+                    setTypeFilter("image");
+                    setCurrentPage(1);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                    typeFilter === "image"
+                      ? "bg-white dark:bg-slate-900 text-[#1C3EB9] shadow-xs font-bold"
+                      : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+                  }`}
+                >
+                  <ImageIcon size={13} />
+                  Images
+                </button>
+                <button
+                  onClick={() => {
+                    setTypeFilter("video");
+                    setCurrentPage(1);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                    typeFilter === "video"
+                      ? "bg-white dark:bg-slate-900 text-[#1C3EB9] shadow-xs font-bold"
+                      : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+                  }`}
+                >
+                  <VideoIcon size={13} />
+                  Videos
+                </button>
+              </div>
 
-            {/* Result count */}
-            <span className="text-xs font-bold text-gray-400 hidden md:block">
-              Showing {Math.min(visibleMedia.length, filteredMedia.length)} of{" "}
-              {filteredMedia.length}
-            </span>
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs">
+                <ArrowUpDown size={14} className="text-slate-400" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer font-medium"
+                >
+                  <option value="newest" className="dark:bg-slate-800">Newest First</option>
+                  <option value="oldest" className="dark:bg-slate-800">Oldest First</option>
+                  <option value="largest" className="dark:bg-slate-800">Largest Size</option>
+                  <option value="smallest" className="dark:bg-slate-800">Smallest Size</option>
+                  <option value="name" className="dark:bg-slate-800">Name (A-Z)</option>
+                </select>
+              </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-gray-500 dark:text-gray-400">Sort:</span>
-              <select
-                className="bg-gray-50 dark:bg-gray-850 px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 outline-none"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="largest">Largest File Size</option>
-              </select>
-            </div>
+              {/* View Mode Toggle */}
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  title="Grid View"
+                  className={`p-1.5 rounded-lg transition-all ${
+                    viewMode === "grid"
+                      ? "bg-white dark:bg-slate-900 text-[#1C3EB9] shadow-xs"
+                      : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  }`}
+                >
+                  <Grid size={16} />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  title="List View"
+                  className={`p-1.5 rounded-lg transition-all ${
+                    viewMode === "list"
+                      ? "bg-white dark:bg-slate-900 text-[#1C3EB9] shadow-xs"
+                      : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  }`}
+                >
+                  <ListIcon size={16} />
+                </button>
+              </div>
 
-            {/* View Mode Toggle */}
-            <div className="flex bg-gray-50 dark:bg-gray-850 p-1 rounded-xl border border-gray-200 dark:border-gray-700">
+              {/* Refresh Button */}
               <button
-                onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-lg transition-all ${
-                  viewMode === "grid"
-                    ? "bg-white dark:bg-gray-800 text-indigo-600 shadow-sm"
-                    : "text-gray-400 hover:text-gray-700"
-                }`}
+                onClick={fetchMedia}
+                title="Refresh media files"
+                className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-all cursor-pointer"
               >
-                <Grid size={16} />
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`p-1.5 rounded-lg transition-all ${
-                  viewMode === "list"
-                    ? "bg-white dark:bg-gray-800 text-indigo-600 shadow-sm"
-                    : "text-gray-400 hover:text-gray-700"
-                }`}
-              >
-                <List size={16} />
+                <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
               </button>
             </div>
           </div>
+
+          {/* Bulk Action Bar (When selected) */}
+          {selectedUrls.size > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-[#1C3EB9]/10 dark:bg-[#1C3EB9]/15 border border-[#1C3EB9]/30 rounded-xl animate-in fade-in duration-200">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <CheckSquare size={16} className="text-[#1C3EB9]" />
+                  {selectedUrls.size} item{selectedUrls.size > 1 ? "s" : ""} selected
+                </span>
+                <span className="text-slate-300 dark:text-slate-700">|</span>
+                <button
+                  onClick={selectAllFiltered}
+                  className="text-xs font-semibold text-[#1C3EB9] hover:underline cursor-pointer"
+                >
+                  Select All Filtered ({filteredMedia.length})
+                </button>
+                <button
+                  onClick={clearSelection}
+                  className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:underline cursor-pointer"
+                >
+                  Clear Selection
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowBulkDeleteConfirm(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-rose-500 hover:bg-rose-600 text-white shadow-sm transition-all cursor-pointer"
+                >
+                  <Trash2 size={14} />
+                  Delete Selected ({selectedUrls.size})
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Media Grid / List Content */}
+        {/* Content Section */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 gap-3">
-            <Loader2 className="animate-spin text-indigo-600" size={36} />
-            <p className="text-gray-400 font-bold">Scanning uploaded files...</p>
-          </div>
-        ) : filteredMedia.length === 0 ? (
-          <div className="bg-white dark:bg-gray-950 rounded-3xl border border-gray-100 dark:border-gray-850 py-24 text-center">
-            <FileText size={48} className="mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">
-              No media files found
-            </h3>
-            <p className="text-gray-400 text-sm max-w-sm mx-auto">
-              {searchQuery
-                ? "Try refining your search query or upload new files above."
-                : "Get started by uploading images or videos from your computer."}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-16 text-center space-y-4">
+            <Loader2 size={36} className="animate-spin text-[#1C3EB9] mx-auto" />
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Loading media files from storage...
             </p>
           </div>
+        ) : filteredMedia.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-16 text-center space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-400">
+              <FolderOpen size={32} />
+            </div>
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
+              No media files found
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+              {searchQuery || typeFilter !== "all"
+                ? "No items match your active search or filter criteria. Try resetting filters."
+                : "Your media storage is empty. Upload images or banners to get started."}
+            </p>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-[#1C3EB9] text-white hover:brightness-105 shadow-sm"
+            >
+              <Upload size={14} /> Upload First File
+            </button>
+          </div>
         ) : viewMode === "grid" ? (
-          <>
-            {/* Grid View */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-              {visibleMedia.map((item, idx) => {
-                const filename = item.url.split("/").pop() || "";
-                const isVideo = isVideoFile(item.url);
-                return (
+          /* ── GRID (CARD) VIEW ── */
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3.5">
+            {paginatedMedia.map((item) => {
+              const isSelected = selectedUrls.has(item.url);
+              const itemType = item.type || getFileType(item.url);
+              const filename = item.filename || item.url.split("/").pop() || "media";
+              const thumb = item.thumbnailUrl ? getFullUrl(item.thumbnailUrl) : getFullUrl(item.url);
+
+              return (
+                <div
+                  key={item.url}
+                  className={`group relative bg-white dark:bg-slate-900 rounded-xl border transition-all duration-200 overflow-hidden flex flex-col ${
+                    isSelected
+                      ? "border-[#1C3EB9] ring-2 ring-[#1C3EB9]/30 shadow-md"
+                      : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm"
+                  }`}
+                >
+                  {/* Media Preview Box */}
                   <div
-                    key={idx}
-                    className="bg-white dark:bg-gray-950 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-850 shadow-sm flex flex-col group"
-                    style={{ animationDelay: `${(idx % PAGE_SIZE) * 20}ms` }}
+                    onClick={() => setPreviewItem(item)}
+                    className="relative w-full aspect-square bg-slate-100 dark:bg-slate-950 flex items-center justify-center overflow-hidden cursor-pointer select-none"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(45deg, rgba(0,0,0,0.03) 25%, transparent 25%), linear-gradient(-45deg, rgba(0,0,0,0.03) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.03) 75%), linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.03) 75%)",
+                      backgroundSize: "16px 16px",
+                      backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
+                    }}
                   >
-                    {/* Visual Preview */}
-                    <div
-                      className={`aspect-video w-full bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-850 overflow-hidden relative flex items-center justify-center ${isVideo ? "cursor-pointer" : ""}`}
-                      onClick={() => isVideo && setPlayingVideo(`${API_URL}${item.url}`)}
-                    >
-                      {isVideo ? (
-                        <VideoThumbnail
-                          src={`${API_URL}${item.url}`}
-                          className="w-full h-full"
-                        />
-                      ) : (
-                        <LazyImage
-                          src={`${API_URL}${item.thumbnailUrl || item.url}`}
-                          alt={item.alt || filename}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                      {/* Size Pill */}
-                      <span className="absolute bottom-2 right-2 bg-black/60 text-white px-2 py-0.5 rounded text-[9px] font-mono">
-                        {formatBytes(item.size, 1)}
-                      </span>
-                    </div>
+                    {itemType === "image" ? (
+                      <img
+                        src={thumb}
+                        alt={item.alt || filename}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                        onError={(e) => {
+                          // fallback to full image
+                          (e.target as HTMLImageElement).src = getFullUrl(item.url);
+                        }}
+                      />
+                    ) : itemType === "video" ? (
+                      <div className="relative w-full h-full bg-slate-950 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <Play size={16} className="text-white fill-white ml-0.5" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center p-4 text-slate-400">
+                        <FileText size={28} />
+                        <span className="text-[10px] uppercase font-bold mt-1">
+                          {filename.split(".").pop()}
+                        </span>
+                      </div>
+                    )}
 
-                    {/* Info Section — filename + icon actions only */}
-                    <div className="px-3 py-2 flex items-center justify-between gap-2">
-                      {/* Filename */}
-                      <span
-                        className="text-[11px] font-mono font-semibold text-gray-700 dark:text-gray-300 truncate flex-1 min-w-0"
-                        title={filename}
+                    {/* Overlay Quick Action Bar */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2">
+                      {/* Top Checkbox */}
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSelect(item.url);
+                        }}
+                        className="self-start cursor-pointer"
                       >
-                        {filename}
-                      </span>
-
-                      {/* Icon Actions */}
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          onClick={() => handleOpenAltModal(item)}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all"
-                          title={item.alt ? `Alt: ${item.alt}` : "Add alt text"}
+                        <div
+                          className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${
+                            isSelected
+                              ? "bg-[#1C3EB9] text-white shadow-sm"
+                              : "bg-black/50 text-white border border-white/40 hover:bg-black/80"
+                          }`}
                         >
-                          <Edit2 size={13} />
+                          {isSelected && <Check size={13} className="stroke-[3]" />}
+                        </div>
+                      </div>
+
+                      {/* Bottom Action Icons */}
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center justify-center gap-1.5 bg-black/70 backdrop-blur-md rounded-lg p-1"
+                      >
+                        <button
+                          onClick={() => setPreviewItem(item)}
+                          title="Preview Full Screen"
+                          className="p-1 rounded text-white/80 hover:text-white hover:bg-white/20 transition-all cursor-pointer"
+                        >
+                          <Eye size={13} />
                         </button>
                         <button
-                          onClick={() => setSelectedMediaForDelete(item)}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
-                          title="Delete"
+                          onClick={() => handleCopyLink(item.url)}
+                          title="Copy Link"
+                          className="p-1 rounded text-white/80 hover:text-[#1C3EB9] hover:bg-white/20 transition-all cursor-pointer"
+                        >
+                          <Copy size={13} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditAltItem(item);
+                            setAltTextInput(item.alt || "");
+                          }}
+                          title="Edit Alt Tag"
+                          className="p-1 rounded text-white/80 hover:text-amber-400 hover:bg-white/20 transition-all cursor-pointer"
+                        >
+                          <Edit3 size={13} />
+                        </button>
+                        <button
+                          onClick={() => setDeleteSingleItem(item)}
+                          title="Delete File (Permanent)"
+                          className="p-1 rounded text-white/80 hover:text-rose-400 hover:bg-white/20 transition-all cursor-pointer"
                         >
                           <Trash2 size={13} />
                         </button>
                       </div>
                     </div>
+
+                    {/* Checkbox always visible if selected */}
+                    {isSelected && (
+                      <div className="absolute top-2 left-2 z-10">
+                        <div className="w-5 h-5 rounded-md bg-[#1C3EB9] text-white flex items-center justify-center shadow-sm">
+                          <Check size={13} className="stroke-[3]" />
+                        </div>
+                      </div>
+                    )}
                   </div>
-                );
-              })}
-            </div>
 
-            {/* Pagination Controls */}
-            {renderPagination()}
-          </>
+                  {/* Metadata Footer */}
+                  <div className="p-2.5 flex-1 flex flex-col justify-between border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900">
+                    <p
+                      title={filename}
+                      className="text-[11px] font-semibold text-slate-800 dark:text-slate-200 truncate"
+                    >
+                      {filename}
+                    </p>
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                      <span>{formatBytes(item.size)}</span>
+                      <span>{formatDate(item.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         ) : (
-          <>
-            {/* List View */}
-            <div className="bg-white dark:bg-gray-950 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-900 text-gray-400 uppercase text-[9px] font-black tracking-wider border-b border-gray-100 dark:border-gray-850">
-                      <th className="py-4 px-6">Preview</th>
-                      <th className="py-4 px-6">File Name</th>
-                      <th className="py-4 px-6">Alt Text</th>
-                      <th className="py-4 px-6">Size</th>
-                      <th className="py-4 px-6">Uploaded At</th>
-                      <th className="py-4 px-6 text-center">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-850">
-                    {visibleMedia.map((item, idx) => {
-                      const filename = item.url.split("/").pop() || "";
-                      const isVideo = isVideoFile(item.url);
-                      return (
-                        <tr
-                          key={idx}
-                          className="hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-all"
-                        >
-                          <td className="py-3 px-6">
-                            <div
-                              className={`w-14 h-10 bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800 flex items-center justify-center ${isVideo ? "cursor-pointer" : ""}`}
-                              onClick={() => isVideo && setPlayingVideo(`${API_URL}${item.url}`)}
-                            >
-                              {isVideo ? (
-                                <VideoThumbnail
-                                  src={`${API_URL}${item.url}`}
-                                  className="w-full h-full"
-                                />
-                              ) : (
-                                <LazyImage
-                                  src={`${API_URL}${item.thumbnailUrl || item.url}`}
-                                  alt={item.alt || filename}
-                                  className="w-full h-full object-cover"
-                                />
-                              )}
-                            </div>
-                          </td>
-                          <td
-                            className="py-3 px-6 font-mono text-xs font-bold text-gray-900 dark:text-white truncate max-w-xs"
-                            title={filename}
+          /* ── LIST (TABLE) VIEW ── */
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider text-[10px] select-none">
+                  <tr>
+                    <th className="py-3 px-4 w-10 text-center">
+                      <button
+                        onClick={toggleSelectCurrentPage}
+                        className="cursor-pointer text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center mx-auto"
+                      >
+                        {allCurrentPageSelected ? (
+                          <CheckSquare size={16} className="text-[#1C3EB9]" />
+                        ) : (
+                          <Square size={16} />
+                        )}
+                      </button>
+                    </th>
+                    <th className="py-3 px-4 w-20">PREVIEW</th>
+                    <th className="py-3 px-4 min-w-[240px]">FILENAME / PATH</th>
+                    <th className="py-3 px-4 min-w-[200px]">ALT TEXT / DESCRIPTION</th>
+                    <th className="py-3 px-4 w-28">SIZE</th>
+                    <th className="py-3 px-4 w-32">UPLOAD DATE</th>
+                    <th className="py-3 px-4 w-36 text-right">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {paginatedMedia.map((item) => {
+                    const isSelected = selectedUrls.has(item.url);
+                    const itemType = item.type || getFileType(item.url);
+                    const filename = item.filename || item.url.split("/").pop() || "media";
+                    const thumb = item.thumbnailUrl ? getFullUrl(item.thumbnailUrl) : getFullUrl(item.url);
+
+                    return (
+                      <tr
+                        key={item.url}
+                        className={`transition-colors ${
+                          isSelected
+                            ? "bg-[#1C3EB9]/5 dark:bg-[#1C3EB9]/10"
+                            : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                        }`}
+                      >
+                        <td className="py-3 px-4 text-center">
+                          <button
+                            onClick={() => toggleSelect(item.url)}
+                            className="cursor-pointer flex items-center justify-center mx-auto"
                           >
-                            {filename}
-                          </td>
-                          <td className="py-3 px-6 text-xs text-gray-600 dark:text-gray-300 max-w-md">
-                            {item.alt ? (
-                              <span className="font-semibold">{item.alt}</span>
+                            {isSelected ? (
+                              <CheckSquare size={16} className="text-[#1C3EB9]" />
                             ) : (
-                              <span className="text-gray-400 italic">No alt text set</span>
+                              <Square size={16} className="text-slate-300 dark:text-slate-600" />
                             )}
-                          </td>
-                          <td className="py-3 px-6 text-xs font-mono text-gray-500">
-                            {formatBytes(item.size)}
-                          </td>
-                          <td className="py-3 px-6 text-xs text-gray-400">
-                            {new Date(item.createdAt).toLocaleString()}
-                          </td>
-                          <td className="py-3 px-6">
-                            <div className="flex items-center justify-center gap-2">
-                              <button
-                                onClick={() => handleOpenAltModal(item)}
-                                className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-md transition-all border border-transparent hover:border-indigo-100"
-                                title="Edit Alt"
-                              >
-                                <Edit2 size={14} />
-                              </button>
-                              <button
-                                onClick={() => setSelectedMediaForDelete(item)}
-                                className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-all border border-transparent hover:border-red-100"
-                                title="Delete"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                          </button>
+                        </td>
 
-            {/* Pagination Controls */}
-            {renderPagination()}
-          </>
-        )}
+                        <td className="py-3 px-4">
+                          <div
+                            onClick={() => setPreviewItem(item)}
+                            className="w-12 h-12 rounded-xl bg-slate-950 overflow-hidden flex items-center justify-center cursor-pointer border border-slate-200/80 dark:border-slate-800 shrink-0 shadow-2xs group"
+                          >
+                            {itemType === "image" ? (
+                              <img
+                                src={thumb}
+                                alt={item.alt || filename}
+                                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                                loading="lazy"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = getFullUrl(item.url);
+                                }}
+                              />
+                            ) : itemType === "video" ? (
+                              <div className="relative w-full h-full bg-slate-950 flex items-center justify-center">
+                                <Play size={14} className="text-white fill-white" />
+                              </div>
+                            ) : (
+                              <FileText size={18} className="text-slate-400" />
+                            )}
+                          </div>
+                        </td>
 
-        {/* Sentinel for future auto-scroll (ref attached but not auto-triggering) */}
-        <div ref={loadMoreRef} className="h-1" />
+                        <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200 max-w-xs">
+                          <div className="flex flex-col">
+                            <span className="font-extrabold text-xs text-slate-900 dark:text-white truncate max-w-sm" title={filename}>
+                              {filename}
+                            </span>
+                            <span className="text-[11px] text-slate-400 font-mono truncate max-w-sm mt-0.5" title={item.url}>
+                              {item.url}
+                            </span>
+                          </div>
+                        </td>
 
-        {/* ── Modal: Edit Alt Text ─────────────────────────────────────────── */}
-        {selectedMediaForAlt && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999999] flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden">
-              {/* Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-850">
-                <h3 className="text-lg font-black text-gray-900 dark:text-white">
-                  Edit Alt Text Description
-                </h3>
-                <button
-                  onClick={() => setSelectedMediaForAlt(null)}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-all"
-                >
-                  <X size={18} />
-                </button>
-              </div>
+                        <td className="py-3 px-4 text-slate-600 dark:text-slate-300 max-w-xs">
+                          {item.alt ? (
+                            <span className="text-xs truncate max-w-xs block font-medium" title={item.alt}>
+                              {item.alt}
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setEditAltItem(item);
+                                setAltTextInput("");
+                              }}
+                              className="text-[11px] text-slate-400 italic hover:text-[#1C3EB9] cursor-pointer transition-colors"
+                            >
+                              + Add alt tag
+                            </button>
+                          )}
+                        </td>
 
-              {/* Body */}
-              <div className="p-6 space-y-4">
-                <div className="aspect-video bg-gray-50 dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-850 flex items-center justify-center">
-                  {isVideoFile(selectedMediaForAlt.url) ? (
-                    <video
-                      src={`${API_URL}${selectedMediaForAlt.url}`}
-                      className="w-full h-full object-cover"
-                      controls
-                    />
-                  ) : (
-                    <img
-                      src={`${API_URL}${selectedMediaForAlt.url}`}
-                      className="w-full h-full object-contain"
-                      alt=""
-                    />
-                  )}
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
-                    Alt Text (Accessibility & SEO)
-                  </label>
-                  <textarea
-                    className={inpClass + " min-h-[80px] resize-none"}
-                    placeholder="Describe what is in this image..."
-                    value={altTextVal}
-                    onChange={(e) => setAltTextVal(e.target.value)}
-                  />
-                  <p className="text-[10px] text-gray-400 mt-1.5 ml-1">
-                    Alt text helps search engines and screen readers understand the image.
-                  </p>
-                </div>
-              </div>
+                        <td className="py-3 px-4 text-slate-500 dark:text-slate-400 text-xs font-semibold">
+                          {formatBytes(item.size)}
+                        </td>
 
-              {/* Footer */}
-              <div className="flex items-center justify-end gap-3 p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-850">
-                <button
-                  onClick={() => setSelectedMediaForAlt(null)}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveAlt}
-                  className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-100 dark:shadow-none"
-                >
-                  <Check size={14} />
-                  <span>Save Description</span>
-                </button>
-              </div>
+                        <td className="py-3 px-4 text-slate-500 dark:text-slate-400 text-xs font-semibold whitespace-nowrap">
+                          {formatDate(item.createdAt)}
+                        </td>
+
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1 text-slate-400">
+                            <button
+                              onClick={() => setPreviewItem(item)}
+                              title="Preview"
+                              className="p-1.5 rounded-lg hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            >
+                              <Eye size={15} />
+                            </button>
+                            <button
+                              onClick={() => handleCopyLink(item.url)}
+                              title="Copy Link"
+                              className="p-1.5 rounded-lg hover:text-[#1C3EB9] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            >
+                              <Copy size={15} />
+                            </button>
+                            <button
+                              onClick={() => handleDownload(item.url, filename)}
+                              title="Download"
+                              className="p-1.5 rounded-lg hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            >
+                              <Download size={15} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditAltItem(item);
+                                setAltTextInput(item.alt || "");
+                              }}
+                              title="Edit Alt"
+                              className="p-1.5 rounded-lg hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            >
+                              <Edit3 size={15} />
+                            </button>
+                            <button
+                              onClick={() => setDeleteSingleItem(item)}
+                              title="Delete Permanently"
+                              className="p-1.5 rounded-lg hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
 
-        {/* ── Modal: Confirm Deletion ──────────────────────────────────────── */}
-        {selectedMediaForDelete && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999999] flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
-              <div className="p-6">
-                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/30 text-red-600 mb-4 border border-red-100 dark:border-red-900/50">
-                  <Trash2 size={24} />
-                </div>
-                <h3 className="text-lg font-black text-gray-900 dark:text-white mb-2">
-                  Delete Media Asset?
-                </h3>
-                <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed">
-                  Are you sure you want to permanently delete{" "}
-                  <strong className="font-mono">
-                    {selectedMediaForDelete.url.split("/").pop()}
-                  </strong>
-                  ? This cannot be undone. Any car listings using this image will show a broken
-                  image.
-                </p>
-              </div>
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+            <div className="text-slate-500 dark:text-slate-400 font-medium">
+              Showing{" "}
+              <span className="font-bold text-slate-800 dark:text-slate-200">
+                {(currentPage - 1) * PAGE_SIZE + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-bold text-slate-800 dark:text-slate-200">
+                {Math.min(currentPage * PAGE_SIZE, filteredMedia.length)}
+              </span>{" "}
+              of{" "}
+              <span className="font-bold text-slate-800 dark:text-slate-200">
+                {filteredMedia.length}
+              </span>{" "}
+              items
+            </div>
 
-              <div className="flex items-center justify-end gap-3 p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-850">
-                <button
-                  onClick={() => setSelectedMediaForDelete(null)}
-                  disabled={isDeleting}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-red-100 dark:shadow-none disabled:opacity-60"
-                >
-                  {isDeleting ? (
-                    <>
-                      <Loader2 size={14} className="animate-spin" />
-                      Deleting...
-                    </>
-                  ) : (
-                    "Delete Permanently"
-                  )}
-                </button>
-              </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer disabled:cursor-not-allowed"
+                title="First Page"
+              >
+                <ChevronsLeft size={14} />
+              </button>
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer disabled:cursor-not-allowed"
+                title="Previous Page"
+              >
+                <ChevronLeft size={14} />
+              </button>
+
+              <span className="px-3 py-1 font-bold text-slate-700 dark:text-slate-200">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer disabled:cursor-not-allowed"
+                title="Next Page"
+              >
+                <ChevronRight size={14} />
+              </button>
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer disabled:cursor-not-allowed"
+                title="Last Page"
+              >
+                <ChevronsRight size={14} />
+              </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* ── Video Lightbox ────────────────────────────────────────────────── */}
-      {playingVideo && (
-        <div
-          className="fixed inset-0 bg-black/90 backdrop-blur-md z-[999999] flex flex-col items-center justify-center p-4"
-          onClick={() => setPlayingVideo(null)}
-        >
-          {/* Close button */}
-          <button
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"
-            onClick={() => setPlayingVideo(null)}
-          >
-            <X size={20} />
-          </button>
+      {/* ── PREVIEW LIGHTBOX MODAL ── */}
+      {previewItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950">
+              <div className="flex items-center gap-2 max-w-[80%]">
+                <span className="font-bold text-white text-sm truncate">
+                  {previewItem.filename || previewItem.url.split("/").pop()}
+                </span>
+              </div>
+              <button
+                onClick={() => setPreviewItem(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-          {/* Filename label */}
-          <p className="text-white/50 text-xs font-mono mb-3 max-w-xl truncate px-4">
-            {playingVideo.split("/").pop()}
-          </p>
+            {/* Modal Body: Media Viewer */}
+            <div
+              className="flex-1 bg-black/40 flex items-center justify-center p-6 overflow-auto max-h-[60vh]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(45deg, rgba(255,255,255,0.03) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,0.03) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.03) 75%), linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.03) 75%)",
+                backgroundSize: "20px 20px",
+              }}
+            >
+              {getFileType(previewItem.url) === "image" ? (
+                <img
+                  src={getFullUrl(previewItem.url)}
+                  alt={previewItem.alt || "Preview"}
+                  className="max-h-[55vh] max-w-full object-contain rounded-lg shadow-lg"
+                />
+              ) : getFileType(previewItem.url) === "video" ? (
+                <video
+                  src={getFullUrl(previewItem.url)}
+                  controls
+                  autoPlay
+                  className="max-h-[55vh] max-w-full rounded-lg shadow-lg"
+                />
+              ) : (
+                <div className="text-center p-8 space-y-3">
+                  <FileText size={48} className="text-slate-400 mx-auto" />
+                  <p className="text-sm font-semibold text-white">Document File</p>
+                </div>
+              )}
+            </div>
 
-          {/* Video player */}
-          <div
-            className="w-full max-w-4xl rounded-2xl overflow-hidden shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <video
-              key={playingVideo}
-              src={playingVideo}
-              controls
-              autoPlay
-              className="w-full max-h-[80vh] bg-black"
-              style={{ outline: "none" }}
-            />
+            {/* Modal Footer: Metadata & Actions */}
+            <div className="p-4 bg-slate-950 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 text-xs">
+              <div className="space-y-1 text-slate-400">
+                <div>
+                  <span className="text-slate-500 font-semibold">Size:</span>{" "}
+                  {formatBytes(previewItem.size)} |{" "}
+                  <span className="text-slate-500 font-semibold">Uploaded:</span>{" "}
+                  {formatDate(previewItem.createdAt)}
+                </div>
+                <div>
+                  <span className="text-slate-500 font-semibold">Alt Text:</span>{" "}
+                  <span className="text-slate-300">{previewItem.alt || "None"}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleCopyLink(previewItem.url)}
+                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Copy size={14} /> Copy URL
+                </button>
+                <button
+                  onClick={() => handleDownload(previewItem.url, previewItem.filename)}
+                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Download size={14} /> Download
+                </button>
+                <button
+                  onClick={() => {
+                    const item = previewItem;
+                    setPreviewItem(null);
+                    setDeleteSingleItem(item);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Trash2 size={14} /> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── EDIT ALT TEXT MODAL ── */}
+      {editAltItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                <Edit3 size={16} className="text-[#1C3EB9]" />
+                Edit Alt Text / SEO Tag
+              </h3>
+              <button
+                onClick={() => setEditAltItem(null)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                Alternative Text (Screen readers & SEO):
+              </label>
+              <textarea
+                rows={3}
+                value={altTextInput}
+                onChange={(e) => setAltTextInput(e.target.value)}
+                placeholder="e.g. Maruti Suzuki Swift front angle view in white color"
+                className="w-full p-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#1C3EB9] text-slate-800 dark:text-slate-200"
+              />
+              <p className="text-[11px] text-slate-400">
+                Descriptive alt tags improve SEO and accessibility for this image.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => setEditAltItem(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveAlt}
+                disabled={isSavingAlt}
+                className="px-5 py-2 rounded-xl text-xs font-bold bg-[#1C3EB9] text-white hover:brightness-105 shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isSavingAlt && <Loader2 size={14} className="animate-spin" />}
+                Save Alt Text
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SINGLE DELETE CONFIRMATION MODAL ── */}
+      {deleteSingleItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="w-12 h-12 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500 mx-auto">
+              <AlertTriangle size={24} />
+            </div>
+
+            <div className="text-center space-y-2">
+              <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                Delete File from Storage?
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                This action will permanently remove{" "}
+                <span className="font-bold text-slate-800 dark:text-slate-200">
+                  {deleteSingleItem.filename || deleteSingleItem.url.split("/").pop()}
+                </span>{" "}
+                and its generated thumbnail from the server disk and database.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setDeleteSingleItem(null)}
+                className="px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteSingle}
+                disabled={isDeleting}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                Yes, Delete File
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── BULK DELETE CONFIRMATION MODAL ── */}
+      {showBulkDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="w-12 h-12 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500 mx-auto">
+              <Trash2 size={24} />
+            </div>
+
+            <div className="text-center space-y-2">
+              <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                Delete {selectedUrls.size} Files Permanently?
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                You are about to permanently delete{" "}
+                <span className="font-bold text-rose-500">{selectedUrls.size}</span> selected media files
+                and their thumbnails from the server disk storage. This cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setShowBulkDeleteConfirm(false)}
+                className="px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmBulkDelete}
+                disabled={isDeleting}
+                className="px-6 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Trash2 size={14} />
+                )}
+                Confirm Delete All ({selectedUrls.size})
+              </button>
+            </div>
           </div>
         </div>
       )}
     </>
   );
-};
-
-export default MediaLibrary;
+}

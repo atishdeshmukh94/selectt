@@ -43,17 +43,23 @@ const ReasonsToBuy = ({ reasons, theme = 'dark' }) => {
       <h2 className={headingClasses}>Reasons To Buy</h2>
 
       <div className="flex flex-col">
-        {displayReasons.map((reason, idx) => (
-          <div key={idx} className={`flex items-start gap-3.5 py-3.5 ${borderClasses}`}>
-            <div className="mt-1 text-[#00C9AF] shrink-0">
-              {iconMap[reason.icon] || <Diamond size={24} strokeWidth={1.5} />}
+        {displayReasons.map((reason, idx) => {
+          const isObj = typeof reason === 'object' && reason !== null;
+          const icon = isObj ? reason.icon : 'Diamond';
+          const title = isObj ? (reason.title || '') : String(reason);
+          const desc = isObj ? reason.description : '';
+          return (
+            <div key={idx} className={`flex items-start gap-3.5 py-3.5 ${borderClasses}`}>
+              <div className="mt-1 text-[#00C9AF] shrink-0">
+                {iconMap[icon] || <Diamond size={24} strokeWidth={1.5} />}
+              </div>
+              <div>
+                <h3 className={titleClasses}>{title}</h3>
+                {desc && <p className={descClasses}>{desc}</p>}
+              </div>
             </div>
-            <div>
-              <h3 className={titleClasses}>{reason.title}</h3>
-              <p className={descClasses}>{reason.description}</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

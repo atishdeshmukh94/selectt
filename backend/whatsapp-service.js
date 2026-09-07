@@ -14,10 +14,13 @@ const sendWhatsAppOTP = async (phone, otp, settings) => {
             gallabox_api_key,
             gallabox_api_secret,
             gallabox_channel_id,
-            gallabox_template_name
+            gallabox_template_name,
+            gallabox_tpl_auth_otp
         } = settings;
 
-        if (!gallabox_api_key || !gallabox_api_secret || !gallabox_channel_id || !gallabox_template_name) {
+        const templateName = gallabox_tpl_auth_otp || gallabox_template_name;
+
+        if (!gallabox_api_key || !gallabox_api_secret || !gallabox_channel_id || !templateName) {
             throw new Error('Gallabox WhatsApp API is not configured in Site Settings');
         }
 
@@ -35,7 +38,7 @@ const sendWhatsAppOTP = async (phone, otp, settings) => {
             whatsapp: {
                 type: "template",
                 template: {
-                    templateName: gallabox_template_name,
+                    templateName: templateName,
                     bodyValues: {
                         "1": otp,
                         "otp": otp

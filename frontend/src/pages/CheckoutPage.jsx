@@ -27,6 +27,11 @@ const CheckoutPage = () => {
         return res.json();
       })
       .then(data => {
+        if (data && data.status === 'coming_soon') {
+          alert('This vehicle is currently "Coming Soon" and cannot be booked.');
+          navigate('/buy-cars');
+          return;
+        }
         setCar(data);
       })
       .catch(() => {

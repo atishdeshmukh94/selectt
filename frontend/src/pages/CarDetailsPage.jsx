@@ -41,7 +41,8 @@ import {
   Camera,
   Video,
   IndianRupee,
-  TrendingDown
+  TrendingDown,
+  Sparkles
 } from 'lucide-react';
 import CarCard from '../components/buy/CarCard';
 import TopFeatures from '../components/buy/TopFeatures';
@@ -117,6 +118,7 @@ const CarDetailsPage = () => {
   const [isWishlisting, setIsWishlisting] = useState(false);
   const [wishlistToast, setWishlistToast] = useState(null); // 'added' | 'removed'
   const [isPriceSummaryOpen, setIsPriceSummaryOpen] = useState(false);
+  const [isComingSoonModalOpen, setIsComingSoonModalOpen] = useState(false);
   const [sidebarBanner, setSidebarBanner] = useState(null);
   const emiRef = useRef(null);
 
@@ -130,12 +132,24 @@ const CarDetailsPage = () => {
   }, []);
 
   const handleBookNow = () => {
+    if (car?.status === 'coming_soon') {
+      setIsComingSoonModalOpen(true);
+      return;
+    }
     const checkoutUrl = `/checkout/${car.id}`;
     if (user) {
       navigate(checkoutUrl);
     } else {
       openLoginModal(checkoutUrl);
     }
+  };
+
+  const handleTestDriveClick = () => {
+    if (car?.status === 'coming_soon') {
+      setIsComingSoonModalOpen(true);
+      return;
+    }
+    setIsTestDriveOpen(true);
   };
 
   useEffect(() => {
@@ -441,6 +455,14 @@ const CarDetailsPage = () => {
                       }}
                       onClick={openLightbox}
                     >
+                      {/* Coming Soon Badge Tag on Main Image */}
+                      {car.status === 'coming_soon' && (
+                        <div className="absolute top-4 left-4 z-20 pointer-events-none">
+                          <div className="bg-white text-[#0C1B33] px-3.5 py-1.5 rounded-full text-[11px] font-sans font-bold flex items-center shadow-lg border border-slate-200/90 tracking-wide uppercase">
+                            <span>COMING SOON</span>
+                          </div>
+                        </div>
+                      )}
 
                       <img
                         key={activeImage}
@@ -688,43 +710,43 @@ const CarDetailsPage = () => {
                   </a>
                 </div>
 
-                <div className="flex items-center gap-3 mb-2.5">
-                  <div className="bg-[#00C9AF] text-[#0A1C3A] px-3 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5">
-                    <div className="w-[18px] h-[18px] bg-white text-[#0A1C3A] rounded-full flex items-center justify-center shrink-0">
-                      <IndianRupee size={11} className="stroke-[3.5]" />
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="bg-[#00C9AF] text-[#0A1C3A] px-3 py-1 rounded-full text-xs font-sans font-bold flex items-center gap-1.5 shadow-xs shrink-0">
+                    <div className="w-[16px] h-[16px] bg-white text-[#0A1C3A] rounded-full flex items-center justify-center shrink-0">
+                      <IndianRupee size={10} className="stroke-[3]" />
                     </div>
                     Budget
                   </div>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1">
+                  <span className="text-xs font-sans font-medium text-slate-600 flex items-center gap-1">
                     Highly affordable & reliable
-                    <Info size={12} className="text-slate-400" />
+                    <Info size={13} className="text-slate-400" />
                   </span>
                 </div>
 
                 <div
-                  className="pt-3 border-t border-dashed border-slate-100 mb-2.5 cursor-pointer group"
+                  className="pt-3 border-t border-dashed border-slate-200/80 mb-3 cursor-pointer group"
                   onClick={() => setIsPriceSummaryOpen(true)}
                 >
-                  <div className="text-[10px] font-book text-slate-400 uppercase tracking-wider mb-1 group-hover:text-[#00C9AF] transition-colors">Fixed on road price</div>
+                  <div className="text-[11px] font-sans font-bold text-slate-400 uppercase tracking-wider mb-1 group-hover:text-[#00C9AF] transition-colors">Fixed on road price</div>
                   <div className="flex flex-row items-baseline justify-between w-full flex-wrap gap-1">
                     {/* Only show strikethrough if real original price exists */}
                     {(car.original_price || car.originalPrice || car.old_price || car.oldPrice) && (
-                      <span className="text-[13px] font-bold text-slate-400 line-through leading-none mt-1">
+                      <span className="text-sm font-sans font-medium text-slate-400 line-through leading-none mt-1">
                         ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)} Lakh
                       </span>
                     )}
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[26px] sm:text-[28px] !font-black text-[#0C1B33] leading-none group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
-                      <Info size={14} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
+                      <span className="text-2xl sm:text-3xl font-sans font-bold text-slate-900 leading-none group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
+                      <Info size={15} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
                       {hasPriceDrop(car) && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-sans font-bold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
                           <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
                           <span>Price Drop</span>
                         </span>
                       )}
                     </div>
                   </div>
-                  <p className="text-[13px] font-medium text-slate-700 mt-1">Excludes RC transfer, insurance & more</p>
+                  <p className="text-xs font-sans font-medium text-slate-500 mt-1.5">Excludes RC transfer, insurance & more</p>
                 </div>
 
                 <div className="bg-slate-50 rounded-2xl p-3 sm:p-4 mb-3 border border-slate-100/50">
@@ -753,10 +775,10 @@ const CarDetailsPage = () => {
               <div className="bg-white border border-slate-200 rounded-2xl shadow-sm mb-6 overflow-hidden text-[#0C1B33] text-left">
                 <div className="p-5 md:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                    <h2 className="text-lg md:text-xl font-bold text-[#0C1B33]">Car Overview</h2>
+                    <h2 className="text-lg md:text-xl font-sans font-bold text-[#0C1B33]">Car Overview</h2>
                     <div className="flex gap-1.5 shrink-0">
-                      <span className="px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-xs font-black uppercase tracking-wider">CERTIFIED</span>
-                      <span className="px-2.5 py-1 bg-[#00C9AF]/15 text-teal-800 rounded-lg text-xs font-black uppercase tracking-wider">SINGLE OWNER</span>
+                      <span className="px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-xs font-sans font-bold uppercase tracking-wider">CERTIFIED</span>
+                      <span className="px-2.5 py-1 bg-[#00C9AF]/15 text-teal-800 rounded-lg text-xs font-sans font-bold uppercase tracking-wider">SINGLE OWNER</span>
                     </div>
                   </div>
 
@@ -777,8 +799,8 @@ const CarDetailsPage = () => {
                           {item.icon}
                         </div>
                         <div className="flex flex-col justify-center">
-                          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-0">{item.label}</span>
-                          <span className="text-sm font-extrabold text-slate-800 leading-tight">{item.value}</span>
+                          <span className="text-[11px] text-slate-400 font-sans font-semibold uppercase tracking-wider mb-0.5">{item.label}</span>
+                          <span className="text-sm font-sans font-bold text-slate-900 leading-tight">{item.value}</span>
                         </div>
                       </div>
                     ))}
@@ -869,7 +891,7 @@ const CarDetailsPage = () => {
                       <h1 className="text-base xl:text-lg font-bold text-[#0C1B33] leading-snug mb-0.5">
                         {car.year} {car.make} {car.model}
                       </h1>
-                      <div className="text-xs xl:text-sm text-slate-400 font-book flex items-center gap-1.5">
+                      <div className="text-xs xl:text-sm text-slate-500 font-sans font-medium flex items-center gap-1.5">
                         <span>{(car.km || 0).toLocaleString()} km</span>
                         <span>•</span>
                         <span>{car.fuelType}</span>
@@ -884,7 +906,7 @@ const CarDetailsPage = () => {
                         className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors border shadow-sm ${isWishlisted ? 'text-red-500 bg-red-50 border-red-200/50' : 'bg-slate-50 text-slate-500 hover:text-red-500 hover:bg-slate-100 border-slate-200/50'}`}>
                         <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
                       </button>
-                      <span className="text-[9px] text-slate-400 font-book mt-0.5 text-center leading-tight">
+                      <span className="text-[9px] text-slate-400 font-sans font-medium mt-0.5 text-center leading-tight">
                         {car.shortlistedCount || getDynamicShortlists(car?.id)} people<br />shortlisted
                       </span>
                     </div>
@@ -908,63 +930,75 @@ const CarDetailsPage = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex items-center gap-1 px-2.5 py-0.5 bg-[#00c9af] text-[#0c1b33] rounded-full text-[10px] font-black shrink-0">
-                      <div className="w-[18px] h-[18px] bg-[#fff] text-[#0c1b33] rounded-full flex items-center justify-center shrink-0">
-                        <IndianRupee size={11} className="stroke-[3.5]" />
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="flex items-center gap-1 px-3 py-1 bg-[#00c9af] text-[#0c1b33] rounded-full text-xs font-sans font-bold shrink-0 shadow-xs">
+                      <div className="w-[16px] h-[16px] bg-white text-[#0c1b33] rounded-full flex items-center justify-center shrink-0">
+                        <IndianRupee size={10} className="stroke-[3]" />
                       </div>
                       Budget
                     </div>
-                    <div className="text-xs text-slate-700 font-semibold flex items-center gap-1">
+                    <div className="text-xs font-sans font-medium text-slate-600 flex items-center gap-1">
                       Highly affordable & reliable
-                      <Info size={12} className="text-slate-400" />
+                      <Info size={13} className="text-slate-400" />
                     </div>
                   </div>
 
                   <div
-                    className="border-t border-dashed border-slate-100 pt-2.5 mb-2.5 cursor-pointer group"
+                    className="border-t border-dashed border-slate-200/80 pt-3 mb-3 cursor-pointer group"
                     onClick={() => setIsPriceSummaryOpen(true)}
                   >
-                    <div className="text-[10px] text-slate-400 font-book uppercase tracking-wider mb-0.5 group-hover:text-[#00C9AF] transition-colors">Fixed on road price</div>
-                    <div className="flex flex-col items-start gap-0.5">
+                    <div className="text-[11px] font-sans font-bold text-slate-400 uppercase tracking-wider mb-1 group-hover:text-[#00C9AF] transition-colors">Fixed on road price</div>
+                    <div className="flex flex-col items-start gap-1">
                       {/* Only show strikethrough if real original price exists */}
                       {(car.original_price || car.originalPrice || car.old_price || car.oldPrice) && (
-                        <span className="text-xs xl:text-sm font-book text-slate-400 line-through leading-none">
+                        <span className="text-sm font-sans font-medium text-slate-400 line-through leading-none">
                           ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)} Lakh
                         </span>
                       )}
                       <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                        <span className="text-xl xl:text-2xl font-bold text-[#0C1B33] group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
-                        <Info size={14} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
-                        {hasPriceDrop(car) && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
-                            <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
-                            <span>Price Drop</span>
-                          </span>
-                        )}
+                        <span className="text-2xl xl:text-3xl font-sans font-bold text-slate-900 leading-none group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
+                        <Info size={15} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
+                        {hasPriceDrop(car) && (() => {
+                          const orig = Number(car.original_price || car.originalPrice || car.old_price || car.oldPrice || 0);
+                          const current = Number(car.price || 0);
+                          let dropBadgeText = "Price Drop";
+                          if (orig > current && orig > 0) {
+                            const diff = orig - current;
+                            const pct = Math.round((diff / orig) * 100);
+                            if (pct > 0) {
+                              dropBadgeText = `Price Drop (${pct}% OFF)`;
+                            }
+                          }
+                          return (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-sans font-bold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
+                              <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                              <span>{dropBadgeText}</span>
+                            </span>
+                          );
+                        })()}
                       </div>
                     </div>
-                    <p className="text-[13px] text-slate-700 font-medium">Excludes RC transfer, insurance & more</p>
+                    <p className="text-xs font-sans font-medium text-slate-500 mt-1.5">Excludes RC transfer, insurance & more</p>
                   </div>
 
-                  <div className="border-t border-dashed border-slate-100 pt-2.5 mb-3.5">
+                  <div className="border-t border-dashed border-slate-200/80 pt-3 mb-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-base font-bold text-teal-650">₹{(car.emiStart || car.emi || 8184).toLocaleString()}/m</span>
+                          <span className="text-lg font-sans font-bold text-teal-650">₹{(car.emiStart || car.emi || 8184).toLocaleString()}/m</span>
                         </div>
-                        <div className="text-[9px] font-book text-slate-400 uppercase tracking-wider">Special starting EMI</div>
+                        <div className="text-[11px] font-sans font-bold text-slate-400 uppercase tracking-wider">Special starting EMI</div>
                       </div>
                       <button
                         onClick={scrollToEMI}
-                        className="bg-[#00C9AF] text-[#0C1B33] px-3 py-1.5 rounded-sm font-demi text-[10px] shadow-md shadow-[#00C9AF]/20 transition-all uppercase tracking-wider cursor-pointer hover:bg-black hover:text-white"
+                        className="bg-[#00C9AF] text-[#0C1B33] px-3.5 py-2 rounded-xl font-sans font-bold text-[11px] shadow-xs hover:bg-[#00B49F] transition-all uppercase tracking-wider cursor-pointer"
                       >
                         Calculate your EMI
                       </button>
                     </div>
-                    <div className="mt-2 bg-[#00C9AF]/5 rounded-lg p-2 flex items-center gap-1.5 border border-[#0C1B33]/10">
-                      <div className="w-3.5 h-3.5 bg-[#0C1B33] rounded-full flex items-center justify-center text-[9px] text-white font-demi shrink-0">✓</div>
-                      <span className="text-[9px] text-slate-650 font-book leading-tight">
+                    <div className="mt-3 bg-[#00C9AF]/8 rounded-xl p-2.5 flex items-center gap-2 border border-[#00C9AF]/20">
+                      <div className="w-4 h-4 bg-[#0C1B33] rounded-full flex items-center justify-center text-[10px] text-white font-bold shrink-0">✓</div>
+                      <span className="text-xs font-sans font-medium text-slate-700 leading-tight">
                         Save ₹{(car.savingsAmount || 4248).toLocaleString()} in interest. Special rate starts at 11.99%
                       </span>
                     </div>
@@ -973,16 +1007,16 @@ const CarDetailsPage = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={handleBookNow}
-                      className="relative overflow-hidden bg-[#00C9AF] text-[#0C1B33] py-2.5 rounded-xl font-bold text-xs shadow-xl shadow-[#00C9AF]/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex flex-col items-center justify-center uppercase tracking-wider group"
+                      className="relative overflow-hidden bg-[#00C9AF] text-[#0C1B33] py-3 rounded-xl font-sans font-bold text-xs shadow-xl shadow-[#00C9AF]/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex flex-col items-center justify-center uppercase tracking-wider group cursor-pointer"
                     >
                       {/* Shimmer/glare animation */}
                       <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
                       <span>BOOK NOW</span>
-                      <span className="text-[8px] font-bold opacity-70">100% refundable</span>
+                      <span className="text-[8.5px] font-sans font-bold opacity-75">100% refundable</span>
                     </button>
                     <button
-                      onClick={() => setIsTestDriveOpen(true)}
-                      className="bg-[#EF4444] text-white hover:bg-[#DC2626] border border-transparent shadow-lg shadow-[#EF4444]/25 py-2.5 rounded-xl font-bold text-xs hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center uppercase tracking-wider"
+                      onClick={handleTestDriveClick}
+                      className="bg-[#EF4444] text-white hover:bg-[#DC2626] border border-transparent shadow-lg shadow-[#EF4444]/25 py-3 rounded-xl font-sans font-bold text-xs hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center uppercase tracking-wider cursor-pointer"
                     >
                       FREE TEST DRIVE
                     </button>
@@ -1185,17 +1219,17 @@ const CarDetailsPage = () => {
           <div className="grid grid-cols-2 gap-2.5 max-w-7xl mx-auto">
             <button
               onClick={handleBookNow}
-              className="bg-gradient-to-r from-[#00E5C9] to-[#00C9AF] text-[#0A1C3A] py-2 px-3 rounded-2xl font-black text-xs shadow-[0_4px_16px_rgba(0,201,175,0.4)] transition-all flex flex-col items-center justify-center uppercase tracking-wider active:scale-[0.97] cursor-pointer"
+              className="bg-gradient-to-r from-[#00E5C9] to-[#00C9AF] text-[#0A1C3A] py-2.5 px-3 rounded-2xl font-sans font-bold text-xs shadow-[0_4px_16px_rgba(0,201,175,0.4)] transition-all flex flex-col items-center justify-center uppercase tracking-wider active:scale-[0.97] cursor-pointer"
             >
-              <span className="font-black leading-tight">BOOK NOW</span>
-              <span className="text-[8.5px] font-extrabold opacity-80 tracking-tight leading-none mt-0.5">100% refundable</span>
+              <span className="font-sans font-bold leading-tight">BOOK NOW</span>
+              <span className="text-[8.5px] font-sans font-bold opacity-80 tracking-tight leading-none mt-0.5">100% refundable</span>
             </button>
             <button
-              onClick={() => setIsTestDriveOpen(true)}
-              className="bg-gradient-to-r from-[#FF5252] to-[#FF2A55] text-white py-2 px-3 rounded-2xl font-black text-xs shadow-[0_4px_16px_rgba(255,42,85,0.4)] transition-all flex flex-col items-center justify-center uppercase tracking-wider active:scale-[0.97] cursor-pointer"
+              onClick={handleTestDriveClick}
+              className="bg-gradient-to-r from-[#FF5252] to-[#FF2A55] text-white py-2.5 px-3 rounded-2xl font-sans font-bold text-xs shadow-[0_4px_16px_rgba(255,42,85,0.4)] transition-all flex flex-col items-center justify-center uppercase tracking-wider active:scale-[0.97] cursor-pointer"
             >
-              <span className="font-black leading-tight">FREE TEST DRIVE</span>
-              <span className="text-[8.5px] font-extrabold opacity-90 tracking-tight leading-none mt-0.5">Schedule from home</span>
+              <span className="font-sans font-bold leading-tight">FREE TEST DRIVE</span>
+              <span className="text-[8.5px] font-sans font-bold opacity-90 tracking-tight leading-none mt-0.5">Schedule from home</span>
             </button>
           </div>
         </div>
@@ -1309,6 +1343,33 @@ const CarDetailsPage = () => {
         onClose={() => setIsPriceSummaryOpen(false)}
         carPrice={car?.price}
       />
+
+      {/* Coming Soon Simple Popup Modal */}
+      {isComingSoonModalOpen && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center relative border border-slate-100 text-[#0C1B33]">
+            <button
+              onClick={() => setIsComingSoonModalOpen(false)}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+            <div className="w-14 h-14 bg-[#00C9AF]/15 text-[#00C9AF] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm border border-[#00C9AF]/30">
+              <Sparkles size={28} />
+            </div>
+            <h3 className="text-xl font-extrabold text-[#0C1B33] mb-2">Vehicle Arriving Soon</h3>
+            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-6">
+              This <span className="font-extrabold text-[#0C1B33]">{car?.year} {car?.make} {car?.model}</span> is coming soon to our hub! Pre-booking and test drives will be available as soon as the vehicle arrives.
+            </p>
+            <button
+              onClick={() => setIsComingSoonModalOpen(false)}
+              className="w-full py-3.5 bg-[#00C9AF] text-[#0A1C3A] rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-[#00C9AF]/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+            >
+              Got It
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

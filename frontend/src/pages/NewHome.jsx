@@ -2765,9 +2765,9 @@ const NewHome = () => {
                       <img
                         src={getBuyStepImg(s.image_url)}
                         alt={s.title}
-                        className="absolute inset-0 w-full h-full object-contain bg-black"
+                        className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/100 via-black/45 to-transparent z-10" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10" />
                       <div className="absolute inset-x-0 bottom-0 p-5 md:p-7 z-20 flex flex-col text-left">
                         <h3 className="text-base md:text-lg font-black text-white leading-tight mb-1.5 tracking-wide drop-shadow-md">{s.title}</h3>
                         {s.subtitle && <p className="text-slate-300 text-[10px] md:text-xs font-semibold leading-relaxed line-clamp-3">{s.subtitle}</p>}

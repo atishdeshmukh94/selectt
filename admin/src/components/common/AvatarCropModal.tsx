@@ -52,7 +52,7 @@ const AvatarCropModal: React.FC<AvatarCropModalProps> = ({ imageSrc, onConfirm, 
 
     ctx.beginPath();
     ctx.arc(SIZE / 2, SIZE / 2, CROP_R, 0, Math.PI * 2);
-    ctx.strokeStyle = '#00C9AF';
+    ctx.strokeStyle = '#1C3EB9';
     ctx.lineWidth = 2.5;
     ctx.stroke();
   }, [zoom, pan]);
@@ -173,7 +173,7 @@ const AvatarCropModal: React.FC<AvatarCropModalProps> = ({ imageSrc, onConfirm, 
             <input
               type="range" min={0.3} max={5} step={0.05} value={zoom}
               onChange={e => setZoom(parseFloat(e.target.value))}
-              className="flex-1 accent-[#00C9AF]"
+              className="flex-1 accent-[#1C3EB9]"
             />
             <button onClick={() => setZoom(z => Math.min(5, z + 0.1))} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400">
               <ZoomIn size={18} />
@@ -191,7 +191,7 @@ const AvatarCropModal: React.FC<AvatarCropModalProps> = ({ imageSrc, onConfirm, 
           <button
             onClick={handleConfirm}
             disabled={uploading}
-            className="flex-1 py-2.5 bg-[#00C9AF] text-white rounded-xl font-bold text-sm hover:bg-[#00b4a0] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 bg-[#1C3EB9] text-white rounded-xl font-bold text-sm hover:bg-[#00b4a0] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {uploading ? (
               <Loader size={16} className="text-white animate-spin" />

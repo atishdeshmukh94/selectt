@@ -406,19 +406,25 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
         <div className="p-5 border-t border-slate-100 bg-white rounded-b-3xl flex-shrink-0">
           {!isSuccess ? (
             <>
-              <button
-                disabled={!selectedSlot || isLoading}
-                onClick={handleConfirm}
-                className={`w-full py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${selectedSlot && !isLoading
-                  ? 'bg-[#00C9AF] text-[#0A1C3A] shadow-lg shadow-[#00C9AF]/10'
-                  : 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                  }`}
-              >
-                {isLoading ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : null}
-                {selectedSlot ? `Confirm Test Drive • ${selectedSlot}` : 'Select a time slot'}
-              </button>
+              {car?.status === 'coming_soon' ? (
+                <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs font-semibold text-center">
+                  ⏳ Test drives are currently locked for vehicles with "Coming Soon" status.
+                </div>
+              ) : (
+                <button
+                  disabled={!selectedSlot || isLoading}
+                  onClick={handleConfirm}
+                  className={`w-full py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${selectedSlot && !isLoading
+                    ? 'bg-[#00C9AF] text-[#0A1C3A] shadow-lg shadow-[#00C9AF]/10'
+                    : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                    }`}
+                >
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : null}
+                  {selectedSlot ? `Confirm Test Drive • ${selectedSlot}` : 'Select a time slot'}
+                </button>
+              )}
               <div className="mt-4 flex items-center justify-center gap-1.5 opacity-50">
                 <ShieldCheck size={10} className="text-green-600" />
                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Secured by Selectt Assured</span>

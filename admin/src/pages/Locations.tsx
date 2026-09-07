@@ -64,18 +64,18 @@ export default function Locations() {
 
   return (
     <>
-      <PageMeta title="Locations | Selectt Admin" description="Manage available cities for car listings" />
+      <PageMeta title="Service Locations | Selectt Admin" description="Manage available service cities for car listings" />
       <div className="p-4 md:p-6 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-gray-800 dark:text-white">Locations</h1>
-            <p className="text-sm text-gray-500">Manage cities where cars are available</p>
+            <h1 className="text-xl font-bold text-gray-800 dark:text-white">Service Locations</h1>
+            <p className="text-sm text-gray-500">Manage service cities where cars & operations are active</p>
           </div>
           <button 
             onClick={openAdd}
-            className="flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-brand-100"
+            className="flex items-center gap-2 bg-[#1C3EB9] hover:bg-[#153299] text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-md cursor-pointer"
           >
-            <Plus size={18} /> Add Location
+            <Plus size={18} /> Add Service Location
           </button>
         </div>
 

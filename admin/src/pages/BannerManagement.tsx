@@ -986,6 +986,15 @@ export default function BannerManagement() {
                   </div>
                 </div>
               )}
+              {(activeTab === "easy-steps" || editingBanner.type === "step" || editingBanner.type === "buy-step") && (
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 flex items-start gap-2">
+                  <span className="text-base mt-0.5">💡</span>
+                  <div>
+                    <p className="text-xs text-blue-700 dark:text-blue-300 font-bold">Step Card Image Format</p>
+                    <p className="text-[10px] text-blue-600 dark:text-blue-400 mt-0.5">Images are displayed full-bleed with edge-to-edge cover. Recommended ratio: <strong>1:1 Square (600×600px)</strong> or <strong>4:3 (800×600px)</strong>.</p>
+                  </div>
+                </div>
+              )}
               {editingBanner.type === "promo" && (
                 <div className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
                   <div className="pr-4">
@@ -1162,7 +1171,7 @@ function FeatureGraphicUploader({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="px-4 py-2 bg-[#00C9AF] text-[#0C1B33] text-xs font-bold rounded-xl hover:bg-teal-400 transition-all disabled:opacity-50"
+            className="px-4 py-2 bg-[#1C3EB9] text-white text-xs font-bold rounded-xl hover:bg-[#153299] transition-all disabled:opacity-50"
           >
             {uploading ? "Uploading..." : "Upload Image"}
           </button>

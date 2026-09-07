@@ -1,8 +1,37 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Save, Eye, ArrowLeft, Upload, Link as LinkIcon, X, Plus, Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Quote, Code, Image as ImageIcon, Video as VideoIcon, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { 
+  Save, 
+  Eye, 
+  ArrowLeft, 
+  Upload, 
+  Link as LinkIcon, 
+  X, 
+  Plus, 
+  Bold, 
+  Italic, 
+  Underline, 
+  List, 
+  ListOrdered, 
+  Heading1, 
+  Heading2, 
+  Quote, 
+  Code, 
+  Image as ImageIcon, 
+  Video as VideoIcon, 
+  AlignLeft, 
+  AlignCenter, 
+  AlignRight,
+  FolderOpen,
+  Trash2,
+  RefreshCw,
+  HardDrive,
+  Check
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import PageMeta from "../components/common/PageMeta";
+import MediaGalleryModal from "../components/common/MediaGalleryModal";
+import { toast } from "react-hot-toast";
 
 import { API_URL } from "../config/api";
 const API = API_URL;
@@ -17,14 +46,27 @@ const STATUS_OPTIONS = [
 // ─── Rich Text Toolbar ─────────────────────────────────────────────
 const ToolbarBtn = ({ title, onClick, icon }: { title: string; onClick: () => void; icon: React.ReactNode }) => (
   <button type="button" title={title} onMouseDown={(e) => { e.preventDefault(); onClick(); }}
-    className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors">
+    className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors flex items-center justify-center">
     {icon}
   </button>
 );
 
-const RichEditor = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => {
-  const editorRef = useRef<HTMLDivElement>(null);
+const RichEditor = ({ 
+  value, 
+  onChange, 
+  onOpenMediaGallery, 
+  editorRefInstance 
+}: { 
+  value: string; 
+  onChange: (v: string) => void;
+  onOpenMediaGallery?: () => void;
+  editorRefInstance?: React.MutableRefObject<any>;
+}) => {
+  const localEditorRef = useRef<HTMLDivElement>(null);
+  const editorRef = editorRefInstance || localEditorRef;
   const isComposing = useRef(false);
+  const contentFileRef = useRef<HTMLInputElement>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== value) {
@@ -43,7 +85,7 @@ const RichEditor = ({ value, onChange }: { value: string; onChange: (v: string) 
     if (url) exec("createLink", url);
   };
 
-  const insertImage = () => {
+  const insertImagePrompt = () => {
     const url = prompt("Enter image URL:");
     if (url) exec("insertImage", url);
   };
@@ -59,6 +101,42 @@ const RichEditor = ({ value, onChange }: { value: string; onChange: (v: string) 
       onChange(editorRef.current?.innerHTML || "");
     } else {
       alert("Invalid YouTube URL");
+    }
+  };
+
+  // Upload image from computer directly into content
+  const handleContentFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch(`${API}/api/upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("adminToken") || localStorage.getItem("token")}`
+        },
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const fullImgUrl = data.url.startsWith("http") ? data.url : `${API}${data.url.startsWith("/") ? "" : "/"}${data.url}`;
+        editorRef.current?.focus();
+        document.execCommand("insertImage", false, fullImgUrl);
+        onChange(editorRef.current?.innerHTML || "");
+        toast.success("Image inserted into post!");
+      } else {
+        toast.error("Failed to upload image");
+      }
+    } catch {
+      toast.error("Error uploading image");
+    } finally {
+      setIsUploadingImage(false);
+      if (contentFileRef.current) contentFileRef.current.value = "";
     }
   };
 
@@ -84,7 +162,38 @@ const RichEditor = ({ value, onChange }: { value: string; onChange: (v: string) 
         <ToolbarBtn title="Align Right" onClick={() => exec("justifyRight")} icon={<AlignRight size={15} />} />
         <div className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1" />
         <ToolbarBtn title="Insert Link" onClick={insertLink} icon={<LinkIcon size={15} />} />
-        <ToolbarBtn title="Insert Image (URL)" onClick={insertImage} icon={<ImageIcon size={15} />} />
+
+        {/* Media Gallery Option in Editor */}
+        <button
+          type="button"
+          title="Select Image from Media Gallery"
+          onClick={() => onOpenMediaGallery && onOpenMediaGallery()}
+          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-[#1C3EB9]/10 text-[#1C3EB9] hover:bg-[#1C3EB9]/20 transition-all ml-1"
+        >
+          <FolderOpen size={13} />
+          <span>Gallery</span>
+        </button>
+
+        {/* Upload Image from Computer in Editor */}
+        <button
+          type="button"
+          title="Upload Image from Computer"
+          onClick={() => contentFileRef.current?.click()}
+          disabled={isUploadingImage}
+          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-slate-200 transition-all"
+        >
+          <Upload size={13} />
+          <span>{isUploadingImage ? "..." : "Upload"}</span>
+        </button>
+        <input
+          ref={contentFileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleContentFileUpload}
+        />
+
+        <ToolbarBtn title="Insert Image via URL" onClick={insertImagePrompt} icon={<ImageIcon size={15} />} />
         <ToolbarBtn title="Embed YouTube" onClick={insertYoutube} icon={<VideoIcon size={15} />} />
         <div className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1" />
         <ToolbarBtn title="Remove Formatting" onClick={() => exec("removeFormat")} icon={<X size={15} />} />
@@ -105,9 +214,9 @@ const RichEditor = ({ value, onChange }: { value: string; onChange: (v: string) 
         [contenteditable]:empty:before { content: attr(data-placeholder); color: #9ca3af; pointer-events: none; }
         [contenteditable] h1 { font-size: 1.8em; font-weight: 800; margin: .6em 0; }
         [contenteditable] h2 { font-size: 1.4em; font-weight: 700; margin: .5em 0; }
-        [contenteditable] blockquote { border-left: 3px solid #00C9AF; padding: 8px 16px; margin: 12px 0; color: #64748b; background: #fef2f2; border-radius: 4px; }
+        [contenteditable] blockquote { border-left: 3px solid #1C3EB9; padding: 8px 16px; margin: 12px 0; color: #64748b; background: #fef2f2; border-radius: 4px; }
         [contenteditable] pre { background: #1e293b; color: #e2e8f0; padding: 12px 16px; border-radius: 8px; overflow-x: auto; font-size: .85em; margin: 12px 0; }
-        [contenteditable] a { color: #00C9AF; text-decoration: underline; }
+        [contenteditable] a { color: #1C3EB9; text-decoration: underline; }
         [contenteditable] img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
         [contenteditable] ul { list-style: disc; padding-left: 1.5em; margin: 8px 0; }
         [contenteditable] ol { list-style: decimal; padding-left: 1.5em; margin: 8px 0; }
@@ -141,7 +250,30 @@ export default function BlogEditor() {
   const [saving, setSaving] = useState(false);
   const [activePanel, setActivePanel] = useState<"seo" | "image" | "video" | "cats" | "tags">("image");
 
+  // Media Gallery Modal State
+  const [showMediaModal, setShowMediaModal] = useState(false);
+  const [mediaModalTarget, setMediaModalTarget] = useState<"featured" | "content">("featured");
+  const richEditorRef = useRef<HTMLDivElement>(null);
+
   const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
+
+  const handleMediaSelect = (url: string) => {
+    const fullUrl = url.startsWith("http") ? url : `${API}${url.startsWith("/") ? "" : "/"}${url}`;
+    if (mediaModalTarget === "featured") {
+      set("featured_image", url);
+      set("image_url", url);
+      setImageFile(null);
+      setImagePreview(fullUrl);
+      toast.success("Featured image selected from Media Gallery!");
+    } else {
+      if (richEditorRef.current) {
+        richEditorRef.current.focus();
+        document.execCommand("insertImage", false, fullUrl);
+        set("content", richEditorRef.current.innerHTML || "");
+        toast.success("Image inserted into post content!");
+      }
+    }
+  };
 
   useEffect(() => {
     const authH = { Authorization: `Bearer ${token}` };
@@ -239,7 +371,7 @@ export default function BlogEditor() {
             <Save size={14} /> Save Draft
           </button>
           <button onClick={() => handleSave("published")} disabled={saving}
-            className="flex items-center gap-1.5 px-5 py-2 text-sm font-black text-white bg-[#00C9AF] hover:bg-rose-700 rounded-xl transition-all shadow-md shadow-rose-200">
+            className="flex items-center gap-1.5 px-5 py-2 text-sm font-black text-white bg-[#1C3EB9] hover:bg-rose-700 rounded-xl transition-all shadow-md shadow-rose-200">
             {saving ? "Publishing..." : "Publish"}
           </button>
         </div>
@@ -264,7 +396,15 @@ export default function BlogEditor() {
             {/* Content editor */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Content</label>
-              <RichEditor value={form.content} onChange={v => set("content", v)} />
+              <RichEditor 
+                value={form.content} 
+                onChange={v => set("content", v)} 
+                onOpenMediaGallery={() => {
+                  setMediaModalTarget("content");
+                  setShowMediaModal(true);
+                }}
+                editorRefInstance={richEditorRef}
+              />
             </div>
 
             {/* Excerpt */}
@@ -300,7 +440,7 @@ export default function BlogEditor() {
                 )}
                 <div className="flex gap-2 pt-1">
                   <button onClick={() => handleSave("draft")} disabled={saving} className="flex-1 py-2 text-xs font-black text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all">Save Draft</button>
-                  <button onClick={() => handleSave("published")} disabled={saving} className="flex-1 py-2 text-xs font-black text-white bg-[#00C9AF] hover:bg-rose-700 rounded-lg transition-all">{saving ? "..." : "Publish"}</button>
+                  <button onClick={() => handleSave("published")} disabled={saving} className="flex-1 py-2 text-xs font-black text-white bg-[#1C3EB9] hover:bg-rose-700 rounded-lg transition-all">{saving ? "..." : "Publish"}</button>
                 </div>
               </div>
             </div>
@@ -323,18 +463,123 @@ export default function BlogEditor() {
                   <div className="p-4">
                     {/* Featured Image */}
                     {panel.key === "image" && (
-                      <div className="space-y-2">
-                        {imagePreview && <div className="w-full h-32 rounded-xl overflow-hidden border border-gray-200 mb-2"><img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /></div>}
-                        <div onClick={() => fileRef.current?.click()} className="w-full h-24 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-rose-400 hover:bg-rose-50/20 transition-all">
-                          <Upload size={20} className="text-gray-300 mb-1" />
-                          <span className="text-xs text-gray-400 font-bold">Upload image</span>
+                      <div className="space-y-3">
+                        {imagePreview ? (
+                          <div className="space-y-2.5">
+                            <div className="relative w-full h-36 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 group bg-slate-100 dark:bg-gray-800">
+                              <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setMediaModalTarget("featured");
+                                    setShowMediaModal(true);
+                                  }}
+                                  className="px-2.5 py-1.5 rounded-xl bg-white text-gray-900 text-xs font-bold shadow-md hover:bg-gray-100 flex items-center gap-1 cursor-pointer"
+                                >
+                                  <FolderOpen size={13} />
+                                  <span>Gallery</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => fileRef.current?.click()}
+                                  className="px-2.5 py-1.5 rounded-xl bg-white text-gray-900 text-xs font-bold shadow-md hover:bg-gray-100 flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Upload size={13} />
+                                  <span>Upload</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setImageFile(null);
+                                    setImagePreview("");
+                                    set("featured_image", "");
+                                    set("image_url", "");
+                                  }}
+                                  className="p-1.5 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md hover:bg-red-700 cursor-pointer"
+                                  title="Remove image"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium px-1">
+                              <span className="truncate max-w-[170px] font-mono">{imageFile ? imageFile.name : (form.featured_image?.split("/").pop() || "Featured Image")}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setImageFile(null);
+                                  setImagePreview("");
+                                  set("featured_image", "");
+                                  set("image_url", "");
+                                }}
+                                className="text-red-500 hover:text-red-700 font-bold cursor-pointer"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-2">
+                            {/* Option 1: Select from Media Gallery */}
+                            <div
+                              onClick={() => {
+                                setMediaModalTarget("featured");
+                                setShowMediaModal(true);
+                              }}
+                              className="p-3 border-2 border-dashed border-[#1C3EB9]/30 dark:border-[#1C3EB9]/40 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#1C3EB9] hover:bg-[#1C3EB9]/5 transition-all group"
+                            >
+                              <div className="w-8 h-8 rounded-xl bg-[#1C3EB9]/10 text-[#1C3EB9] flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
+                                <FolderOpen size={16} />
+                              </div>
+                              <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">Media Gallery</span>
+                              <span className="text-[10px] text-gray-400 font-medium">Choose existing</span>
+                            </div>
+
+                            {/* Option 2: Upload from Computer */}
+                            <div
+                              onClick={() => fileRef.current?.click()}
+                              className="p-3 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all group"
+                            >
+                              <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
+                                <Upload size={16} />
+                              </div>
+                              <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">From Computer</span>
+                              <span className="text-[10px] text-gray-400 font-medium">Upload new file</span>
+                            </div>
+                          </div>
+                        )}
+
+                        <input
+                          ref={fileRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) {
+                              setImageFile(f);
+                              setImagePreview(URL.createObjectURL(f));
+                              set("image_url", "");
+                            }
+                          }}
+                        />
+
+                        <div className="pt-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Or Direct Image URL</label>
+                          <input
+                            type="text"
+                            placeholder="https://example.com/image.jpg"
+                            value={form.image_url}
+                            onChange={(e) => {
+                              set("image_url", e.target.value);
+                              set("featured_image", e.target.value);
+                              if (!imageFile) setImagePreview(e.target.value);
+                            }}
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-xl text-xs border border-gray-200/80 dark:border-gray-700 outline-none text-gray-800 dark:text-gray-200 focus:ring-1 focus:ring-[#1C3EB9]"
+                          />
                         </div>
-                        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => {
-                          const f = e.target.files?.[0]; if (f) { setImageFile(f); setImagePreview(URL.createObjectURL(f)); }
-                        }} />
-                        <input type="text" placeholder="Or paste image URL..." value={form.image_url}
-                          onChange={e => { set("image_url", e.target.value); if (!imageFile) setImagePreview(e.target.value); }}
-                          className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-xs border-none outline-none" />
                       </div>
                     )}
                     {/* Video */}
@@ -381,7 +626,7 @@ export default function BlogEditor() {
                         <div className="flex flex-wrap gap-1.5">
                           {tags.map(t => (
                             <button key={t.id} type="button" onClick={() => toggleTag(t.id)}
-                              className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${selectedTags.includes(t.id) ? 'bg-[#00C9AF] text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'}`}>
+                              className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${selectedTags.includes(t.id) ? 'bg-[#1C3EB9] text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'}`}>
                               {t.name}
                             </button>
                           ))}
@@ -431,6 +676,15 @@ export default function BlogEditor() {
           </div>
         </div>
       </div>
+
+      {/* Media Gallery Selector Modal */}
+      <MediaGalleryModal
+        isOpen={showMediaModal}
+        onClose={() => setShowMediaModal(false)}
+        onSelect={handleMediaSelect}
+        title={mediaModalTarget === "featured" ? "Select Featured Image from Gallery" : "Insert Image into Post Content"}
+      />
     </>
   );
 }
+

@@ -43,12 +43,12 @@ const CarSpecifications = ({ specifications, theme = 'dark' }) => {
     ? 'grid grid-cols-1 md:grid-cols-3 gap-y-5 gap-x-5 pb-5 border-b border-slate-100 relative z-10'
     : 'grid grid-cols-1 md:grid-cols-3 gap-y-5 gap-x-5 pb-5 border-b border-slate-700 relative z-10';
 
-  const labelClasses = theme === 'light' ? 'text-[12px] text-slate-500 mb-0.5' : 'text-[12px] text-slate-300 mb-0.5';
-  const valueClasses = theme === 'light' ? 'text-[14px] font-semibold text-[#0C1B33]' : 'text-[14px] font-semibold text-[#fff]';
+  const labelClasses = theme === 'light' ? 'text-xs font-sans font-medium text-slate-500 mb-0.5' : 'text-xs font-sans font-medium text-slate-400 mb-0.5';
+  const valueClasses = theme === 'light' ? 'text-sm font-sans font-bold text-slate-900' : 'text-sm font-sans font-bold text-white';
 
   return (
     <div className="mb-6">
-      <h2 className="text-lg md:text-xl font-bold text-[#0C1B33] mb-3">Specifications</h2>
+      <h2 className="text-lg md:text-xl font-sans font-bold text-[#0C1B33] mb-3">Specifications</h2>
 
       <div className={containerClasses}>
         {/* Subtle background glow left - only on dark theme for aesthetic */}
@@ -83,7 +83,7 @@ const CarSpecifications = ({ specifications, theme = 'dark' }) => {
             </div>
           )}
 
-          <button className="w-full md:w-auto px-6 py-2.5 bg-[#00C9AF] text-black hover:bg-[#0C1B33] hover:text-white rounded-2xl font-bold text-[10px] md:text-[11px] uppercase tracking-widest cursor-pointer transition-all shadow-sm focus:ring-2 focus:ring-[#0c1b33]/20 outline-none">
+          <button className="w-full md:w-auto px-5 py-2.5 bg-[#00C9AF] text-[#0A1C3A] hover:bg-[#00B49F] rounded-xl font-sans font-bold text-[11px] uppercase tracking-wider cursor-pointer transition-all shadow-xs focus:ring-2 focus:ring-[#00C9AF]/30 outline-none">
             VIEW ALL SPECIFICATIONS
           </button>
         </div>

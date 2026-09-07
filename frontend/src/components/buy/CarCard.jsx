@@ -137,8 +137,17 @@ const CarCard = ({ car, lightBg = false }) => {
             </div>
           )}
 
-          {/* Badge */}
-          {(car.badgeText || car.tag) && (() => {
+          {/* Coming Soon Badge Overlay - Placed at bottom of image with white background & clean medium text */}
+          {car.status === 'coming_soon' && (
+            <div className="absolute bottom-2.5 left-2.5 z-20">
+              <div className="bg-white text-[#0C1B33] px-3 py-1 rounded-full text-[10.5px] font-sans font-bold flex items-center shadow-md border border-slate-200/90 tracking-wide uppercase">
+                <span>COMING SOON</span>
+              </div>
+            </div>
+          )}
+
+          {/* Regular Tag Badge (if not coming soon) */}
+          {(car.badgeText || car.tag) && car.status !== 'coming_soon' && (() => {
             const badge = getBadgeStyles(car.badgeText || car.tag);
             return (
               <div className="absolute top-2.5 left-2.5 z-20">
@@ -176,14 +185,26 @@ const CarCard = ({ car, lightBg = false }) => {
                   {car.variant || car.fuelType}
                 </span>
               </div>
-              {hasPriceDrop(car) && (
-                <div className="shrink-0 pt-0.5">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
-                    <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
-                    <span>Price Drop</span>
-                  </span>
-                </div>
-              )}
+              {hasPriceDrop(car) && (() => {
+                const orig = Number(car.original_price || car.originalPrice || car.old_price || car.oldPrice || 0);
+                const current = Number(car.price || 0);
+                let dropBadgeText = "Price Drop";
+                if (orig > current && orig > 0) {
+                  const diff = orig - current;
+                  const pct = Math.round((diff / orig) * 100);
+                  if (pct > 0) {
+                    dropBadgeText = `${pct}% OFF`;
+                  }
+                }
+                return (
+                  <div className="shrink-0 pt-0.5">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
+                      <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                      <span>{dropBadgeText}</span>
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Spec pills */}
@@ -206,28 +227,30 @@ const CarCard = ({ car, lightBg = false }) => {
           </div>
 
           {/* Pricing and Action button */}
-          <div className={`flex items-center justify-between border-t pt-3.5 mt-1 pb-0 ${lightBg ? 'border-slate-100' : 'border-white/5'}`}>
-            <div className="flex flex-col items-start text-left">
+          <div className={`flex items-center justify-between border-t pt-3 mt-1 pb-0 ${lightBg ? 'border-slate-100' : 'border-white/5'}`}>
+            <div className="flex flex-col items-start text-left min-w-0 pr-2">
               {/* Only show strikethrough if there's a real original price */}
               {(car.original_price || car.originalPrice || car.old_price || car.oldPrice) && (
-                <span className={`text-[11px] font-body line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
-                  ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)}L
+                <span className={`text-[11px] font-medium line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
+                  ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)} Lakh
                 </span>
               )}
-              <span className={`text-[20px] sm:text-[22px] font-price !font-black tracking-tight leading-none ${lightBg ? 'text-[#0C1B33]' : 'text-white'}`}>
-                ₹{(car.price / 100000).toFixed(2)} Lakh
-              </span>
-              <span className={`text-[11px] font-medium leading-none mt-2.5 ${lightBg ? 'text-teal-600' : 'text-[#00C9AF]'}`}>
+              <div className="whitespace-nowrap flex items-baseline gap-1">
+                <span className={`text-[17px] sm:text-[19px] font-bold tracking-tight leading-none ${lightBg ? 'text-slate-900' : 'text-white'}`}>
+                  ₹{(car.price / 100000).toFixed(2)} Lakh
+                </span>
+              </div>
+              <span className={`text-[11px] font-medium leading-none mt-1.5 whitespace-nowrap ${lightBg ? 'text-teal-600' : 'text-[#00C9AF]'}`}>
                 EMI ₹{car.emi ? car.emi.toLocaleString('en-IN') : '0'}/m*
               </span>
             </div>
 
-            <div className={`px-4 py-2 rounded-xl text-[10px] font-button font-black uppercase tracking-widest transition-all duration-300 shrink-0 shadow-sm flex items-center gap-1.5 ${lightBg 
+            <div className={`px-3.5 py-2 rounded-xl text-[11px] font-sans font-bold uppercase tracking-wider transition-all duration-300 shrink-0 shadow-xs flex items-center gap-1 cursor-pointer ${lightBg 
               ? 'bg-[#0C1B33] text-white group-hover:bg-[#00C9AF] group-hover:text-[#0C1B33]' 
               : 'bg-[#00C9AF] text-[#0C1B33] group-hover:bg-white group-hover:text-[#0C1B33]'
             }`}>
               <span>View Details</span>
-              <ArrowUpRight size={13} className="stroke-[3] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <ArrowUpRight size={13} className="stroke-[2.5] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </div>
           </div>
         </div>

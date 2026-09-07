@@ -295,7 +295,7 @@ export default function TestimonialsVideo() {
               </h1>
             </div>
             <p className="text-xs font-semibold text-slate-500">
-              Paste YouTube Short ID or link to publish on frontend <span className="text-[#00C9AF] font-bold">/customer-reviews</span>
+              Paste YouTube Short ID or link to publish on frontend <span className="text-[#1C3EB9] font-bold">/customer-reviews</span>
             </p>
           </div>
 
@@ -309,9 +309,9 @@ export default function TestimonialsVideo() {
 
         {/* Floating Bulk Actions Bar */}
         {selectedIds.length > 0 && (
-          <div className="bg-[#0C1B33] text-white p-4 px-6 rounded-2xl shadow-xl flex flex-wrap items-center justify-between gap-4 border border-[#00C9AF]/40 animate-fadeIn">
+          <div className="bg-[#0C1B33] text-white p-4 px-6 rounded-2xl shadow-xl flex flex-wrap items-center justify-between gap-4 border border-[#1C3EB9]/40 animate-fadeIn">
             <div className="flex items-center gap-3">
-              <span className="w-7 h-7 rounded-full bg-[#00C9AF] text-[#0C1B33] font-black text-xs flex items-center justify-center">
+              <span className="w-7 h-7 rounded-full bg-[#1C3EB9] text-white font-black text-xs flex items-center justify-center">
                 {selectedIds.length}
               </span>
               <span className="text-xs font-extrabold uppercase tracking-wider">
@@ -357,7 +357,7 @@ export default function TestimonialsVideo() {
         {/* Content Table / List */}
         {loading ? (
           <div className="py-24 text-center">
-            <div className="w-10 h-10 border-4 border-[#00C9AF] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-10 h-10 border-4 border-[#1C3EB9] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading video reviews...</p>
           </div>
         ) : testimonials.length === 0 ? (
@@ -369,7 +369,7 @@ export default function TestimonialsVideo() {
             </div>
             <button
               onClick={openNew}
-              className="inline-flex items-center gap-2 bg-[#00C9AF] text-[#0C1B33] px-5 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-sm hover:bg-[#00e9ca] transition-all"
+              className="inline-flex items-center gap-2 bg-[#1C3EB9] text-white px-5 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-sm hover:bg-[#153299] transition-all"
             >
               <Plus size={16} /> Add First YouTube Short
             </button>
@@ -388,7 +388,7 @@ export default function TestimonialsVideo() {
                         type="checkbox"
                         checked={selectedIds.length === testimonials.length && testimonials.length > 0}
                         onChange={toggleSelectAll}
-                        className="w-4 h-4 rounded border-slate-300 text-[#00C9AF] focus:ring-[#00C9AF] cursor-pointer"
+                        className="w-4 h-4 rounded border-slate-300 text-[#1C3EB9] focus:ring-[#1C3EB9] cursor-pointer"
                       />
                     </th>
                     <th className="p-4 md:p-5">YouTube Short Preview</th>
@@ -415,9 +415,9 @@ export default function TestimonialsVideo() {
                         }}
                         className={`group transition-all ${
                           draggedIndex === idx
-                            ? "opacity-30 bg-[#00C9AF]/10 border-2 border-dashed border-[#00C9AF]"
+                            ? "opacity-30 bg-[#1C3EB9]/10 border-2 border-dashed border-[#1C3EB9]"
                             : dragOverIndex === idx
-                            ? "border-t-4 border-[#00C9AF] bg-[#00C9AF]/5"
+                            ? "border-t-4 border-[#1C3EB9] bg-[#1C3EB9]/5"
                             : isChecked
                             ? "bg-emerald-50/40 dark:bg-emerald-950/20"
                             : "hover:bg-slate-50/70 dark:hover:bg-slate-800/40"
@@ -434,7 +434,7 @@ export default function TestimonialsVideo() {
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleSelectRow(t.id)}
-                            className="w-4 h-4 rounded border-slate-300 text-[#00C9AF] focus:ring-[#00C9AF] cursor-pointer"
+                            className="w-4 h-4 rounded border-slate-300 text-[#1C3EB9] focus:ring-[#1C3EB9] cursor-pointer"
                           />
                         </td>
 
@@ -557,7 +557,7 @@ export default function TestimonialsVideo() {
                   value={editing.youtube_url || ""}
                   onChange={(e) => handleInputChange(e.target.value)}
                   placeholder="e.g. Y4O2PoXeJ7s or paste YouTube Shorts URL"
-                  className="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold text-slate-800 dark:text-white focus:border-[#00C9AF] focus:outline-none transition-all"
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold text-slate-800 dark:text-white focus:border-[#1C3EB9] focus:outline-none transition-all"
                 />
                 <p className="text-[11px] font-medium text-slate-400 leading-relaxed">
                   You can paste just the Video ID (<span className="font-mono text-slate-700 dark:text-slate-300 font-bold">Y4O2PoXeJ7s</span>), a YouTube link, or embed code.
@@ -602,7 +602,7 @@ export default function TestimonialsVideo() {
                 disabled={saving}
                 className="px-8 py-3.5 bg-[#0C1B33] hover:bg-slate-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                <Save size={16} className="text-[#00C9AF]" />
+                <Save size={16} className="text-[#1C3EB9]" />
                 {saving ? "Saving..." : editing.id ? "Update YouTube Short" : "Save YouTube Short"}
               </button>
             </div>

@@ -13,18 +13,29 @@ import {
   TableIcon,
   UserCircleIcon,
 } from "../icons";
+import { BookmarkCheck, UserCog } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
 import { API_URL } from "../config/api";
 import SidebarWidget from "./SidebarWidget";
 
+type NavSubItem = {
+  name: string;
+  path: string;
+  permissionKey?: string;
+  role?: "admin" | "staff";
+  pro?: boolean;
+  new?: boolean;
+};
+
 type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
   role?: "admin" | "staff";
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  permissionKey?: string;
+  subItems?: NavSubItem[];
 };
 
 const navItems: NavItem[] = [
@@ -37,80 +48,86 @@ const navItems: NavItem[] = [
     icon: <BoxCubeIcon />,
     name: "Car Inventory",
     subItems: [
-      { name: "Manage Cars", path: "/cars" },
-      { name: "Brand & Models", path: "/brands" },
+      { name: "Manage Cars", path: "/cars", permissionKey: "cars" },
+      { name: "Brand & Models", path: "/brands", permissionKey: "brands" },
     ],
   },
   {
-    icon: <BoxCubeIcon />,
+    icon: <BookmarkCheck />,
     name: "Booked Cars",
     path: "/booked-cars",
+    permissionKey: "booked_cars",
   },
   {
     icon: <ListIcon />,
     name: "Sell Requests",
     path: "/sell-requests",
+    permissionKey: "sell_requests",
   },
   {
     icon: <CalenderIcon />,
     name: "Test Drives",
     path: "/test-drives",
+    permissionKey: "test_drives",
   },
   {
     icon: <PageIcon />,
     name: "Loan Applications",
     path: "/loan-applications",
-    role: "admin",
+    permissionKey: "loan_applications",
   },
   {
     icon: <TableIcon />,
     name: "Wishlisted Cars",
     path: "/reports/wishlist",
-    role: "admin",
+    permissionKey: "wishlist",
   },
   {
     icon: <UserCircleIcon />,
     name: "Customers",
     path: "/customers",
+    permissionKey: "customers",
   },
   {
-    icon: <UserCircleIcon />,
+    icon: <UserCog />,
     name: "Users",
     path: "/staff",
     role: "admin",
+    permissionKey: "staff",
   },
   {
     icon: <PageIcon />,
     name: "Blog",
     path: "/blog",
+    permissionKey: "blog",
   },
   {
     icon: <GridIcon />,
     name: "Media Library",
     path: "/media-library",
+    permissionKey: "media",
   },
   {
     icon: <PieChartIcon />,
     name: "Reports",
-    role: "admin",
     subItems: [
-      { name: "Payment Transactions", path: "/reports/payments" },
+      { name: "Payment Transactions", path: "/reports/payments", permissionKey: "reports_payments" },
+      { name: "Website Visitors", path: "/reports/visitors", permissionKey: "reports_visitors" },
     ],
   },
   {
     icon: <GridIcon />,
     name: "Site Settings",
-    role: "admin",
+    permissionKey: "site_settings",
     subItems: [
-      { name: "Image & Branding", path: "/image-settings" },
-      { name: "Video Reviews", path: "/testimonials-video" },
-      { name: "Locations", path: "/locations" },
-      { name: "Car Hub Locations", path: "/settings/car-hubs" },
-      { name: "Customer Reviews", path: "/settings/customer-reviews" },
-      { name: "Payment Gateway", path: "/settings/payment" },
-      { name: "SMTP Settings", path: "/settings/smtp" },
-      { name: "Maintenance Mode", path: "/settings/maintenance" },
-      { name: "WhatsApp API", path: "/settings/whatsapp" },
+      { name: "Image & Branding", path: "/image-settings", permissionKey: "site_settings" },
+      { name: "Video Reviews", path: "/testimonials-video", permissionKey: "site_settings" },
+      { name: "Service Locations", path: "/locations", permissionKey: "site_settings" },
+      { name: "Car Hub Locations", path: "/settings/car-hubs", permissionKey: "site_settings" },
+      { name: "Payment Gateway", path: "/settings/payment", permissionKey: "site_settings" },
+      { name: "SMTP Settings", path: "/settings/smtp", permissionKey: "site_settings" },
+      { name: "Maintenance Mode", path: "/settings/maintenance", permissionKey: "site_settings" },
+      { name: "WhatsApp API", path: "/settings/whatsapp", permissionKey: "site_settings" },
     ],
   },
 ];
@@ -119,6 +136,7 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const { getSetting } = useSettings();
   const location = useLocation();
+  const { user, hasPermission } = useAuth();
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main";
@@ -168,11 +186,36 @@ const AppSidebar: React.FC = () => {
     });
   };
 
-  const { user } = useAuth();
+  // Filter navigation items dynamically based on current user role and granted module permissions
+  const filteredNavItems = navItems.filter(nav => {
+    if (nav.role && nav.role !== user?.role) return false;
+    if (nav.permissionKey && !hasPermission(nav.permissionKey)) return false;
+
+    if (nav.subItems) {
+      const allowedSubs = nav.subItems.filter(sub =>
+        (!sub.role || sub.role === user?.role) &&
+        (!sub.permissionKey || hasPermission(sub.permissionKey))
+      );
+      return allowedSubs.length > 0;
+    }
+
+    return true;
+  }).map(nav => {
+    if (nav.subItems) {
+      return {
+        ...nav,
+        subItems: nav.subItems.filter(sub =>
+          (!sub.role || sub.role === user?.role) &&
+          (!sub.permissionKey || hasPermission(sub.permissionKey))
+        )
+      };
+    }
+    return nav;
+  });
 
   const renderMenuItems = (items: NavItem[]) => (
     <ul className="flex flex-col gap-1">
-      {items.filter(nav => !nav.role || nav.role === user?.role).map((nav, index) => (
+      {items.map((nav, index) => (
         <li key={nav.name}>
           {nav.subItems ? (
             <button
@@ -340,7 +383,7 @@ const AppSidebar: React.FC = () => {
                 <HorizontaLDots className="size-5 text-gray-400" />
               </div>
             )}
-            {renderMenuItems(navItems)}
+            {renderMenuItems(filteredNavItems)}
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import PageMeta from '../components/common/PageMeta';
 import {
   CheckCircle2,
   ShieldCheck,
   Zap,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Sparkles,
+  ArrowRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import EmiCalculator from '../components/shared/EmiCalculator';
@@ -456,7 +459,7 @@ const UsedCarLoanPage = () => {
                   transition={{ duration: 0.3 }}
                   className="max-w-[260px] md:max-w-[300px]"
                 >
-                  <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/loan-eligibility.svg?q=85&w=360&dpr=1.3" alt="Check Eligibility" className="w-full h-auto object-contain drop-shadow-md" />
+                  <img src="/img/step-1.jpeg" alt="Check Eligibility" className="w-full h-auto object-contain" />
                 </motion.div>
               </div>
             </motion.div>
@@ -493,7 +496,7 @@ const UsedCarLoanPage = () => {
                   transition={{ duration: 0.3 }}
                   className="max-w-[260px] md:max-w-[300px]"
                 >
-                  <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/upload-document.svg?q=85&w=360&dpr=1.3" alt="Upload Documents" className="w-full h-auto object-contain drop-shadow-md" />
+                  <img src="/img/step-2.jpeg" alt="Upload Documents" className="w-full h-auto object-contain" />
                 </motion.div>
               </div>
             </motion.div>
@@ -530,7 +533,7 @@ const UsedCarLoanPage = () => {
                   transition={{ duration: 0.3 }}
                   className="max-w-[260px] md:max-w-[300px]"
                 >
-                  <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/loan-approval.svg?q=85&w=360&dpr=1.3" alt="Same Day Approval" className="w-full h-auto object-contain drop-shadow-md" />
+                  <img src="/img/step-3.jpeg" alt="Same Day Approval" className="w-full h-auto object-contain" />
                 </motion.div>
               </div>
             </motion.div>
@@ -567,7 +570,7 @@ const UsedCarLoanPage = () => {
                   transition={{ duration: 0.3 }}
                   className="max-w-[260px] md:max-w-[300px]"
                 >
-                  <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/home-delivery.svg?q=85&w=360&dpr=1.3" alt="Home Delivery" className="w-full h-auto object-contain drop-shadow-md" />
+                  <img src="/img/step-4.jpeg" alt="Home Delivery" className="w-full h-auto object-contain" />
                 </motion.div>
               </div>
             </motion.div>
@@ -575,23 +578,87 @@ const UsedCarLoanPage = () => {
         </div>
       </section>
 
-      {/* ───────────── CTA Banner ───────────── */}
-      <SectionReveal className="my-10 max-w-7xl mx-auto px-4">
-        <div className="relative rounded-[2.5rem] overflow-hidden group shadow-xl">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10"></div>
-          <img
-            src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80"
-            alt="Used cars in lot"
-            className="w-full h-[260px] md:h-[280px] object-cover group-hover:scale-105 transition-transform duration-700"
+      {/* ───────────── CTA Banner (Luxury Brand Colors & Smooth Animation) ───────────── */}
+      <SectionReveal className="my-12 max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="relative rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-[#0C1B33] via-[#09182E] to-[#040A14] border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,201,175,0.12)] p-8 sm:p-12 lg:p-14 group">
+          
+          {/* Glowing Top Edge Line */}
+          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#00C9AF] to-transparent opacity-75"></div>
+
+          {/* Background Tech Mesh Grid Texture */}
+          <div className="absolute inset-0 bg-[radial-gradient(#00c9af_1px,transparent_1px)] [background-size:28px_28px] opacity-10 pointer-events-none"></div>
+
+          {/* Floating Ambient Glow Orbs */}
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.25, 1],
+              opacity: [0.2, 0.35, 0.2],
+              x: [0, 20, 0],
+              y: [0, -15, 0]
+            }}
+            transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute top-[-20%] right-[-10%] w-[450px] h-[450px] bg-[#00C9AF] rounded-full mix-blend-screen filter blur-[100px] pointer-events-none"
           />
-          <div className="absolute inset-x-0 bottom-0 p-8 lg:p-12 z-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <h2 className="text-3xl lg:text-4xl font-heading font-black text-white mb-2 tracking-tight">Make a wish, get your dream car!</h2>
-              <p className="text-slate-200 font-body font-medium text-lg">Pick out your dream car today. Find from our exciting inventory of 5,000+ Assured cars.</p>
+          <motion.div 
+            animate={{ 
+              scale: [1.2, 1, 1.2],
+              opacity: [0.15, 0.28, 0.15],
+              x: [0, -25, 0],
+              y: [0, 20, 0]
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute bottom-[-25%] left-[5%] w-[400px] h-[400px] bg-[#3B82F6] rounded-full mix-blend-screen filter blur-[110px] pointer-events-none"
+          />
+
+          {/* Foreground Content */}
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8 lg:gap-12">
+            
+            {/* Left Content */}
+            <div className="max-w-2xl space-y-4">
+              {/* Premium Pill Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#00C9AF]/10 border border-[#00C9AF]/30 text-[#00C9AF] text-xs font-black uppercase tracking-wider backdrop-blur-md shadow-sm">
+                <Sparkles size={14} className="text-[#14FFEC] animate-spin-slow" />
+                <span>Selectt Assured Inventory</span>
+              </div>
+
+              {/* Gradient Headline in Two Clean Lines */}
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-black text-white leading-tight tracking-tight">
+                Make a wish,<br />
+                <span className="bg-gradient-to-r from-[#00C9AF] via-[#14FFEC] to-teal-200 bg-clip-text text-transparent inline-block">
+                  get your dream car!
+                </span>
+              </h2>
+
+              {/* Subtext */}
+              <p className="text-slate-300 font-body text-base sm:text-lg font-medium leading-relaxed">
+                Pick out your dream car today. Find from our curated inventory of 5,000+ Assured cars with instant finance & same-day doorstep delivery.
+              </p>
+
+              {/* Feature Tags */}
+              <div className="pt-2 flex flex-wrap items-center gap-3 text-xs sm:text-sm font-semibold text-slate-200">
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm">
+                  <CheckCircle2 size={15} className="text-[#00C9AF]" /> 200-Point Inspected
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm">
+                  <Zap size={15} className="text-[#00C9AF]" /> Same-Day Approval
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm">
+                  <ShieldCheck size={15} className="text-[#00C9AF]" /> 5-Day Money Back
+                </div>
+              </div>
             </div>
-            <AnimatedButton variant="solid" className="whitespace-nowrap px-8 py-4 rounded-xl text-sm font-button uppercase tracking-wider">
-              BROWSE CARS
-            </AnimatedButton>
+
+            {/* Right Action Button */}
+            <div className="shrink-0 flex items-center">
+              <Link
+                to="/buy-cars"
+                className="group/btn relative inline-flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 rounded-2xl bg-[#00C9AF] hover:bg-[#14FFEC] text-[#0C1B33] font-black text-sm sm:text-base font-button tracking-wider uppercase transition-all duration-300 shadow-lg shadow-[#00C9AF]/25 hover:shadow-2xl hover:shadow-[#00C9AF]/40 hover:-translate-y-1 active:scale-95"
+              >
+                <span>Browse Cars</span>
+                <ArrowRight size={18} className="transform group-hover/btn:translate-x-1.5 transition-transform duration-300" strokeWidth={3} />
+              </Link>
+            </div>
+
           </div>
         </div>
       </SectionReveal>

@@ -93,14 +93,14 @@ const PricingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/Pricing/assets/data-driven.svg?q=85&w=360&dpr=1.3" alt="The fairest of them all" className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/loan-eligibility.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-1.jpeg" alt="The fairest of them all" className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
 
               {/* Dotted Line 1→2 */}
               <div className="hidden lg:flex justify-center pointer-events-none select-none -my-10">
-                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&w=900&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
+                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
               {/* ── Step 2 (Scroll Reveal) ── */}
@@ -130,14 +130,14 @@ const PricingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/Pricing/assets/fixed-price.svg?q=85&w=360&dpr=1.3" alt="Fixed price's a sweet thing" className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/upload-document.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-2.jpeg" alt="Fixed price's a sweet thing" className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
 
               {/* Dotted Line 2→3 */}
               <div className="hidden lg:flex justify-center pointer-events-none select-none -my-10">
-                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterEvenLine.svg?q=85&w=900&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
+                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterEvenLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
               {/* ── Step 3 (Scroll Reveal) ── */}
@@ -167,14 +167,14 @@ const PricingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/Pricing/assets/market-day.svg?q=85&w=360&dpr=1.3" alt="Market day" className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/loan-approval.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-3.jpeg" alt="Market day" className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
 
               {/* Dotted Line 3→4 */}
               <div className="hidden lg:flex justify-center pointer-events-none select-none -my-10">
-                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&w=900&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
+                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
               {/* ── Step 4 (Scroll Reveal) ── */}
@@ -204,7 +204,7 @@ const PricingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/credited-same-day.svg?q=85&w=360&dpr=1.3" alt="Credited, the same day." className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/home-delivery.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-4.jpeg" alt="Credited, the same day." className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>

@@ -1,0 +1,56 @@
+{
+  "name": "Selectt — Certified Pre-Owned Cars",
+  "short_name": "Selectt",
+  "description": "Buy and sell certified pre-owned cars in Raipur with instant quotes, 200-point inspection, and same-day doorstep delivery.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0C1B33",
+  "theme_color": "#00C9AF",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["shopping", "automotive", "business", "lifestyle"],
+  "icons": [
+    {
+      "src": "/pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buy Cars",
+      "short_name": "Buy Cars",
+      "description": "Explore certified pre-owned cars",
+      "url": "/buy-cars",
+      "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Sell Car",
+      "short_name": "Sell Car",
+      "description": "Get an instant price quote for your car",
+      "url": "/sell-car",
+      "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Used Car Loan",
+      "short_name": "Car Loan",
+      "description": "Check your loan eligibility and EMI",
+      "url": "/used-car-loan",
+      "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

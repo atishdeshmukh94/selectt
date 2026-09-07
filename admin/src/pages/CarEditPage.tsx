@@ -16,7 +16,9 @@ import {
   Loader2,
   X,
   Play,
-  Search
+  Search,
+  IndianRupee,
+  Tag
 } from "lucide-react";
 
 import { API_URL } from "../config/api";
@@ -496,15 +498,32 @@ const CarEditPage = () => {
     return filename.toLowerCase().includes(searchLower) || alt.toLowerCase().includes(searchLower);
   });
 
+  const STEPS = [
+    { id: "basic", step: 1, title: "1. Basic & Pricing", desc: "Overview, Price & Reasons", icon: Info },
+    { id: "specs", step: 2, title: "2. Specs & History", desc: "Mileage, Owner & Tech Specs", icon: Cpu },
+    { id: "features", step: 3, title: "3. Features & Quality", desc: "Checklist & Inspection", icon: CheckCircle2 },
+    { id: "images", step: 4, title: "4. Photos & Media", desc: "Cover, Gallery & Video", icon: ImageIcon },
+  ];
+
+  const getStepIndex = (tab: string) => {
+    if (tab === "basic" || tab === "reasons") return 0;
+    if (tab === "specs") return 1;
+    if (tab === "features" || tab === "report") return 2;
+    if (tab === "images") return 3;
+    return 0;
+  };
+
+  const currentStepIndex = getStepIndex(activeTab);
+
   return (
     <>
       <PageMeta 
         title={isEdit ? `Edit ${formData.make || ''} ${formData.model || ''} | Selectt Admin` : "Create New Listing | Selectt Admin"} 
         description="Manage Selectt car inventory listings." 
       />
-      <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-screen">
+      <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-screen pb-24">
         {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate("/cars")}
@@ -514,12 +533,12 @@ const CarEditPage = () => {
           </button>
           <div>
             <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">
-              {isEdit ? "Edit Listing" : "Create New Listing"}
+              {isEdit ? "Edit Vehicle Listing" : "Create New Vehicle Listing"}
             </h1>
-            <div className="flex items-center gap-2 text-gray-500 text-sm mt-1">
+            <div className="flex items-center gap-2 text-gray-500 text-xs mt-1">
               <span>Inventory</span>
               <ChevronRight size={14} />
-              <span className="font-bold text-indigo-600">{formData.make} {formData.model || "New Car"}</span>
+              <span className="font-bold text-[#1C3EB9]">{formData.make} {formData.model || "New Car"}</span>
             </div>
           </div>
         </div>
@@ -527,41 +546,96 @@ const CarEditPage = () => {
         <div className="flex gap-3">
            <button 
             onClick={() => navigate("/cars")}
-            className="px-6 py-3 rounded-xl font-bold text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+            className="px-5 py-2.5 rounded-xl font-bold text-xs text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all cursor-pointer"
           >
             Cancel
           </button>
           <button 
             onClick={handleSave}
-            className="flex items-center gap-2 bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 dark:shadow-none"
+            className="flex items-center gap-2 bg-[#1C3EB9] text-white px-6 py-2.5 rounded-xl font-black text-xs hover:bg-[#00B49D] transition-all shadow-xs cursor-pointer active:scale-95"
           >
-            <Save size={20} />
+            <Save size={16} />
             {isEdit ? "Update Car" : "Publish Listing"}
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex overflow-x-auto pb-4 gap-2 mb-8 no-scrollbar scroll-smooth">
-        <TabButton id="basic" label="Basic Details" icon={Info} />
-        <TabButton id="reasons" label="Reasons to Buy" icon={Layers} />
-        <TabButton id="specs" label="Specifications" icon={Cpu} />
-        <TabButton id="features" label="Features" icon={CheckCircle2} />
-        <TabButton id="report" label="Quality Report" icon={ShieldCheck} />
-        <TabButton id="images" label="Gallery" icon={ImageIcon} />
-      </div>
+      {/* Step Progress & Tab Bar */}
+      <div className="bg-white dark:bg-gray-900 rounded-3xl p-5 border border-slate-200/80 dark:border-gray-800 mb-8 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <span className="text-[11px] font-black text-[#155DFC] uppercase tracking-wider block">
+              Step {currentStepIndex + 1} of 4 Form Guide
+            </span>
+            <h2 className="text-base font-black text-slate-900 dark:text-white">
+              {STEPS[currentStepIndex].title} — <span className="text-slate-500 dark:text-gray-400 font-medium">{STEPS[currentStepIndex].desc}</span>
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-extrabold text-slate-700 dark:text-gray-300">
+              {Math.round(((currentStepIndex + 1) / 4) * 100)}% Completed
+            </span>
+          </div>
+        </div>
 
-      <div className="space-y-8 pb-32">
-        {/* Basic Details Section */}
+        {/* Progress Bar Track */}
+        <div className="w-full bg-slate-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden mb-5">
+          <div 
+            className="bg-[#155DFC] h-full transition-all duration-300 rounded-full shadow-xs" 
+            style={{ width: `${((currentStepIndex + 1) / 4) * 100}%` }}
+          />
+        </div>
+
+        {/* 4 Step Tabs */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {STEPS.map((s, idx) => {
+            const isActive = currentStepIndex === idx;
+            const isCompleted = currentStepIndex > idx;
+            return (
+              <button
+                key={s.id}
+                onClick={() => setActiveTab(s.id)}
+                className={`p-3.5 rounded-2xl text-left border transition-all cursor-pointer flex items-center gap-3 ${
+                  isActive 
+                    ? "bg-slate-900 text-white border-slate-900 dark:bg-gray-800 dark:border-gray-700 shadow-md scale-[1.02]" 
+                    : isCompleted 
+                      ? "bg-emerald-50/70 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/20 dark:text-emerald-300 dark:border-emerald-800/40"
+                      : "bg-slate-50 dark:bg-gray-900/60 text-slate-500 border-slate-200/80 dark:border-gray-800 hover:bg-slate-100 dark:hover:bg-gray-800"
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-black text-xs ${
+                  isActive 
+                    ? "bg-[#155DFC] text-white" 
+                    : isCompleted 
+                      ? "bg-emerald-600 text-white" 
+                      : "bg-slate-200 dark:bg-gray-800 text-slate-600 dark:text-gray-400"
+                }`}>
+                  {isCompleted ? <CheckCircle2 size={16} /> : idx + 1}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-extrabold text-xs truncate leading-tight">{s.title.split('. ')[1]}</div>
+                  <div className="text-[10px] opacity-75 truncate">{s.desc}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div className="space-y-8 pb-44">
+        {/* Basic Details & Pricing Section */}
         {activeTab === "basic" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left 2 Columns: Overview & Pricing */}
             <div className="lg:col-span-2 space-y-6">
-              <section className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-[2rem] shadow-sm border border-gray-50 dark:border-gray-800">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
-                  <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-                  Vehicle Overview
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <section className="bg-white dark:bg-gray-900 p-6 md:p-7 rounded-3xl shadow-xs border border-slate-200/80 dark:border-gray-800">
+                <div className="flex items-center gap-2.5 mb-6 pb-4 border-b border-slate-100 dark:border-gray-800">
+                  <div className="w-1.5 h-5 bg-[#155DFC] rounded-full" />
+                  <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                    Vehicle Overview
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                   <div>
                     <label className={labelClass}>Make (Brand)</label>
                     <select 
@@ -578,6 +652,7 @@ const CarEditPage = () => {
                       ))}
                     </select>
                   </div>
+
                   <div>
                     <label className={labelClass}>Model</label>
                     <select 
@@ -592,6 +667,7 @@ const CarEditPage = () => {
                       ))}
                     </select>
                   </div>
+
                   <div>
                     <label className={labelClass}>Variant</label>
                     {(() => {
@@ -599,7 +675,7 @@ const CarEditPage = () => {
                       const modelVariants = selectedModelObj?.variants || [];
 
                       return (
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                           {modelVariants.length > 0 && (
                             <select
                               className={inpClass}
@@ -617,200 +693,252 @@ const CarEditPage = () => {
                             className={inpClass}
                             value={formData.variant}
                             onChange={e => setFormData({ ...formData, variant: e.target.value })}
-                            placeholder="e.g. VXI (O)"
+                            placeholder="e.g. SX (O) / Asta"
                           />
                         </div>
                       );
                     })()}
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className={labelClass}>Year (Manufacturing)</label>
-                      <input type="number" className={inpClass} value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Reg. Year</label>
-                      <input type="number" className={inpClass} value={formData.regYear || formData.year} onChange={e => setFormData({...formData, regYear: e.target.value})} />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Fuel Type</label>
-                      <select className={inpClass} value={formData.fuelType} onChange={e => setFormData({...formData, fuelType: e.target.value})}>
-                        {["Petrol", "Diesel", "CNG", "Electric"].map(f => <option key={f} value={f}>{f}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                     <div>
-                      <label className={labelClass}>Transmission</label>
-                      <select className={inpClass} value={formData.transmission || "Automatic"} onChange={e => setFormData({...formData, transmission: e.target.value})}>
-                        {["Automatic", "Manual"].map(t => <option key={t} value={t}>{t}</option>)}
-                      </select>
-                     </div>
-                     <div>
-                      <label className={labelClass}>Body Type</label>
-                      <select className={inpClass} value={formData.bodyType || ""} onChange={e => setFormData({...formData, bodyType: e.target.value})}>
-                        <option value="">Select Body Type...</option>
-                        {["Hatchback", "Sedan", "SUV", "MUV", "Luxury Sedan", "Luxury SUV"].map(b => <option key={b} value={b}>{b}</option>)}
-                      </select>
-                     </div>
-                  </div>
-                </div>
 
-                <div className="mt-8 pt-8 border-t border-gray-50 dark:border-gray-800 grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div>
-                    <label className={labelClass}>Price (₹ Actual Price)</label>
-                    <input type="number" className={inpClass} value={formData.price || ""} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="e.g. 525000" />
-                  </div>
                   <div>
-                    <label className={labelClass}>EMI Starting (₹/mo)</label>
-                    <input type="number" className={inpClass} value={formData.emi || ""} onChange={e => setFormData({...formData, emi: e.target.value})} placeholder="e.g. 9500" />
+                    <label className={labelClass}>Year (Manufacturing)</label>
+                    <input type="number" className={inpClass} value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} placeholder="e.g. 2023" />
                   </div>
-                </div>
-              </section>
 
-              <section className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-[2rem] shadow-sm border border-gray-50 dark:border-gray-800">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
-                  <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-                  History & Maintenance
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                   <div>
-                    <label className={labelClass}>KM Driven</label>
-                    <input type="number" className={inpClass} value={formData.km || ""} onChange={e => setFormData({...formData, km: e.target.value})} />
-                  </div>
                   <div>
-                    <label className={labelClass}>Ownership</label>
-                    <select className={inpClass} value={formData.ownership} onChange={e => setFormData({...formData, ownership: e.target.value})}>
-                      {["1st Owner", "2nd Owner", "3rd Owner", "4th+ Owner"].map(o => <option key={o} value={o}>{o}</option>)}
+                    <label className={labelClass}>Reg. Year</label>
+                    <input type="number" className={inpClass} value={formData.regYear || formData.year} onChange={e => setFormData({...formData, regYear: e.target.value})} placeholder="e.g. 2023" />
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Fuel Type</label>
+                    <select className={inpClass} value={formData.fuelType} onChange={e => setFormData({...formData, fuelType: e.target.value})}>
+                      {["Petrol", "Diesel", "CNG", "Electric", "Hybrid"].map(f => <option key={f} value={f}>{f}</option>)}
                     </select>
                   </div>
+
+                  <div>
+                    <label className={labelClass}>Transmission</label>
+                    <select className={inpClass} value={formData.transmission || "Automatic"} onChange={e => setFormData({...formData, transmission: e.target.value})}>
+                      {["Automatic", "Manual"].map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Body Type</label>
+                    <select className={inpClass} value={formData.bodyType || ""} onChange={e => setFormData({...formData, bodyType: e.target.value})}>
+                      <option value="">Select Body Type...</option>
+                      {["Hatchback", "Sedan", "SUV", "MUV", "Luxury Sedan", "Luxury SUV"].map(b => <option key={b} value={b}>{b}</option>)}
+                    </select>
+                  </div>
+
                   <div>
                     <label className={labelClass}>Location (City)</label>
-                    <input type="text" className={inpClass} value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. Rohini, Delhi" />
+                    <input type="text" className={inpClass} value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. Raipur, CG" />
                   </div>
                 </div>
 
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div>
-                    <label className={labelClass}>Reg State</label>
-                    <input type="text" className={inpClass} value={formData.regState || ""} onChange={e => setFormData({...formData, regState: e.target.value})} placeholder="e.g. Delhi" />
+                {/* Pricing Subcard */}
+                <div className="mt-7 pt-6 border-t border-slate-100 dark:border-gray-800 bg-blue-50/40 dark:bg-blue-950/20 -mx-6 -mb-6 p-6 rounded-b-3xl">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+                    <div className="flex items-center gap-2">
+                      <IndianRupee size={18} className="text-[#155DFC]" />
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white">Pricing & Special Offer Overview</h3>
+                    </div>
+                    {formData.originalPrice && Number(formData.originalPrice) > Number(formData.price || 0) && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 rounded-full text-xs font-bold w-fit">
+                        🔥 Offer Active: ₹{(Number(formData.originalPrice) - Number(formData.price || 0)).toLocaleString('en-IN')} OFF ({Math.round(((Number(formData.originalPrice) - Number(formData.price || 0)) / Number(formData.originalPrice)) * 100)}%)
+                      </span>
+                    )}
                   </div>
-                  <div>
-                    <label className={labelClass}>Engine Capacity</label>
-                    <input type="text" className={inpClass} value={formData.engineCapacity || ""} onChange={e => setFormData({...formData, engineCapacity: e.target.value})} placeholder="e.g. 1197 cc" />
-                  </div>
-                </div>
 
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div>
-                    <label className={labelClass}>Insurance Status</label>
-                    <input type="text" className={inpClass} value={formData.insuranceStatus || ""} onChange={e => setFormData({...formData, insuranceStatus: e.target.value})} placeholder="e.g. 1st Party (Active)" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Spare Key</label>
-                    <select className={inpClass} value={formData.spareKey} onChange={e => setFormData({...formData, spareKey: e.target.value})}>
-                      <option value="Yes">Yes</option>
-                      <option value="No">No</option>
-                    </select>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div>
+                      <label className={labelClass}>Original List Price (₹)</label>
+                      <input 
+                        type="number" 
+                        className={inpClass} 
+                        value={formData.originalPrice || formData.original_price || ""} 
+                        onChange={e => {
+                          const orig = e.target.value;
+                          const currentPrice = formData.price;
+                          setFormData({
+                            ...formData, 
+                            originalPrice: orig, 
+                            original_price: orig,
+                            offerPrice: currentPrice
+                          });
+                        }} 
+                        placeholder="e.g. 1045000 (Strikethrough Price)" 
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1 font-medium">Leave empty if no discount.</p>
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Discount Type</label>
+                      <select 
+                        className={inpClass} 
+                        value={formData.discountType || formData.discount_type || "none"}
+                        onChange={e => {
+                          const type = e.target.value;
+                          setFormData({ ...formData, discountType: type, discount_type: type });
+                        }}
+                      >
+                        <option value="none">No Discount (Standard Price)</option>
+                        <option value="fixed">Fixed Amount (₹ OFF)</option>
+                        <option value="percentage">Percentage (% OFF)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>
+                        {formData.discountType === 'percentage' || formData.discount_type === 'percentage' ? 'Discount Percentage (%)' : 'Discount Amount (₹)'}
+                      </label>
+                      <input 
+                        type="number" 
+                        className={inpClass} 
+                        value={formData.discountValue || formData.discount_value || ""} 
+                        onChange={e => {
+                          const val = e.target.value;
+                          const orig = Number(formData.originalPrice || formData.original_price || formData.price || 0);
+                          let newPrice = formData.price;
+                          const dType = formData.discountType || formData.discount_type;
+                          
+                          if (dType === 'percentage' && orig > 0 && Number(val) > 0) {
+                            newPrice = Math.round(orig * (1 - Number(val) / 100));
+                          } else if (dType === 'fixed' && orig > 0 && Number(val) > 0) {
+                            newPrice = Math.max(0, orig - Number(val));
+                          }
+                          setFormData({
+                            ...formData, 
+                            discountValue: val, 
+                            discount_value: val,
+                            price: newPrice,
+                            offerPrice: newPrice
+                          });
+                        }} 
+                        placeholder={formData.discountType === 'percentage' || formData.discount_type === 'percentage' ? 'e.g. 5 for 5% OFF' : 'e.g. 50000 for ₹50,000 OFF'} 
+                      />
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Actual Selling Price (₹)</label>
+                      <input 
+                        type="number" 
+                        className={`${inpClass} font-bold text-slate-900 dark:text-white bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800`} 
+                        value={formData.price || ""} 
+                        onChange={e => setFormData({ ...formData, price: e.target.value, offerPrice: e.target.value })} 
+                        placeholder="e.g. 985000 (Final Customer Price)" 
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1 font-medium">Final customer selling price displayed on frontend.</p>
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>EMI Starting (₹/mo)</label>
+                      <input type="number" className={inpClass} value={formData.emi || ""} onChange={e => setFormData({ ...formData, emi: e.target.value })} placeholder="e.g. 9500" />
+                    </div>
                   </div>
                 </div>
               </section>
             </div>
 
+            {/* Right Column: Status & Badges */}
             <div className="space-y-6">
-              <section className="bg-white dark:bg-gray-900 p-6 rounded-[2rem] shadow-sm border border-gray-50 dark:border-gray-800">
-                <h2 className="text-md font-bold mb-4 text-gray-900 dark:text-white">Listing Status</h2>
-                <div className="space-y-4">
+              <section className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xs border border-slate-200/80 dark:border-gray-800 space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-gray-800">
+                  <Tag size={16} className="text-[#155DFC]" />
+                  <h2 className="text-sm font-black text-slate-900 dark:text-white">Listing Status</h2>
+                </div>
+                <div>
                   <select 
                     className={inpClass} 
-                    value={formData.status || "active"} 
+                    value={formData.status || "in_stock"} 
                     onChange={e => setFormData({...formData, status: e.target.value})}
                   >
-                    <option value="active">Active</option>
-                    <option value="deactive">Deactivate</option>
-                    <option value="hold">Hold</option>
-                    <option value="sold_out">Sold Out</option>
+                    <option value="in_stock">🟢 In Stock</option>
+                    <option value="out_of_stock">🔴 Out of Stock</option>
+                    <option value="booked">🟠 Booked</option>
+                    <option value="sold_out">🏷️ Sold Out</option>
+                    <option value="coming_soon">⏳ Coming Soon</option>
                   </select>
-                  <p className="text-[10px] text-gray-400 ml-1">
-                    Deactivated and Hold cars are hidden on the frontend. Sold Out cars show a banner.
+                  <p className="text-[10px] text-gray-400 mt-1.5 font-medium">
+                    Controls visibility and stock badge on main website catalog.
                   </p>
                 </div>
               </section>
 
-              <section className="bg-white dark:bg-gray-900 p-6 rounded-[2rem] shadow-sm border border-gray-50 dark:border-gray-800">
-                <h2 className="text-md font-bold mb-4 text-gray-900 dark:text-white">Selectt Assured</h2>
-                <label className="flex items-center gap-3 p-4 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-2xl cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all border border-indigo-100 dark:border-indigo-800">
+              <section className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xs border border-slate-200/80 dark:border-gray-800 space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-gray-800">
+                  <ShieldCheck size={16} className="text-[#155DFC]" />
+                  <h2 className="text-sm font-black text-slate-900 dark:text-white">Selectt Assured & Badges</h2>
+                </div>
+                <label className="flex items-center gap-3 p-3.5 bg-blue-50/50 dark:bg-blue-950/30 rounded-2xl cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-all border border-blue-100 dark:border-blue-900/40">
                   <input 
                     type="checkbox" 
                     checked={formData.isAssured} 
                     onChange={e => setFormData({...formData, isAssured: e.target.checked})}
-                    className="w-5 h-5 accent-indigo-600"
+                    className="w-4 h-4 accent-[#155DFC]"
                   />
                   <div>
-                    <span className="text-sm font-bold text-gray-900 dark:text-white block">Certified Listing</span>
-                    <span className="text-[10px] text-gray-500 uppercase font-black">200-Points Inspected</span>
+                    <span className="text-xs font-black text-slate-900 dark:text-white block">Certified Listing</span>
+                    <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wide">200-Points Inspected</span>
                   </div>
                 </label>
-                <div className="mt-4">
-                  <label className={labelClass}>Badge/Tag</label>
+
+                <div>
+                  <label className={labelClass}>Badge / Tag</label>
                   <input type="text" className={inpClass} value={formData.tag || ""} onChange={e => setFormData({...formData, tag: e.target.value})} placeholder="e.g. HOT DEAL" />
                 </div>
-                <div className="mt-4 border-t border-gray-100 dark:border-gray-800 pt-4">
+                <div>
                   <label className={labelClass}>Top-Left Badge (Price Drop)</label>
                   <input type="text" className={inpClass} value={formData.badgeText || ""} onChange={e => setFormData({...formData, badgeText: e.target.value})} placeholder="e.g. ₹9,000 ↓" />
-                  <p className="text-[10px] text-gray-400 mt-1 ml-1">This appears as an animated red pill on the car image.</p>
                 </div>
               </section>
 
-               <section className="bg-white dark:bg-gray-900 p-6 rounded-[2rem] shadow-sm border border-gray-50 dark:border-gray-800">
-                <h2 className="text-md font-bold mb-4 text-gray-900 dark:text-white">Main Image</h2>
-                <div className="aspect-video bg-gray-50 dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 overflow-hidden relative group">
+              <section className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xs border border-slate-200/80 dark:border-gray-800 space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-gray-800">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon size={16} className="text-[#155DFC]" />
+                    <h2 className="text-sm font-black text-slate-900 dark:text-white">Main Cover Image</h2>
+                  </div>
+                </div>
+
+                <div className="aspect-video bg-slate-50 dark:bg-gray-800 rounded-2xl border-2 border-dashed border-slate-200 dark:border-gray-700 overflow-hidden relative group">
                   {formData.image ? (
                     <>
                       <img src={formData.image.startsWith('/') ? `${API}${formData.image}` : formData.image} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                        <button onClick={() => setFormData({...formData, image: ""})} className="p-2 bg-red-600 text-white rounded-full">
-                          <Trash2 size={20} />
+                        <button onClick={() => setFormData({...formData, image: ""})} className="p-2 bg-rose-600 text-white rounded-full cursor-pointer shadow-md">
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </>
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
                       <ImageIcon size={32} strokeWidth={1.5} />
                       <span className="text-xs font-bold mt-2">No Image Selected</span>
                     </div>
                   )}
                 </div>
                 
-                <div className="mt-4 flex gap-2">
-                  <label className="flex-1 flex items-center justify-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 px-3 py-2.5 rounded-xl border border-indigo-100 dark:border-indigo-800 cursor-pointer font-bold transition-all text-xs hover:bg-indigo-100">
-                    <span>{isUploadingImage ? "Uploading..." : "Upload Local"}</span>
+                <div className="flex gap-2">
+                  <label className="flex-1 flex items-center justify-center gap-1.5 bg-blue-50 dark:bg-blue-950/40 text-[#155DFC] px-3 py-2.5 rounded-xl border border-blue-100 dark:border-blue-900/50 cursor-pointer font-bold transition-all text-xs hover:bg-blue-100">
+                    <span>{isUploadingImage ? "Uploading..." : "Upload Photo"}</span>
                     <input 
                       type="file" 
                       accept="image/*" 
+                      onChange={e => handleImageUpload(e, 'main')}
                       className="hidden" 
-                      onChange={(e) => handleImageUpload(e, 'main')}
                       disabled={isUploadingImage}
                     />
                   </label>
-                  <button
+                  <button 
                     type="button"
                     onClick={() => openMediaLibrary('main')}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 font-bold transition-all text-xs hover:bg-gray-100"
+                    className="flex-1 bg-slate-100 dark:bg-gray-800 text-slate-700 dark:text-gray-300 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 font-bold transition-all text-xs hover:bg-slate-200 dark:hover:bg-gray-700 cursor-pointer"
                   >
                     Media Library
                   </button>
-                </div>
-
-                <div className="mt-4">
-                  <label className="block text-xs font-bold text-gray-500 mb-1">Or Paste Image URL</label>
-                  <input 
-                    type="text" 
-                    className={inpClass} 
-                    value={formData.image || ""} 
-                    onChange={e => setFormData({...formData, image: e.target.value})} 
-                    placeholder="https://..." 
-                  />
                 </div>
               </section>
             </div>
@@ -944,7 +1072,7 @@ const CarEditPage = () => {
           <div className="max-w-5xl mx-auto">
             <FeatureCategory 
               title="Comfort & Convenience" 
-              options={["Air Conditioner", "Power Windows", "Adjustable Seats", "Keyless Entry", "Cruise Control", "Sunroof", "Rear AC Vents", "Automatic Climate Control"]} 
+              options={["Air Conditioner", "Power Windows", "Adjustable Seats", "Keyless Entry", "Cruise Control", "Sunroof", "Panoramic Sunroof", "Ventilated Seats", "Rear AC Vents", "Automatic Climate Control"]} 
             />
             <FeatureCategory 
               title="Safety" 
@@ -1427,9 +1555,43 @@ const CarEditPage = () => {
             </div>
           </div>
         )}
-
       </div>
-    </div>
+
+      {/* Sticky Bottom Step Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-slate-200/80 dark:border-gray-800 py-3.5 px-4 md:px-8 shadow-2xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <button
+            onClick={() => {
+              if (currentStepIndex > 0) setActiveTab(STEPS[currentStepIndex - 1].id);
+            }}
+            disabled={currentStepIndex === 0}
+            className="px-4 py-2.5 rounded-xl font-bold text-xs bg-slate-100 text-slate-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+          >
+            ← Previous Step
+          </button>
+
+          <div className="flex items-center gap-3">
+            {currentStepIndex < 3 && (
+              <button
+                onClick={() => setActiveTab(STEPS[currentStepIndex + 1].id)}
+                className="flex items-center gap-1.5 bg-[#155DFC] hover:bg-blue-700 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs transition-all cursor-pointer shadow-md shadow-blue-500/20 active:scale-95"
+              >
+                <span>Next Step: {STEPS[currentStepIndex + 1].title.split('. ')[1]}</span>
+                <ChevronRight size={16} />
+              </button>
+            )}
+
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2.5 rounded-xl font-black text-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-md cursor-pointer active:scale-95"
+            >
+              <Save size={16} />
+              <span>{isEdit ? "Update Car" : "Publish Listing"}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      </div>
     </>
   );
 };

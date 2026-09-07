@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap") layer(base);
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap") layer(base);
 
 @import "tailwindcss";
 
@@ -6,7 +6,8 @@
 
 @theme {
   --font-*: initial;
-  --font-outfit: Outfit, sans-serif;
+  --font-outfit: "Plus Jakarta Sans", "Inter", sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", sans-serif;
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -46,7 +47,7 @@
   --color-brand-200: #99ebdf;
   --color-brand-300: #66e0cf;
   --color-brand-400: #33d6bf;
-  --color-brand-500: #00C9AF;
+  --color-brand-500: #1C3EB9;
   --color-brand-600: #00b09d;
   --color-brand-700: #009c8b;
   --color-brand-800: #008779;
@@ -188,7 +189,8 @@
   }
 
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+    @apply relative font-normal z-1 bg-gray-50 text-slate-900 dark:text-slate-100;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif !important;
   }
 }
 

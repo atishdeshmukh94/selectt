@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Plus, Edit, Trash2, Car, Settings, Image as ImageIcon, CheckCircle, X, ChevronRight } from "lucide-react";
+import { Plus, Edit, Trash2, Car, Settings, Image as ImageIcon, CheckCircle, X, ChevronRight, Upload, Download, FileSpreadsheet, AlertCircle, Check, Loader2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import PageMeta from "../components/common/PageMeta";
+import { toast } from "react-hot-toast";
 
 import { API_URL } from "../config/api";
 const API = API_URL;
@@ -37,6 +38,13 @@ const BrandModels = () => {
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
 
+  // CSV Import Modal state
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
+  const [csvFileName, setCsvFileName] = useState<string>("");
+  const [parsedRows, setParsedRows] = useState<any[]>([]);
+  const [isImporting, setIsImporting] = useState(false);
+  const csvFileInputRef = useRef<HTMLInputElement>(null);
+
   // Form state
   const [brandForm, setBrandForm] = useState<{ id: number | null; name: string; logo_url: string }>({ id: null, name: '', logo_url: '' });
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -64,6 +72,166 @@ const BrandModels = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // --- CSV IMPORT / EXPORT HANDLERS ---
+  const handleDownloadSampleCsv = () => {
+    const sampleData = [
+      "Brand,Model,Variant,Logo_URL",
+      "Maruti Suzuki,Swift,ZXi Plus,/img/maruti-suzuki.png",
+      "Maruti Suzuki,Swift,VXi,/img/maruti-suzuki.png",
+      "Maruti Suzuki,Baleno,Alpha,/img/maruti-suzuki.png",
+      "Hyundai,Creta,SX (O),/img/hyundai.webp",
+      "Hyundai,Venue,SX,/img/hyundai.webp",
+      "Tata,Nexon,Creative Plus,/img/tata.webp",
+      "Tata,Punch,Accomplished,/img/tata.webp",
+      "Mahindra,Thar,LX 4x4 Hard Top,/img/mahindra.webp",
+      "Mahindra,XUV700,AX7 Luxury,/img/mahindra.webp",
+      "Kia,Seltos,GTX Plus,/img/kia.webp",
+      "Toyota,Fortuner,4x4 AT,/img/toyota.webp",
+      "Honda,City,ZX CVT,/img/honda.webp"
+    ].join("\n");
+
+    const blob = new Blob([sampleData], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "Sample_Brands_Models_Variants.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Sample CSV template downloaded!");
+  };
+
+  const handleExportCsv = () => {
+    if (brands.length === 0) {
+      toast.error("No brands available to export");
+      return;
+    }
+
+    const rows: string[] = ["Brand,Model,Variant,Logo_URL"];
+
+    brands.forEach((brand) => {
+      if (!brand.models || brand.models.length === 0) {
+        rows.push(`"${brand.name}","","","${brand.logo_url || ''}"`);
+      } else {
+        brand.models.forEach((model) => {
+          if (!model.variants || model.variants.length === 0) {
+            rows.push(`"${brand.name}","${model.name}","","${brand.logo_url || ''}"`);
+          } else {
+            model.variants.forEach((variant) => {
+              rows.push(`"${brand.name}","${model.name}","${variant.name}","${brand.logo_url || ''}"`);
+            });
+          }
+        });
+      }
+    });
+
+    const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Selectt_Brands_Export_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Current Brands, Models & Variants exported as CSV!");
+  };
+
+  const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith(".csv")) {
+      toast.error("Please upload a valid .csv file");
+      return;
+    }
+
+    setCsvFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (!text) return;
+
+      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      if (lines.length <= 1) {
+        toast.error("CSV file is empty or has no data rows");
+        setParsedRows([]);
+        return;
+      }
+
+      // Parse CSV Header
+      const headerLine = lines[0];
+      const headers = headerLine.split(",").map((h) => h.replace(/^["']|["']$/g, "").trim().toLowerCase());
+
+      const brandIdx = headers.findIndex((h) => h.includes("brand") || h.includes("make"));
+      const modelIdx = headers.findIndex((h) => h.includes("model"));
+      const variantIdx = headers.findIndex((h) => h.includes("variant") || h.includes("trim"));
+      const logoIdx = headers.findIndex((h) => h.includes("logo") || h.includes("image"));
+
+      const rows: any[] = [];
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.trim()) continue;
+
+        // Basic CSV column splitter handling quotes
+        const match = line.match(/(?:[^\s",]+|"[^"]*")+/g) || line.split(",");
+        const cols = match.map((c) => c.replace(/^["']|["']$/g, "").trim());
+
+        const brand = brandIdx !== -1 ? cols[brandIdx] : cols[0] || "";
+        const model = modelIdx !== -1 ? cols[modelIdx] : cols[1] || "";
+        const variant = variantIdx !== -1 ? cols[variantIdx] : cols[2] || "";
+        const logo = logoIdx !== -1 ? cols[logoIdx] : cols[3] || "";
+
+        if (brand && brand.trim()) {
+          rows.push({
+            brand: brand.trim(),
+            model: (model || "").trim(),
+            variant: (variant || "").trim(),
+            logo_url: (logo || "").trim()
+          });
+        }
+      }
+
+      setParsedRows(rows);
+      toast.success(`Parsed ${rows.length} rows from CSV file!`);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleImportCsvSubmit = async () => {
+    if (parsedRows.length === 0) {
+      toast.error("No valid rows to import");
+      return;
+    }
+
+    try {
+      setIsImporting(true);
+      const res = await fetch(`${API}/api/admin/brands/import-csv`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ items: parsedRows })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to import CSV");
+      }
+
+      toast.success(data.message || "CSV Imported successfully!");
+      setIsCsvModalOpen(false);
+      setParsedRows([]);
+      setCsvFileName("");
+      fetchBrands();
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Import failed");
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -221,17 +389,33 @@ const BrandModels = () => {
     <>
       <PageMeta title="Brands & Models | Selectt Admin" description="Configure the car catalog tree for the frontend and admin panel." />
       <div className="p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto min-h-screen">
-      <div className="flex flex-col sm:flex-row items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Brands & Models Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Configure the car catalog tree for the frontend and admin panel.</p>
+          <p className="text-sm text-gray-500 mt-1">Configure manufacturer brands, car models, and variant trims.</p>
         </div>
-        <button
-          onClick={() => handleOpenBrandModal()}
-          className="mt-4 sm:mt-0 flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium transition-colors shadow-sm"
-        >
-          <Plus size={18} /> Add New Brand
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2.5 rounded-xl font-bold text-xs border border-gray-200 shadow-2xs transition-all cursor-pointer"
+          >
+            <Download size={15} /> <span>Export CSV</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsCsvModalOpen(true)}
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-4 py-2.5 rounded-xl font-bold text-xs shadow-2xs transition-all cursor-pointer"
+          >
+            <FileSpreadsheet size={15} /> <span>Import CSV</span>
+          </button>
+          <button
+            onClick={() => handleOpenBrandModal()}
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition-colors shadow-sm cursor-pointer"
+          >
+            <Plus size={16} /> <span>Add New Brand</span>
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
@@ -456,6 +640,144 @@ const BrandModels = () => {
                 <button type="submit" className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow-sm transition-colors">Save Variant</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- IMPORT CSV MODAL --- */}
+      {isCsvModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800 flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-800/40">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <FileSpreadsheet size={20} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-gray-900 dark:text-white">Import Brands, Models & Variants via CSV</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Bulk upload your vehicle catalog hierarchy directly into database.</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  setIsCsvModalOpen(false);
+                  setParsedRows([]);
+                  setCsvFileName("");
+                }} 
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-5 flex-1">
+              {/* Instructions & Template Download */}
+              <div className="p-4 bg-indigo-50/70 dark:bg-indigo-950/30 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <span className="text-xs font-black text-indigo-900 dark:text-indigo-300">Need the standard CSV structure?</span>
+                  <p className="text-[11px] text-indigo-700/80 dark:text-indigo-400">Columns: <code className="font-mono font-bold bg-white/70 dark:bg-gray-900 px-1.5 py-0.5 rounded">Brand</code>, <code className="font-mono font-bold bg-white/70 dark:bg-gray-900 px-1.5 py-0.5 rounded">Model</code>, <code className="font-mono font-bold bg-white/70 dark:bg-gray-900 px-1.5 py-0.5 rounded">Variant</code>, <code className="font-mono font-bold bg-white/70 dark:bg-gray-900 px-1.5 py-0.5 rounded">Logo_URL</code></p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleDownloadSampleCsv}
+                  className="px-3.5 py-2 text-xs font-extrabold bg-white dark:bg-gray-900 hover:bg-indigo-50 dark:hover:bg-gray-800 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-xl shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                >
+                  <Download size={14} /> <span>Download Sample Template</span>
+                </button>
+              </div>
+
+              {/* Upload Dropzone */}
+              <div>
+                <label className="block text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Select CSV File</label>
+                <input
+                  type="file"
+                  ref={csvFileInputRef}
+                  accept=".csv"
+                  onChange={handleCsvFileChange}
+                  className="hidden"
+                />
+                <div 
+                  onClick={() => csvFileInputRef.current?.click()}
+                  className="border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-500 rounded-2xl p-6 text-center cursor-pointer transition-all bg-gray-50/50 dark:bg-gray-800/20 group"
+                >
+                  <Upload size={28} className="mx-auto text-gray-400 group-hover:text-indigo-600 transition-colors mb-2" />
+                  <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {csvFileName ? `Selected: ${csvFileName}` : "Click to browse or drop your .csv file here"}
+                  </p>
+                  <p className="text-[11px] text-gray-400 mt-1">Supports unlimited rows of Brands, Models & Variants</p>
+                </div>
+              </div>
+
+              {/* Live Preview Table */}
+              {parsedRows.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-gray-900 dark:text-white flex items-center gap-1.5">
+                      <span>Live Preview</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[10px] font-mono">
+                        {parsedRows.length} rows ready
+                      </span>
+                    </span>
+                    <span className="text-[11px] text-gray-400">Showing first 5 entries</span>
+                  </div>
+
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-gray-50 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 font-bold">
+                        <tr>
+                          <th className="p-2.5">#</th>
+                          <th className="p-2.5">Brand / Make</th>
+                          <th className="p-2.5">Model</th>
+                          <th className="p-2.5">Variant</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
+                        {parsedRows.slice(0, 5).map((r, idx) => (
+                          <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
+                            <td className="p-2.5 text-gray-400 font-mono text-[11px]">{idx + 1}</td>
+                            <td className="p-2.5 font-bold text-gray-900 dark:text-white">{r.brand}</td>
+                            <td className="p-2.5 text-gray-700 dark:text-gray-300">{r.model || <span className="text-gray-400 italic">—</span>}</td>
+                            <td className="p-2.5 text-indigo-600 dark:text-indigo-400 font-mono text-[11px]">{r.variant || <span className="text-gray-400 italic">—</span>}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end gap-3 bg-gray-50/40 dark:bg-gray-800/20">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCsvModalOpen(false);
+                  setParsedRows([]);
+                  setCsvFileName("");
+                }}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={parsedRows.length === 0 || isImporting}
+                onClick={handleImportCsvSubmit}
+                className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              >
+                {isImporting ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    <span>Importing Records...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check size={14} />
+                    <span>Import {parsedRows.length > 0 ? `${parsedRows.length} Records Now` : "CSV"}</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -7,9 +7,16 @@ import LoginModal from './components/auth/LoginModal';
 import PremiumHeader from './components/layout/PremiumHeader/PremiumHeader';
 import Footer from './components/layout/Footer';
 import LocationPopup from './components/home/LocationPopup';
+import PWAInstallPrompt from './components/common/PWAInstallPrompt';
 import PagePreloader from './components/common/PagePreloader';
 import ScrollToTop from './components/common/ScrollToTop';
+import { useVisitorTracker } from './hooks/useVisitorTracker';
 import { API_URL } from './config/api';
+
+function VisitorTracker() {
+  useVisitorTracker();
+  return null;
+}
 
 // Lazy-loaded page components for dynamic code-splitting
 const NewHome = lazy(() => import('./pages/NewHome'));
@@ -49,6 +56,7 @@ function MainLayout() {
       <LocationPopup />
       <PremiumHeader />
       <LoginModal />
+      <PWAInstallPrompt />
       <main>
         <Outlet />
       </main>
@@ -104,6 +112,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <VisitorTracker />
       <SiteSettingsProvider>
         <ToastProvider>
           <AuthProvider>

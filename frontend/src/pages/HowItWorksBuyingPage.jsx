@@ -99,14 +99,14 @@ const HowItWorksBuyingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/god-is-in-the-details.svg?q=85&w=360&dpr=1.3" alt="God is in the details" className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/loan-eligibility.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-1.jpeg" alt="God is in the details" className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
 
               {/* Dotted Line 1→2 */}
               <div className="hidden lg:flex justify-center pointer-events-none select-none -my-10">
-                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&w=900&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
+                <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
               {/* ── Step 2 (Scroll Reveal) ── */}
@@ -136,7 +136,7 @@ const HowItWorksBuyingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/test-drive.svg?q=85&w=360&dpr=1.3" alt="A test drive to remember" className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/upload-document.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-2.jpeg" alt="A test drive to remember" className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
@@ -173,7 +173,7 @@ const HowItWorksBuyingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/paperwork-financing.svg?q=85&w=360&dpr=1.3" alt="Paperwork. Financing. Check." className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/loan-approval.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-3.jpeg" alt="Paperwork. Financing. Check." className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
@@ -210,7 +210,7 @@ const HowItWorksBuyingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/pick-the-bill-online.svg?q=85&w=360&dpr=1.3" alt="Pick the bill, online." className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/home-delivery.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-4.jpeg" alt="Pick the bill, online." className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>
@@ -247,7 +247,7 @@ const HowItWorksBuyingPage = () => {
                     transition={{ duration: 0.3 }}
                     className="max-w-[260px] md:max-w-[300px]"
                   >
-                    <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/HowItWorks/assets/signed-sealed-delivered.svg?q=85&w=360&dpr=1.3" alt="Signed. Sealed. Delivered." className="w-full h-auto object-contain drop-shadow-md" onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/home-delivery.svg?q=85&w=360&dpr=1.3"; }} />
+                    <img src="/img/step-4.jpeg" alt="Signed. Sealed. Delivered." className="w-full h-auto object-contain" />
                   </motion.div>
                 </div>
               </motion.div>

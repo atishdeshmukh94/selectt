@@ -62,22 +62,23 @@ export const PromoBanner = ({ type, title, subtitle, cta }) => {
   );
 };
 
-export const ExtraPromoCard = ({ data }) => {
-  if (!data || data.extra_card_is_active === false) return null;
+export const ExtraPromoCard = ({ data, logoUrl, btnLink, isActive, title = "Promo Banner" }) => {
+  const active = isActive !== undefined ? isActive : (data ? data.extra_card_is_active : true);
+  if (active === false || active === "false" || active === "0") return null;
 
-  const btnLink = data.extra_card_btn_link || "#";
-  const logoUrl = data.extra_card_logo_url;
+  const link = btnLink || data?.extra_card_btn_link || "#";
+  const imgUrl = logoUrl || data?.extra_card_logo_url;
 
   return (
     <a
-      href={btnLink}
-      className="rounded-[20px] overflow-hidden hover:scale-[1.03] transition-all duration-500 block w-full h-full relative border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.25)] min-h-[350px] bg-slate-950"
+      href={link}
+      className="rounded-[20px] overflow-hidden hover:scale-[1.03] transition-all duration-500 block w-full h-full relative border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.25)] min-h-[350px] bg-slate-950 group"
     >
-      {logoUrl ? (
+      {imgUrl ? (
         <img
-          src={logoUrl.startsWith('/') ? `${API_URL}${logoUrl}` : logoUrl}
-          alt="Promo Banner"
-          className="w-full h-full object-cover"
+          src={imgUrl.startsWith('/') ? `${API_URL}${imgUrl}` : imgUrl}
+          alt={title || "Promo Banner"}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center text-white/55 font-bold uppercase tracking-wider text-xs bg-gradient-to-br from-[#0c1b33] to-[#1a3357]">

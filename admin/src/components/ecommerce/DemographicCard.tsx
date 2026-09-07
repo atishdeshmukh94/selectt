@@ -66,7 +66,7 @@ export default function DemographicCard({ demographics = [] }: { demographics: {
           return (
             <div key={index} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-[#00C9AF]">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-[#1C3EB9]">
                   <Navigation size={14} />
                 </div>
                 <div>

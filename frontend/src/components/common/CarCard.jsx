@@ -56,11 +56,11 @@ const CarCard = ({ image, title, spec, tags, emi, price, isCertified, isLuxury, 
         </div>
         <div className="flex items-center justify-between mb-4 border-t border-dashed border-slate-200 dark:border-purple-800 pt-4">
           <div className="flex flex-col">
-            <p className="text-xs text-slate-500 font-extrabold uppercase tracking-wider">EMI starts at</p>
-            <p className="font-bold text-sm text-slate-700 dark:text-slate-200">{emi}</p>
+            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">EMI starts at</p>
+            <p className="font-semibold text-sm text-slate-700 dark:text-slate-200">{emi}</p>
           </div>
-          <div className="text-right">
-            <span className="text-[#00C9AF] !font-black text-xl block leading-none">{price}</span>
+          <div className="text-right whitespace-nowrap">
+            <span className="text-[#00C9AF] font-bold text-lg sm:text-xl block leading-none">{price}</span>
           </div>
         </div>
         <button className="w-full bg-purple-50 dark:bg-purple-900/30 text-primary dark:text-purple-200 py-2.5 rounded-lg text-sm font-bold hover:bg-primary hover:text-white transition-all uppercase cursor-pointer border border-purple-100 dark:border-purple-800">
