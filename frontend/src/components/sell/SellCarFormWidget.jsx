@@ -33,6 +33,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { API_URL } from '../../config/api';
+import calculatingPreloaderGif from '../../assets/8721027.gif';
 
 const MODEL_VARIANTS_MAP = {
   Honda: {
@@ -1873,9 +1874,9 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                 {/* Preloader Image GIF */}
                 <div className="relative w-48 h-48 sm:w-60 sm:h-60 flex items-center justify-center mb-6">
                   <img
-                    src="/img/8721027.gif"
+                    src={calculatingPreloaderGif}
                     onError={(e) => {
-                      e.currentTarget.src = "/8721027.gif";
+                      e.currentTarget.src = "/img/8721027.gif";
                     }}
                     alt="Calculating Valuation Preloader"
                     className="w-full h-full object-contain drop-shadow-sm"
