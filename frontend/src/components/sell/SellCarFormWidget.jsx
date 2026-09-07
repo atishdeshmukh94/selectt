@@ -3395,9 +3395,9 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
               <div className="relative z-10 text-[10px] sm:text-xs font-black text-[#14FFEC] uppercase tracking-widest mb-1.5">
                 ESTIMATED RESALE PRICE RANGE
               </div>
-              <div className="relative z-10 text-2xl sm:text-4xl font-heading font-black tracking-tight flex items-center justify-center gap-2.5">
+              <div className="relative z-10 text-xl sm:text-2xl font-heading font-black tracking-tight flex items-center justify-center gap-2">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#14FFEC] to-[#00C9AF]">{valuation.lowFormatted}</span>
-                <span className="text-slate-500 font-light text-xl sm:text-2xl">–</span>
+                <span className="text-slate-500 font-light text-lg sm:text-xl">–</span>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#14FFEC] to-[#00C9AF]">{valuation.highFormatted}</span>
               </div>
             </div>
