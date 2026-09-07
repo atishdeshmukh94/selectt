@@ -1871,14 +1871,14 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
             {isCalculatingValuation ? (
               <div className="flex flex-col items-center justify-center py-16 px-6 text-center animate-in fade-in duration-300 min-h-[420px] bg-white rounded-3xl">
                 {/* Preloader Image GIF */}
-                <div className="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center mb-6">
+                <div className="relative w-48 h-48 sm:w-60 sm:h-60 flex items-center justify-center mb-6">
                   <img
-                    src="/img/St.gif"
+                    src="/img/8721027.gif"
                     onError={(e) => {
-                      e.currentTarget.src = "/St.gif";
+                      e.currentTarget.src = "/8721027.gif";
                     }}
                     alt="Calculating Valuation Preloader"
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain drop-shadow-sm"
                   />
                 </div>
 
@@ -3337,66 +3337,68 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
             onClick={() => setShowHurrayModal(false)}
           />
 
-          {/* Modal Card */}
-          <div className="relative z-10 w-full max-w-lg bg-gradient-to-b from-[#0C1B33] via-[#0A182E] to-[#060D1A] border-t-4 sm:border-2 border-[#00C9AF] rounded-t-[32px] sm:rounded-3xl p-6 sm:p-8 text-white shadow-[0_-20px_60px_rgba(0,201,175,0.35)] animate-in slide-in-from-bottom duration-500 overflow-hidden text-center">
+          {/* Modal Card (Premium Light & Dark Combination) */}
+          <div className="relative z-10 w-full max-w-lg bg-white rounded-t-[32px] sm:rounded-3xl p-6 sm:p-8 text-[#0C1B33] border-t-4 sm:border sm:border-slate-200 border-[#00C9AF] shadow-[0_-20px_60px_rgba(0,0,0,0.3),0_20px_50px_rgba(12,27,51,0.25)] animate-in slide-in-from-bottom duration-500 overflow-hidden text-center">
             
-            {/* Ambient Lighting & Glow Effect */}
-            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#00C9AF]/20 rounded-full blur-3xl pointer-events-none animate-pulse" />
+            {/* Glowing Accent Ambient Orb */}
+            <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#00C9AF]/15 rounded-full blur-3xl pointer-events-none" />
 
             {/* Close Button */}
             <button
               type="button"
               onClick={() => setShowHurrayModal(false)}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-slate-300 hover:text-white transition-colors cursor-pointer z-20"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200/80 flex items-center justify-center text-slate-500 hover:text-[#0C1B33] transition-colors cursor-pointer z-20"
             >
               <X size={18} />
             </button>
 
             {/* Celebration Icon Header */}
             <div className="relative z-10 mb-4 inline-flex flex-col items-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#00C9AF] to-[#00FFDC] text-[#0C1B33] flex items-center justify-center shadow-lg shadow-[#00C9AF]/40 mb-3 animate-bounce">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#00C9AF] to-[#14FFEC] text-[#0C1B33] flex items-center justify-center shadow-lg shadow-[#00C9AF]/30 mb-3 animate-bounce">
                 <Sparkles size={32} strokeWidth={2.5} />
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#00C9AF]/20 border border-[#00C9AF]/50 text-[#00FFDC] text-xs font-black uppercase tracking-widest">
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0C1B33] text-[#14FFEC] border border-[#00C9AF]/40 text-xs font-black uppercase tracking-widest shadow-sm">
                 <span>🎉</span> HURRAY! GREAT NEWS! <span>🎉</span>
               </div>
             </div>
 
             {/* Title & Car Model */}
-            <div className="relative z-10 mb-4">
-              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
+            <div className="relative z-10 mb-5">
+              <h3 className="text-2xl sm:text-3xl font-heading font-black text-[#0C1B33] tracking-tight leading-tight">
                 Your Estimated Price is Ready!
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300 font-medium mt-1">
+              <p className="text-xs sm:text-sm text-slate-600 font-semibold mt-1">
                 {formData.year || '2024'} {formData.brandName || 'Honda'} {formData.model || 'City'} {formData.variant ? `(${formData.variant})` : ''}
               </p>
             </div>
 
-            {/* Glowing Price Display Box */}
-            <div className="relative z-10 bg-gradient-to-r from-[#00C9AF]/15 via-[#00C9AF]/25 to-[#00C9AF]/15 border-2 border-[#00C9AF]/60 rounded-2xl p-4 sm:p-5 mb-5 shadow-inner">
-              <div className="text-[10px] sm:text-xs font-extrabold text-[#00FFDC] uppercase tracking-wider mb-1">
-                Estimated Resale Price Range
+            {/* Dark Contrast Resale Price Display Box */}
+            <div className="relative z-10 bg-gradient-to-br from-[#0C1B33] via-[#09172B] to-[#040A14] border-2 border-[#00C9AF] rounded-2xl p-4 sm:p-5 mb-5 shadow-xl shadow-[#0C1B33]/15 text-center overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#00C9AF]/10 rounded-full blur-2xl pointer-events-none"></div>
+              
+              <div className="relative z-10 text-[10px] sm:text-xs font-black text-[#14FFEC] uppercase tracking-widest mb-1.5">
+                ESTIMATED RESALE PRICE RANGE
               </div>
-              <div className="text-2xl sm:text-4xl font-black text-white tracking-tight flex items-center justify-center gap-2">
-                <span className="text-[#00FFDC]">{valuation.lowFormatted}</span>
-                <span className="text-slate-400 font-light text-xl sm:text-2xl">–</span>
-                <span className="text-[#00FFDC]">{valuation.highFormatted}</span>
+              <div className="relative z-10 text-2xl sm:text-4xl font-heading font-black tracking-tight flex items-center justify-center gap-2.5">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#14FFEC] to-[#00C9AF]">{valuation.lowFormatted}</span>
+                <span className="text-slate-500 font-light text-xl sm:text-2xl">–</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#14FFEC] to-[#00C9AF]">{valuation.highFormatted}</span>
               </div>
             </div>
 
-            {/* Quick Benefits List */}
-            <div className="relative z-10 grid grid-cols-3 gap-2 mb-6 text-left">
-              <div className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-center">
-                <div className="text-base font-black text-[#00C9AF] mb-0.5">⚡ Instant</div>
-                <div className="text-[10px] text-slate-400 font-semibold leading-tight">Fastest Bank Payout</div>
+            {/* Quick Benefits List (Crisp Light Cards with Teal Icons) */}
+            <div className="relative z-10 grid grid-cols-3 gap-2.5 mb-6 text-left">
+              <div className="p-3 bg-slate-50 hover:bg-white border border-slate-200/80 rounded-2xl text-center shadow-xs transition-all">
+                <div className="text-sm sm:text-base font-black text-[#00A892] mb-0.5">⚡ Instant</div>
+                <div className="text-[10px] sm:text-[11px] text-slate-600 font-bold leading-tight">Fastest Bank Payout</div>
               </div>
-              <div className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-center">
-                <div className="text-base font-black text-[#00C9AF] mb-0.5">🛡️ Free</div>
-                <div className="text-[10px] text-slate-400 font-semibold leading-tight">Doorstep Inspection</div>
+              <div className="p-3 bg-slate-50 hover:bg-white border border-slate-200/80 rounded-2xl text-center shadow-xs transition-all">
+                <div className="text-sm sm:text-base font-black text-[#00A892] mb-0.5">🛡️ Free</div>
+                <div className="text-[10px] sm:text-[11px] text-slate-600 font-bold leading-tight">Doorstep Inspection</div>
               </div>
-              <div className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-center">
-                <div className="text-base font-black text-[#00C9AF] mb-0.5">📄 ₹0</div>
-                <div className="text-[10px] text-slate-400 font-semibold leading-tight">RC Transfer Fee</div>
+              <div className="p-3 bg-slate-50 hover:bg-white border border-slate-200/80 rounded-2xl text-center shadow-xs transition-all">
+                <div className="text-sm sm:text-base font-black text-[#00A892] mb-0.5">📄 ₹0</div>
+                <div className="text-[10px] sm:text-[11px] text-slate-600 font-bold leading-tight">RC Transfer Fee</div>
               </div>
             </div>
 
@@ -3409,7 +3411,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                   const inspectionEl = document.getElementById('book-inspection-section');
                   if (inspectionEl) inspectionEl.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="w-full py-4 bg-gradient-to-r from-[#00FFDC] via-[#00C9AF] to-[#00A884] text-[#0C1B33] font-black text-sm sm:text-base uppercase tracking-wider rounded-2xl shadow-xl shadow-[#00C9AF]/30 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-4 bg-[#00C9AF] hover:bg-[#14FFEC] text-[#0C1B33] font-button font-black text-sm sm:text-base uppercase tracking-wider rounded-2xl shadow-lg shadow-[#00C9AF]/30 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
               >
                 <span>BOOK FREE INSPECTION</span>
                 <ChevronRight size={18} className="stroke-[3]" />
@@ -3418,7 +3420,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
               <button
                 type="button"
                 onClick={() => setShowHurrayModal(false)}
-                className="w-full py-2.5 text-xs text-slate-400 hover:text-white font-bold transition-colors cursor-pointer"
+                className="w-full py-2 text-xs sm:text-sm text-slate-500 hover:text-[#0C1B33] font-bold transition-colors cursor-pointer"
               >
                 View Full Valuation Dashboard
               </button>
