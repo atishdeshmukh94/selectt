@@ -1879,7 +1879,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                       e.currentTarget.src = "/img/8721027.gif";
                     }}
                     alt="Calculating Valuation Preloader"
-                    className="w-full h-full object-contain drop-shadow-sm"
+                    className="w-full h-full object-contain mix-blend-multiply"
                   />
                 </div>
 
