@@ -3369,57 +3369,57 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
             </button>
 
             {/* Celebration Icon Header */}
-            <div className="relative z-10 mb-4 inline-flex flex-col items-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#00C9AF] to-[#14FFEC] text-[#0C1B33] flex items-center justify-center shadow-lg shadow-[#00C9AF]/30 mb-3 animate-bounce">
-                <Sparkles size={32} strokeWidth={2.5} />
+            <div className="relative z-10 mb-3 inline-flex flex-col items-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#00C9AF] to-[#14FFEC] text-[#0C1B33] flex items-center justify-center shadow-md shadow-[#00C9AF]/25 mb-2 animate-bounce">
+                <Sparkles size={24} strokeWidth={2.5} />
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0C1B33] text-[#14FFEC] border border-[#00C9AF]/40 text-xs font-black uppercase tracking-widest shadow-sm">
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#0C1B33] text-[#14FFEC] border border-[#00C9AF]/40 text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-xs">
                 <span>🎉</span> HURRAY! GREAT NEWS! <span>🎉</span>
               </div>
             </div>
 
             {/* Title & Car Model */}
-            <div className="relative z-10 mb-5">
-              <h3 className="text-2xl sm:text-3xl font-heading font-black text-[#0C1B33] tracking-tight leading-tight">
+            <div className="relative z-10 mb-4">
+              <h3 className="text-base sm:text-lg font-heading font-bold text-[#0C1B33] tracking-tight leading-snug">
                 Your Estimated Price is Ready!
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 font-semibold mt-1">
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
                 {formData.year || '2024'} {formData.brandName || 'Honda'} {formData.model || 'City'} {formData.variant ? `(${formData.variant})` : ''}
               </p>
             </div>
 
             {/* Dark Contrast Resale Price Display Box */}
-            <div className="relative z-10 bg-gradient-to-br from-[#0C1B33] via-[#09172B] to-[#040A14] border-2 border-[#00C9AF] rounded-2xl p-4 sm:p-5 mb-5 shadow-xl shadow-[#0C1B33]/15 text-center overflow-hidden">
+            <div className="relative z-10 bg-gradient-to-br from-[#0C1B33] via-[#09172B] to-[#040A14] border-2 border-[#00C9AF] rounded-2xl p-3.5 sm:p-4 mb-4 shadow-lg shadow-[#0C1B33]/15 text-center overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#00C9AF]/10 rounded-full blur-2xl pointer-events-none"></div>
               
-              <div className="relative z-10 text-[10px] sm:text-xs font-black text-[#14FFEC] uppercase tracking-widest mb-1.5">
+              <div className="relative z-10 text-[10px] sm:text-[11px] font-bold text-[#14FFEC] uppercase tracking-wider mb-1">
                 ESTIMATED RESALE PRICE RANGE
               </div>
               <div className="relative z-10 text-xl sm:text-2xl font-heading font-black tracking-tight flex items-center justify-center gap-2">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#14FFEC] to-[#00C9AF]">{valuation.lowFormatted}</span>
-                <span className="text-slate-500 font-light text-lg sm:text-xl">–</span>
+                <span className="text-slate-500 font-light text-base sm:text-lg">–</span>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#14FFEC] to-[#00C9AF]">{valuation.highFormatted}</span>
               </div>
             </div>
 
             {/* Quick Benefits List (Crisp Light Cards with Teal Icons) */}
-            <div className="relative z-10 grid grid-cols-3 gap-2.5 mb-6 text-left">
-              <div className="p-3 bg-slate-50 hover:bg-white border border-slate-200/80 rounded-2xl text-center shadow-xs transition-all">
-                <div className="text-sm sm:text-base font-black text-[#00A892] mb-0.5">⚡ Instant</div>
-                <div className="text-[10px] sm:text-[11px] text-slate-600 font-bold leading-tight">Fastest Bank Payout</div>
+            <div className="relative z-10 grid grid-cols-3 gap-2 mb-5 text-left">
+              <div className="p-2.5 bg-slate-50 hover:bg-white border border-slate-200/80 rounded-xl text-center shadow-xs transition-all">
+                <div className="text-xs sm:text-sm font-bold text-[#00A892] mb-0.5">⚡ Instant</div>
+                <div className="text-[10px] text-slate-500 font-medium leading-tight">Fastest Bank Payout</div>
               </div>
-              <div className="p-3 bg-slate-50 hover:bg-white border border-slate-200/80 rounded-2xl text-center shadow-xs transition-all">
-                <div className="text-sm sm:text-base font-black text-[#00A892] mb-0.5">🛡️ Free</div>
-                <div className="text-[10px] sm:text-[11px] text-slate-600 font-bold leading-tight">Doorstep Inspection</div>
+              <div className="p-2.5 bg-slate-50 hover:bg-white border border-slate-200/80 rounded-xl text-center shadow-xs transition-all">
+                <div className="text-xs sm:text-sm font-bold text-[#00A892] mb-0.5">🛡️ Free</div>
+                <div className="text-[10px] text-slate-500 font-medium leading-tight">Doorstep Inspection</div>
               </div>
-              <div className="p-3 bg-slate-50 hover:bg-white border border-slate-200/80 rounded-2xl text-center shadow-xs transition-all">
-                <div className="text-sm sm:text-base font-black text-[#00A892] mb-0.5">📄 ₹0</div>
-                <div className="text-[10px] sm:text-[11px] text-slate-600 font-bold leading-tight">RC Transfer Fee</div>
+              <div className="p-2.5 bg-slate-50 hover:bg-white border border-slate-200/80 rounded-xl text-center shadow-xs transition-all">
+                <div className="text-xs sm:text-sm font-bold text-[#00A892] mb-0.5">📄 ₹0</div>
+                <div className="text-[10px] text-slate-500 font-medium leading-tight">RC Transfer Fee</div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="relative z-10 space-y-2.5">
+            <div className="relative z-10 space-y-2">
               <button
                 type="button"
                 onClick={() => {
@@ -3427,16 +3427,16 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                   const inspectionEl = document.getElementById('book-inspection-section');
                   if (inspectionEl) inspectionEl.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="w-full py-4 bg-[#00C9AF] hover:bg-[#14FFEC] text-[#0C1B33] font-button font-black text-sm sm:text-base uppercase tracking-wider rounded-2xl shadow-lg shadow-[#00C9AF]/30 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3 sm:py-3.5 bg-[#00C9AF] hover:bg-[#14FFEC] text-[#0C1B33] font-button font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl shadow-md shadow-[#00C9AF]/30 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>BOOK FREE INSPECTION</span>
-                <ChevronRight size={18} className="stroke-[3]" />
+                <ChevronRight size={16} className="stroke-[2.5]" />
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowHurrayModal(false)}
-                className="w-full py-2 text-xs sm:text-sm text-slate-500 hover:text-[#0C1B33] font-bold transition-colors cursor-pointer"
+                className="w-full py-1.5 text-xs text-slate-500 hover:text-[#0C1B33] font-medium transition-colors cursor-pointer"
               >
                 View Full Valuation Dashboard
               </button>
