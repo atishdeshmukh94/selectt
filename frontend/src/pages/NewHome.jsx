@@ -2892,33 +2892,61 @@ const NewHome = () => {
             Enter your registration number. Get a real offer in 60 seconds. Sell in as little as 24 hours.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto justify-center pt-2">
-            <input
-              type="text"
-              placeholder="MH 04 AB 1234"
-              className="flex-1 bg-white/5 border border-white/20 rounded-xl px-5 py-4 text-white text-lg md:text-xl font-black text-center focus:outline-none focus:border-[#00C9AF] focus:bg-white/15 placeholder:text-white/40 placeholder:font-bold placeholder:text-center transition-all duration-200 font-heading tracking-[0.25em] uppercase"
-              id="hero-reg-input"
-              maxLength={13}
-              onInput={(e) => {
-                let raw = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-                let formatted = '';
-                if (raw.length > 0) formatted += raw.slice(0, 2);
-                if (raw.length > 2) formatted += ' ' + raw.slice(2, 4);
-                if (raw.length > 4) formatted += ' ' + raw.slice(4, 6);
-                if (raw.length > 6) formatted += ' ' + raw.slice(6, 10);
-                e.target.value = formatted;
-              }}
-            />
-            <button
-              onClick={() => {
-                const input = document.getElementById('hero-reg-input');
-                const reg = input?.value?.trim();
-                navigate(reg ? `/sell-car?reg=${encodeURIComponent(reg)}` : '/sell-car');
-              }}
-              className="bg-[#00C9AF] hover:bg-[#00A391] text-[#06090F] font-bold rounded-xl py-4 px-8 text-sm transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-[#00C9AF]/20 whitespace-nowrap flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              Get offer →
-            </button>
+          {/* Integrated Luxury Indian Number Plate Valuation Widget */}
+          <div className="max-w-xl mx-auto pt-2">
+            <div className="bg-slate-900/80 p-2 sm:p-2.5 rounded-2xl sm:rounded-full border border-white/15 shadow-[0_10px_40px_rgba(0,0,0,0.5),0_0_25px_rgba(0,201,175,0.15)] flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 backdrop-blur-xl focus-within:border-[#00C9AF]/80 focus-within:shadow-[0_0_35px_rgba(0,201,175,0.3)] transition-all duration-300">
+              
+              {/* Indian HSRP License Plate Box */}
+              <div className="flex items-stretch flex-1 bg-white rounded-xl sm:rounded-full overflow-hidden border border-slate-300/80 shadow-inner">
+                {/* Authentic Blue IND Badge */}
+                <div className="bg-[#0B3C95] text-white px-3 sm:px-4 py-2.5 flex flex-col items-center justify-center shrink-0 self-stretch gap-0.5 select-none">
+                  <div className="w-3.5 h-3.5 rounded-full border border-white/60 flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/90"></div>
+                  </div>
+                  <span className="text-[10px] font-black tracking-widest leading-none">IND</span>
+                </div>
+
+                {/* Number Plate Input */}
+                <input
+                  type="text"
+                  placeholder="MH 04 AB 1234"
+                  className="flex-1 bg-transparent px-3 sm:px-4 py-3 text-slate-900 text-lg sm:text-xl font-black text-center sm:text-left focus:outline-none placeholder:text-slate-400 placeholder:font-bold font-heading tracking-[0.2em] uppercase"
+                  id="hero-reg-input"
+                  maxLength={13}
+                  onInput={(e) => {
+                    let raw = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                    let formatted = '';
+                    if (raw.length > 0) formatted += raw.slice(0, 2);
+                    if (raw.length > 2) formatted += ' ' + raw.slice(2, 4);
+                    if (raw.length > 4) formatted += ' ' + raw.slice(4, 6);
+                    if (raw.length > 6) formatted += ' ' + raw.slice(6, 10);
+                    e.target.value = formatted;
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const input = document.getElementById('hero-reg-input');
+                      const reg = input?.value?.trim();
+                      navigate(reg ? `/sell-car?reg=${encodeURIComponent(reg)}` : '/sell-car');
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Branded Glowing CTA Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  const input = document.getElementById('hero-reg-input');
+                  const reg = input?.value?.trim();
+                  navigate(reg ? `/sell-car?reg=${encodeURIComponent(reg)}` : '/sell-car');
+                }}
+                className="bg-gradient-to-r from-[#00C9AF] via-[#14FFEC] to-[#00C9AF] text-[#0C1B33] font-button font-black text-xs sm:text-sm uppercase tracking-wider py-3.5 px-6 sm:px-7 rounded-xl sm:rounded-full shadow-lg shadow-[#00C9AF]/25 hover:shadow-[#00C9AF]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer shrink-0"
+              >
+                <span>GET INSTANT OFFER</span>
+                <span className="text-base font-black">→</span>
+              </button>
+
+            </div>
           </div>
 
           <div className="flex flex-wrap justify-center items-center gap-2.5 sm:gap-4 pt-6">
