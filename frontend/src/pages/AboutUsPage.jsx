@@ -9,6 +9,7 @@ import StaggerGroup, { StaggerItem } from '../components/animation/StaggerGroup'
 import StatCounter from '../components/animation/StatCounter';
 import AnimatedButton from '../components/animation/AnimatedButton';
 import { buttonMotionVariants } from '../utils/animationVariants';
+import aboutUsMissionImg from '../assets/about-us-mission.png';
 
 const AboutUsPage = () => {
   useEffect(() => {
@@ -79,7 +80,7 @@ const AboutUsPage = () => {
             <div>
               <motion.div 
                 whileHover={{ scale: 1.08, rotate: 5 }}
-                className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm cursor-pointer transition-transform"
+                className="w-16 h-16 bg-[#00C9AF]/10 text-[#00C9AF] border border-[#00C9AF]/20 rounded-2xl flex items-center justify-center mb-6 shadow-sm cursor-pointer transition-transform"
               >
                 <Target size={32} />
               </motion.div>
@@ -111,7 +112,7 @@ const AboutUsPage = () => {
               transition={{ duration: 0.3 }}
               className="flex items-center justify-center"
             >
-              <img src="https://autohealth.in/Asset/images/BannerNo69.png" alt="Selectt Mission" className="object-contain w-full max-h-[420px] drop-shadow-xl" />
+              <img src={aboutUsMissionImg} alt="Selectt Mission & 200-Point Quality Inspection" className="object-contain w-full max-h-[440px] drop-shadow-2xl" loading="lazy" />
             </motion.div>
           </div>
         </SectionReveal>
