@@ -2888,7 +2888,7 @@ const NewHome = () => {
           <h2 className=" uppercase text-4xl md:text-5xl font-black font-heading text-white tracking-tight leading-tight">
             Your car deserves a <span className="text-[#00C9AF]">fair price.</span>
           </h2>
-          <p className="text-slate-600 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+          <p className="text-slate-300 text-sm md:text-base max-w-lg mx-auto leading-relaxed font-medium">
             Enter your registration number. Get a real offer in 60 seconds. Sell in as little as 24 hours.
           </p>
 
@@ -2921,11 +2921,19 @@ const NewHome = () => {
             </button>
           </div>
 
-          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-3 pt-6 text-slate-600 text-xs font-semibold">
-            <div className="flex items-center gap-1.5"><span className="text-[#00C9AF] font-bold text-sm">✓</span> Free home pickup</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#00C9AF] font-bold text-sm">✓</span> Instant bank transfer</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#00C9AF] font-bold text-sm">✓</span> No commission</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#00C9AF] font-bold text-sm">✓</span> Best price guaranteed</div>
+          <div className="flex flex-wrap justify-center items-center gap-2.5 sm:gap-4 pt-6">
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-slate-100 text-xs sm:text-sm font-semibold shadow-xs hover:border-[#00C9AF]/40 hover:bg-white/[0.1] transition-colors">
+              <span className="text-[#00C9AF] font-black text-sm">✓</span> Free home pickup
+            </div>
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-slate-100 text-xs sm:text-sm font-semibold shadow-xs hover:border-[#00C9AF]/40 hover:bg-white/[0.1] transition-colors">
+              <span className="text-[#00C9AF] font-black text-sm">✓</span> Instant bank transfer
+            </div>
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-slate-100 text-xs sm:text-sm font-semibold shadow-xs hover:border-[#00C9AF]/40 hover:bg-white/[0.1] transition-colors">
+              <span className="text-[#00C9AF] font-black text-sm">✓</span> No commission
+            </div>
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-slate-100 text-xs sm:text-sm font-semibold shadow-xs hover:border-[#00C9AF]/40 hover:bg-white/[0.1] transition-colors">
+              <span className="text-[#00C9AF] font-black text-sm">✓</span> Best price guaranteed
+            </div>
           </div>
         </div>
       </section>
