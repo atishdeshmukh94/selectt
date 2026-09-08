@@ -71,30 +71,31 @@ const SidebarFilters = ({ filters = {}, setFilters, onClose, lightBg = false }) 
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 scrollbar-hide pb-8">
-        {/* Certification Toggle */}
-        <div className={`p-1 rounded-xl flex gap-1 mt-4 mb-2 ${lightBg ? 'bg-slate-100' : 'bg-white/5'
-          }`}>
+        {/* Standard vs Luxury Category Toggle */}
+        <div className={`p-1 rounded-xl flex gap-1 mt-4 mb-2 ${lightBg ? 'bg-slate-100' : 'bg-white/5'}`}>
           <button
-            onClick={() => setSingleFilter('certification', filters.certification === 'certified' ? '' : 'certified')}
-            className={`flex-1 py-2 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${filters.certification === 'certified'
-              ? 'bg-[#00C9AF] text-[#0C1B33] shadow-sm'
-              : lightBg
-                ? 'text-slate-500 hover:text-slate-800'
-                : 'text-slate-400 hover:text-slate-200'
-              }`}
-          >
-            Certified
-          </button>
-          <button
-            onClick={() => setSingleFilter('certification', filters.certification === 'standard' ? '' : 'standard')}
-            className={`flex-1 py-2 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${filters.certification === 'standard'
-              ? 'bg-[#00C9AF] text-[#0C1B33] shadow-sm'
-              : lightBg
-                ? 'text-slate-500 hover:text-slate-800'
-                : 'text-slate-400 hover:text-slate-200'
-              }`}
+            onClick={() => setSingleFilter('certification', 'standard')}
+            className={`flex-1 py-2 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+              filters.certification !== 'luxury'
+                ? 'bg-[#00C9AF] text-[#0C1B33] shadow-sm font-black'
+                : lightBg
+                  ? 'text-slate-500 hover:text-slate-800'
+                  : 'text-slate-400 hover:text-slate-200'
+            }`}
           >
             Standard
+          </button>
+          <button
+            onClick={() => setSingleFilter('certification', 'luxury')}
+            className={`flex-1 py-2 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+              filters.certification === 'luxury'
+                ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-sm font-black'
+                : lightBg
+                  ? 'text-slate-500 hover:text-slate-800'
+                  : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            👑 Luxury
           </button>
         </div>
 

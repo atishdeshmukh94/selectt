@@ -54,8 +54,19 @@ const parseQueryParams = (search, locationState) => {
   if (owners) base.owners = owners.split(',').map(s => s.trim()).filter(Boolean);
   if (yearMin) base.year_min = parseInt(yearMin, 10);
   if (kmMax) base.km_max = parseInt(kmMax, 10);
-  if (tag) base.tag = tag;
-  if (certification) base.certification = certification;
+  if (tag) {
+    base.tag = tag;
+    if (tag.toLowerCase().includes('luxury')) {
+      base.certification = 'luxury';
+    } else if (tag.toLowerCase().includes('offer')) {
+      base.certification = '';
+    }
+  }
+  if (certification) {
+    base.certification = certification;
+  } else if (!tag || !tag.toLowerCase().includes('offer')) {
+    base.certification = 'standard';
+  }
   if (budget) base.budget = budget;
   if (budgetMin) base.budget_min = parseFloat(budgetMin);
   if (budgetMax) base.budget_max = parseFloat(budgetMax);
@@ -314,11 +325,16 @@ const BuyCarsPage = () => {
       if (filters.budget === '6 - 10 L' && (price < 600000 || price > 1000000)) return false;
       if (filters.budget === '10 L +' && price <= 1000000) return false;
     }
-    if (filters.certification) {
-      const isCert = car.is_certified === true || car.is_certified === 1 || Boolean(car.quality_report);
+    if (filters.certification && filters.certification !== 'all') {
       const certLower = filters.certification.toLowerCase();
-      if (['certified', 'assured', 'assured+'].includes(certLower) && !isCert) return false;
-      if (certLower === 'standard' && isCert) return false;
+      const isLuxury = (
+        car.listing_type === 'luxury' || 
+        car.listingType === 'luxury' || 
+        (car.tag && car.tag.toLowerCase().includes('luxury')) ||
+        ['bmw', 'mercedes-benz', 'mercedes', 'audi', 'jaguar', 'land rover', 'porsche', 'volvo', 'lexus'].includes((car.make || '').toLowerCase())
+      );
+      if (certLower === 'luxury' && !isLuxury) return false;
+      if (certLower === 'standard' && isLuxury) return false;
     }
     if (filters.searchQuery) {
       const q = filters.searchQuery.toLowerCase();
@@ -344,12 +360,35 @@ const BuyCarsPage = () => {
       if (parseInt(kmStr) > filters.km_max) return false;
     }
     if (filters.tag) {
-      const carTag = (car.tag || car.badgeText || '').toLowerCase();
+      const carTag = (car.tag || car.badgeText || car.badge_text || '').toLowerCase();
       const filterTag = filters.tag.toLowerCase();
-      if (filterTag === 'offer zone') {
-        if (!carTag.includes('offer') && !carTag.includes('discount')) return false;
-      } else if (filterTag === 'selectt luxury') {
-        if (!carTag.includes('luxury') && !carTag.includes('premium')) return false;
+      if (filterTag === 'offer zone' || filterTag === 'offer' || filterTag === 'discount') {
+        const hasDiscount = (
+          (car.discountType && car.discountType !== 'none' && Number(car.discountValue) > 0) ||
+          (car.discount_type && car.discount_type !== 'none' && Number(car.discount_value) > 0) ||
+          (car.badgeText && car.badgeText.trim() !== '') ||
+          (car.badge_text && car.badge_text.trim() !== '') ||
+          (car.originalPrice && Number(car.originalPrice) > Number(car.price)) ||
+          (car.original_price && Number(car.original_price) > Number(car.price)) ||
+          (car.offerPrice && Number(car.offerPrice) > 0) ||
+          (car.offer_price && Number(car.offer_price) > 0) ||
+          carTag.includes('offer') ||
+          carTag.includes('discount') ||
+          carTag.includes('price drop') ||
+          carTag.includes('deal') ||
+          carTag.includes('drop') ||
+          carTag.includes('↓')
+        );
+        if (!hasDiscount) return false;
+      } else if (filterTag === 'selectt luxury' || filterTag === 'luxury') {
+        const isLuxury = (
+          car.listing_type === 'luxury' || 
+          car.listingType === 'luxury' || 
+          carTag.includes('luxury') || 
+          carTag.includes('premium') ||
+          ['bmw', 'mercedes-benz', 'mercedes', 'audi', 'jaguar', 'land rover', 'porsche', 'volvo', 'lexus'].includes((car.make || '').toLowerCase())
+        );
+        if (!isLuxury) return false;
       } else {
         if (!carTag.includes(filterTag)) return false;
       }
@@ -519,7 +558,7 @@ const BuyCarsPage = () => {
                   <span className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">Live Inventory</span>
                   <span className="text-slate-300">|</span>
                   <h1 className="text-sm font-black text-black">
-                    <span className="text-black">{filteredCars.length}</span> Certified Used Cars
+                    <span className="text-black">{filteredCars.length}</span> {filters.certification === 'luxury' || (filters.tag && filters.tag.toLowerCase().includes('luxury')) ? 'Luxury' : filters.tag && filters.tag.toLowerCase().includes('offer') ? 'Offer Zone' : 'Standard'} Used Cars
                     <span className="text-slate-600 font-semibold ml-1">in {city}</span>
                   </h1>
                 </div>

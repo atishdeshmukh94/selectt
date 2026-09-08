@@ -948,6 +948,8 @@ function mapCar(car) {
         location: car.location,
         image: car.image,
         isAssured: Boolean(car.is_assured),
+        listingType: car.listing_type || 'standard',
+        listing_type: car.listing_type || 'standard',
         tag: car.tag,
         badgeText: car.badge_text || '',
         hub: car.hub,
@@ -1067,7 +1069,7 @@ app.get('/api/cars/:id', (req, res) => {
 
 app.post('/api/cars', authMiddleware, (req, res) => {
     const { make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
-        location, image, tag, badgeText, badge_text, hub, isAssured, ownership, engineCapacity, engine_capacity,
+        location, image, tag, badgeText, badge_text, hub, isAssured, listingType, listing_type, ownership, engineCapacity, engine_capacity,
         regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
         insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status } = req.body;
 
@@ -1081,6 +1083,7 @@ app.post('/api/cars', authMiddleware, (req, res) => {
         transmission, location, image, tag, hub,
         badge_text: badgeText || badge_text,
         is_assured: isAssured || false,
+        listing_type: listingType || listing_type || 'standard',
         ownership,
         engine_capacity: engineCapacity || engine_capacity,
         reg_year: regYear || reg_year,
@@ -1126,7 +1129,8 @@ app.post('/api/cars/bulk-import', authMiddleware, isAdmin, async (req, res) => {
                 location: carItem.location || "Mumbai",
                 registration_no: carItem.registrationNo || carItem.registration_no || carItem.regNo || null,
                 image: carItem.image || "/img/suv.png",
-                status: carItem.status || "in_stock"
+                status: carItem.status || "in_stock",
+                listing_type: carItem.listingType || carItem.listing_type || "standard"
             };
             await new Promise((resolve) => {
                 db.query('INSERT INTO cars SET ?', data, (err) => {
@@ -1147,7 +1151,7 @@ app.put('/api/cars/:id', authMiddleware, (req, res) => {
         const oldCar = findResults && findResults[0] ? findResults[0] : null;
 
         const { make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
-            location, image, tag, badgeText, badge_text, hub, isAssured, ownership, engineCapacity, engine_capacity,
+            location, image, tag, badgeText, badge_text, hub, isAssured, listingType, listing_type, ownership, engineCapacity, engine_capacity,
             regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
             insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status } = req.body;
 
@@ -1161,6 +1165,7 @@ app.put('/api/cars/:id', authMiddleware, (req, res) => {
             transmission, location, image, tag, hub,
             badge_text: badgeText || badge_text,
             is_assured: isAssured !== undefined ? isAssured : false,
+            listing_type: listingType || listing_type || 'standard',
             ownership,
             engine_capacity: engineCapacity || engine_capacity,
             reg_year: regYear || reg_year,
@@ -1222,13 +1227,14 @@ app.put('/api/cars/:id', authMiddleware, (req, res) => {
 });
 
 app.patch('/api/cars/bulk-update', authMiddleware, (req, res) => {
-    const { ids, status, isAssured } = req.body;
+    const { ids, status, isAssured, listingType, listing_type } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
         return res.status(400).json({ error: 'ids array is required' });
     }
     const updateData = {};
     if (status !== undefined) updateData.status = status;
     if (isAssured !== undefined) updateData.is_assured = isAssured;
+    if (listingType !== undefined || listing_type !== undefined) updateData.listing_type = listingType || listing_type;
 
     if (Object.keys(updateData).length === 0) {
         return res.status(400).json({ error: 'No fields to update' });
@@ -1245,6 +1251,8 @@ app.patch('/api/cars/:id', authMiddleware, (req, res) => {
         status: 'status',
         isAssured: 'is_assured',
         is_assured: 'is_assured',
+        listingType: 'listing_type',
+        listing_type: 'listing_type',
         price: 'price',
         tag: 'tag',
         hub: 'hub',

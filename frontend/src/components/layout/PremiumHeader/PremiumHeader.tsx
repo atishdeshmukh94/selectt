@@ -847,7 +847,7 @@ export const PremiumHeader: React.FC = () => {
 
           {/* Highlighted Buttons */}
           <button
-            onClick={() => handleNavFilter({ tag: 'Offer Zone' })}
+            onClick={() => handleNavFilter({ tag: 'Offer Zone', certification: '' })}
             className={`${styles.highlightedFilterBtn} ${styles.btnOfferZone}`}
           >
             <IconPercentage size={14} />
@@ -855,7 +855,7 @@ export const PremiumHeader: React.FC = () => {
           </button>
 
           <button
-            onClick={() => handleNavFilter({ tag: 'Selectt Luxury' })}
+            onClick={() => handleNavFilter({ tag: 'Selectt Luxury', certification: 'luxury' })}
             className={`${styles.highlightedFilterBtn} ${styles.btnPremiumCars}`}
           >
             <IconCrown size={14} />

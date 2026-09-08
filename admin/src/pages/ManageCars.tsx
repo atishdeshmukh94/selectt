@@ -1175,9 +1175,13 @@ export default function ManageCars() {
 
                       {/* Top Left Badges Overlay */}
                       <div className="absolute top-3 left-3 flex items-center gap-2 flex-wrap">
-                        {(quickViewCar.isAssured || quickViewCar.is_assured) && (
+                        {quickViewCar.listing_type === 'luxury' || quickViewCar.listingType === 'luxury' || (quickViewCar.tag && quickViewCar.tag.toLowerCase().includes('luxury')) ? (
                           <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-md flex items-center gap-1">
-                            <ShieldCheck size={14} className="stroke-[2.5]" /> Selectt Assured
+                            👑 Selectt Luxury
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-600 text-white shadow-md flex items-center gap-1">
+                            Standard
                           </span>
                         )}
                         {quickViewCar.tag && (

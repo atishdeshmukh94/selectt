@@ -276,6 +276,7 @@ const CarEditPage = () => {
     transmission: "Manual",
     location: "",
     image: "",
+    listingType: "standard",
     isAssured: false,
     tag: "",
     badgeText: "",
@@ -352,6 +353,7 @@ const CarEditPage = () => {
 
       setFormData({
         ...data,
+        listingType: data.listingType || data.listing_type || (data.tag && data.tag.toLowerCase().includes('luxury') ? "luxury" : "standard"),
         reasonsToBuy: data.reasonsToBuy || [],
         specifications: data.specifications || [],
         features: features,
@@ -870,20 +872,41 @@ const CarEditPage = () => {
               <section className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xs border border-slate-200/80 dark:border-gray-800 space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-gray-800">
                   <ShieldCheck size={16} className="text-[#155DFC]" />
-                  <h2 className="text-sm font-black text-slate-900 dark:text-white">Selectt Assured & Badges</h2>
+                  <h2 className="text-sm font-black text-slate-900 dark:text-white">Listing Category & Badges</h2>
                 </div>
-                <label className="flex items-center gap-3 p-3.5 bg-blue-50/50 dark:bg-blue-950/30 rounded-2xl cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-all border border-blue-100 dark:border-blue-900/40">
-                  <input 
-                    type="checkbox" 
-                    checked={formData.isAssured} 
-                    onChange={e => setFormData({...formData, isAssured: e.target.checked})}
-                    className="w-4 h-4 accent-[#155DFC]"
-                  />
-                  <div>
-                    <span className="text-xs font-black text-slate-900 dark:text-white block">Certified Listing</span>
-                    <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wide">200-Points Inspected</span>
+
+                <div className="space-y-2">
+                  <label className={labelClass}>Listing Category</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, listingType: 'standard' })}
+                      className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                        formData.listingType === 'standard' || !formData.listingType
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-700 dark:text-emerald-400 font-black shadow-xs ring-2 ring-emerald-500/20'
+                          : 'bg-slate-50 dark:bg-gray-800/60 border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <span className="text-xs uppercase tracking-wider font-extrabold">Standard</span>
+                      <span className="text-[10px] text-slate-400 font-medium">Standard Inventory</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, listingType: 'luxury' })}
+                      className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                        formData.listingType === 'luxury'
+                          ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 text-amber-700 dark:text-amber-400 font-black shadow-xs ring-2 ring-amber-500/20'
+                          : 'bg-slate-50 dark:bg-gray-800/60 border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <span className="text-xs uppercase tracking-wider font-extrabold flex items-center gap-1">
+                        <span>👑</span> Luxury
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium">Selectt Luxury</span>
+                    </button>
                   </div>
-                </label>
+                </div>
 
                 <div>
                   <label className={labelClass}>Badge / Tag</label>
