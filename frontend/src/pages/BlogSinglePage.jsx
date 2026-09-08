@@ -77,15 +77,15 @@ const BlogSinglePage = () => {
             </div>
 
             {/* Featured Media */}
-            <div className="mb-10 rounded-3xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800">
+            <div className="mb-10 rounded-3xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
               {post.video_url ? (
                 post.video_type === 'youtube' ? (
-                  <div className="relative pt-[56.25%]"><iframe src={`https://www.youtube.com/embed/${post.video_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1]}`} className="absolute top-0 left-0 w-full h-full" allowFullScreen frameBorder="0" /></div>
+                  <div className="relative w-full pt-[56.25%]"><iframe src={`https://www.youtube.com/embed/${post.video_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1]}`} className="absolute top-0 left-0 w-full h-full" allowFullScreen frameBorder="0" /></div>
                 ) : (
                   <video src={post.video_url} controls className="w-full aspect-video bg-black" />
                 )
               ) : post.featured_image ? (
-                <img src={post.featured_image.startsWith('/') ? `${API}${post.featured_image}` : post.featured_image} alt={post.title} className="w-full aspect-video object-cover" />
+                <img src={post.featured_image.startsWith('/') ? `${API}${post.featured_image}` : post.featured_image} alt={post.title} className="w-full h-auto max-h-[650px] object-contain mx-auto block rounded-3xl" />
               ) : null}
             </div>
 

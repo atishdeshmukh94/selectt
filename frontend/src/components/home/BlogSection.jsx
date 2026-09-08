@@ -45,15 +45,15 @@ const BlogSection = () => {
           <div className="flex lg:grid lg:grid-cols-4 gap-8 overflow-x-auto lg:overflow-visible hide-scrollbar snap-x snap-mandatory px-0 md:px-0">
             {blogs.map((blog, index) => (
               <Link to={`/blog/${blog.slug}`} key={index} className="group cursor-pointer min-w-[280px] md:min-w-0 snap-center flex flex-col bg-white dark:bg-gray-900 border-2 border-slate-300/90 dark:border-slate-700 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:border-[#00C9AF] dark:hover:border-[#00C9AF] transition-all duration-300">
-                <div className="aspect-[16/9] bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden mb-5 relative shadow-xs">
+                <div className="w-full bg-slate-100 dark:bg-gray-800 rounded-2xl overflow-hidden mb-5 relative shadow-xs flex items-center justify-center min-h-[180px]">
                   {blog.featured_image ? (
                     <img
                       alt={blog.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-auto max-h-[240px] object-contain group-hover:scale-105 transition-transform duration-500"
                       src={blog.featured_image.startsWith('/') ? `${API}${blog.featured_image}` : blog.featured_image}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300"><FileText size={32} /></div>
+                    <div className="w-full h-40 flex items-center justify-center text-gray-300"><FileText size={32} /></div>
                   )}
                 </div>
 

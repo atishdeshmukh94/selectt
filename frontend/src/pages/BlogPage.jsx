@@ -112,11 +112,11 @@ const BlogPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map(post => (
                 <Link to={`/blog/${post.slug}`} key={post.id} className="group flex flex-col bg-white dark:bg-gray-900 border-2 border-slate-300/90 dark:border-slate-700 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:border-[#00C9AF] dark:hover:border-[#00C9AF] transition-all duration-300">
-                  <div className="aspect-[16/9] rounded-2xl overflow-hidden mb-5 bg-gray-100 dark:bg-gray-800 relative shadow-xs">
+                  <div className="w-full rounded-2xl overflow-hidden mb-5 bg-slate-100 dark:bg-gray-800 relative shadow-xs flex items-center justify-center min-h-[190px]">
                     {post.featured_image ? (
-                      <img src={post.featured_image.startsWith('/') ? `${API}${post.featured_image}` : post.featured_image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={post.featured_image.startsWith('/') ? `${API}${post.featured_image}` : post.featured_image} alt={post.title} className="w-full h-auto max-h-[260px] object-contain group-hover:scale-105 transition-transform duration-500" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center"><FileText size={40} className="text-gray-300" /></div>
+                      <div className="w-full h-48 flex items-center justify-center"><FileText size={40} className="text-gray-300" /></div>
                     )}
                   </div>
                   <div className="flex-1 flex flex-col">
