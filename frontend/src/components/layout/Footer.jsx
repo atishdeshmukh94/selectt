@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { API_URL } from '../../config/api';
-import { Facebook, Twitter, Instagram, Phone, BarChart2, FileText, Mail, Linkedin, X, Home, ShoppingCart, Heart, TrendingUp, User, MapPin, MessageCircle, MessageSquare, ArrowUp, HelpCircle } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Youtube, Phone, BarChart2, FileText, Mail, Linkedin, X, Home, ShoppingCart, Heart, TrendingUp, User, MapPin, MessageCircle, MessageSquare, ArrowUp, HelpCircle } from 'lucide-react';
 
 const Footer = () => {
   const location = useLocation();
@@ -107,14 +107,14 @@ const Footer = () => {
 
               {/* Square social icon buttons with #00DCBB color */}
               <div className="flex gap-3 pt-1">
-                <a href="#" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="Facebook">
+                <a href="https://www.facebook.com/selectt.cars" target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="Facebook">
                   <Facebook size={18} />
                 </a>
-                <a href="https://www.instagram.com/selectt_cars/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="Instagram">
+                <a href="https://www.instagram.com/selectt.cars/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="Instagram">
                   <Instagram size={18} />
                 </a>
-                <a href="mailto:info@selectt.com" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="Mail Support">
-                  <Mail size={18} />
+                <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="YouTube">
+                  <Youtube size={18} />
                 </a>
               </div>
             </div>

@@ -78,25 +78,25 @@ const ContactUsPage = () => {
               <div className="bg-white p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100">
                 <h3 className="text-2xl font-black text-[#0C1B33] mb-6">Connect with us online</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <a href="https://www.instagram.com/selectt_cars/" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-pink-200 hover:bg-pink-50 transition-colors group">
+                  <a href="https://www.instagram.com/selectt.cars/" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-pink-200 hover:bg-pink-50 transition-colors group">
                     <div className="w-10 h-10 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                       <Instagram size={20} />
                     </div>
                     <div>
                       <div className="font-bold text-[#0C1B33]">Instagram</div>
-                      <div className="text-xs text-slate-500">@selectt_cars</div>
+                      <div className="text-xs text-slate-500">@selectt.cars</div>
                     </div>
                   </a>
-                  <a href="#" className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-colors group">
+                  <a href="https://www.facebook.com/selectt.cars" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-colors group">
                     <div className="w-10 h-10 bg-[#1877F2] rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                       <Facebook size={20} />
                     </div>
                     <div>
                       <div className="font-bold text-[#0C1B33]">Facebook</div>
-                      <div className="text-xs text-slate-500">Join our community</div>
+                      <div className="text-xs text-slate-500">@selectt.cars</div>
                     </div>
                   </a>
-                  <a href="#" className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-red-200 hover:bg-red-50 transition-colors group">
+                  <a href="#" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-red-200 hover:bg-red-50 transition-colors group">
                     <div className="w-10 h-10 bg-[#FF0000] rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                       <Youtube size={20} />
                     </div>
