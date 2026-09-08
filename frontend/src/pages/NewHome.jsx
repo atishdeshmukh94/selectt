@@ -1878,7 +1878,6 @@ const NewHome = () => {
             {/* Left Text Column */}
             <div className="space-y-6 text-left  mt-10">
               <div className="inline-flex items-center gap-2 bg-[#E6FAF7] border border-[#00C9AF]/30 text-[#0A524A] px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase">
-                <span className="w-2 h-2 bg-[#00C9AF] rounded-full animate-pulse"></span>
                 India's most trusted car marketplace
               </div>
 
@@ -1888,7 +1887,7 @@ const NewHome = () => {
                 Always.
               </h1>
 
-              <p className="text-slate-600 text-base md:text-lg max-w-lg leading-relaxed">
+              <p className="text-slate-300 md:text-slate-200 text-base md:text-lg max-w-lg leading-relaxed font-medium">
                 Every vehicle is 200-point inspected, priced right, and backed by a 7-day return policy. No dealers. No drama.
               </p>
 
@@ -1929,7 +1928,7 @@ const NewHome = () => {
                 </div>
                 <div className="p-3">
                   <div className="text-[9px] font-bold text-[#00C9AF] tracking-wider uppercase">{heroCars[0]?.make}</div>
-                  <div className="text-[14px] font-extrabold text-white mt-0.5 group-hover:text-[#00C9AF] transition-colors leading-tight truncate">
+                  <div className="text-[14px] font-medium text-white/95 mt-0.5 group-hover:text-[#00C9AF] transition-colors leading-tight truncate">
                     {heroCars[0]?.make} {heroCars[0]?.model}
                   </div>
                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-700/50">
@@ -1965,7 +1964,7 @@ const NewHome = () => {
                 </div>
                 <div className="p-3">
                   <div className="text-[9px] font-bold text-[#00C9AF] tracking-wider uppercase">{heroCars[1]?.make}</div>
-                  <div className="text-[14px] font-extrabold text-white mt-0.5 group-hover:text-[#00C9AF] transition-colors leading-tight truncate">
+                  <div className="text-[14px] font-medium text-white/95 mt-0.5 group-hover:text-[#00C9AF] transition-colors leading-tight truncate">
                     {heroCars[1]?.make} {heroCars[1]?.model}
                   </div>
                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-700/50">
@@ -2001,7 +2000,7 @@ const NewHome = () => {
                 </div>
                 <div className="p-3">
                   <div className="text-[9px] font-bold text-[#00C9AF] tracking-wider uppercase">{heroCars[2]?.make}</div>
-                  <div className="text-[14px] font-extrabold text-white mt-0.5 group-hover:text-[#00C9AF] transition-colors leading-tight truncate">
+                  <div className="text-[14px] font-medium text-white/95 mt-0.5 group-hover:text-[#00C9AF] transition-colors leading-tight truncate">
                     {heroCars[2]?.make} {heroCars[2]?.model}
                   </div>
                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-700/50">
