@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronRight, Calendar, User, Facebook, Twitter, Linkedin, Link as LinkIcon, MapPin } from 'lucide-react';
+import { ChevronRight, Calendar, User, Facebook, Twitter, Linkedin, Link as LinkIcon, MapPin, FileText } from 'lucide-react';
 import PageMeta from '../components/common/PageMeta';
 import { getCarDetailsUrl } from '../utils/formatters';
 
@@ -66,7 +66,12 @@ const BlogSinglePage = () => {
             <div className="mb-8">
               <div className="flex flex-wrap gap-2 mb-4">
                 {post.categories?.split(',').map((c, i) => (
-                  <span key={i} className="text-xs font-bold uppercase tracking-widest text-[#00C9AF] bg-rose-50 dark:bg-rose-900/20 px-3 py-1 rounded-full">{c}</span>
+                  <span
+                    key={i}
+                    className="text-xs font-black uppercase tracking-widest text-white bg-slate-950 dark:bg-black px-3.5 py-1.5 rounded-full shadow-sm"
+                  >
+                    {c.trim()}
+                  </span>
                 ))}
               </div>
               <h1 className="text-3xl md:text-5xl font-black text-navy dark:text-white mb-6 leading-tight">{post.title}</h1>
@@ -126,10 +131,10 @@ const BlogSinglePage = () => {
                   <span className="w-1.5 h-6 bg-[#00C9AF] rounded-full"></span> Top Posts
                 </h3>
                 <div className="space-y-5">
-                  {related.map(r => (
+                  {related.slice(0, 4).map(r => (
                     <Link to={`/blog/${r.slug}`} key={r.id} className="group flex gap-4 items-start">
-                      <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0">
-                        {r.featured_image ? <img src={r.featured_image.startsWith('/') ? `${API}${r.featured_image}` : r.featured_image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /> : <div className="w-full h-full bg-gray-200" />}
+                      <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center">
+                        {r.featured_image ? <img src={r.featured_image.startsWith('/') ? `${API}${r.featured_image}` : r.featured_image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={r.title} /> : <div className="w-full h-full bg-gray-200" />}
                       </div>
                       <div className="flex-1">
                         <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 line-clamp-2 leading-tight group-hover:text-[#00C9AF] transition-colors mb-1">{r.title}</h4>
@@ -194,6 +199,74 @@ const BlogSinglePage = () => {
             </div>
           </aside>
         </div>
+
+        {/* Related & Latest Articles Section Below Article */}
+        {related.length > 0 && (
+          <div className="max-w-7xl mx-auto mt-16 pt-12 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <span className="text-xs font-black uppercase tracking-widest text-[#00C9AF] mb-1 block">Related Reads</span>
+                <h2 className="text-2xl sm:text-3xl font-black text-navy dark:text-white">Related & Latest Posts</h2>
+              </div>
+              <Link
+                to="/blog"
+                className="text-sm font-bold text-[#00C9AF] hover:underline flex items-center gap-1 group"
+              >
+                View all articles <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {related.slice(0, 3).map(r => (
+                <Link
+                  to={`/blog/${r.slug}`}
+                  key={r.id}
+                  className="group flex flex-col bg-white dark:bg-gray-900 border-2 border-slate-300/90 dark:border-slate-700 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:border-[#00C9AF] dark:hover:border-[#00C9AF] transition-all duration-300"
+                >
+                  <div className="w-full rounded-2xl overflow-hidden mb-5 bg-slate-100 dark:bg-gray-800 relative shadow-xs flex items-center justify-center min-h-[190px]">
+                    {r.featured_image ? (
+                      <img
+                        src={r.featured_image.startsWith('/') ? `${API}${r.featured_image}` : r.featured_image}
+                        alt={r.title}
+                        className="w-full h-auto max-h-[260px] object-contain group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-48 flex items-center justify-center text-gray-300">
+                        <FileText size={40} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 flex flex-col">
+                    {r.categories && (
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {r.categories.split(',').slice(0, 2).map((c, idx) => (
+                          <span
+                            key={idx}
+                            className="text-[10px] font-black uppercase tracking-widest text-white bg-slate-950 dark:bg-black px-2.5 py-1 rounded-full"
+                          >
+                            {c.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <h3 className="text-lg font-black text-navy dark:text-white mb-2 line-clamp-2 group-hover:text-[#00C9AF] transition-colors">
+                      {r.title}
+                    </h3>
+                    {r.excerpt && (
+                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 flex-1">
+                        {r.excerpt}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between text-xs font-bold text-gray-400 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+                      <span>{new Date(r.published_at).toLocaleDateString('en-IN', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                      <span className="flex items-center gap-1 group-hover:text-[#00C9AF] transition-colors">Read Post <ChevronRight size={14} /></span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

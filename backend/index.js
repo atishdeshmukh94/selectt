@@ -3318,7 +3318,10 @@ app.get('/api/blog/posts/:slug', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!rows.length) return res.status(404).json({ message: 'Post not found' });
         // Get related posts
-        db.query(`SELECT id, title, slug, featured_image, published_at, excerpt FROM blog_posts WHERE status='published' AND id != ? ORDER BY published_at DESC LIMIT 4`, [rows[0].id], (err2, related) => {
+        db.query(`SELECT bp.id, bp.title, bp.slug, bp.featured_image, bp.published_at, bp.excerpt,
+            (SELECT GROUP_CONCAT(bc.name SEPARATOR ',') FROM blog_post_categories bpc JOIN blog_categories bc ON bpc.category_id = bc.id WHERE bpc.post_id = bp.id) as categories,
+            (SELECT GROUP_CONCAT(bc.slug SEPARATOR ',') FROM blog_post_categories bpc JOIN blog_categories bc ON bpc.category_id = bc.id WHERE bpc.post_id = bp.id) as category_slugs
+            FROM blog_posts bp WHERE bp.status='published' AND bp.id != ? ORDER BY bp.published_at DESC LIMIT 6`, [rows[0].id], (err2, related) => {
             res.json({ post: rows[0], related: related || [] });
         });
     });

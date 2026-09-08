@@ -122,7 +122,7 @@ const BlogPage = () => {
                   <div className="flex-1 flex flex-col">
                     <div className="flex flex-wrap gap-2 mb-3">
                       {post.category_slugs?.split(',').map((c, i) => (
-                        <span key={i} className="text-[10px] font-extrabold uppercase tracking-widest text-[#00C9AF] bg-teal-50 dark:bg-teal-900/20 px-2.5 py-1 rounded-full">{c.replace(/-/g, ' ')}</span>
+                        <span key={i} className="text-[10px] font-black uppercase tracking-widest text-white bg-slate-950 dark:bg-black px-2.5 py-1 rounded-full">{c.replace(/-/g, ' ')}</span>
                       ))}
                     </div>
                     <h2 className="text-xl font-black text-navy dark:text-white mb-2 line-clamp-2 group-hover:text-[#00C9AF] transition-colors">{post.title}</h2>

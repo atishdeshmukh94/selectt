@@ -60,7 +60,7 @@ const BlogSection = () => {
                 {blog.categories && (
                   <div className="flex flex-wrap gap-1 mb-2">
                     {blog.categories.split(',').slice(0, 1).map((c, i) => (
-                      <span key={i} className={`inline-block px-2.5 py-1 bg-teal-50 dark:bg-teal-900/20 text-[#00C9AF] text-[10px] font-extrabold rounded-full uppercase tracking-wider`}>
+                      <span key={i} className={`inline-block px-2.5 py-1 bg-slate-950 dark:bg-black text-white text-[10px] font-black rounded-full uppercase tracking-wider`}>
                         {c.trim()}
                       </span>
                     ))}
