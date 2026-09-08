@@ -50,9 +50,9 @@ const BlogSinglePage = () => {
   return (
     <>
       <PageMeta title={`${post.meta_title || post.title} | Selectt`} description={post.meta_description || post.excerpt} />
-      <div className="bg-background-light dark:bg-background-dark min-h-screen pt-24 pb-16 px-4">
+      <div className="bg-background-light dark:bg-background-dark min-h-screen pt-4 sm:pt-6 pb-16 px-4">
         {/* Breadcrumb */}
-        <div className="max-w-7xl mx-auto mb-8 flex items-center gap-2 text-sm text-gray-500 font-medium">
+        <div className="max-w-7xl mx-auto mb-4 sm:mb-6 flex items-center gap-2 text-sm text-gray-500 font-medium">
           <Link to="/" className="hover:text-[#00C9AF] transition-colors">Home</Link>
           <ChevronRight size={14} />
           <Link to="/blog" className="hover:text-[#00C9AF] transition-colors">Blog</Link>

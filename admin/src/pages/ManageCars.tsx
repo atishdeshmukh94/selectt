@@ -72,6 +72,7 @@ export default function ManageCars() {
   // Filters state
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [makeFilter, setMakeFilter] = useState("all");
   const [fuelFilter, setFuelFilter] = useState("all");
   const [transmissionFilter, setTransmissionFilter] = useState("all");
@@ -372,6 +373,9 @@ export default function ManageCars() {
         (statusFilter === "coming_soon" && (c.status || "").toLowerCase() === "coming_soon") ||
         (c.status || "").toLowerCase() === statusFilter.toLowerCase();
 
+      const carCategory = (c.listing_type || c.listingType || (c.tag && c.tag.toLowerCase().includes('luxury') ? 'luxury' : 'standard')).toLowerCase();
+      const matchesCategory = categoryFilter === "all" || carCategory === categoryFilter.toLowerCase();
+
       const matchesMake = makeFilter === "all" || (c.make || "").toLowerCase() === makeFilter.toLowerCase();
       const matchesYear = yearFilter === "all" || String(c.year || c.regYear || '') === yearFilter;
       
@@ -382,9 +386,9 @@ export default function ManageCars() {
       const carTrans = (c.transmission || "").toLowerCase();
       const matchesTrans = transmissionFilter === "all" || carTrans.includes(transmissionFilter.toLowerCase());
 
-      return matchesSearch && matchesStatus && matchesMake && matchesYear && matchesFuel && matchesTrans;
+      return matchesSearch && matchesStatus && matchesCategory && matchesMake && matchesYear && matchesFuel && matchesTrans;
     });
-  }, [cars, search, statusFilter, makeFilter, yearFilter, fuelFilter, transmissionFilter]);
+  }, [cars, search, statusFilter, categoryFilter, makeFilter, yearFilter, fuelFilter, transmissionFilter]);
 
   // Sorting Logic
   const sorted = useMemo(() => {
@@ -417,6 +421,7 @@ export default function ManageCars() {
   const clearAllFilters = () => {
     setSearch("");
     setStatusFilter("all");
+    setCategoryFilter("all");
     setMakeFilter("all");
     setFuelFilter("all");
     setTransmissionFilter("all");
@@ -424,7 +429,7 @@ export default function ManageCars() {
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = search || statusFilter !== "all" || makeFilter !== "all" || fuelFilter !== "all" || transmissionFilter !== "all" || yearFilter !== "all";
+  const hasActiveFilters = search || statusFilter !== "all" || categoryFilter !== "all" || makeFilter !== "all" || fuelFilter !== "all" || transmissionFilter !== "all" || yearFilter !== "all";
 
   // Summary Metrics Counts
   const inStockCount = cars.filter(c => ["in_stock", "active"].includes((c.status || "active").toLowerCase())).length;
@@ -432,6 +437,8 @@ export default function ManageCars() {
   const bookedCount = cars.filter(c => ["booked", "on_hold", "hold", "reserved"].includes((c.status || "").toLowerCase())).length;
   const soldOutCount = cars.filter(c => (c.status || "").toLowerCase() === "sold_out").length;
   const comingSoonCount = cars.filter(c => (c.status || "").toLowerCase() === "coming_soon").length;
+  const standardCount = cars.filter(c => (c.listing_type || c.listingType || (c.tag && c.tag.toLowerCase().includes('luxury') ? 'luxury' : 'standard')).toLowerCase() === 'standard').length;
+  const luxuryCount = cars.filter(c => (c.listing_type || c.listingType || (c.tag && c.tag.toLowerCase().includes('luxury') ? 'luxury' : 'standard')).toLowerCase() === 'luxury').length;
 
   return (
     <>
@@ -621,11 +628,22 @@ export default function ManageCars() {
             </div>
 
             {/* Filter Dropdowns Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+              {/* Category / Listing Type Filter */}
+              <select
+                value={categoryFilter}
+                onChange={e => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
+                className="px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white bg-white cursor-pointer"
+              >
+                <option value="all">All Categories ({cars.length})</option>
+                <option value="standard">Standard ({standardCount})</option>
+                <option value="luxury">Luxury ({luxuryCount})</option>
+              </select>
+
               {/* Status Filter */}
               <select
                 value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
+                onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
                 className="px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white bg-white cursor-pointer"
               >
                 <option value="all">All Statuses ({cars.length})</option>
@@ -639,7 +657,7 @@ export default function ManageCars() {
               {/* Brand/Make */}
               <select
                 value={makeFilter}
-                onChange={e => setMakeFilter(e.target.value)}
+                onChange={e => { setMakeFilter(e.target.value); setCurrentPage(1); }}
                 className="px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white bg-white cursor-pointer"
               >
                 <option value="all">All Makes ({uniqueMakes.length})</option>
@@ -651,7 +669,7 @@ export default function ManageCars() {
               {/* Year Filter */}
               <select
                 value={yearFilter}
-                onChange={e => setYearFilter(e.target.value)}
+                onChange={e => { setYearFilter(e.target.value); setCurrentPage(1); }}
                 className="px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white bg-white cursor-pointer"
               >
                 <option value="all">All Years ({uniqueYears.length})</option>
@@ -663,7 +681,7 @@ export default function ManageCars() {
               {/* Fuel */}
               <select
                 value={fuelFilter}
-                onChange={e => setFuelFilter(e.target.value)}
+                onChange={e => { setFuelFilter(e.target.value); setCurrentPage(1); }}
                 className="px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white bg-white cursor-pointer"
               >
                 <option value="all">All Fuel Types</option>
@@ -677,7 +695,7 @@ export default function ManageCars() {
               {/* Transmission */}
               <select
                 value={transmissionFilter}
-                onChange={e => setTransmissionFilter(e.target.value)}
+                onChange={e => { setTransmissionFilter(e.target.value); setCurrentPage(1); }}
                 className="px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white bg-white cursor-pointer"
               >
                 <option value="all">All Transmissions</option>
@@ -692,6 +710,7 @@ export default function ManageCars() {
             <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800 text-xs">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-gray-500 font-medium">Filtered results: <strong className="text-gray-800 dark:text-white">{filtered.length}</strong> of {cars.length}</span>
+                {categoryFilter !== "all" && <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200/60 rounded-full font-bold">Category: {categoryFilter === 'luxury' ? 'Luxury' : 'Standard'}</span>}
                 {statusFilter !== "all" && <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full font-bold">Status: {statusFilter}</span>}
                 {makeFilter !== "all" && <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full font-bold">Make: {makeFilter}</span>}
                 {yearFilter !== "all" && <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full font-bold">Year: {yearFilter}</span>}
@@ -874,9 +893,18 @@ export default function ManageCars() {
                         {/* Car Model & ID (with Location directly below) */}
                         <td className="px-2.5 py-2.5">
                           <button onClick={() => setQuickViewCar(car)} className="text-left group cursor-pointer block">
-                            <div className="font-extrabold text-gray-900 text-sm dark:text-white group-hover:text-indigo-600 transition-colors flex items-center gap-1.5">
+                            <div className="font-extrabold text-gray-900 text-sm dark:text-white group-hover:text-indigo-600 transition-colors flex items-center gap-1.5 flex-wrap">
                               <span>{car.make} {car.model}</span>
                               <span className="text-xs font-bold text-[#1C3EB9] font-mono">#{car.id}</span>
+                              {(car.listing_type === 'luxury' || car.listingType === 'luxury' || (car.tag && car.tag.toLowerCase().includes('luxury'))) ? (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 text-[10px] font-black tracking-wide uppercase border border-amber-300/60">
+                                  Luxury
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 text-[10px] font-bold capitalize border border-slate-200 dark:border-slate-700">
+                                  Standard
+                                </span>
+                              )}
                             </div>
                             <div className="text-xs text-gray-600 dark:text-gray-300 flex items-center gap-1.5 flex-wrap mt-1">
                               {car.variant && <span className="font-bold text-gray-700 dark:text-gray-200">{car.variant}</span>}
@@ -1177,7 +1205,7 @@ export default function ManageCars() {
                       <div className="absolute top-3 left-3 flex items-center gap-2 flex-wrap">
                         {quickViewCar.listing_type === 'luxury' || quickViewCar.listingType === 'luxury' || (quickViewCar.tag && quickViewCar.tag.toLowerCase().includes('luxury')) ? (
                           <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-md flex items-center gap-1">
-                            👑 Selectt Luxury
+                            Selectt Luxury
                           </span>
                         ) : (
                           <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-600 text-white shadow-md flex items-center gap-1">

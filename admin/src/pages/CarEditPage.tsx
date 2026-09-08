@@ -900,8 +900,8 @@ const CarEditPage = () => {
                           : 'bg-slate-50 dark:bg-gray-800/60 border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-100 dark:hover:bg-gray-800'
                       }`}
                     >
-                      <span className="text-xs uppercase tracking-wider font-extrabold flex items-center gap-1">
-                        <span>👑</span> Luxury
+                      <span className="text-xs uppercase tracking-wider font-extrabold">
+                        Luxury
                       </span>
                       <span className="text-[10px] text-slate-400 font-medium">Selectt Luxury</span>
                     </button>

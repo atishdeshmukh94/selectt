@@ -95,7 +95,7 @@ const SidebarFilters = ({ filters = {}, setFilters, onClose, lightBg = false }) 
                   : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            👑 Luxury
+            Luxury
           </button>
         </div>
 

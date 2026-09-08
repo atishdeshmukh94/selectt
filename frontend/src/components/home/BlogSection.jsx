@@ -44,8 +44,8 @@ const BlogSection = () => {
         <div className="relative group/slider">
           <div className="flex lg:grid lg:grid-cols-4 gap-8 overflow-x-auto lg:overflow-visible hide-scrollbar snap-x snap-mandatory px-0 md:px-0">
             {blogs.map((blog, index) => (
-              <Link to={`/blog/${blog.slug}`} key={index} className="group cursor-pointer min-w-[280px] md:min-w-0 snap-center flex flex-col">
-                <div className="aspect-[16/9] bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden mb-5 relative shadow-md">
+              <Link to={`/blog/${blog.slug}`} key={index} className="group cursor-pointer min-w-[280px] md:min-w-0 snap-center flex flex-col bg-white dark:bg-gray-900 border-2 border-slate-300/90 dark:border-slate-700 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:border-[#00C9AF] dark:hover:border-[#00C9AF] transition-all duration-300">
+                <div className="aspect-[16/9] bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden mb-5 relative shadow-xs">
                   {blog.featured_image ? (
                     <img
                       alt={blog.title}
@@ -60,19 +60,22 @@ const BlogSection = () => {
                 {blog.categories && (
                   <div className="flex flex-wrap gap-1 mb-2">
                     {blog.categories.split(',').slice(0, 1).map((c, i) => (
-                      <span key={i} className={`inline-block px-3 py-1 bg-red-50 dark:bg-red-900/20 text-[#00C9AF] text-[10px] font-bold rounded-full uppercase tracking-wider`}>
+                      <span key={i} className={`inline-block px-2.5 py-1 bg-teal-50 dark:bg-teal-900/20 text-[#00C9AF] text-[10px] font-extrabold rounded-full uppercase tracking-wider`}>
                         {c.trim()}
                       </span>
                     ))}
                   </div>
                 )}
 
-                <h3 className="text-xl font-bold mb-2 group-hover:text-[#00C9AF] transition-colors text-navy dark:text-white line-clamp-2">
+                <h3 className="text-lg font-black mb-2 group-hover:text-[#00C9AF] transition-colors text-navy dark:text-white line-clamp-2">
                   {blog.title}
                 </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
+                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-1">
                   {blog.excerpt}
                 </p>
+                <div className="flex items-center justify-between text-xs font-bold text-gray-400 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <span className="flex items-center gap-1 group-hover:text-[#00C9AF] transition-colors font-extrabold">Read Post <ChevronRight size={14} /></span>
+                </div>
               </Link>
             ))}
           </div>

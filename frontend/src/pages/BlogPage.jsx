@@ -111,8 +111,8 @@ const BlogPage = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map(post => (
-                <Link to={`/blog/${post.slug}`} key={post.id} className="group flex flex-col">
-                  <div className="aspect-[16/9] rounded-3xl overflow-hidden mb-5 bg-gray-100 dark:bg-gray-800 relative shadow-md">
+                <Link to={`/blog/${post.slug}`} key={post.id} className="group flex flex-col bg-white dark:bg-gray-900 border-2 border-slate-300/90 dark:border-slate-700 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:border-[#00C9AF] dark:hover:border-[#00C9AF] transition-all duration-300">
+                  <div className="aspect-[16/9] rounded-2xl overflow-hidden mb-5 bg-gray-100 dark:bg-gray-800 relative shadow-xs">
                     {post.featured_image ? (
                       <img src={post.featured_image.startsWith('/') ? `${API}${post.featured_image}` : post.featured_image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
@@ -122,12 +122,12 @@ const BlogPage = () => {
                   <div className="flex-1 flex flex-col">
                     <div className="flex flex-wrap gap-2 mb-3">
                       {post.category_slugs?.split(',').map((c, i) => (
-                        <span key={i} className="text-[10px] font-bold uppercase tracking-widest text-[#00C9AF] bg-rose-50 dark:bg-rose-900/20 px-2 py-0.5 rounded-full">{c.replace(/-/g, ' ')}</span>
+                        <span key={i} className="text-[10px] font-extrabold uppercase tracking-widest text-[#00C9AF] bg-teal-50 dark:bg-teal-900/20 px-2.5 py-1 rounded-full">{c.replace(/-/g, ' ')}</span>
                       ))}
                     </div>
                     <h2 className="text-xl font-black text-navy dark:text-white mb-2 line-clamp-2 group-hover:text-[#00C9AF] transition-colors">{post.title}</h2>
                     <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 flex-1">{post.excerpt}</p>
-                    <div className="flex items-center justify-between text-xs font-bold text-gray-400 mt-auto">
+                    <div className="flex items-center justify-between text-xs font-bold text-gray-400 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
                       <span>{new Date(post.published_at).toLocaleDateString('en-IN', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                       <span className="flex items-center gap-1 group-hover:text-[#00C9AF] transition-colors">Read Post <ChevronRight size={14} /></span>
                     </div>
