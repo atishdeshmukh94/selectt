@@ -48,7 +48,7 @@ const BlogSection = () => {
                 <div className="w-full bg-slate-100 dark:bg-gray-800 rounded-2xl overflow-hidden mb-5 relative shadow-xs flex items-center justify-center min-h-[180px]">
                   {blog.featured_image ? (
                     <img
-                      alt={blog.title}
+                      alt={`${blog.title} - Selectt Car Buying Guide`}
                       className="w-full h-auto max-h-[240px] object-contain group-hover:scale-105 transition-transform duration-500"
                       src={blog.featured_image.startsWith('/') ? `${API}${blog.featured_image}` : blog.featured_image}
                     />

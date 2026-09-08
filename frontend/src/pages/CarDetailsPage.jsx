@@ -467,7 +467,7 @@ const CarDetailsPage = () => {
                       <img
                         key={activeImage}
                         src={images[activeImage]?.startsWith('/') ? `${API_URL}${images[activeImage]}` : images[activeImage]}
-                        alt={car.model}
+                        alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''} - Photo ${activeImage + 1} | Selectt Pre-Owned`}
                         loading="eager"
                         className="w-full h-full object-cover"
                       />
@@ -644,7 +644,7 @@ const CarDetailsPage = () => {
                                 <img
                                   src={img?.startsWith('/') ? `${API_URL}${img}` : img}
                                   className="w-full h-full object-cover"
-                                  alt="Gallery Thumbnail"
+                                  alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} - Thumbnail ${idx + 1}`}
                                   loading="lazy"
                                 />
                               )}

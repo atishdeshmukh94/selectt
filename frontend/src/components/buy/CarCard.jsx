@@ -123,7 +123,7 @@ const CarCard = ({ car, lightBg = false }) => {
         <div className={`relative h-[155px] overflow-hidden shrink-0 m-3 rounded-[14px] ${lightBg ? 'bg-slate-100' : 'bg-slate-950/20'}`}>
           <SkeletonImage
             src={imageSrc}
-            alt={`${car.year} ${car.make} ${car.model}`}
+            alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''} - Certified Pre-Owned Car in ${car.location ? car.location.split(',')[0] : 'India'} | Selectt`}
             aspectRatio="h-full w-full"
             hoverZoom={true}
           />

@@ -149,7 +149,7 @@ const generateThumbnail = async (filename) => {
 const convertToWebp = async (filename) => {
     if (!filename) return null;
     const ext = path.extname(filename).toLowerCase();
-    if (!['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext)) {
+    if (!['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.tiff'].includes(ext)) {
         return filename; // Non-image, return as-is
     }
     if (ext === '.webp') {
@@ -165,7 +165,8 @@ const convertToWebp = async (filename) => {
 
     try {
         await sharp(sourcePath)
-            .webp({ quality: 80 }) // WebP quality 80
+            .resize(2200, 2200, { fit: 'inside', withoutEnlargement: true })
+            .webp({ quality: 82, effort: 4 })
             .toFile(destPath);
         
         fs.unlink(sourcePath, (err) => {
@@ -3483,7 +3484,7 @@ app.get('/api/brands', (req, res) => {
 });
 
 // Admin: Add a brand
-app.post('/api/admin/brands', authMiddleware, isAdmin, upload.single('logo'), (req, res) => {
+app.post('/api/admin/brands', authMiddleware, isAdmin, upload.single('logo'), convertRequestImagesToWebp, (req, res) => {
     const { name } = req.body;
     let logo_url = req.body.logo_url || null; // Support sending URL directly
     if (req.file) {
@@ -3497,7 +3498,7 @@ app.post('/api/admin/brands', authMiddleware, isAdmin, upload.single('logo'), (r
 });
 
 // Admin: Edit a brand
-app.put('/api/admin/brands/:id', authMiddleware, isAdmin, upload.single('logo'), (req, res) => {
+app.put('/api/admin/brands/:id', authMiddleware, isAdmin, upload.single('logo'), convertRequestImagesToWebp, (req, res) => {
     const { name } = req.body;
     const { id } = req.params;
     

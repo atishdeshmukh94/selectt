@@ -123,80 +123,111 @@ const BlogSinglePage = () => {
           </article>
 
           {/* Right Sidebar */}
-          <aside className="w-full lg:w-80 shrink-0 space-y-10">
-            {/* Top Posts */}
-            {related.length > 0 && (
-              <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm sticky top-24">
-                <h3 className="text-lg font-black text-navy dark:text-white mb-6 flex items-center gap-2">
-                  <span className="w-1.5 h-6 bg-[#00C9AF] rounded-full"></span> Top Posts
-                </h3>
-                <div className="space-y-5">
-                  {related.slice(0, 4).map(r => (
-                    <Link to={`/blog/${r.slug}`} key={r.id} className="group flex gap-4 items-start">
-                      <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center">
-                        {r.featured_image ? <img src={r.featured_image.startsWith('/') ? `${API}${r.featured_image}` : r.featured_image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={r.title} /> : <div className="w-full h-full bg-gray-200" />}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 line-clamp-2 leading-tight group-hover:text-[#00C9AF] transition-colors mb-1">{r.title}</h4>
-                        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{new Date(r.published_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
+          <aside className="w-full lg:w-80 shrink-0 space-y-6">
             {/* Categories */}
-            <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
-              <h3 className="text-lg font-black text-navy dark:text-white mb-6 flex items-center gap-2">
-                <span className="w-1.5 h-6 bg-[#00C9AF] rounded-full"></span> Categories
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-xs">
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span className="w-1 h-4 bg-slate-900 dark:bg-white rounded-full"></span> Categories
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {categories.map(c => (
-                  <Link to={`/blog?category=${c.slug}`} key={c.id} className="flex items-center justify-between text-gray-600 dark:text-gray-400 hover:text-[#00C9AF] dark:hover:text-[#00C9AF] font-medium transition-colors">
+                  <Link
+                    to={`/blog?category=${c.slug}`}
+                    key={c.id}
+                    className="flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  >
                     <span>{c.name}</span>
-                    <span className="text-xs font-bold bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">{c.post_count || 0}</span>
+                    <span className="text-[11px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">{c.post_count || 0}</span>
                   </Link>
                 ))}
               </div>
             </div>
 
-            {/* Latest Cars for sale */}
-            <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 blur-3xl rounded-full -mr-12 -mt-12 pointer-events-none" />
-              <h3 className="text-lg font-black text-navy dark:text-white mb-6 flex items-center gap-2 relative z-10">
-                <span className="w-1.5 h-6 bg-[#00C9AF] rounded-full"></span> Latest Cars
-              </h3>
-              <div className="grid grid-cols-2 gap-4 relative z-10">
+            {/* Latest Cars */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-xs">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-1 h-4 bg-slate-900 dark:bg-white rounded-full"></span> Latest Cars
+                </h3>
+                <Link to="/buy-cars" className="text-[11px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white hover:underline">
+                  View all
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 gap-3.5">
                 {latestCars.map(car => (
-                  <Link to={getCarDetailsUrl(car)} key={car.id} className="group block">
-                    <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 mb-2 border border-gray-50 dark:border-gray-800 shadow-sm relative">
-                      <img src={car.image} alt={car.model} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      <div className="absolute top-1.5 left-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-1.5 py-0.5 rounded-lg border border-gray-100 dark:border-gray-800 shadow-sm">
-                        <span className="text-[8px] font-black text-navy dark:text-white uppercase tracking-tighter">Verified</span>
-                      </div>
+                  <Link
+                    to={getCarDetailsUrl(car)}
+                    key={car.id}
+                    className="group block bg-slate-50 dark:bg-slate-800/40 rounded-xl p-2 border border-slate-200/60 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600 transition-all"
+                  >
+                    <div className="w-full aspect-[4/3] rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-800 mb-2 flex items-center justify-center">
+                      <img
+                        src={car.image}
+                        alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} - Used Car for Sale`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
                     </div>
                     <div>
-                      <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate group-hover:text-[#00C9AF] transition-colors leading-tight mb-0.5">
+                      <h4 className="text-[12px] font-bold text-slate-900 dark:text-white truncate group-hover:text-[#00C9AF] transition-colors">
                         {car.year} {car.make} {car.model}
                       </h4>
-                      <div className="flex items-center gap-0.5 text-[9px] text-gray-400 font-medium mb-1">
-                        <MapPin size={9} className="text-[#00C9AF]" strokeWidth={2.5} /> {car.location.split(',')[0]}
+                      <div className="flex items-center gap-1 text-[10px] text-slate-500 mt-0.5 mb-1">
+                        <MapPin size={10} className="text-slate-400 shrink-0" />
+                        <span className="truncate">{car.location ? car.location.split(',')[0] : 'Mumbai'}</span>
                       </div>
-                      <p className="text-[12px] font-black text-[#00C9AF]">
+                      <p className="text-[12px] font-black text-slate-900 dark:text-white">
                         ₹{(car.price / 100000).toFixed(2)} Lakh
                       </p>
                     </div>
                   </Link>
                 ))}
               </div>
-              <div className="mt-6 pt-5 border-t border-gray-100 dark:border-gray-800">
-                <Link to="/buy-cars" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 text-xs font-bold text-gray-800 dark:text-white hover:bg-[#00C9AF] hover:text-[#0A1C3A] transition-all uppercase tracking-widest group shadow-sm">
-                  View All Inventory
-                  <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800">
+                <Link
+                  to="/buy-cars"
+                  className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold hover:bg-slate-800 transition-colors shadow-xs"
+                >
+                  Explore All Cars
+                  <ChevronRight size={13} />
                 </Link>
               </div>
             </div>
+
+            {/* Top Posts in Sidebar */}
+            {related.length > 0 && (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-xs">
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <span className="w-1 h-4 bg-slate-900 dark:bg-white rounded-full"></span> Top Articles
+                </h3>
+                <div className="space-y-3.5">
+                  {related.slice(0, 4).map(r => (
+                    <Link to={`/blog/${r.slug}`} key={r.id} className="group flex gap-3 items-center">
+                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 flex items-center justify-center border border-slate-100 dark:border-slate-800">
+                        {r.featured_image ? (
+                          <img
+                            src={r.featured_image.startsWith('/') ? `${API}${r.featured_image}` : r.featured_image}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            alt={r.title}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-slate-200" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-2 leading-snug group-hover:text-[#00C9AF] transition-colors mb-0.5">
+                          {r.title}
+                        </h4>
+                        <p className="text-[10px] text-slate-400 font-medium">
+                          {new Date(r.published_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </aside>
         </div>
 
