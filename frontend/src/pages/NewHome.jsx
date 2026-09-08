@@ -152,59 +152,73 @@ const COMPARISON_FEATURES = [
   { name: 'Full RC transfer support', selectt: true, spinny: true, cars24: false, cardekho: false }
 ];
 
+const formatBadgeText = (text) => {
+  if (!text) return '';
+  return text
+    .trim()
+    .split(/\s+/)
+    .map(word => {
+      const lower = word.toLowerCase();
+      if (['suv', 'cng', 'ev', 'mt', 'at', 'amt', 'cvt', 'dct'].includes(lower)) return lower.toUpperCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+};
+
 const getBadgeStyles = (tagText) => {
-  const text = (tagText || '').trim().toLowerCase();
-
-  if (text.includes('verified') || text.includes('certified')) {
-    return {
-      bg: 'bg-[#E6FAF7]',
-      color: 'text-[#00B5A2]',
-      icon: '✓',
-      label: tagText
-    };
-  }
-
-  if (text.includes('electric') || text.includes('low') || text.includes('efficient')) {
-    return {
-      bg: 'bg-[#FFF4EB]',
-      color: 'text-[#FF7A00]',
-      icon: '⚡',
-      label: tagText
-    };
-  }
+  const raw = (tagText || '').trim();
+  const text = raw.toLowerCase();
 
   if (text.includes('luxury') || text.includes('selectt luxury')) {
     return {
-      bg: 'bg-amber-100',
-      color: 'text-amber-800',
-      icon: '👑',
+      bg: 'bg-amber-100 dark:bg-amber-950/60',
+      color: 'text-amber-900 dark:text-amber-300',
+      border: 'border-amber-300/60',
       label: 'Selectt Luxury'
     };
   }
 
-  if (text.includes('offer zone') || text.includes('discount')) {
+  if (text.includes('offer zone') || text.includes('discount') || text.includes('price drop')) {
     return {
-      bg: 'bg-red-50',
-      color: 'text-red-600 border border-red-200/50',
-      icon: '🏷️',
-      label: 'Offer Zone'
+      bg: 'bg-rose-50 dark:bg-rose-950/60',
+      color: 'text-rose-700 dark:text-rose-300',
+      border: 'border-rose-300/60',
+      label: formatBadgeText(raw)
     };
   }
 
-  if (text.includes('hot') || text.includes('deal') || text.includes('trending') || text.includes('top rated') || text.includes('rated') || text.includes('premium')) {
+  if (text.includes('certified') || text.includes('verified') || text.includes('assured') || text.includes('like new')) {
     return {
-      bg: 'bg-[#FFEBF0]',
-      color: 'text-[#FF2A55]',
-      icon: '🔥',
-      label: tagText
+      bg: 'bg-teal-50 dark:bg-teal-950/60',
+      color: 'text-teal-800 dark:text-teal-300',
+      border: 'border-teal-300/60',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  if (text.includes('electric') || text.includes('hybrid') || text.includes('ev')) {
+    return {
+      bg: 'bg-emerald-50 dark:bg-emerald-950/60',
+      color: 'text-emerald-800 dark:text-emerald-300',
+      border: 'border-emerald-300/60',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  if (text.includes('hot') || text.includes('deal') || text.includes('trending') || text.includes('top rated') || text.includes('rated')) {
+    return {
+      bg: 'bg-orange-50 dark:bg-orange-950/60',
+      color: 'text-orange-800 dark:text-orange-300',
+      border: 'border-orange-300/60',
+      label: formatBadgeText(raw)
     };
   }
 
   return {
-    bg: 'bg-[#E6FAF7]',
-    color: 'text-[#00B5A2]',
-    icon: '✓',
-    label: tagText
+    bg: 'bg-slate-100 dark:bg-slate-800',
+    color: 'text-slate-800 dark:text-slate-200',
+    border: 'border-slate-300/60 dark:border-slate-700',
+    label: formatBadgeText(raw)
   };
 };
 
@@ -1662,9 +1676,8 @@ const NewHome = () => {
                           {car.make}
                         </span>
                         {badge.label && (
-                          <div className={`${badge.bg} ${badge.color} px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 shrink-0 whitespace-nowrap shadow-xs max-w-[135px]`}>
-                            <span className="shrink-0">{badge.icon}</span>
-                            <span className="truncate">{formatLabel(badge.label)}</span>
+                          <div className={`${badge.bg} ${badge.color} ${badge.border || 'border-slate-200'} border px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 whitespace-nowrap shadow-xs max-w-[140px]`}>
+                            <span className="truncate">{badge.label}</span>
                           </div>
                         )}
                       </div>

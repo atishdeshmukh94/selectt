@@ -23,39 +23,90 @@ const hasPriceDrop = (car) => {
   return false;
 };
 
-const getBadgeStyles = (tagText) => {
-  const text = (tagText || '').trim().toLowerCase();
-
-  if (text.includes('like new') || text.includes('certified')) {
-    return { bg: 'bg-[#00C9AF]', color: 'text-[#0A1C3A]', icon: '✓', label: tagText };
-  }
-  if (text.includes('verified')) {
-    return { bg: 'bg-[#00C9AF]', color: 'text-[#0A1C3A]', icon: '✓', label: tagText };
-  }
-  if (text.includes('electric') || text.includes('efficient') || text.includes('hardly') || text.includes('low')) {
-    return { bg: 'bg-emerald-500', color: 'text-white', icon: '⚡', label: tagText };
-  }
-  if (text.includes('luxury') || text.includes('selectt luxury')) {
-    return { bg: 'bg-gradient-to-r from-amber-400 to-yellow-500', color: 'text-slate-900', icon: '👑', label: 'Selectt Luxury' };
-  }
-  if (text.includes('offer zone') || text.includes('discount')) {
-    return { bg: 'bg-gradient-to-r from-red-500 to-rose-500', color: 'text-white', icon: '🏷️', label: 'Offer Zone' };
-  }
-  if (text.includes('hot') || text.includes('deal') || text.includes('trending')) {
-    return { bg: 'bg-[#FF2A55]', color: 'text-white', icon: '🔥', label: tagText };
-  }
-  if (text.includes('top rated') || text.includes('rated')) {
-    return { bg: 'bg-orange-500', color: 'text-white', icon: '🔥', label: tagText };
-  }
-  if (text.includes('premium')) {
-    return { bg: 'bg-violet-600', color: 'text-white', icon: '💎', label: tagText };
-  }
-  return { bg: 'bg-slate-700', color: 'text-white', icon: '✓', label: tagText };
+const formatBadgeText = (text) => {
+  if (!text) return '';
+  return text
+    .trim()
+    .split(/\s+/)
+    .map(word => {
+      const lower = word.toLowerCase();
+      if (['suv', 'cng', 'ev', 'mt', 'at', 'amt', 'cvt', 'dct'].includes(lower)) return lower.toUpperCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
 };
 
-const formatLabel = (label) => {
-  if (!label) return '';
-  return label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
+const getBadgeStyles = (tagText) => {
+  const raw = (tagText || '').trim();
+  const text = raw.toLowerCase();
+
+  // Luxury
+  if (text.includes('luxury') || text.includes('selectt luxury')) {
+    return {
+      bg: 'bg-gradient-to-r from-amber-400 to-amber-500',
+      color: 'text-slate-950 font-black',
+      border: 'border-amber-300/60',
+      label: 'Selectt Luxury'
+    };
+  }
+
+  // Offer Zone / Price Drop / Discount
+  if (text.includes('offer zone') || text.includes('discount') || text.includes('price drop') || text.includes('deal')) {
+    return {
+      bg: 'bg-rose-600',
+      color: 'text-white font-bold',
+      border: 'border-rose-400/40',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  // Certified / Verified / Assured / Like New
+  if (text.includes('certified') || text.includes('verified') || text.includes('assured') || text.includes('like new')) {
+    return {
+      bg: 'bg-[#00C9AF]',
+      color: 'text-slate-950 font-black',
+      border: 'border-teal-300/40',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  // Electric / EV / Hybrid
+  if (text.includes('electric') || text.includes('hybrid') || text.includes('ev')) {
+    return {
+      bg: 'bg-emerald-600',
+      color: 'text-white font-bold',
+      border: 'border-emerald-400/40',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  // Top Rated / Hot
+  if (text.includes('top rated') || text.includes('rated') || text.includes('hot') || text.includes('trending')) {
+    return {
+      bg: 'bg-orange-500',
+      color: 'text-white font-bold',
+      border: 'border-orange-400/40',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  // Premium
+  if (text.includes('premium')) {
+    return {
+      bg: 'bg-indigo-600',
+      color: 'text-white font-bold',
+      border: 'border-indigo-400/40',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  // Refined Obsidian Frosted Glass Badge for features (German Engineered, Manual Fun, Low KM, Sunroof, etc.)
+  return {
+    bg: 'bg-slate-900/85 backdrop-blur-md',
+    color: 'text-white font-bold',
+    border: 'border-white/20',
+    label: formatBadgeText(raw)
+  };
 };
 
 const CarCard = ({ car, lightBg = false }) => {
@@ -150,11 +201,9 @@ const CarCard = ({ car, lightBg = false }) => {
           {(car.badgeText || car.tag) && car.status !== 'coming_soon' && (() => {
             const badge = getBadgeStyles(car.badgeText || car.tag);
             return (
-              <div className="absolute top-2.5 left-2.5 z-20">
-                <div className={`${badge.bg} ${badge.color} px-2.5 py-1 rounded-full text-[10px] font-extrabold flex items-center gap-1 shadow-lg tracking-wide relative overflow-hidden`}>
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full animate-shimmer pointer-events-none" />
-                  <span>{badge.icon}</span>
-                  <span>{formatLabel(badge.label)}</span>
+              <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none">
+                <div className={`${badge.bg} ${badge.color} ${badge.border} border px-2.5 py-1 rounded-full text-[10.5px] font-sans font-bold shadow-md tracking-wide flex items-center`}>
+                  <span>{badge.label}</span>
                 </div>
               </div>
             );
