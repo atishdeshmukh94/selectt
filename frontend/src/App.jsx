@@ -68,6 +68,7 @@ function MainLayout() {
 function App() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
+  const [maintenancePhone, setMaintenancePhone] = useState('+91-857466-7466');
   const [logo, setLogo] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -86,6 +87,9 @@ function App() {
           if (data.maintenance_mode === true) {
             setMaintenanceMode(true);
             setMaintenanceMessage(data.maintenance_message || 'Site is under maintenance');
+            if (data.maintenance_phone || data.contact_phone) {
+              setMaintenancePhone(data.maintenance_phone || data.contact_phone);
+            }
           }
         }
       } catch (err) {
@@ -106,7 +110,7 @@ function App() {
   }
 
   if (maintenanceMode) {
-    return <MaintenancePage message={maintenanceMessage} logo={logo} />;
+    return <MaintenancePage message={maintenanceMessage} phone={maintenancePhone} logo={logo} />;
   }
 
   return (

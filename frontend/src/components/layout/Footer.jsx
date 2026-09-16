@@ -113,7 +113,7 @@ const Footer = () => {
                 <a href="https://www.instagram.com/selectt.cars/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="Instagram">
                   <Instagram size={18} />
                 </a>
-                <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="YouTube">
+                <a href="https://www.youtube.com/@selecttcars" target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="YouTube">
                   <Youtube size={18} />
                 </a>
               </div>

@@ -13,7 +13,7 @@ import {
   TableIcon,
   UserCircleIcon,
 } from "../icons";
-import { BookmarkCheck, UserCog } from "lucide-react";
+import { BookmarkCheck, UserCog, Images, Settings, ShieldCheck } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
@@ -46,7 +46,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <BoxCubeIcon />,
-    name: "Car Inventory",
+    name: "Car Management",
     subItems: [
       { name: "Manage Cars", path: "/cars", permissionKey: "cars" },
       { name: "Brand & Models", path: "/brands", permissionKey: "brands" },
@@ -77,6 +77,12 @@ const navItems: NavItem[] = [
     permissionKey: "loan_applications",
   },
   {
+    icon: <ShieldCheck />,
+    name: "Insurance Requests",
+    path: "/insurance-requests",
+    permissionKey: "insurance_requests",
+  },
+  {
     icon: <TableIcon />,
     name: "Wishlisted Cars",
     path: "/reports/wishlist",
@@ -102,7 +108,7 @@ const navItems: NavItem[] = [
     permissionKey: "blog",
   },
   {
-    icon: <GridIcon />,
+    icon: <Images />,
     name: "Media Library",
     path: "/media-library",
     permissionKey: "media",
@@ -116,7 +122,7 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    icon: <GridIcon />,
+    icon: <Settings />,
     name: "Site Settings",
     permissionKey: "site_settings",
     subItems: [
@@ -128,6 +134,7 @@ const navItems: NavItem[] = [
       { name: "SMTP Settings", path: "/settings/smtp", permissionKey: "site_settings" },
       { name: "Maintenance Mode", path: "/settings/maintenance", permissionKey: "site_settings" },
       { name: "WhatsApp API", path: "/settings/whatsapp", permissionKey: "site_settings" },
+      { name: "Meta Catalog Setup", path: "/settings/meta-catalog", permissionKey: "site_settings" },
     ],
   },
 ];

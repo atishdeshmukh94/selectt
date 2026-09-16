@@ -753,10 +753,10 @@ const BuyCarsPage = () => {
             <div className="flex-1 overflow-y-auto p-4" style={{ scrollbarWidth: 'none' }}>
               <SidebarFilters filters={filters} setFilters={setFilters} onClose={() => setShowMobileFilters(false)} lightBg={true} />
             </div>
-            <div className="p-4 border-t border-slate-200">
+            <div className="p-4 border-t border-slate-200 bg-white">
               <button
                 onClick={() => setShowMobileFilters(false)}
-                className="w-full bg-[#00C9AF] hover:bg-[#00B4A0] text-[#0C1B33] font-black text-xs uppercase tracking-widest py-3 rounded-xl transition-all"
+                className="w-full bg-[#00C9AF] hover:bg-[#00B4A0] text-slate-950 font-heading font-black text-[13px] uppercase tracking-wider py-3.5 rounded-xl transition-all shadow-md cursor-pointer"
               >
                 Show {filteredCars.length} Results
               </button>

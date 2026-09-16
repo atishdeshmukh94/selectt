@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, CheckCircle2 } from 'lucide-react';
+import {
+  ShieldCheck,
+  CheckCircle2,
+  Car,
+  FileCheck2,
+  BadgeCheck,
+  Gavel,
+  Users2,
+  Truck,
+  ArrowRight,
+  Star,
+  Building2,
+  TrendingUp,
+  Clock,
+  Sparkles,
+  PhoneCall,
+  Check
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PageMeta from '../components/common/PageMeta';
 import FAQ from '../components/home/FAQ';
@@ -10,6 +27,7 @@ export default function SelecttPartnersPage() {
     mobile: '',
     firstName: '',
     lastName: '',
+    dealershipName: '',
     state: '',
     city: ''
   });
@@ -26,108 +44,189 @@ export default function SelecttPartnersPage() {
 
   return (
     <>
-      <PageMeta title="Selectt Partners - Drive Your Business Ahead | Selectt" description="Join India's largest network of trusted used car dealers. Access 20,000+ verified cars monthly with transparent bidding." />
+      <PageMeta
+        title="Selectt Partners - Drive Your Dealership Growth | Selectt"
+        description="Join India's premier network of verified used car dealers. Source 20,000+ certified cars monthly with transparent live auctions, dedicated account managers, and hassle-free RC transfer."
+      />
 
-      <div className="min-h-screen bg-slate-50 font-sans w-full overflow-x-hidden text-slate-700 relative">
+      <div className="min-h-screen bg-[#F8FAFC] font-sans w-full overflow-x-hidden text-slate-800 antialiased selection:bg-[#00C9AF]/20 selection:text-[#0C1B33]">
 
         {/* ───────────── Hero Section with Registration Form ───────────── */}
-        <section className="relative pt-12 pb-24 bg-[#0C1B33] border-b border-slate-800/80 overflow-hidden">
+        <section className="relative pt-16 pb-20 bg-[#0C1B33] border-b border-slate-800/80 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0c1b33] via-[#0a162a] to-[#060d19] z-0"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#00C9AF] rounded-full mix-blend-screen filter blur-[120px] opacity-20 animate-pulse z-0"></div>
-          <div className="absolute bottom-0 left-10 w-72 h-72 bg-purple-600 rounded-full mix-blend-screen filter blur-[100px] opacity-15 z-0"></div>
+          
+          {/* Subtle Ambient Orbs */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#00C9AF] rounded-full mix-blend-screen filter blur-[140px] opacity-25 animate-pulse z-0"></div>
+          <div className="absolute bottom-0 left-10 w-80 h-80 bg-blue-600 rounded-full mix-blend-screen filter blur-[120px] opacity-20 z-0"></div>
 
-          <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Left Content */}
             <div className="lg:col-span-7 text-left text-white space-y-6">
-              <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-1.5 rounded-full text-[#00C9AF] font-bold text-xs uppercase tracking-wider backdrop-blur-md">
-                <ShieldCheck size={16} /> Selectt Partners
-              </span>
-              <h1 className="text-4xl md:text-6xl font-black leading-tight text-white">
-                Hello, Partner
-              </h1>
-              <p className="text-slate-300 text-lg md:text-xl font-bold">
-                Drive your business ahead with trusted cars
-              </p>
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-bold text-xs uppercase tracking-wider backdrop-blur-md">
+                <ShieldCheck size={14} /> Official Dealer Partner Network
+              </div>
+              
+              <div className="space-y-3">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                  Scale Your Dealership with <span className="text-[#00C9AF]">Selectt Partners</span>
+                </h1>
+                <p className="text-slate-300 text-base sm:text-lg font-normal leading-relaxed max-w-xl">
+                  Source from over 20,000+ certified pre-owned vehicles monthly with transparent live auctions, digital 200-point inspections, and door-step delivery.
+                </p>
+              </div>
 
-              {/* Hero Car Showcase Graphic */}
-              <div className="pt-6">
+              {/* Quick Highlights */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2 text-xs font-semibold text-slate-200">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-[#00C9AF] shrink-0" />
+                  <span>20,000+ Fresh Inflow Monthly</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-[#00C9AF] shrink-0" />
+                  <span>200-Point Inspection Reports</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-[#00C9AF] shrink-0" />
+                  <span>Pay Post Physical Inspection</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-[#00C9AF] shrink-0" />
+                  <span>Full RC Transfer & Logistics Support</span>
+                </div>
+              </div>
+
+              {/* Hero Graphic */}
+              <div className="pt-4 max-w-md hidden sm:block">
                 <img
                   src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/SpinnyPartners/assets/spinny-partners-hero-cars.png?q=85&w=720&dpr=1.3"
-                  alt="Selectt Partners Cars"
-                  className="w-full h-auto max-w-lg object-contain"
-                  onError={(e) => { e.currentTarget.src = "https://spn-sta.spinny.com/spinny-web/static-images/assets/images/pages/UsedCarLoan/assets/loan-eligibility.svg?q=85&w=360&dpr=1.3"; }}
+                  alt="Selectt Dealer Network Cars"
+                  className="w-full h-auto object-contain drop-shadow-2xl opacity-90"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
               </div>
             </div>
 
             {/* Right Registration Card */}
             <div className="lg:col-span-5">
-              <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-2xl text-left border border-slate-100">
-                <h3 className="text-xl font-black text-[#0C1B33] mb-2 text-center">Enter your details to join our network</h3>
+              <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl text-left border border-slate-100">
+                <div className="mb-5 text-center sm:text-left">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#00a892]">Join 4,500+ Dealers</span>
+                  <h3 className="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Dealer Partner Sign Up</h3>
+                  <p className="text-slate-500 text-xs font-normal mt-1">Get early access to exclusive dealer auctions & inventory.</p>
+                </div>
                 
                 {submitted ? (
-                  <div className="py-8 text-center space-y-4">
-                    <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                      <CheckCircle2 size={32} />
+                  <div className="py-10 text-center space-y-4">
+                    <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100">
+                      <CheckCircle2 size={28} />
                     </div>
-                    <p className="text-slate-500 text-xs font-semibold leading-relaxed">Our key account manager will get in touch with you shortly.</p>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-slate-900 text-base">Application Received!</h4>
+                      <p className="text-slate-500 text-xs font-normal leading-relaxed max-w-xs mx-auto">
+                        Thank you. Your dedicated Key Account Manager will contact you within 2 business hours to verify your dealership credentials.
+                      </p>
+                    </div>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+                  <form onSubmit={handleSubmit} className="space-y-3.5">
                     <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Mobile Number (for OTP & Verification)
+                      </label>
                       <input
                         type="tel"
                         required
-                        placeholder="Enter your mobile number"
+                        placeholder="e.g. 98765 43210"
                         value={formData.mobile}
                         onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                        className="w-full p-3.5 rounded-xl border border-slate-200 text-xs font-semibold text-[#0C1B33] focus:border-[#00C9AF] focus:outline-none bg-slate-50"
+                        className="w-full px-3.5 py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/10 focus:outline-none bg-slate-50/50"
                       />
                     </div>
+
                     <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="First name"
+                          value={formData.firstName}
+                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                          className="w-full px-3.5 py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/10 focus:outline-none bg-slate-50/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Last name"
+                          value={formData.lastName}
+                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                          className="w-full px-3.5 py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/10 focus:outline-none bg-slate-50/50"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Dealership / Business Name
+                      </label>
                       <input
                         type="text"
                         required
-                        placeholder="First name"
-                        value={formData.firstName}
-                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                        className="w-full p-3.5 rounded-xl border border-slate-200 text-xs font-semibold text-[#0C1B33] focus:border-[#00C9AF] focus:outline-none bg-slate-50"
-                      />
-                      <input
-                        type="text"
-                        required
-                        placeholder="Last name"
-                        value={formData.lastName}
-                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                        className="w-full p-3.5 rounded-xl border border-slate-200 text-xs font-semibold text-[#0C1B33] focus:border-[#00C9AF] focus:outline-none bg-slate-50"
+                        placeholder="e.g. Apex Auto Ventures"
+                        value={formData.dealershipName}
+                        onChange={(e) => setFormData({ ...formData, dealershipName: e.target.value })}
+                        className="w-full px-3.5 py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/10 focus:outline-none bg-slate-50/50"
                       />
                     </div>
+
                     <div className="grid grid-cols-2 gap-3">
-                      <input
-                        type="text"
-                        required
-                        placeholder="Select state"
-                        value={formData.state}
-                        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                        className="w-full p-3.5 rounded-xl border border-slate-200 text-xs font-semibold text-[#0C1B33] focus:border-[#00C9AF] focus:outline-none bg-slate-50"
-                      />
-                      <input
-                        type="text"
-                        required
-                        placeholder="Select city"
-                        value={formData.city}
-                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                        className="w-full p-3.5 rounded-xl border border-slate-200 text-xs font-semibold text-[#0C1B33] focus:border-[#00C9AF] focus:outline-none bg-slate-50"
-                      />
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                          State
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Maharashtra"
+                          value={formData.state}
+                          onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                          className="w-full px-3.5 py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/10 focus:outline-none bg-slate-50/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                          City
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Pune"
+                          value={formData.city}
+                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          className="w-full px-3.5 py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/10 focus:outline-none bg-slate-50/50"
+                        />
+                      </div>
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full py-4 bg-[#00C9AF] hover:bg-[#00e9ca] text-[#0C1B33] font-extrabold rounded-xl shadow-lg transition-all text-xs uppercase tracking-wider"
+                      className="w-full py-3.5 mt-2 bg-[#00C9AF] hover:bg-[#00b29c] text-[#0C1B33] font-bold rounded-xl shadow-xs transition-all text-xs uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2"
                     >
-                      Register Now
+                      <span>Submit Partner Application</span>
+                      <ArrowRight size={14} />
                     </button>
+
+                    <p className="text-[10px] text-slate-400 font-medium text-center pt-1">
+                      By registering, you agree to Selectt's Dealer Terms of Service & Confidentiality Policies.
+                    </p>
                   </form>
                 )}
               </div>
@@ -136,111 +235,219 @@ export default function SelecttPartnersPage() {
           </div>
         </section>
 
-        {/* ───────────── Why Partner with Us (Grid of 6 Cards) ───────────── */}
-        <section className="py-20 bg-white border-b border-slate-100">
-          <div className="max-w-6xl mx-auto px-6 text-center">
-            <h2 className="text-2xl md:text-4xl font-black text-[#0C1B33] mb-3">Why Partner with Us</h2>
-            <p className="text-slate-500 text-sm font-medium mb-14 max-w-2xl mx-auto">
-              Transparency, trust and experience lie at the heart of every deal on Selectt Partners so that our partners can make an informed and worry-free purchase.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-200 text-left hover:border-[#00C9AF]/50 hover:shadow-md transition-all">
-                <h3 className="text-lg font-black text-[#0C1B33] mb-2">20,000+ Cars Available For Sale Every Month</h3>
-                <p className="text-slate-500 text-xs font-semibold leading-relaxed">Constant supply of certified used cars from across India.</p>
+        {/* ───────────── Trust Numbers Bar ───────────── */}
+        <section className="bg-white border-b border-slate-200/80 py-8">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              <div className="space-y-1">
+                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">20,000+</span>
+                <p className="text-xs text-slate-500 font-medium">Monthly Certified Cars</p>
               </div>
-
-              <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-200 text-left hover:border-[#00C9AF]/50 hover:shadow-md transition-all">
-                <h3 className="text-lg font-black text-[#0C1B33] mb-2">Verified Inspection Reports</h3>
-                <p className="text-slate-500 text-xs font-semibold leading-relaxed">Detailed 200-point inspection sheet available for every listed car.</p>
+              <div className="space-y-1">
+                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">4,500+</span>
+                <p className="text-xs text-slate-500 font-medium">Active Dealer Partners</p>
               </div>
-
-              <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-200 text-left hover:border-[#00C9AF]/50 hover:shadow-md transition-all">
-                <h3 className="text-lg font-black text-[#0C1B33] mb-2">Payment After Physical Inspection</h3>
-                <p className="text-slate-500 text-xs font-semibold leading-relaxed">Inspect the car physically before making the complete payment.</p>
+              <div className="space-y-1">
+                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">200-Point</span>
+                <p className="text-xs text-slate-500 font-medium">Rigorous Inspection</p>
               </div>
-
-              <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-200 text-left hover:border-[#00C9AF]/50 hover:shadow-md transition-all">
-                <h3 className="text-lg font-black text-[#0C1B33] mb-2">Transparent Bidding Process</h3>
-                <p className="text-slate-500 text-xs font-semibold leading-relaxed">Fair and competitive real-time auction bidding platform.</p>
-              </div>
-
-              <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-200 text-left hover:border-[#00C9AF]/50 hover:shadow-md transition-all">
-                <h3 className="text-lg font-black text-[#0C1B33] mb-2">Dedicated Key Account Manager Assistance</h3>
-                <p className="text-slate-500 text-xs font-semibold leading-relaxed">Personal manager assigned to help you select and purchase inventory.</p>
-              </div>
-
-              <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-200 text-left hover:border-[#00C9AF]/50 hover:shadow-md transition-all">
-                <h3 className="text-lg font-black text-[#0C1B33] mb-2">Hassle Free Delivery And Payment</h3>
-                <p className="text-slate-500 text-xs font-semibold leading-relaxed">Complete digital documentation, RC transfer and door-step transport.</p>
+              <div className="space-y-1">
+                <span className="text-2xl sm:text-3xl font-extrabold text-[#00a892] tracking-tight">100%</span>
+                <p className="text-xs text-slate-500 font-medium">RC Transfer Assurance</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ───────────── Trusted by dealers across the nation! ───────────── */}
-        <section className="py-20 bg-slate-50 border-b border-slate-200">
-          <div className="max-w-6xl mx-auto px-6 text-center">
-            <h2 className="text-3xl font-black text-[#0C1B33] mb-3">Trusted by dealers across the nation!</h2>
-            <p className="text-slate-500 text-sm font-medium mb-12">Don't just take our word for it. Hear it from our satisfied partners:</p>
+        {/* ───────────── Why Partner with Us (Grid of 6 Cards) ───────────── */}
+        <section className="py-20 bg-[#F8FAFC] border-b border-slate-200/80">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20">
+                Partner Advantage
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-2.5">
+                Built to power modern used car dealerships
+              </h2>
+              <p className="text-slate-500 text-sm font-normal mt-2 leading-relaxed">
+                Transparency, comprehensive inspection data, and dedicated operational support lie at the heart of every transaction.
+              </p>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-              <div className="p-8 rounded-[2rem] bg-white border border-slate-200 shadow-sm space-y-4">
-                <p className="text-slate-600 text-xs font-semibold leading-relaxed italic">
-                  "Getting a car through Selectt Partners is extremely convenient. Registration is simple and they have a wide assortment of cars on the platform."
-                </p>
-                <div>
-                  <strong className="block text-sm font-extrabold text-[#0C1B33]">Imran Baba</strong>
-                  <span className="text-xs text-[#00C9AF] font-bold">Sri Mookambika Cars, Bangalore</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs hover:border-slate-300 transition-all text-left">
+                <div className="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100 mb-4">
+                  <Car size={20} />
                 </div>
+                <h3 className="font-bold text-slate-900 text-base">Massive Inventory Inflow</h3>
+                <p className="text-slate-500 text-xs font-normal mt-2 leading-relaxed">
+                  Access 20,000+ certified vehicles every month directly sourced from genuine individual sellers across all major Indian metros.
+                </p>
               </div>
 
-              <div className="p-8 rounded-[2rem] bg-white border border-slate-200 shadow-sm space-y-4">
-                <p className="text-slate-600 text-xs font-semibold leading-relaxed italic">
-                  "I have been buying cars from Selectt Partners for the past 9 months. Unlike other platforms, they do a pre-delivery inspection to minimize mismatches."
-                </p>
-                <div>
-                  <strong className="block text-sm font-extrabold text-[#0C1B33]">Murlidhar</strong>
-                  <span className="text-xs text-[#00C9AF] font-bold">VCP Motors, Mumbai</span>
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs hover:border-slate-300 transition-all text-left">
+                <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 mb-4">
+                  <FileCheck2 size={20} />
                 </div>
+                <h3 className="font-bold text-slate-900 text-base">200-Point Digital Inspection</h3>
+                <p className="text-slate-500 text-xs font-normal mt-2 leading-relaxed">
+                  High-definition photography, OBD-II scanner diagnostics, paint depth readings, and chassis verification sheets for every single listing.
+                </p>
               </div>
 
-              <div className="p-8 rounded-[2rem] bg-white border border-slate-200 shadow-sm space-y-4">
-                <p className="text-slate-600 text-xs font-semibold leading-relaxed italic">
-                  "I recommend Selectt Partners to everyone who wants to buy cars for resale. I get cars at good prices and the process is very smooth."
-                </p>
-                <div>
-                  <strong className="block text-sm font-extrabold text-[#0C1B33]">Lalit Chawla</strong>
-                  <span className="text-xs text-[#00C9AF] font-bold">Chawla Motors, Delhi</span>
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs hover:border-slate-300 transition-all text-left">
+                <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100 mb-4">
+                  <BadgeCheck size={20} />
                 </div>
+                <h3 className="font-bold text-slate-900 text-base">Pay Post Physical Inspection</h3>
+                <p className="text-slate-500 text-xs font-normal mt-2 leading-relaxed">
+                  Gain peace of mind by physically validating vehicle condition and documentation at our regional hubs before transferring final payment.
+                </p>
+              </div>
+
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs hover:border-slate-300 transition-all text-left">
+                <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 mb-4">
+                  <Gavel size={20} />
+                </div>
+                <h3 className="font-bold text-slate-900 text-base">Transparent Live Bidding</h3>
+                <p className="text-slate-500 text-xs font-normal mt-2 leading-relaxed">
+                  Fair, algorithm-backed auction engine with real-time bidding alerts and instant deal closure without hidden distributor markups.
+                </p>
+              </div>
+
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs hover:border-slate-300 transition-all text-left">
+                <div className="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100 mb-4">
+                  <Users2 size={20} />
+                </div>
+                <h3 className="font-bold text-slate-900 text-base">Dedicated Account Manager</h3>
+                <p className="text-slate-500 text-xs font-normal mt-2 leading-relaxed">
+                  A dedicated Key Account Manager is assigned to your dealership to provide custom inventory alerts and priority customer support.
+                </p>
+              </div>
+
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs hover:border-slate-300 transition-all text-left">
+                <div className="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-100 mb-4">
+                  <Truck size={20} />
+                </div>
+                <h3 className="font-bold text-slate-900 text-base">End-to-End Transport & RC</h3>
+                <p className="text-slate-500 text-xs font-normal mt-2 leading-relaxed">
+                  Hassle-free doorstep car delivery, automated VAHAN RTO ownership transfer, and clear NOC dispatch straight to your showroom.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
         {/* ───────────── How It Works (3 Steps) ───────────── */}
-        <section className="py-20 bg-white border-b border-slate-100">
-          <div className="max-w-5xl mx-auto px-6 text-center">
-            <h2 className="text-3xl font-black text-[#0C1B33] mb-3">How It Works</h2>
-            <p className="text-slate-500 text-sm font-medium mb-12">Our process is designed to make car-buying easy and convenient. Here's how it works:</p>
+        <section className="py-20 bg-white border-b border-slate-200/80">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Streamlined Workflow</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-2.5">
+                How sourcing works on Selectt Partners
+              </h2>
+              <p className="text-slate-500 text-sm font-normal mt-2 leading-relaxed">
+                A simple 3-step digital journey engineered to help you close verified inventory in minutes.
+              </p>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-200 text-center">
-                <div className="w-12 h-12 rounded-full bg-[#0C1B33] text-[#00C9AF] font-extrabold flex items-center justify-center mx-auto mb-6 text-lg shadow-md">1</div>
-                <h3 className="text-lg font-black text-[#0C1B33] mb-2">Place Your Bid</h3>
-                <p className="text-slate-500 text-xs font-semibold leading-relaxed">Choose from our wide variety of quality cars and place your price bids.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="border border-slate-200/80 rounded-2xl p-6 bg-slate-50/50 text-left space-y-3 relative">
+                <div className="w-8 h-8 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+                  01
+                </div>
+                <h3 className="font-bold text-slate-900 text-base">Browse & Place Your Bid</h3>
+                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                  Filter verified cars by brand, fuel type, manufacturing year, or region, and submit competitive bids during live auction windows.
+                </p>
               </div>
 
-              <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-200 text-center">
-                <div className="w-12 h-12 rounded-full bg-[#0C1B33] text-[#00C9AF] font-extrabold flex items-center justify-center mx-auto mb-6 text-lg shadow-md">2</div>
-                <h3 className="text-lg font-black text-[#0C1B33] mb-2">Close The Deal</h3>
-                <p className="text-slate-500 text-xs font-semibold leading-relaxed">We'll negotiate your offer with sellers and ensure you get your car at the best price.</p>
+              <div className="border border-slate-200/80 rounded-2xl p-6 bg-slate-50/50 text-left space-y-3 relative">
+                <div className="w-8 h-8 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+                  02
+                </div>
+                <h3 className="font-bold text-slate-900 text-base">Win & Lock The Deal</h3>
+                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                  Upon winning the auction, our procurement team negotiates seller handovers and ensures you receive the vehicle at the agreed transparent price.
+                </p>
               </div>
 
-              <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-200 text-center">
-                <div className="w-12 h-12 rounded-full bg-[#0C1B33] text-[#00C9AF] font-extrabold flex items-center justify-center mx-auto mb-6 text-lg shadow-md">3</div>
-                <h3 className="text-lg font-black text-[#0C1B33] mb-2">Payment & Delivery</h3>
-                <p className="text-slate-500 text-xs font-semibold leading-relaxed">Pay online & get doorstep delivery of the car along with complete documentation.</p>
+              <div className="border border-slate-200/80 rounded-2xl p-6 bg-slate-50/50 text-left space-y-3 relative">
+                <div className="w-8 h-8 rounded-lg bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-bold text-xs">
+                  03
+                </div>
+                <h3 className="font-bold text-slate-900 text-base">Payment & Doorstep Delivery</h3>
+                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                  Complete secure payment post-verification and receive insured transportation to your dealership with full RTO documentation.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ───────────── Trusted by dealers across the nation! ───────────── */}
+        <section className="py-20 bg-[#F8FAFC] border-b border-slate-200/80">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Partner Testimonials</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-2.5">
+                Trusted by 4,500+ car dealerships across India
+              </h2>
+              <p className="text-slate-500 text-sm font-normal mt-2 leading-relaxed">
+                See how automotive dealerships grow their monthly resale volume with Selectt Partners.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+                <div className="space-y-3">
+                  <div className="flex text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} fill="currentColor" className="stroke-none" />
+                    ))}
+                  </div>
+                  <p className="text-slate-600 text-xs font-normal leading-relaxed">
+                    "Sourcing inventory via Selectt Partners has transformed our turn-around time. Registration was quick and the inspection sheets are accurate to the millimeter."
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-slate-100">
+                  <strong className="block text-sm font-bold text-slate-900">Imran Baba</strong>
+                  <span className="text-xs text-slate-400 font-medium">Sri Mookambika Cars, Bengaluru</span>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+                <div className="space-y-3">
+                  <div className="flex text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} fill="currentColor" className="stroke-none" />
+                    ))}
+                  </div>
+                  <p className="text-slate-600 text-xs font-normal leading-relaxed">
+                    "We have been buying 15-20 cars monthly from Selectt Partners for the past 9 months. The physical inspection option before final payment gives us 100% confidence."
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-slate-100">
+                  <strong className="block text-sm font-bold text-slate-900">Murlidhar Deshmukh</strong>
+                  <span className="text-xs text-slate-400 font-medium">VCP Motors, Mumbai</span>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+                <div className="space-y-3">
+                  <div className="flex text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} fill="currentColor" className="stroke-none" />
+                    ))}
+                  </div>
+                  <p className="text-slate-600 text-xs font-normal leading-relaxed">
+                    "Fair bidding rules and zero hidden charges. Our dedicated account manager keeps us informed on incoming SUVs and sedans regularly."
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-slate-100">
+                  <strong className="block text-sm font-bold text-slate-900">Lalit Chawla</strong>
+                  <span className="text-xs text-slate-400 font-medium">Chawla Motors, Delhi NCR</span>
+                </div>
               </div>
             </div>
           </div>
@@ -256,3 +463,4 @@ export default function SelecttPartnersPage() {
     </>
   );
 }
+

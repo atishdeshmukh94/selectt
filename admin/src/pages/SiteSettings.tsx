@@ -363,6 +363,56 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
         )}
 
         {activeSection === "whatsapp" && (() => {
+          const GALLABOX_ACCOUNT_APPROVED_TEMPLATES = [
+            { name: "customer_got_sell_price_for_their_car", type: "MARKETING", desc: "Sell Car Price Offer / Valuation Ready" },
+            { name: "car_booking_confirmation", type: "MARKETING", desc: "Car Token Advance / Booking Confirmed" },
+            { name: "schedule_visit_confim", type: "MARKETING", desc: "Showroom Visit / Test Drive Confirmed" },
+            { name: "price_drop_message", type: "MARKETING", desc: "Price Drop Alert on Saved / Wishlisted Cars" },
+            { name: "try_to_help_you", type: "MARKETING", desc: "Customer Inquiry Support & Doubt Help" },
+            { name: "independence_day2026", type: "MARKETING", desc: "Independence Day / Festive Promotional Offer" },
+            { name: "otp_template_name", type: "AUTHENTICATION", desc: "User Authentication & Verification OTP" },
+            { name: "visted_sequence_6", type: "MARKETING", desc: "Visited Hub Completed Follow-up Sequence 6" },
+            { name: "happy_customers_clinch", type: "MARKETING", desc: "Customer NPS & Handover Review" },
+            { name: "summer_sale_may", type: "MARKETING", desc: "Summer Sale & Season Offer Broadcast" },
+            { name: "free_this_saturday_or_sunday_", type: "MARKETING", desc: "Weekend Test Drive & Visit Invitation" },
+            { name: "final_followup_march_2026_clone", type: "MARKETING", desc: "Final Lead Nurture & Closing Follow-up" },
+            { name: "hi_message", type: "MARKETING", desc: "Welcome & Initial Greeting Message" },
+            { name: "visited_sequence_1", type: "MARKETING", desc: "Visited Hub Follow-up Sequence 1" },
+            { name: "visited_sequence_2", type: "MARKETING", desc: "Visited Hub Follow-up Sequence 2" },
+            { name: "visited_sequence_3", type: "MARKETING", desc: "Visited Hub Follow-up Sequence 3" },
+            { name: "visited_sequence_4", type: "MARKETING", desc: "Visited Hub Follow-up Sequence 4" },
+            { name: "visited_sequence_5", type: "MARKETING", desc: "Visited Hub Follow-up Sequence 5" },
+            { name: "hot_lead_sequence_1_2026", type: "MARKETING", desc: "High-intent Buyer & Finance Follow-up 1" },
+            { name: "hot_lead_sequence_2_2026", type: "MARKETING", desc: "High-intent Buyer Follow-up 2" },
+            { name: "hot_lead_sequence_3_2026", type: "MARKETING", desc: "High-intent Buyer & Loan Enquiry 3" },
+            { name: "hot_lead_sequence_4_2026", type: "MARKETING", desc: "High-intent Buyer Follow-up 4" },
+            { name: "hot_lead_sequence_5_2026", type: "MARKETING", desc: "High-intent Buyer Follow-up 5" },
+            { name: "hot_lead_sequence_6_2026", type: "MARKETING", desc: "High-intent Buyer Follow-up 6" },
+            { name: "cold_seqeunce_1", type: "MARKETING", desc: "Cold Lead Re-activation Sequence 1" },
+            { name: "cold_seqeunce_2", type: "MARKETING", desc: "Cold Lead Re-activation Sequence 2" },
+            { name: "cold_seqeunce_3", type: "MARKETING", desc: "Cold Lead Re-activation Sequence 3" },
+            { name: "cold_seqeunce_4", type: "MARKETING", desc: "Cold Lead Re-activation Sequence 4" },
+            { name: "cold_seqeunce_5", type: "MARKETING", desc: "Cold Lead Re-activation Sequence 5" },
+            { name: "cold_seqeunce_6", type: "MARKETING", desc: "Cold Lead Re-activation Sequence 6" },
+            { name: "sequenceutlity_1", type: "UTILITY", desc: "Utility & Warranty Transaction Update 1" },
+            { name: "sequenceutlity_2", type: "UTILITY", desc: "Utility Update Sequence 2" },
+            { name: "sequenceutlity_3", type: "UTILITY", desc: "Utility Update Sequence 3" },
+            { name: "sequenceutlity_4", type: "UTILITY", desc: "Utility Update Sequence 4" },
+            { name: "sequenceutlity_5", type: "UTILITY", desc: "Utility Update Sequence 5" },
+            { name: "sequenceutlity_6", type: "UTILITY", desc: "Utility Update Sequence 6" },
+            { name: "sequenceutlity_7", type: "UTILITY", desc: "Utility Update Sequence 7" },
+            { name: "sequenceutlity_8", type: "UTILITY", desc: "Utility Update Sequence 8" },
+            { name: "sequence2", type: "MARKETING", desc: "Automated Nurture Sequence 2" },
+            { name: "sequence3", type: "MARKETING", desc: "Automated Nurture Sequence 3" },
+            { name: "sequence4", type: "MARKETING", desc: "Automated Nurture Sequence 4" },
+            { name: "sequence5", type: "MARKETING", desc: "Automated Nurture Sequence 5" },
+            { name: "sequence6", type: "MARKETING", desc: "Automated Nurture Sequence 6" },
+            { name: "sequence7", type: "MARKETING", desc: "Automated Nurture Sequence 7" },
+            { name: "sequence8", type: "MARKETING", desc: "Automated Nurture Sequence 8" },
+            { name: "sequence9", type: "MARKETING", desc: "Automated Nurture Sequence 9" },
+            { name: "sequence10", type: "MARKETING", desc: "Automated Nurture Sequence 10" }
+          ];
+
           const WHATSAPP_CATEGORIES = [
             { id: "all", name: "All Use Cases", count: 29 },
             { id: "sell", name: "🚗 Sell Car (5)", count: 5 },
@@ -871,7 +921,43 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
               {/* 2. Automated Trigger Events & Template Mapping for ALL Project Use Cases */}
               <ComponentCard title="All Project WhatsApp Event Templates (29 Use Cases)">
                 <form onSubmit={handleSave} className="space-y-6">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 -mt-2">
+                  {/* Shared datalist for all approved templates in user's Gallabox account */}
+                  <datalist id="gallabox-account-templates">
+                    {GALLABOX_ACCOUNT_APPROVED_TEMPLATES.map((gtpl) => (
+                      <option key={gtpl.name} value={gtpl.name}>
+                        [{gtpl.type}] {gtpl.desc}
+                      </option>
+                    ))}
+                  </datalist>
+
+                  {/* Gallabox Channel Sync Status Banner */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-gradient-to-r from-emerald-50 via-teal-50 to-indigo-50 dark:from-emerald-950/30 dark:via-teal-950/20 dark:to-indigo-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-bold text-lg shadow-xs shrink-0">
+                        💬
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-xs font-black text-gray-900 dark:text-white">
+                            Gallabox WhatsApp Account Connected: <span className="text-emerald-600 dark:text-emerald-400">Selectt</span>
+                          </h4>
+                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                            Active Channel
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-600 dark:text-gray-300 mt-0.5">
+                          Channel ID: <code className="font-mono font-bold text-emerald-700 dark:text-emerald-300">{settings.gallabox_channel_id || "687de856ba93969639c5815d"}</code> • <span className="font-bold text-indigo-600 dark:text-indigo-400">{GALLABOX_ACCOUNT_APPROVED_TEMPLATES.length} Meta Approved Templates</span> available for 1-click mapping.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                      <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-white dark:bg-gray-900 px-3 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800 shadow-2xs">
+                        ⚡ Auto-dispatch Live
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 -mt-1">
                     <p className="text-xs text-gray-500 font-medium">
                       Configure and map approved Gallabox / Meta template names for each transaction event across the Selectt platform.
                     </p>
@@ -1033,15 +1119,40 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
                             {isExpanded && (
                               <div className="space-y-3 pt-1 animate-fadeIn">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <Label>Gallabox Approved Template Name</Label>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <Label>Gallabox Approved Template Name</Label>
+                                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                                        ✓ Meta Approved
+                                      </span>
+                                    </div>
+                                    
+                                    {/* Direct Autocomplete Input */}
                                     <Input
                                       type="text"
+                                      list="gallabox-account-templates"
                                       placeholder={evt.defaultTpl}
                                       value={settings[tplKey] || ""}
                                       onChange={(e) => handleChange(tplKey, e.target.value)}
                                     />
-                                    <span className="text-[10px] text-gray-400 mt-1 block">
+
+                                    {/* Quick Selection Dropdown from Gallabox account library */}
+                                    <select
+                                      className="w-full text-xs rounded-lg border border-indigo-200 dark:border-indigo-800/80 bg-indigo-50/50 dark:bg-indigo-950/30 px-2.5 py-1.5 text-indigo-900 dark:text-indigo-200 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                                      value={settings[tplKey] || ""}
+                                      onChange={(e) => {
+                                        if (e.target.value) handleChange(tplKey, e.target.value);
+                                      }}
+                                    >
+                                      <option value="">⚡ Quick Select from 43 Approved Gallabox Templates...</option>
+                                      {GALLABOX_ACCOUNT_APPROVED_TEMPLATES.map((gtpl) => (
+                                        <option key={gtpl.name} value={gtpl.name}>
+                                          [{gtpl.type}] {gtpl.name} — {gtpl.desc}
+                                        </option>
+                                      ))}
+                                    </select>
+
+                                    <span className="text-[10px] text-gray-400 block">
                                       Default: <code className="font-mono text-gray-600 dark:text-gray-300 font-bold">{evt.defaultTpl}</code>
                                     </span>
                                   </div>

@@ -3,7 +3,9 @@ import { Phone, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageMeta from '../components/common/PageMeta';
 
-const MaintenancePage = ({ message }) => {
+const MaintenancePage = ({ message, phone = "+91-857466-7466" }) => {
+  const cleanPhone = phone ? phone.replace(/[^0-9+]/g, '') : '+918574667466';
+
   return (
     <>
       <PageMeta title="Under Maintenance | Selectt" description="We will be back shortly!" />
@@ -16,16 +18,16 @@ const MaintenancePage = ({ message }) => {
           className="max-w-2xl w-full text-center relative z-10 flex flex-col items-center justify-center"
         >
 
-          {/* Animated Working-On-It GIF Container */}
+          {/* Maintenance Animated GIF Container */}
           <motion.div
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.3 }}
-            className="relative inline-block mb-8 rounded-3xl overflow-hidden"
+            className="relative inline-block mb-6 w-full max-w-md flex justify-center overflow-hidden"
           >
             <img
-              className="w-56 h-56 object-cover md:w-64 md:h-64 rounded-3xl mx-auto"
-              src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHBvM3p1eG1zZGthNGs5bHkwa3l4Mjc4ZGVzN2RveTNwamw5eHZ1dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qIMZVXWJHQI0Qu3Pe9/giphy.gif"
-              alt="Working On It"
+              className="w-64 sm:w-72 md:w-80 max-w-full h-auto object-contain mx-auto"
+              src="/maintenance.gif"
+              alt="Our site is under maintenance"
             />
           </motion.div>
 
@@ -46,7 +48,7 @@ const MaintenancePage = ({ message }) => {
           <div className="flex flex-col items-center justify-center gap-2 mb-8">
             <span className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.15em]">Support Hotline</span>
             <motion.a
-              href="tel:+919999999999"
+              href={`tel:${cleanPhone}`}
               whileHover={{ scale: 1.03, backgroundColor: "#E1EBF5" }}
               whileTap={{ scale: 0.98 }}
               className="inline-flex items-center gap-3 px-6 py-3 bg-[#F0F5FA] text-[#0C1B33] font-bold rounded-full text-base transition-all duration-300 shadow-xs border border-slate-100 cursor-pointer"
@@ -54,7 +56,7 @@ const MaintenancePage = ({ message }) => {
               <div className="bg-[#00C9AF] text-[#0A1C3A] p-1.5 rounded-full shrink-0 flex items-center justify-center">
                 <Phone size={14} />
               </div>
-              <span>+91 99999 99999</span>
+              <span>{phone}</span>
             </motion.a>
           </div>
 

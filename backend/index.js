@@ -877,6 +877,273 @@ app.get('/robots.txt', (req, res) => {
 });
 
 // ============================================================
+// META & FACEBOOK AUTOMOTIVE CATALOG INTEGRATION
+// ============================================================
+const {
+    formatCarForMeta,
+    generateMetaCatalogCsv,
+    generateMetaCatalogXml,
+    testMetaCatalogConnection,
+    pushBatchToMetaGraphApi,
+    analyzeCatalogHealth
+} = require('./meta-catalog-service');
+
+// Asynchronous Auto-Sync Trigger for Meta Catalog
+async function triggerMetaAutoSync(carIdOrIds, action = 'UPDATE') {
+    try {
+        const settingsRows = await queryAsync('SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN (?, ?, ?, ?)', [
+            'meta_catalog_id', 'meta_access_token', 'meta_catalog_auto_sync', 'meta_catalog_fallback_brand'
+        ]);
+        const settings = {};
+        if (Array.isArray(settingsRows)) {
+            settingsRows.forEach(r => { settings[r.setting_key] = r.setting_value; });
+        }
+
+        if (settings.meta_catalog_auto_sync !== 'true') return;
+        if (!settings.meta_catalog_id || !settings.meta_access_token) return;
+
+        console.log(`[Meta Auto-Sync Triggered]: Car ID(s) ${JSON.stringify(carIdOrIds)}, Action: ${action}`);
+
+        const ids = Array.isArray(carIdOrIds) ? carIdOrIds : [carIdOrIds];
+        if (action === 'DELETE') {
+            const deleteItems = ids.map(id => ({ id: `SELECTT-CAR-${id}` }));
+            await pushBatchToMetaGraphApi({
+                catalogId: settings.meta_catalog_id,
+                accessToken: settings.meta_access_token,
+                items: deleteItems,
+                method: 'DELETE'
+            });
+            return;
+        }
+
+        const cars = await queryAsync('SELECT * FROM cars WHERE id IN (?)', [ids]);
+        if (!cars || cars.length === 0) return;
+
+        const formattedItems = cars.map(c => formatCarForMeta(c, SITE_URL, settings.meta_catalog_fallback_brand));
+        const syncResult = await pushBatchToMetaGraphApi({
+            catalogId: settings.meta_catalog_id,
+            accessToken: settings.meta_access_token,
+            items: formattedItems,
+            method: action
+        });
+
+        const nowStr = new Date().toISOString();
+        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_synced_at', nowStr, nowStr]);
+        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_sync_status', syncResult.success ? 'success' : 'failed', syncResult.success ? 'success' : 'failed']);
+    } catch (e) {
+        console.error('[Meta Auto-Sync Error]:', e.message);
+    }
+}
+
+// Meta Catalog CSV Scheduled Data Feed (For Facebook / Meta Commerce Manager Data Sources)
+app.get('/api/feeds/meta-catalog.csv', async (req, res) => {
+    try {
+        const cars = await queryAsync(
+            "SELECT * FROM cars WHERE (status = 'active' OR status = 'in_stock' OR status IS NULL OR status = '') ORDER BY id DESC"
+        );
+        const [brandSetting] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_catalog_fallback_brand'");
+        const defaultBrand = brandSetting ? brandSetting.setting_value : 'Selectt Cars';
+
+        const csv = generateMetaCatalogCsv(cars, SITE_URL, defaultBrand);
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', 'inline; filename="selectt-meta-catalog.csv"');
+        res.setHeader('Cache-Control', 'public, max-age=1800');
+        res.send(csv);
+    } catch (err) {
+        console.error('Meta CSV Feed Error:', err.message);
+        res.status(500).send('Error generating Meta catalog CSV feed');
+    }
+});
+
+// Meta Catalog XML / Google Merchant Feed
+app.get('/api/feeds/meta-catalog.xml', async (req, res) => {
+    try {
+        const cars = await queryAsync(
+            "SELECT * FROM cars WHERE (status = 'active' OR status = 'in_stock' OR status IS NULL OR status = '') ORDER BY id DESC"
+        );
+        const [brandSetting] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_catalog_fallback_brand'");
+        const defaultBrand = brandSetting ? brandSetting.setting_value : 'Selectt Cars';
+
+        const xml = generateMetaCatalogXml(cars, SITE_URL, defaultBrand);
+        res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+        res.setHeader('Content-Disposition', 'inline; filename="selectt-meta-catalog.xml"');
+        res.setHeader('Cache-Control', 'public, max-age=1800');
+        res.send(xml);
+    } catch (err) {
+        console.error('Meta XML Feed Error:', err.message);
+        res.status(500).send('Error generating Meta catalog XML feed');
+    }
+});
+
+// Meta Catalog JSON Feed
+app.get('/api/feeds/meta-catalog.json', async (req, res) => {
+    try {
+        const cars = await queryAsync(
+            "SELECT * FROM cars WHERE (status = 'active' OR status = 'in_stock' OR status IS NULL OR status = '') ORDER BY id DESC"
+        );
+        const [brandSetting] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_catalog_fallback_brand'");
+        const defaultBrand = brandSetting ? brandSetting.setting_value : 'Selectt Cars';
+
+        const items = cars.map(car => formatCarForMeta(car, SITE_URL, defaultBrand));
+        res.json({
+            count: items.length,
+            generated_at: new Date().toISOString(),
+            items
+        });
+    } catch (err) {
+        console.error('Meta JSON Feed Error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin Meta Catalog Status & Health Check
+app.get('/api/admin/meta-catalog/status', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const settingsRows = await queryAsync(
+            "SELECT setting_key, setting_value FROM site_settings WHERE setting_key LIKE 'meta_%'"
+        );
+        const settings = {};
+        if (Array.isArray(settingsRows)) {
+            settingsRows.forEach(r => { settings[r.setting_key] = r.setting_value; });
+        }
+
+        const cars = await queryAsync("SELECT * FROM cars ORDER BY id DESC");
+        const activeCars = cars.filter(c => c.status === 'active' || c.status === 'in_stock' || !c.status);
+        const health = analyzeCatalogHealth(activeCars, SITE_URL);
+
+        res.json({
+            settings: {
+                catalog_id: settings.meta_catalog_id || '',
+                pixel_id: settings.meta_pixel_id || '',
+                access_token: settings.meta_access_token ? '••••••••' + settings.meta_access_token.slice(-6) : '',
+                has_token: Boolean(settings.meta_access_token),
+                business_id: settings.meta_business_id || '',
+                auto_sync: settings.meta_catalog_auto_sync === 'true',
+                fallback_brand: settings.meta_catalog_fallback_brand || 'Selectt Cars',
+                currency: settings.meta_catalog_currency || 'INR',
+                last_synced_at: settings.meta_catalog_last_synced_at || null,
+                last_sync_status: settings.meta_catalog_last_sync_status || 'idle',
+                last_sync_result: settings.meta_catalog_last_sync_result || null
+            },
+            feed_urls: {
+                csv: `${SITE_URL}/api/feeds/meta-catalog.csv`,
+                xml: `${SITE_URL}/api/feeds/meta-catalog.xml`,
+                json: `${SITE_URL}/api/feeds/meta-catalog.json`
+            },
+            inventory: {
+                total: cars.length,
+                active: activeCars.length,
+                health
+            }
+        });
+    } catch (err) {
+        console.error('Meta Catalog Status Error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin Save Meta Catalog Settings
+app.post('/api/admin/meta-catalog/settings', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const {
+            catalog_id,
+            pixel_id,
+            access_token,
+            business_id,
+            auto_sync,
+            fallback_brand,
+            currency
+        } = req.body;
+
+        const updates = [
+            ['meta_catalog_id', catalog_id !== undefined ? String(catalog_id).trim() : ''],
+            ['meta_pixel_id', pixel_id !== undefined ? String(pixel_id).trim() : ''],
+            ['meta_business_id', business_id !== undefined ? String(business_id).trim() : ''],
+            ['meta_catalog_auto_sync', auto_sync ? 'true' : 'false'],
+            ['meta_catalog_fallback_brand', fallback_brand || 'Selectt Cars'],
+            ['meta_catalog_currency', currency || 'INR']
+        ];
+
+        // Only update access token if a new one was provided (not masked)
+        if (access_token && !access_token.startsWith('••••')) {
+            updates.push(['meta_access_token', String(access_token).trim()]);
+        }
+
+        for (const [k, v] of updates) {
+            await queryAsync(
+                'INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
+                [k, v, v]
+            );
+        }
+
+        res.json({ success: true, message: 'Meta Catalog configuration saved successfully!' });
+    } catch (err) {
+        console.error('Save Meta Settings Error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin Test Meta API Connection
+app.post('/api/admin/meta-catalog/test-connection', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        let { catalog_id, access_token } = req.body;
+
+        if (!access_token || access_token.startsWith('••••')) {
+            const [tokRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_access_token'");
+            access_token = tokRow ? tokRow.setting_value : '';
+        }
+        if (!catalog_id) {
+            const [catRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_catalog_id'");
+            catalog_id = catRow ? catRow.setting_value : '';
+        }
+
+        const result = await testMetaCatalogConnection({ catalogId: catalog_id, accessToken: access_token });
+        res.json(result);
+    } catch (err) {
+        console.error('Test Meta Connection Error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Admin Force Sync All Cars to Meta Catalog
+app.post('/api/admin/meta-catalog/sync-all', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const [catRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_catalog_id'");
+        const [tokRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_access_token'");
+        const [brandRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_catalog_fallback_brand'");
+
+        const catalogId = catRow ? catRow.setting_value : '';
+        const accessToken = tokRow ? tokRow.setting_value : '';
+        const defaultBrand = brandRow ? brandRow.setting_value : 'Selectt Cars';
+
+        if (!catalogId || !accessToken) {
+            return res.status(400).json({
+                success: false,
+                message: 'Meta Catalog ID and System User Access Token must be configured first in Meta Catalog Setup.'
+            });
+        }
+
+        const cars = await queryAsync("SELECT * FROM cars WHERE (status = 'active' OR status = 'in_stock' OR status IS NULL OR status = '')");
+        const formattedItems = cars.map(c => formatCarForMeta(c, SITE_URL, defaultBrand));
+
+        const syncResult = await pushBatchToMetaGraphApi({
+            catalogId,
+            accessToken,
+            items: formattedItems,
+            method: 'UPDATE'
+        });
+
+        const nowStr = new Date().toISOString();
+        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_synced_at', nowStr, nowStr]);
+        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_sync_status', syncResult.success ? 'success' : 'failed', syncResult.success ? 'success' : 'failed']);
+        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_sync_result', JSON.stringify(syncResult), JSON.stringify(syncResult)]);
+
+        res.json(syncResult);
+    } catch (err) {
+        console.error('Meta Sync All Error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 
 // SEC-001 FIX: Admin notifications now require authentication
 app.get('/api/admin/notifications', authMiddleware, (req, res) => {
@@ -1105,6 +1372,7 @@ app.post('/api/cars', authMiddleware, (req, res) => {
 
     db.query('INSERT INTO cars SET ?', data, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
+        triggerMetaAutoSync(result.insertId, 'CREATE');
         res.status(201).json({ id: result.insertId, ...mapCar({ ...data, id: result.insertId }) });
     });
 });
@@ -1117,6 +1385,7 @@ app.post('/api/cars/bulk-import', authMiddleware, isAdmin, async (req, res) => {
         }
 
         let insertedCount = 0;
+        const insertedIds = [];
         for (const carItem of bulkCars) {
             const data = {
                 make: carItem.make || "Maruti Suzuki",
@@ -1134,11 +1403,17 @@ app.post('/api/cars/bulk-import', authMiddleware, isAdmin, async (req, res) => {
                 listing_type: carItem.listingType || carItem.listing_type || "standard"
             };
             await new Promise((resolve) => {
-                db.query('INSERT INTO cars SET ?', data, (err) => {
-                    if (!err) insertedCount++;
+                db.query('INSERT INTO cars SET ?', data, (err, resObj) => {
+                    if (!err) {
+                        insertedCount++;
+                        if (resObj && resObj.insertId) insertedIds.push(resObj.insertId);
+                    }
                     resolve(true);
                 });
             });
+        }
+        if (insertedIds.length > 0) {
+            triggerMetaAutoSync(insertedIds, 'CREATE');
         }
         res.json({ message: `Successfully imported ${insertedCount} cars`, count: insertedCount });
     } catch (err) {
@@ -1222,6 +1497,9 @@ app.put('/api/cars/:id', authMiddleware, (req, res) => {
                 });
             }
 
+            // Auto-sync updated car with Meta Catalog
+            triggerMetaAutoSync(req.params.id, 'UPDATE');
+
             res.json({ message: 'Car updated successfully' });
         });
     });
@@ -1243,6 +1521,7 @@ app.patch('/api/cars/bulk-update', authMiddleware, (req, res) => {
 
     db.query('UPDATE cars SET ? WHERE id IN (?)', [updateData, ids], (err) => {
         if (err) return res.status(500).json({ error: err.message });
+        triggerMetaAutoSync(ids, 'UPDATE');
         res.json({ message: `Updated ${ids.length} cars successfully` });
     });
 });
@@ -1272,6 +1551,7 @@ app.patch('/api/cars/:id', authMiddleware, (req, res) => {
 
     db.query('UPDATE cars SET ? WHERE id = ?', [updateData, req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
+        triggerMetaAutoSync(req.params.id, 'UPDATE');
         res.json({ message: 'Car updated successfully', updated: updateData });
     });
 });
@@ -1304,6 +1584,9 @@ app.delete('/api/cars/:id', authMiddleware, (req, res) => {
             // Delete all associated files and thumbnails from disk and DB
             imagesToDelete.forEach(filePath => deleteLocalUploadFile(filePath));
             
+            // Trigger Meta Catalog item removal
+            triggerMetaAutoSync(req.params.id, 'DELETE');
+
             res.json({ message: 'Car deleted successfully and associated images removed' });
         });
     });
@@ -2269,6 +2552,116 @@ app.put('/api/loan-applications/:id/status', authMiddleware, isAdmin, (req, res)
 });
 
 // ============================================================
+// CAR INSURANCE REQUESTS API
+// ============================================================
+
+// Submit Insurance Quote Request (Public or Customer)
+app.post('/api/insurance/request', (req, res) => {
+    const { vehicle_number, phone, plan_type, customer_id } = req.body;
+    if (!vehicle_number || !phone) {
+        return res.status(400).json({ message: 'Vehicle number and phone number are required' });
+    }
+
+    const cleanVehicle = String(vehicle_number).replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 10);
+    const cleanPhone = String(phone).replace(/\D/g, '').slice(-10);
+
+    if (cleanVehicle.length < 8 || cleanVehicle.length > 10) {
+        return res.status(400).json({ message: 'Invalid vehicle registration number format' });
+    }
+    if (cleanPhone.length !== 10) {
+        return res.status(400).json({ message: 'Invalid 10-digit mobile number' });
+    }
+
+    // Try to resolve customer_id from token if provided in header
+    let resolvedCustomerId = customer_id || null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        try {
+            const token = authHeader.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            if (decoded && decoded.id) {
+                resolvedCustomerId = decoded.id;
+            }
+        } catch (e) {
+            // Non-blocking for public submission
+        }
+    }
+
+    const requestNo = `INS-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const insuranceData = {
+        request_no: requestNo,
+        customer_id: resolvedCustomerId,
+        vehicle_number: cleanVehicle,
+        phone: cleanPhone,
+        plan_type: plan_type || 'Comprehensive Plan',
+        status: 'pending'
+    };
+
+    db.query('INSERT INTO insurance_requests SET ?', insuranceData, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        createNotification(
+            'LEAD',
+            `New Insurance Quote Request for vehicle ${cleanVehicle} (${cleanPhone})`,
+            resolvedCustomerId,
+            result.insertId
+        );
+
+        res.status(201).json({
+            success: true,
+            message: 'Insurance quote request submitted successfully',
+            request_no: requestNo,
+            id: result.insertId
+        });
+    });
+});
+
+// Get Insurance Requests (Admin / Staff)
+app.get('/api/admin/insurance-requests', authMiddleware, (req, res) => {
+    const query = `
+        SELECT 
+            i.*, 
+            c.first_name, 
+            c.last_name, 
+            c.email AS customer_email, 
+            c.phone AS customer_phone
+        FROM insurance_requests i
+        LEFT JOIN customers c ON i.customer_id = c.id
+        ORDER BY i.created_at DESC
+    `;
+    db.query(query, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// Update Insurance Request Status & Notes (Admin / Staff)
+app.put('/api/admin/insurance-requests/:id/status', authMiddleware, (req, res) => {
+    const { status, notes } = req.body;
+    const updates = {};
+    if (status) updates.status = status;
+    if (notes !== undefined) updates.notes = notes;
+
+    if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ message: 'No fields to update' });
+    }
+
+    db.query('UPDATE insurance_requests SET ? WHERE id = ?', [updates, req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: 'Insurance request updated successfully' });
+    });
+});
+
+// Delete Insurance Request (Admin only)
+app.delete('/api/admin/insurance-requests/:id', authMiddleware, (req, res) => {
+    db.query('DELETE FROM insurance_requests WHERE id = ?', [req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: 'Insurance request deleted successfully' });
+    });
+});
+
+// ============================================================
 // CAR BOOKINGS API
 // ============================================================
 app.post('/api/bookings', customerAuth, (req, res) => {
@@ -2618,11 +3011,25 @@ app.get('/api/settings', authMiddleware, isAdmin, (req, res) => {
 app.post('/api/settings', authMiddleware, isAdmin, (req, res) => {
     const settings = req.body; // Expecting { key: value, ... } or [{key, value}, ...]
     
-    const queries = Object.entries(settings).map(([key, value]) => {
+    const entries = Array.isArray(settings) 
+        ? settings.map(item => [item.key || item.setting_key, item.value || item.setting_value])
+        : Object.entries(settings);
+
+    const queries = entries.map(([key, value]) => {
         return new Promise((resolve, reject) => {
-            db.query('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', [key, value, value], (err) => {
-                if (err) reject(err);
-                else resolve();
+            db.query('SELECT setting_value FROM site_settings WHERE setting_key = ?', [key], (selErr, selRes) => {
+                const oldVal = selRes && selRes[0] ? selRes[0].setting_value : null;
+
+                db.query('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', [key, value, value], (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        if (oldVal && oldVal !== value && typeof oldVal === 'string' && oldVal.startsWith('/uploads/')) {
+                            deleteLocalUploadFile(oldVal);
+                        }
+                        resolve();
+                    }
+                });
             });
         });
     });

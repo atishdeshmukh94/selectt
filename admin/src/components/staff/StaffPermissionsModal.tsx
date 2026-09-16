@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { 
   X, 
   Shield, 
+  ShieldCheck,
   Check, 
   CheckSquare, 
   Square, 
@@ -81,6 +82,13 @@ export const PERMISSION_MODULES: PermissionItem[] = [
     description: "Process used car loan inquiries, bank approvals, and EMI leads",
     category: "Sales & Leads",
     icon: CreditCard
+  },
+  {
+    key: "insurance_requests",
+    name: "Insurance Requests & Quotes",
+    description: "Process car insurance inquiries, policy quotes, and customer follow-ups",
+    category: "Sales & Leads",
+    icon: ShieldCheck
   },
   {
     key: "wishlist",

@@ -146,7 +146,8 @@
 .navLink {
   color: var(--color-text-white);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   text-decoration: none;
   transition: color 0.2s ease;
   outline: none;
@@ -1040,7 +1041,8 @@
 .navLinkButton {
   color: var(--color-text-white);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   background: none;
   border: none;
   cursor: pointer;
@@ -1076,14 +1078,14 @@
   position: absolute;
   top: 100%;
   right: 0;
-  width: 320px;
+  width: 290px;
   background: rgba(12, 27, 51, 0.98);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--color-border-glass);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-top: 2px solid var(--color-accent-teal);
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 201, 175, 0.04);
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -1093,6 +1095,7 @@
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
   overflow: visible;
+  padding: 6px 0;
 }
 
 .moreDropdown::-webkit-scrollbar {
@@ -1118,29 +1121,30 @@
 }
 
 .moreSection {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--color-border-glass);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .moreSectionLast {
-  padding: 8px 0;
+  padding: 6px 0;
 }
 
 .moreLinkItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 20px;
-  color: var(--color-text-white);
+  padding: 8.5px 18px;
+  color: #f1f5f9;
   text-decoration: none;
-  font-size: 14.5px;
-  font-weight: 700;
-  transition: all 0.2s ease;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: all 0.15s ease;
   cursor: pointer;
 }
 
 .moreLinkItem:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--color-accent-teal);
 }
 
@@ -1159,18 +1163,19 @@
 }
 
 .moreItemTitle {
-  font-size: 14.5px;
-  font-weight: 800;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   display: block;
-  margin-bottom: 3px;
-  color: var(--color-text-white);
+  margin-bottom: 2px;
+  color: #f8fafc;
   text-align: left;
 }
 
 .moreItemSub {
-  font-size: 11.5px;
-  color: #cbd5e1;
-  font-weight: 500;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 400;
   display: block;
   text-align: left;
   line-height: 1.3;
@@ -1206,22 +1211,22 @@
 
 .moreSideFlyout {
   position: absolute;
-  top: -8px;
+  top: -6px;
   left: calc(100% + 8px);
   right: auto;
-  width: 230px;
-  background: rgba(10, 22, 42, 0.98);
+  width: 220px;
+  background: rgba(12, 27, 51, 0.98);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--color-border-glass);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-top: 2px solid var(--color-accent-teal);
   border-radius: 12px;
   box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.6);
-  padding: 8px 0;
+  padding: 6px 0;
   z-index: 105;
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-10px);
+  transform: translateX(-8px);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 }
@@ -1248,30 +1253,31 @@
 .flyoutHeader {
   padding: 6px 16px 8px 16px;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--color-accent-teal);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--color-border-glass);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   margin-bottom: 4px;
 }
 
 .moreNestedLink {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  color: var(--color-text-white);
+  gap: 10px;
+  padding: 8px 16px;
+  color: #f1f5f9;
   text-decoration: none;
-  font-size: 13.5px;
-  font-weight: 700;
-  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: all 0.15s ease;
 }
 
 .moreNestedLink:hover {
-  background: rgba(0, 211, 183, 0.12);
+  background: rgba(0, 211, 183, 0.1);
   color: var(--color-accent-teal);
-  padding-left: 20px;
+  padding-left: 18px;
 }
 
 .moreNestedLink svg {
@@ -1287,16 +1293,17 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 20px;
-  color: var(--color-text-white);
+  padding: 8.5px 18px;
+  color: #f1f5f9;
   text-decoration: none;
-  font-size: 14.5px;
-  font-weight: 700;
-  transition: all 0.2s ease;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: all 0.15s ease;
 }
 
 .moreLinkItemPlain:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--color-accent-teal);
 }
 
@@ -1312,22 +1319,24 @@
 .moreColItem {
   display: flex;
   flex-direction: column;
-  padding: 11px 20px;
+  padding: 8.5px 18px;
   text-decoration: none;
-  color: var(--color-text-white);
-  transition: all 0.2s ease;
+  color: #f8fafc;
+  transition: all 0.15s ease;
 }
 
 .moreColItem:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .moreColTitle {
-  font-size: 14.5px;
-  font-weight: 800;
-  color: var(--color-text-white);
-  margin-bottom: 3px;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #f8fafc;
+  margin-bottom: 2px;
   text-align: left;
+  transition: color 0.15s ease;
 }
 
 .moreColItem:hover .moreColTitle {
@@ -1335,9 +1344,9 @@
 }
 
 .moreColSub {
-  font-size: 11.5px;
-  color: #cbd5e1;
-  font-weight: 500;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 400;
   text-align: left;
   line-height: 1.3;
 }

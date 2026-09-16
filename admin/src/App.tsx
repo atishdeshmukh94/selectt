@@ -13,6 +13,7 @@ import ManageCars from "./pages/ManageCars";
 import Customers from "./pages/Customers";
 import SellRequests from "./pages/SellRequests";
 import LoanApplications from "./pages/LoanApplications";
+import InsuranceRequests from "./pages/InsuranceRequests";
 import StaffManagement from "./pages/StaffManagement";
 import TestDriveRequests from "./pages/TestDriveRequests";
 import CarEditPage from "./pages/CarEditPage";
@@ -29,6 +30,7 @@ import TestimonialsVideo from "./pages/TestimonialsVideo";
 import MediaLibrary from "./pages/MediaLibrary";
 import CarHubs from "./pages/CarHubs";
 import VisitorReports from "./pages/VisitorReports";
+import MetaCatalogSettings from "./pages/MetaCatalogSettings";
 
 export default function App() {
   return (
@@ -58,6 +60,7 @@ export default function App() {
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/sell-requests" element={<SellRequests />} />
                   <Route path="/loan-applications" element={<LoanApplications />} />
+                  <Route path="/insurance-requests" element={<InsuranceRequests />} />
                   <Route path="/test-drives" element={<TestDriveRequests />} />
                   <Route path="/booked-cars" element={<BookedCars />} />
 
@@ -91,6 +94,8 @@ export default function App() {
                   <Route path="/settings/smtp" element={<SiteSettings section="smtp" />} />
                   <Route path="/settings/maintenance" element={<SiteSettings section="maintenance" />} />
                   <Route path="/settings/whatsapp" element={<SiteSettings section="whatsapp" />} />
+                  <Route path="/settings/meta-catalog" element={<MetaCatalogSettings />} />
+                  <Route path="/meta-catalog-setup" element={<MetaCatalogSettings />} />
                 </Route>
               </Route>
 

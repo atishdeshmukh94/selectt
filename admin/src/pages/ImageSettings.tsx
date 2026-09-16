@@ -186,15 +186,15 @@ const BUY_CARS_STATIC_SLOTS: ImageSlotConfig[] = [
 const CAR_DETAIL_STATIC_SLOTS: ImageSlotConfig[] = [
   {
     key: "login_modal_banner",
-    type: "site_content",
-    title: "Login / Signup Modal Side Banner",
+    type: "site_setting",
+    title: "Login / Signup Modal Left Side Banner",
     page: "Global Login Modal",
     pageUrl: "/",
-    placement: "Authentication Popup > Left Side Visual",
-    recommendedSize: "600 × 800 px",
-    aspectRatio: "3:4",
+    placement: "Authentication Popup > Left Side Visual Image",
+    recommendedSize: "450 × 535 px (5:6)",
+    aspectRatio: "5:6",
     description: "Visual banner shown on the customer login/register popup modal.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop",
+    defaultPlaceholder: "/login-banner-left-sdie.png",
   },
   {
     key: "car_details_sidebar_banner",
@@ -263,52 +263,88 @@ const SERVICE_STATIC_SLOTS: ImageSlotConfig[] = [
 
 const BRANDING_STATIC_SLOTS: ImageSlotConfig[] = [
   {
-    key: "header_logo",
+    key: "login_modal_banner",
     type: "site_setting",
-    title: "Header Main Logo (Dark Navbar)",
-    page: "Global Header",
+    title: "Login / Signup Popup Left Side Banner",
+    page: "Global Login Modal",
     pageUrl: "/",
-    placement: "Top Navigation Bar (Dark / Transparent)",
-    recommendedSize: "240 × 60 px PNG / SVG (Transparent)",
-    aspectRatio: "4:1",
-    description: "Primary logo displayed on dark navigation bar background.",
-    defaultPlaceholder: "/brand-logo.png",
+    placement: "Authentication Modal > Left Side Visual Image",
+    recommendedSize: "450 × 535 px (5:6 or 900 × 1070 px for Retina)",
+    aspectRatio: "5:6",
+    description: "Featured left side illustration / image shown on customer login & registration popup modal.",
+    defaultPlaceholder: "/login-banner-left-sdie.png",
   },
   {
-    key: "header_logo_dark",
+    key: "frontend_header_logo",
     type: "site_setting",
-    title: "Header Main Logo (Light Navbar)",
+    title: "Frontend Header Main Logo",
     page: "Global Header",
     pageUrl: "/",
-    placement: "Top Navigation Bar (Light / White)",
+    placement: "Top Navigation Bar",
     recommendedSize: "240 × 60 px PNG / SVG (Transparent)",
     aspectRatio: "4:1",
-    description: "Secondary logo displayed when navbar turns white on scroll.",
-    defaultPlaceholder: "/brand-logo-dark.png",
+    description: "Primary logo displayed on website navigation bar.",
+    defaultPlaceholder: "/images/logo/light-logo.svg",
   },
   {
-    key: "footer_logo",
+    key: "frontend_footer_logo",
     type: "site_setting",
-    title: "Footer Logo",
+    title: "Frontend Footer Logo",
     page: "Global Footer",
     pageUrl: "/",
     placement: "Website Footer Bottom Area",
     recommendedSize: "240 × 60 px PNG / SVG",
     aspectRatio: "4:1",
-    description: "Logo displayed in the footer section across all pages.",
-    defaultPlaceholder: "/brand-logo.png",
+    description: "Logo displayed in the website footer section across all pages.",
+    defaultPlaceholder: "/images/logo/light-logo.svg",
   },
   {
-    key: "favicon",
+    key: "auth_logo",
     type: "site_setting",
-    title: "Browser Favicon",
+    title: "Auth Modal / Login Popup Logo",
+    page: "Login Modal",
+    pageUrl: "/",
+    placement: "Login & Signup Popup Header",
+    recommendedSize: "200 × 50 px PNG / SVG",
+    aspectRatio: "4:1",
+    description: "Brand logo shown inside the customer OTP login and signup modal.",
+    defaultPlaceholder: "/images/logo/light-logo.svg",
+  },
+  {
+    key: "admin_logo",
+    type: "site_setting",
+    title: "Admin Dashboard Logo (Light Theme)",
+    page: "Admin Portal",
+    pageUrl: "/dashboard",
+    placement: "Admin Sidebar (Light Mode)",
+    recommendedSize: "240 × 60 px PNG / SVG",
+    aspectRatio: "4:1",
+    description: "Brand logo shown in admin panel sidebar in light mode.",
+    defaultPlaceholder: "/images/logo/dark-logo.svg",
+  },
+  {
+    key: "admin_logo_dark",
+    type: "site_setting",
+    title: "Admin Dashboard Logo (Dark Theme)",
+    page: "Admin Portal",
+    pageUrl: "/dashboard",
+    placement: "Admin Sidebar (Dark Mode)",
+    recommendedSize: "240 × 60 px PNG / SVG",
+    aspectRatio: "4:1",
+    description: "Brand logo shown in admin panel sidebar in dark mode.",
+    defaultPlaceholder: "/images/logo/logo-dark.svg",
+  },
+  {
+    key: "admin_logo_icon",
+    type: "site_setting",
+    title: "Browser Favicon & App Icon",
     page: "Browser Tab Icon",
     pageUrl: "/",
     placement: "Browser Tab & Bookmark Icon",
     recommendedSize: "64 × 64 px PNG / ICO",
     aspectRatio: "1:1",
-    description: "Small icon visible in browser tabs and bookmarks.",
-    defaultPlaceholder: "/favicon.ico",
+    description: "Small icon visible in browser tabs, bookmarks, and mobile shortcuts.",
+    defaultPlaceholder: "/favicon.png",
   },
   {
     key: "og_image",
@@ -651,17 +687,35 @@ export default function ImageSettings() {
     if (slot.type === "site_content") {
       const val = siteContent[slot.key];
       if (val) return val.startsWith("http") ? val : `${API}${val}`;
-      return slot.defaultPlaceholder;
+      return slot.defaultPlaceholder.startsWith("http") || slot.defaultPlaceholder.startsWith("/") 
+        ? slot.defaultPlaceholder 
+        : `${API}${slot.defaultPlaceholder}`;
     } else {
-      const val = siteSettings[slot.key];
+      let val = siteSettings[slot.key];
+      if (!val && slot.key === "frontend_header_logo") val = siteSettings["header_logo"] || siteSettings["site_logo"];
+      if (!val && slot.key === "frontend_footer_logo") val = siteSettings["footer_logo"];
+      if (!val && slot.key === "admin_logo_icon") val = siteSettings["favicon"];
+      if (!val && slot.key === "header_logo") val = siteSettings["frontend_header_logo"];
+      if (!val && slot.key === "footer_logo") val = siteSettings["frontend_footer_logo"];
+      if (!val && slot.key === "favicon") val = siteSettings["admin_logo_icon"];
+
       if (val) return val.startsWith("http") ? val : `${API}${val}`;
-      return slot.defaultPlaceholder;
+      return slot.defaultPlaceholder.startsWith("http") || slot.defaultPlaceholder.startsWith("/")
+        ? slot.defaultPlaceholder
+        : `${API}${slot.defaultPlaceholder}`;
     }
   };
 
   const isCustomImage = (slot: ImageSlotConfig) => {
     if (slot.type === "site_content") return !!siteContent[slot.key];
-    return !!siteSettings[slot.key];
+    let val = siteSettings[slot.key];
+    if (!val && slot.key === "frontend_header_logo") val = siteSettings["header_logo"] || siteSettings["site_logo"];
+    if (!val && slot.key === "frontend_footer_logo") val = siteSettings["footer_logo"];
+    if (!val && slot.key === "admin_logo_icon") val = siteSettings["favicon"];
+    if (!val && slot.key === "header_logo") val = siteSettings["frontend_header_logo"];
+    if (!val && slot.key === "footer_logo") val = siteSettings["frontend_footer_logo"];
+    if (!val && slot.key === "favicon") val = siteSettings["admin_logo_icon"];
+    return !!val;
   };
 
   const copyUrl = (url: string) => {
