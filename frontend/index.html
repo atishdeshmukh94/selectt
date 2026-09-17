@@ -96,5 +96,21 @@
   <body style="margin: 0; padding: 0; background-color: #000000;">
     <div id="root" style="background-color: #000000; min-height: 100vh;"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Gallabox Chatty Widget -->
+    <script>
+      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJob3N0IjoiaHR0cHM6Ly9jbGluY2htb3RvcnMuY29tIiwiaWQiOiI2YWFiYWI4NmY1ZTBmZTY4MjIxNDUyY2YiLCJhY2NJZCI6IjY4NzRiNGI3ZDdkMTlmYTlmODE4ZmE0NCIsInJlZ2lvbiI6ImRlZmF1bHQiLCJ2ZXJzaW9uIjoidjIiLCJpYXQiOjE3ODk2NDA1NTF9.vMvD_2V0POtEd2788nHVKdUmYEwKhzoY4LxkZLyxSVU";
+      (function(w, d, s, u, t) {
+        w.Chatty = function(c) { w.Chatty._.push(c) };
+        w.Chatty._ = [];
+        w.Chatty.url = u;
+        w.Chatty.hash = t;
+        var h = d.getElementsByTagName(s)[0],
+          j = d.createElement(s);
+        j.async = true;
+        j.src = 'https://widget.gallabox.com/chatty-widget-v2.min.js?_=' + Math.random();
+        h.parentNode.insertBefore(j, h);
+      })(window, document, 'script', 'https://widget.gallabox.com', token);
+    </script>
   </body>
 </html>
