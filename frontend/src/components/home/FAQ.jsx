@@ -1,30 +1,31 @@
 import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const faqs = [
   {
-    question: "What is the Selectt Cars 5-day Money Back Guarantee?",
-    answer: "If you don't love your car, return it within 5 days for a 100% refund. No questions asked. We ensure your total satisfaction with every purchase."
+    question: "What does 'Selectt Certified' mean?",
+    answer: "Every Selectt Certified car undergoes an uncompromising 200-point inspection covering engine compression, transmission, suspension, electrical systems, and structural pillars. Cars with flood damage or major accidental history are 100% rejected. All certified cars include a 1-year warranty and a 5-day money-back guarantee."
   },
   {
-    question: "How do you verify the car's condition?",
-    answer: "Every car undergoes a mandatory 200-point inspection covering engine, suspension, electronics, and bodywork."
+    question: "What is the 5-Day Money-Back Guarantee?",
+    answer: "Drive your car for up to 5 days (or 250 kms). If you aren't completely satisfied for any reason, return it to Selectt for a 100% full refund with zero cancellation charges."
   },
   {
-    question: "Can I get a loan for a used car?",
-    answer: "Yes, we have tie-ups with major banks to provide instant car loans with rates starting from 11.49%."
+    question: "How long does it take to get paid when selling my car?",
+    answer: "Selectt ensures you receive full payment via secure instant bank transfer (IMPS/NEFT) within 24 hours of accepting our final offer and signing vehicle handover documents."
   },
   {
-    question: "How long does the car selling process take?",
-    answer: "You can sell your car in just 1 hour. Get a quote online, book an inspection, and get paid instantly."
+    question: "What is the Selectt Seller Protection Guarantee?",
+    answer: "From the moment you hand over your keys, Selectt assumes 100% legal responsibility for the vehicle, shielding you from any traffic e-challans, third-party accidents, or legal disputes until RC transfer is officially complete."
   },
   {
-    question: "What documents are needed to buy a car?",
-    answer: "Standard KYC documents including ID proof, address proof, and bank statements (for loans) are required."
+    question: "Do you provide used car loans and financing?",
+    answer: "Yes! Selectt partners with leading banks (HDFC, ICICI, SBI, Axis, Kotak) to offer instant loan approvals, flexible tenures up to 7 years, and up to 100% on-road funding."
   },
   {
-    question: "Is the RC transfer handled by Selectt Cars?",
-    answer: "Yes, we take care of all the paperwork and RC transfer free of cost for all our customers."
+    question: "How does Selectt handle the RC transfer?",
+    answer: "We manage the entire RC transfer process 100% free of charge. Our dedicated RTO operations team handles all paperwork, submission, and tracking until the updated RC is issued."
   }
 ];
 
@@ -42,11 +43,11 @@ const FAQ = ({ dark = true }) => {
       }`}>
       <div className="max-w-3xl mx-auto">
 
-        <h2 className={`text-2xl font-bold mb-8 flex items-center justify-center gap-5 w-full ${dark ? 'text-white' : 'text-[#0C1B33]'
+        <h2 className={`text-2xl sm:text-3xl font-black mb-8 flex items-center justify-center gap-5 w-full ${dark ? 'text-white' : 'text-[#0C1B33]'
           }`}>
-          <div className={`h-px flex-1 max-w-[100px] md:max-w-none ${dark ? 'bg-white/10' : 'bg-[#0c1b33]/10'}`} />
+          <div className={`h-px flex-1 max-w-[80px] md:max-w-none ${dark ? 'bg-white/10' : 'bg-[#0c1b33]/10'}`} />
           <span className="shrink-0 text-center font-heading">Frequently Asked Questions</span>
-          <div className={`h-px flex-1 max-w-[100px] md:max-w-none ${dark ? 'bg-white/10' : 'bg-[#0c1b33]/10'}`} />
+          <div className={`h-px flex-1 max-w-[80px] md:max-w-none ${dark ? 'bg-white/10' : 'bg-[#0c1b33]/10'}`} />
         </h2>
 
         <div className="space-y-4">
@@ -57,33 +58,33 @@ const FAQ = ({ dark = true }) => {
                 key={index}
                 className={`group rounded-2xl border transition-all duration-300 overflow-hidden ${isOpen
                   ? dark
-                    ? 'border-[#00C9AF] bg-[#162947]/30 shadow-[0_4px_20px_rgba(0,196,175,0.05)]'
+                    ? 'border-[#00C9AF] bg-[#162947]/40 shadow-[0_4px_20px_rgba(0,196,175,0.08)]'
                     : 'border-[#00C9AF] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.04)]'
                   : dark
                     ? 'border-white/10 hover:border-white/20 bg-[#162947]/10'
-                    : 'border-slate-200 bg-white hover:border-slate-350'
+                    : 'border-slate-200 bg-white hover:border-slate-300'
                   }`}
               >
                 <button
                   onClick={() => handleToggle(index)}
-                  className={`w-full cursor-pointer flex items-center justify-between p-6 text-left font-bold select-none transition-colors duration-200 outline-none ${isOpen
+                  className={`w-full cursor-pointer flex items-center justify-between p-5 md:p-6 text-left font-bold select-none transition-colors duration-200 outline-none ${isOpen
                     ? 'text-[#00C9AF]'
                     : dark
                       ? 'text-white hover:text-[#00C9AF]'
-                      : 'text-slate-600 hover:text-[#0A1C3A]'
+                      : 'text-slate-700 hover:text-[#0A1C3A]'
                     }`}
                 >
                   <span className="text-sm md:text-base pr-4 font-heading">{faq.question}</span>
-                  <ChevronDown className={`transition-transform duration-300 text-[#00C9AF] ${isOpen ? 'rotate-180' : ''}`} size={18} />
+                  <ChevronDown className={`transition-transform duration-300 text-[#00C9AF] shrink-0 ${isOpen ? 'rotate-180' : ''}`} size={18} />
                 </button>
 
                 <div
                   className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen
-                    ? `max-h-40 opacity-100 border-t ${dark ? 'border-white/5' : 'border-slate-100'}`
+                    ? `max-h-96 opacity-100 border-t ${dark ? 'border-white/5' : 'border-slate-100'}`
                     : 'max-h-0 opacity-0'
                     }`}
                 >
-                  <div className={`px-6 pb-6 pt-4 text-xs md:text-sm leading-relaxed font-medium ${dark ? 'text-slate-350' : 'text-slate-600'
+                  <div className={`px-5 md:px-6 pb-5 md:pb-6 pt-4 text-xs md:text-sm leading-relaxed font-normal ${dark ? 'text-slate-300' : 'text-slate-600'
                     }`}>
                     {faq.answer}
                   </div>
@@ -92,6 +93,17 @@ const FAQ = ({ dark = true }) => {
             );
           })}
         </div>
+
+        {/* View All FAQs Link */}
+        <div className="text-center mt-8">
+          <Link
+            to="/faq"
+            className="inline-flex items-center gap-2 text-xs md:text-sm font-bold text-[#00C9AF] hover:text-[#00b29c] transition-colors"
+          >
+            <Sparkles size={14} /> View All Frequently Asked Questions & Knowledge Hub →
+          </Link>
+        </div>
+
       </div>
     </section>
   );
