@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import PageMeta from '../components/common/PageMeta';
 import {
   CheckCircle2,
@@ -11,9 +12,12 @@ import {
   ChevronRight,
   TrendingUp,
   Award,
-  Sparkles
+  Sparkles,
+  ShieldAlert,
+  FileCheck,
+  HelpCircle,
+  ChevronDown
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import SellCarFormWidget from '../components/sell/SellCarFormWidget';
 import Testimonials from '../components/home/Testimonials';
 import SectionDivider from '../components/common/SectionDivider';
@@ -104,17 +108,17 @@ const DEFAULT_STEPS = [
   },
   {
     id: 3,
-    title: "3. Get Bids from 1500+ Buyers",
-    description: "We list your car report across our network of verified dealers to secure you the highest competitive offer.",
+    title: "3. Receive Final Offer & Get Paid",
+    description: "Accept our best competitive offer and receive full payment via secure bank transfer within 24 hours.",
     imageUrl: "https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=800&auto=format&fit=crop&q=80",
-    badge: "Best Offer Guarantee"
+    badge: "Instant Payment"
   },
   {
     id: 4,
-    title: "4. Instant Payout & Pickup",
-    description: "Accept the bid to receive payment directly in your bank account instantly, followed by free pickup and RC transfer.",
+    title: "4. Hassle-Free Paperwork",
+    description: "100% free RC transfer and comprehensive Seller Protection Policy until ownership transfer completes.",
     imageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80",
-    badge: "Quick Payout"
+    badge: "Free RC Transfer"
   }
 ];
 
@@ -223,17 +227,26 @@ const calculateEstimate = (formData) => {
 };
 
 const SellCarPage = () => {
+  const { citySlug } = useParams();
   const { user } = useAuth();
+  
+  // Dynamic City Resolution
+  const rawCity = citySlug
+    ? citySlug.charAt(0).toUpperCase() + citySlug.slice(1).toLowerCase()
+    : localStorage.getItem('selectedCity') || 'Mumbai';
+  const displayCity = rawCity === 'All' ? 'Mumbai' : rawCity;
+
   const [widgetStep, setWidgetStep] = useState(1);
   const [submittedData, setSubmittedData] = useState(null);
   const [leadName, setLeadName] = useState('');
   const [leadPhone, setLeadPhone] = useState('');
   const [appointmentDate, setAppointmentDate] = useState('');
-  const [appointmentTime, setAppointmentTime] = useState('');
+  const [appointmentTime, setAppointmentTime] = useState('10:00 AM - 11:00 AM');
   const [notes, setNotes] = useState('');
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState('');
+  const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
   const [steps, setSteps] = useState(DEFAULT_STEPS);
   const [activeStep, setActiveStep] = useState(0);
@@ -241,16 +254,6 @@ const SellCarPage = () => {
   const [loadingBanners, setLoadingBanners] = useState(true);
 
   useEffect(() => {
-    // Set page title and meta description for SEO
-    document.title = "Sell Your Car Instantly - Best Valuation Guaranteed | Selectt";
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-      metaDesc = document.createElement('meta');
-      metaDesc.name = "description";
-      document.head.appendChild(metaDesc);
-    }
-    metaDesc.content = "Get a free instant valuation for your car online on Selectt. Sell your car from home, get free inspection, instant payment, and hassle-free RC transfer.";
-
     Promise.all([
       fetch(`${API_URL}/api/banners?page=sell-car&type=promo`).then(res => res.json()).catch(() => []),
       fetch(`${API_URL}/api/banners?page=sell-car&type=step`).then(res => res.json()).catch(() => [])
@@ -361,72 +364,112 @@ const SellCarPage = () => {
     {
       icon: <TrendingUp size={24} />,
       title: "Best Price Guarantee",
-      desc: "We leverage vast market data to ensure you get the highest possible value for your car.",
+      desc: `We leverage real-time auction bids across 1,500+ verified dealers to ensure you get top market value in ${displayCity}.`,
       themeColor: "#00C9AF",
       bg: "linear-gradient(135deg, #09131F 0%, #06282E 100%)",
       border: "rgba(0, 196, 175, 0.3)"
     },
     {
       icon: <Clock size={24} />,
-      title: "Sell in 1 Hour",
-      desc: "Our streamlined process means from evaluation to payment, it only takes 60 minutes.",
+      title: "Instant Payment within 24 Hrs",
+      desc: "Receive 100% payment directly in your bank account immediately upon accepting our transparent offer.",
       themeColor: "#3B82F6",
       bg: "linear-gradient(135deg, #09131F 0%, #0D2040 100%)",
       border: "rgba(59, 130, 246, 0.3)"
     },
     {
       icon: <Award size={24} />,
-      title: "Free RC Transfer",
-      desc: "We handle all the pesky RTO paperwork and RC transfer documentation entirely free of cost.",
+      title: "100% Free RC Transfer",
+      desc: "Our RTO specialists handle all legal documentation, hypothecation removal, and registration transfers for free.",
       themeColor: "#10B981",
       bg: "linear-gradient(135deg, #09131F 0%, #072F22 100%)",
       border: "rgba(16, 185, 129, 0.3)"
     },
     {
       icon: <ShieldCheck size={24} />,
-      title: "Safe & Secure",
-      desc: "A completely transparent process. Zero hidden charges, reliable payment systems.",
+      title: "Seller Protection Policy",
+      desc: "You are legally protected from all traffic challans, accidents, or misuse liabilities until the RC is transferred.",
       themeColor: "#A855F7",
       bg: "linear-gradient(135deg, #09131F 0%, #20133F 100%)",
       border: "rgba(168, 85, 247, 0.3)"
     }
   ];
 
+  const sellerFaqs = [
+    {
+      q: `How do I sell my car online in ${displayCity} with Selectt?`,
+      a: `Enter your car's registration number on our website for an instant online valuation. Then, book a free doorstep inspection at your convenience. If you accept our final offer, we process the payment instantly and handle all the paperwork.`
+    },
+    {
+      q: "How long does it take to get paid for my car?",
+      a: "Selectt ensures you receive the full payment for your car via a secure bank transfer within 24 hours of accepting our offer."
+    },
+    {
+      q: `Is the car inspection really free?`,
+      a: `Yes, our comprehensive 200-point car inspection is completely free of charge, with no obligation to sell. We can conduct it at your home or office anywhere in ${displayCity}.`
+    },
+    {
+      q: "What documents are required to sell my car?",
+      a: "You will need the original RC (Registration Certificate), valid insurance, PUC certificate, all car keys, and your PAN card. If the car is on loan, a foreclosure letter from the bank is also needed."
+    },
+    {
+      q: "How does Selectt handle the RC transfer?",
+      a: "We manage the entire RC transfer process for free. Our team handles all RTO paperwork, and you are covered by our Seller Protection Policy until the ownership is officially transferred."
+    }
+  ];
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": sellerFaqs.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.a
+      }
+    }))
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0C1B33] font-sans pb-20 w-full overflow-x-hidden">
       <PageMeta
-        title="Sell Your Car Online in Raipur — Get Best Price | Selectt"
-        description="Sell your used car at the best price in Raipur. Free home inspection, instant payment, zero paperwork hassle. Get an instant valuation now on Selectt."
-        canonical="/sell-car"
+        title={`Sell Used Car in ${displayCity} for the Best Price | Instant Payment | Selectt`}
+        description={`Get the best price for your used car in ${displayCity} with Selectt. Enjoy a free doorstep inspection, instant payment within 24 hours, and a hassle-free RC transfer. Get your quote now!`}
+        canonical={citySlug ? `/sell-car-in-${citySlug.toLowerCase()}` : '/sell-car'}
+        schema={faqSchema}
       />
 
       {/* 1. FULL BLEED HERO WIDGET SECTION */}
       <section className="relative w-full overflow-hidden bg-[#F8FAFC]">
-        <SellCarFormWidget onSubmitted={setSubmittedData} onStepChange={setWidgetStep} />
+        <SellCarFormWidget onSubmitted={setSubmittedData} onStepChange={setWidgetStep} defaultCity={displayCity} />
       </section>
 
       {/* LOWER PAGE SECTIONS (Only visible when on initial Step 1) */}
       {widgetStep === 1 && (
         <>
           {/* 2. HOW IT WORKS */}
-          <section className="py-8 bg-slate-50 border-y border-slate-200 shadow-inner relative overflow-hidden">
+          <section className="py-12 bg-slate-50 border-y border-slate-200 shadow-inner relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 relative z-10">
-              <div className="text-center mb-0">
-                <h2 className="text-3xl lg:text-5xl font-black text-[#0C1B33] mb-3 tracking-tight">
-                  Sell your car in 4 easy steps
+              <div className="text-center mb-8">
+                <span className="text-[#00A38D] font-heading font-black text-xs uppercase tracking-widest block mb-1">
+                  Transparent 4-Step Process
+                </span>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black text-[#0C1B33] mb-2 tracking-tight">
+                  How Selling Your Car Works in {displayCity}
                 </h2>
-                <p className="text-slate-500 text-lg max-w-2xl mx-auto font-semibold">
-                  Its fast, reliable and hassle free.
+                <p className="text-slate-500 text-sm sm:text-base max-w-2xl mx-auto font-medium">
+                  Fast, transparent, and completely hassle-free from online valuation to doorstep pickup.
                 </p>
               </div>
 
               {/* Carousel Slider Container */}
-              <div className="relative w-full max-w-[950px] h-[420px] md:h-[520px] mx-auto flex items-center justify-center">
+              <div className="relative w-full max-w-[950px] h-[420px] md:h-[500px] mx-auto flex items-center justify-center">
 
                 {/* Left navigation arrow */}
                 <button
                   onClick={prevStep}
-                  className="absolute left-2 md:-left-16 z-40 bg-white hover:bg-slate-100 border border-slate-200/80 p-3 md:p-4 rounded-full shadow-lg text-slate-700 hover:text-black transition-all hover:scale-110 active:scale-95 flex items-center justify-center focus:outline-none"
+                  className="absolute left-2 md:-left-16 z-40 bg-white hover:bg-slate-100 border border-slate-200/80 p-3 md:p-4 rounded-full shadow-lg text-slate-700 hover:text-black transition-all hover:scale-110 active:scale-95 flex items-center justify-center focus:outline-none cursor-pointer"
                   aria-label="Previous Step"
                 >
                   <ChevronLeft size={22} className="stroke-[3]" />
@@ -472,17 +515,20 @@ const SellCarPage = () => {
                           />
 
                           {/* Dark gradient overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent z-10" />
 
                           {/* Content over image */}
                           <div className="absolute inset-x-0 bottom-0 p-5 md:p-7 z-20 flex flex-col text-left">
+                            <span className="inline-block bg-[#00C9AF] text-slate-950 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md mb-2 w-max">
+                              {step.badge || `Step ${idx + 1}`}
+                            </span>
                             {/* Step Number + Title */}
                             <h3 className="text-base md:text-lg font-black text-white leading-tight mb-1.5 tracking-wide drop-shadow-md">
                               {step.title}
                             </h3>
 
                             {/* Description */}
-                            <p className="text-slate-300 text-[10px] md:text-xs font-semibold leading-relaxed line-clamp-3">
+                            <p className="text-slate-300 text-[11px] md:text-xs font-semibold leading-relaxed line-clamp-3">
                               {step.description}
                             </p>
                           </div>
@@ -495,7 +541,7 @@ const SellCarPage = () => {
                 {/* Right navigation arrow */}
                 <button
                   onClick={nextStep}
-                  className="absolute right-2 md:-right-16 z-40 bg-white hover:bg-slate-100 border border-slate-200/80 p-3 md:p-4 rounded-full shadow-lg text-slate-700 hover:text-black transition-all hover:scale-110 active:scale-95 flex items-center justify-center focus:outline-none"
+                  className="absolute right-2 md:-right-16 z-40 bg-white hover:bg-slate-100 border border-slate-200/80 p-3 md:p-4 rounded-full shadow-lg text-slate-700 hover:text-black transition-all hover:scale-110 active:scale-95 flex items-center justify-center focus:outline-none cursor-pointer"
                   aria-label="Next Step"
                 >
                   <ChevronRight size={22} className="stroke-[3]" />
@@ -508,7 +554,7 @@ const SellCarPage = () => {
                   <button
                     key={idx}
                     onClick={() => setActiveStep(idx)}
-                    className={`h-2 rounded-full transition-all duration-300 ${activeStep === idx
+                    className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${activeStep === idx
                       ? 'w-7 bg-[#00C9AF] shadow-sm shadow-[#00C9AF]/30'
                       : 'w-2 bg-slate-300 hover:bg-slate-400'
                       }`}
@@ -519,54 +565,97 @@ const SellCarPage = () => {
             </div>
           </section>
 
-          {/* 3. WHY CHOOSE US (BENEFITS) */}
-          <section className="py-20 bg-transparent">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="mb-16 md:flex md:items-end md:justify-between">
-                <div className="max-w-2xl">
-                  <span className="text-[#00C9AF] font-bold text-sm tracking-wider uppercase mb-2 block">The Selectt Advantage</span>
-                  <h2 className="text-3xl lg:text-4xl font-extrabold text-[#0C1B33]">Why Sell To Us?</h2>
+          {/* 3. THE SELECTT SELLER PROTECTION GUARANTEE */}
+          <section className="py-16 bg-white border-b border-slate-200">
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="bg-gradient-to-br from-[#061426] via-[#0C1B33] to-[#061426] rounded-3xl p-8 sm:p-12 border border-[#00C9AF]/30 shadow-2xl relative overflow-hidden text-white text-left">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-[#00C9AF]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 max-w-3xl">
+                  <div className="inline-flex items-center gap-2 bg-[#00C9AF]/20 border border-[#00C9AF]/40 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-heading font-black text-xs uppercase tracking-wider mb-4">
+                    <ShieldCheck size={16} /> 100% Peace of Mind
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black tracking-tight text-white mb-4">
+                    The Selectt Seller Protection Guarantee
+                  </h2>
+                  <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed mb-8">
+                    Selling your car shouldn't come with post-handover anxiety. We protect you from all legal and financial liabilities from the exact minute of car handover until the RC transfer is officially registered in RTO records.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs">
+                      <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
+                        <ShieldAlert size={20} />
+                      </div>
+                      <h3 className="text-sm font-heading font-bold text-white mb-1">Zero Traffic Challan Liability</h3>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Any e-challans or traffic fines incurred post-handover are 100% indemnified and covered by Selectt.
+                      </p>
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs">
+                      <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
+                        <FileCheck size={20} />
+                      </div>
+                      <h3 className="text-sm font-heading font-bold text-white mb-1">Free RTO Documentation</h3>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Complete management of Form 29, 30, and state NOC clearance handled without any fees.
+                      </p>
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs">
+                      <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
+                        <CheckCircle2 size={20} />
+                      </div>
+                      <h3 className="text-sm font-heading font-bold text-white mb-1">Live Status Tracking</h3>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Track your RC transfer live at every step on your Selectt dashboard with instant SMS updates.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 flex flex-wrap gap-4 items-center">
+                    <Link
+                      to="/selectt-inspection-process"
+                      className="text-xs sm:text-sm font-heading font-bold text-[#00C9AF] hover:underline inline-flex items-center gap-1"
+                    >
+                      Learn about our 200-point inspection <ChevronRight size={16} />
+                    </Link>
+                    <span className="text-slate-600 hidden sm:inline">|</span>
+                    <Link
+                      to="/faq"
+                      className="text-xs sm:text-sm font-heading font-semibold text-slate-300 hover:text-white hover:underline"
+                    >
+                      Have more questions? Visit our FAQ Hub
+                    </Link>
+                  </div>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 4. WHY CHOOSE US (BENEFITS) */}
+          <section className="py-16 bg-transparent">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="mb-12 text-center md:text-left">
+                <span className="text-[#00A38D] font-heading font-black text-xs tracking-wider uppercase mb-1 block">The Selectt Advantage</span>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black text-[#0C1B33]">
+                  Why Sell Your Car to Selectt in {displayCity}?
+                </h2>
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {advantages.map((item, idx) => (
                   <div
                     key={idx}
-                    className="relative p-8 rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 group cursor-default shadow-[0_12px_40px_rgba(0,0,0,0.25)] border text-left"
+                    className="relative p-7 rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 group cursor-default shadow-xl border text-left"
                     style={{
                       background: item.bg,
                       borderColor: item.border,
                     }}
                   >
-                    {/* Glossy top sheen */}
-                    <div
-                      className="absolute top-0 left-0 right-0 h-[40%] rounded-t-3xl pointer-events-none"
-                      style={{
-                        background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%)',
-                      }}
-                    />
-
-                    {/* Liquid blob glow */}
-                    <div
-                      className="absolute -bottom-6 -right-6 w-28 h-28 rounded-full pointer-events-none opacity-25 group-hover:opacity-45 transition-opacity duration-500"
-                      style={{
-                        background: `radial-gradient(circle, ${item.themeColor} 0%, transparent 70%)`,
-                        filter: 'blur(16px)',
-                      }}
-                    />
-                    <div
-                      className="absolute -top-6 -left-6 w-20 h-20 rounded-full pointer-events-none opacity-15 group-hover:opacity-30 transition-opacity duration-500"
-                      style={{
-                        background: `radial-gradient(circle, ${item.themeColor} 0%, transparent 70%)`,
-                        filter: 'blur(12px)',
-                      }}
-                    />
-
-                    {/* Header Icon */}
-                    <div className="flex justify-between items-start mb-8 relative z-10">
+                    <div className="flex justify-between items-start mb-6 relative z-10">
                       <div
-                        className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110"
+                        className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"
                         style={{
                           background: `radial-gradient(circle, ${item.themeColor}33 0%, ${item.themeColor}11 100%)`,
                           color: item.themeColor,
@@ -577,12 +666,11 @@ const SellCarPage = () => {
                       </div>
                     </div>
 
-                    {/* Title & Desc */}
                     <div className="relative z-10">
-                      <h3 className="text-xl font-extrabold text-white mb-2 tracking-tight group-hover:text-[#00C9AF] transition-colors">
+                      <h3 className="text-lg font-heading font-extrabold text-white mb-2 tracking-tight group-hover:text-[#00C9AF] transition-colors">
                         {item.title}
                       </h3>
-                      <p className="text-slate-400 text-sm font-medium leading-relaxed">
+                      <p className="text-slate-400 text-xs font-medium leading-relaxed">
                         {item.desc}
                       </p>
                     </div>
@@ -592,8 +680,8 @@ const SellCarPage = () => {
             </div>
           </section>
 
-          {/* 4. CTA BANNER */}
-          <section className="py-20 bg-white border-y border-slate-200">
+          {/* 5. CTA BANNER */}
+          <section className="py-16 bg-white border-y border-slate-200">
             <div className="max-w-5xl mx-auto px-4">
               {loadingBanners ? (
                 <div className="w-full h-[280px] md:h-[360px] bg-slate-200 animate-pulse rounded-3xl" />
@@ -602,7 +690,6 @@ const SellCarPage = () => {
                   to={sellBanner.cta_link || '#'}
                   className="relative block border border-slate-200/80 dark:border-slate-800/10 rounded-3xl overflow-hidden shadow-2xl group/banner h-[280px] md:h-[360px] w-full"
                 >
-                  {/* Background Image */}
                   {sellBanner.image_url ? (
                     <img
                       src={getBannerImageUrl(sellBanner.image_url)}
@@ -620,79 +707,97 @@ const SellCarPage = () => {
                 </Link>
               ) : (
                 <div className="relative overflow-hidden rounded-3xl shadow-2xl" style={{ background: 'linear-gradient(135deg, #040d18 0%, #081424 40%, #0c1b33 70%, #071120 100%)' }}>
-                  {/* Subtle grid texture */}
                   <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
-
-                  {/* Animated teal orb top-right */}
                   <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(0,201,175,0.22) 0%, rgba(0,201,175,0.06) 45%, transparent 70%)', filter: 'blur(40px)' }} />
-
-                  {/* Animated purple orb bottom-left */}
                   <div className="absolute -bottom-16 -left-16 w-72 h-72 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.18) 0%, rgba(139,92,246,0.05) 45%, transparent 70%)', filter: 'blur(50px)' }} />
-
-                  {/* Gold accent orb center-top */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-32 pointer-events-none" style={{ background: 'radial-gradient(ellipse, rgba(229,169,59,0.08) 0%, transparent 70%)', filter: 'blur(20px)' }} />
-
-                  {/* Border glow */}
                   <div className="absolute inset-0 rounded-3xl border border-white/[0.06] pointer-events-none" />
                   <div className="absolute inset-0 rounded-3xl border border-[#00C9AF]/10 pointer-events-none" />
 
-                  {/* Content */}
-                  <div className="relative z-10 flex flex-col lg:flex-row items-center gap-10 lg:gap-16 p-8 lg:p-14">
-
-                    {/* Center: Text */}
-                    <div className="flex-1 text-center lg:text-left">
-                      <p className="text-[#00C9AF] font-bold text-xs tracking-[0.25em] uppercase mb-3 opacity-80">Looking to buy instead?</p>
-                      <h2 className="text-3xl lg:text-4xl xl:text-5xl font-black text-white leading-tight mb-4" style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
-                        Change Your Mind?<br />
-                        <span style={{ background: 'linear-gradient(135deg, #00C9AF 0%, #00e5cf 50%, #00C9AF 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                          Ready to Buy?
-                        </span>
+                  <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8 lg:gap-16 p-8 lg:p-12 text-center lg:text-left">
+                    <div className="flex-1">
+                      <p className="text-[#00C9AF] font-heading font-black text-xs tracking-[0.25em] uppercase mb-2">Looking to upgrade instead?</p>
+                      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black text-white leading-tight mb-3">
+                        Change Your Mind? <br />
+                        <span className="text-[#00C9AF]">Explore Certified Pre-Owned Cars</span>
                       </h2>
-                      <p className="text-[#00C9AF] text-base lg:text-lg font-medium leading-relaxed max-w-lg">
-                        Maybe you're looking to upgrade instead? Explore thousands of fully inspected, assured cars waiting for you.
+                      <p className="text-slate-300 text-sm font-normal leading-relaxed max-w-lg">
+                        Browse 500+ verified cars with 200-point inspection and 1-year warranty in {displayCity}.
                       </p>
-
-                      {/* Stats row */}
-                      <div className="flex gap-6 mt-5 justify-center lg:justify-start">
-                        {[['10,000+', 'Cars Listed'], ['100%', 'Inspected'], ['Instant', 'Booking']].map(([val, label]) => (
-                          <div key={label} className="text-center lg:text-left">
-                            <div className="text-white font-black text-base leading-none">{val}</div>
-                            <div className="text-slate-500 text-[10px] font-semibold mt-0.5">{label}</div>
-                          </div>
-                        ))}
-                      </div>
                     </div>
-
-                    {/* Right: CTA Button */}
                     <div className="shrink-0">
                       <Link
                         to="/buy-cars"
-                        className="group/btn relative inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-base overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-                        style={{ background: 'linear-gradient(135deg, #00C9AF 0%, #00b89e 100%)', color: '#040d18', boxShadow: '0 8px 30px rgba(0,201,175,0.35), 0 0 0 1px rgba(0,201,175,0.2)' }}
+                        className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-heading font-black text-sm text-slate-950 bg-[#00C9AF] hover:bg-[#00B4A0] shadow-lg shadow-[#00C9AF]/35 transition-all hover:-translate-y-0.5 cursor-pointer"
                       >
-                        {/* Button shimmer */}
-                        <div className="absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%)' }} />
-                        <span className="relative">Explore Cars</span>
-                        <ChevronRight size={20} className="relative transition-transform duration-300 group-hover/btn:translate-x-1" />
+                        Explore Cars <ChevronRight size={18} />
                       </Link>
                     </div>
-
                   </div>
                 </div>
               )}
             </div>
           </section>
 
-          <SectionDivider title="What Motivates Us" align="left" bgClass="bg-[#f9f9f9]" textClass="text-[#0C1B33]" />
+          {/* 6. SOCIAL PROOF */}
+          <SectionDivider title={`Trusted by Sellers Across ${displayCity}`} align="left" bgClass="bg-[#f9f9f9]" textClass="text-[#0C1B33]" />
           <Testimonials
             bgClass="bg-transparent md:bg-transparent"
             textClass="text-slate-600"
             btnActive="bg-white border border-slate-300 text-slate-700 hover:bg-[#00C9AF] hover:border-[#00C9AF] hover:text-[#0C1B33] hover:shadow-md"
             btnDisabled="bg-slate-200/50 border border-slate-300/80 text-slate-400 cursor-not-allowed"
           />
-          <div className="">
-            <FAQ dark={false} />
-          </div>
+
+          {/* 7. DEDICATED SELLER FAQ SECTION */}
+          <section className="py-16 bg-white border-t border-slate-200">
+            <div className="max-w-4xl mx-auto px-4 text-left">
+              <div className="text-center mb-10">
+                <span className="text-[#00A38D] font-heading font-black text-xs uppercase tracking-widest block mb-1">
+                  Got Questions?
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-heading font-black text-[#0C1B33]">
+                  Frequently Asked Questions About Selling Your Car
+                </h2>
+                <p className="text-slate-500 text-sm mt-1">
+                  Everything you need to know about pricing, inspection, and payment.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {sellerFaqs.map((faq, idx) => {
+                  const isOpen = openFaqIndex === idx;
+                  return (
+                    <div
+                      key={idx}
+                      className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/60 transition-colors"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setOpenFaqIndex(isOpen ? -1 : idx)}
+                        className="w-full flex items-center justify-between p-4 sm:p-5 text-left font-heading font-bold text-sm sm:text-base text-slate-900 hover:text-[#00A38D] cursor-pointer"
+                      >
+                        <span className="flex items-center gap-3">
+                          <span className="w-6 h-6 rounded-full bg-[#00C9AF]/15 text-[#00A38D] text-xs font-black flex items-center justify-center shrink-0">
+                            Q
+                          </span>
+                          {faq.q}
+                        </span>
+                        <ChevronDown
+                          size={18}
+                          className={`text-slate-500 transition-transform duration-300 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-[#00A38D]' : ''}`}
+                        />
+                      </button>
+                      {isOpen && (
+                        <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 font-normal leading-relaxed border-t border-slate-200/50 bg-white">
+                          {faq.a}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
         </>
       )}
     </div>

@@ -38,42 +38,70 @@ export default function SelecttAssuredPage() {
 
   const inspectionCategories = [
     {
-      title: 'Engine & Transmission',
-      points: '45 Checkpoints',
+      title: 'Mechanical & Electrical Systems',
+      points: '75 Checkpoints',
       icon: Cpu,
-      desc: 'Cylinder compression, oil leakage, turbocharger health, clutch bite point, and transmission fluid purity.'
+      desc: 'Engine cylinder compression, turbocharger pressure, clutch bite point, automatic transmission torque converters, battery load testing, and comprehensive OBD-II ECU diagnostic error scans.'
     },
     {
-      title: 'Suspension & Steering',
-      points: '35 Checkpoints',
+      title: 'Suspension, Steering & Brakes',
+      points: '45 Checkpoints',
       icon: Gauge,
-      desc: 'Strut damping, ball joints, wheel alignment, steering rack responsiveness, and electronic power steering.'
+      desc: 'Strut damping efficiency, ball joints, tie rods, steering rack responsiveness, electronic power steering calibration, disc rotor thickness, ABS hydraulic module, and brake pad wear analysis.'
     },
     {
-      title: 'Electricals & OBD-II',
-      points: '40 Checkpoints',
-      icon: Zap,
-      desc: 'Complete ECU sensor diagnostics, battery health load test, alternator output, and wiring harness integrity.'
-    },
-    {
-      title: 'Braking & Safety Systems',
-      points: '30 Checkpoints',
-      icon: ShieldCheck,
-      desc: 'Disc rotor thickness, ABS hydraulic module test, brake pad wear, airbags sensor checks, and seatbelt retractors.'
-    },
-    {
-      title: 'Exterior & Structure',
+      title: 'Exterior & Body Integrity',
       points: '50 Checkpoints',
       icon: Wrench,
-      desc: 'Paint depth gauge scanner, non-accidental chassis aprons, pillars, firewalls, and water damage flood checks.'
+      desc: 'Multi-point digital paint depth gauge scanner (detecting non-factory repaints), factory panel gaps, non-accidental chassis aprons, A/B/C pillar structural integrity, and submerged water/flood damage inspection.'
+    },
+    {
+      title: 'Legal, Paperwork & RTO Verification',
+      points: '30 Checkpoints',
+      icon: FileCheck2,
+      desc: '100% verified VAHAN national registry records, single/dual ownership chain audit, active bank hypothecation / loan NOC verification, and zero pending traffic e-challans guarantee.'
     }
   ];
+
+  const inspectionFaqs = [
+    {
+      q: "What is the Selectt 200-Point Inspection Guarantee?",
+      a: "Our certified evaluators test every vehicle against 200 rigid mechanical, structural, electrical, and legal criteria using digital diagnostic scanners and paint depth gauges. Only cars scoring above 90% and meeting zero-structural-damage standards earn the Selectt Certified badge."
+    },
+    {
+      q: "What is the ₹50,000 Zero Hidden Damages Promise?",
+      a: "We stand 100% behind our inspection report. In the rare event that an undisclosed mechanical defect arises during your warranty period that was missed during inspection, Selectt covers repair costs or provides an assurance reimbursement up to ₹50,000."
+    },
+    {
+      q: "How does the 5-day money-back guarantee work with the inspection?",
+      a: "When you receive your vehicle, you have 5 full days (or 250 km) to drive it on your everyday routes. If you find any discrepancies with the inspection report or aren't satisfied, return the car for a 100% refund."
+    },
+    {
+      q: "Can I view the detailed 200-point inspection report before booking?",
+      a: "Yes! Every single car listed on Selectt includes a downloadable, transparent digital inspection report showing checkpoint-by-checkpoint ratings, tyre tread depths, and body condition diagrams."
+    }
+  ];
+
+  const inspectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": inspectionFaqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.a
+      }
+    }))
+  };
 
   return (
     <>
       <PageMeta
-        title="Selectt Assured® - The Gold Standard in Pre-Owned Quality | Selectt"
-        description="Experience 100% peace of mind with Selectt Assured. Rigorous 200-point inspection, 5-day money-back guarantee, and 1-year comprehensive warranty."
+        title="The Selectt Advantage: Our 200-Point Inspection Guarantee | Selectt"
+        description="We reject 85% of cars so you only drive home the best. Discover our 200-point inspection checklist, 1-year warranty, and ₹50,000 assurance promise."
+        canonical="https://selectt.in/selectt-inspection-process"
+        schema={inspectionSchema}
       />
 
       <div className="min-h-screen bg-[#F8FAFC] font-sans w-full overflow-x-hidden text-slate-800 antialiased selection:bg-[#00C9AF]/20 selection:text-[#0C1B33]">
@@ -92,11 +120,11 @@ export default function SelecttAssuredPage() {
               </div>
               
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                The sure road to pre-owned car joy
+                The Selectt Advantage: Our 200-Point Inspection Guarantee
               </h1>
               
               <p className="text-slate-300 text-base sm:text-lg font-normal leading-relaxed max-w-2xl mx-auto">
-                Only 1 in 20 cars inspected passes our strict standards. 200-point inspection, 5-day money-back guarantee, and 1-year warranty included.
+                We reject 85% of cars so you only drive home the best. Learn what goes into every Selectt Certified vehicle.
               </p>
 
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
@@ -289,32 +317,54 @@ export default function SelecttAssuredPage() {
           </div>
         </section>
 
-        {/* ───────────── 5-Day Moneyback & Fixed Price Cards ───────────── */}
+        {/* ───────────── 3 Guarantees & Trust Badges ───────────── */}
         <section className="py-20 bg-[#F8FAFC] border-b border-slate-200/80">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white border border-slate-200/80 rounded-2xl p-8 shadow-xs text-left space-y-4">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20">
+                Buyer Protection
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-2.5">
+                Our Triple Guarantee For Every Certified Car
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-7 shadow-xs text-left space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
                   <ShieldCheck size={24} />
                 </div>
-                <div className="space-y-1.5">
+                <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#00a892]">Zero Risk Test Period</span>
-                  <h3 className="text-xl font-bold text-slate-900">5-Day No-Questions Moneyback Guarantee</h3>
-                  <p className="text-slate-500 text-xs font-normal leading-relaxed">
-                    Test your car on your daily commute, with your family, and in your parking slot. If it doesn't fit your life, return it within 5 days for a 100% complete refund.
+                  <h3 className="text-lg font-bold text-slate-900 mt-0.5">5-Day Money-Back Guarantee</h3>
+                  <p className="text-slate-500 text-xs font-normal leading-relaxed mt-1.5">
+                    Test your car on your daily commute and with your family. If it doesn't fit your life, return it within 5 days (up to 250 km) for a 100% full refund with no questions asked.
                   </p>
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200/80 rounded-2xl p-8 shadow-xs text-left space-y-4">
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-7 shadow-xs text-left space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100">
+                  <Shield size={24} />
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600">Complete Protection</span>
+                  <h3 className="text-lg font-bold text-slate-900 mt-0.5">1-Year Warranty Included</h3>
+                  <p className="text-slate-500 text-xs font-normal leading-relaxed mt-1.5">
+                    Comprehensive and powertrain protection covering engine block, transmission, steering rack, and air conditioning for up to 12,000 kilometers.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-7 shadow-xs text-left space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
                   <Award size={24} />
                 </div>
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600">Zero Haggling</span>
-                  <h3 className="text-xl font-bold text-slate-900">Fair & Transparent Fixed Pricing</h3>
-                  <p className="text-slate-500 text-xs font-normal leading-relaxed">
-                    Every car is priced using data from over 100,000 real-world transactions. No hidden dealer markups, no tedious haggling, and no surprise charges at checkout.
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Inspection Assurance</span>
+                  <h3 className="text-lg font-bold text-slate-900 mt-0.5">₹50,000 Zero Hidden Damages Promise</h3>
+                  <p className="text-slate-500 text-xs font-normal leading-relaxed mt-1.5">
+                    If an undisclosed mechanical issue arises during your warranty period that was missed during inspection, Selectt fixes it for free or offers up to ₹50,000 assurance cover.
                   </p>
                 </div>
               </div>

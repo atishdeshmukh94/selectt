@@ -129,11 +129,15 @@ function App() {
                     <Route path="/new-home2" element={<NewHome2 />} />
                     <Route path="/home-2" element={<NewHome2 />} />
                     <Route path="/buy-cars" element={<BuyCarsPage />} />
+                    <Route path="/used-cars-in-:citySlug" element={<BuyCarsPage />} />
+                    <Route path="/used-cars-in-mumbai" element={<BuyCarsPage />} />
                     <Route path="/car/:make/:model/:carName/:id" element={<CarDetailsPage />} />
                     <Route path="/car/:make/:model/:id" element={<CarDetailsPage />} />
                     <Route path="/car/:id" element={<CarDetailsPage />} />
                     <Route path="/car/*" element={<CarDetailsPage />} />
                     <Route path="/sell-car" element={<SellCarPage />} />
+                    <Route path="/sell-car-in-:citySlug" element={<SellCarPage />} />
+                    <Route path="/sell-car-in-mumbai" element={<SellCarPage />} />
                     <Route path="/used-car-loan" element={<UsedCarLoanPage />} />
                     <Route path="/how-it-works/buying" element={<HowItWorksBuyingPage />} />
                     <Route path="/how-buying-works" element={<HowItWorksBuyingPage />} />
@@ -159,6 +163,7 @@ function App() {
                     <Route path="/e-challan" element={<EChallanPage />} />
                     <Route path="/challan" element={<EChallanPage />} />
                     <Route path="/selectt-assured" element={<SelecttAssuredPage />} />
+                    <Route path="/selectt-inspection-process" element={<SelecttAssuredPage />} />
                     <Route path="/assured" element={<SelecttAssuredPage />} />
                     <Route path="/selectt-buyback" element={<SelecttBuybackPage />} />
                     <Route path="/buyback" element={<SelecttBuybackPage />} />

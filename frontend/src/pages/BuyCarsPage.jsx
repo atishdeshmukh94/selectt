@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import SidebarFilters from '../components/buy/SidebarFilters';
 import CarCard from '../components/buy/CarCard';
 import {
   ChevronRight, SlidersHorizontal, ChevronDown,
-  X, Sparkles, ArrowUpDown, Car, MapPin
+  X, Sparkles, ArrowUpDown, Car, MapPin,
+  ShieldCheck, Award, RefreshCw, BadgePercent, CheckCircle2,
+  HelpCircle, ArrowRight, FileCheck2, Zap, PhoneCall
 } from 'lucide-react';
 import SelecttBenefitsGrid from '../components/buy/sections/SelecttBenefitsGrid';
 import { PromoBanner, ExtraPromoCard } from '../components/buy/sections/InListingBanners';
@@ -234,27 +236,105 @@ const BuyCarsSkeleton = () => {
 const BuyCarsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { citySlug } = useParams();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [marqueeText, setMarqueeText] = useState("");
   const [displayLimit, setDisplayLimit] = useState(12);
   const [extraCardData, setExtraCardData] = useState(null);
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const { initialFilters, initialSort } = parseQueryParams(location.search, location.state);
 
-  const [filters, setFilters] = useState(initialFilters);
+  const formatCityFromSlug = (slug) => {
+    if (!slug) return '';
+    const clean = slug.toLowerCase().replace(/^used-cars-in-/, '').replace(/^cars-in-/, '');
+    const map = {
+      'mumbai': 'Mumbai',
+      'delhi': 'Delhi NCR',
+      'delhi-ncr': 'Delhi NCR',
+      'bangalore': 'Bangalore',
+      'bengaluru': 'Bangalore',
+      'hyderabad': 'Hyderabad',
+      'pune': 'Pune',
+      'ahmedabad': 'Ahmedabad',
+      'chennai': 'Chennai',
+      'kolkata': 'Kolkata',
+      'gurugram': 'Delhi NCR',
+      'noida': 'Delhi NCR'
+    };
+    if (map[clean]) return map[clean];
+    return clean.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
+  const urlCity = formatCityFromSlug(citySlug);
+  const [filters, setFilters] = useState({
+    ...initialFilters,
+    city: urlCity || initialFilters.city || ''
+  });
   const [sortOrder, setSortOrder] = useState(initialSort);
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [city, setCity] = useState(initialFilters.city || localStorage.getItem('user_city') || 'Delhi NCR');
+  const [city, setCity] = useState(urlCity || initialFilters.city || localStorage.getItem('user_city') || 'Mumbai');
 
   useEffect(() => {
     const parsed = parseQueryParams(location.search, location.state);
-    setFilters(parsed.initialFilters);
-    if (parsed.initialFilters.city) {
+    const resolvedUrlCity = formatCityFromSlug(citySlug);
+    setFilters({
+      ...parsed.initialFilters,
+      city: resolvedUrlCity || parsed.initialFilters.city || ''
+    });
+    if (resolvedUrlCity) {
+      setCity(resolvedUrlCity);
+      localStorage.setItem('user_city', resolvedUrlCity);
+    } else if (parsed.initialFilters.city) {
       setCity(parsed.initialFilters.city);
       localStorage.setItem('user_city', parsed.initialFilters.city);
     }
-  }, [location.search, location.state]);
+  }, [location.search, location.state, citySlug]);
+
+  const displayCity = city || urlCity || 'Mumbai';
+
+  const buyerFaqs = [
+    {
+      q: "What makes a car 'Selectt Certified'?",
+      a: "Every Selectt Certified car must pass our rigorous 200-point inspection covering engine compression, transmission, suspension, brakes, electricals, and structural integrity. Vehicles with severe accidental damage or flood damage are 100% rejected. Certified cars also include a 1-year comprehensive warranty and a 5-day money-back guarantee."
+    },
+    {
+      q: "Can I take a test drive before buying?",
+      a: `Yes, absolutely! You can schedule a free test drive of any certified vehicle at our nearest Selectt Hub in ${displayCity} or request a convenient doorstep test drive at your home or office.`
+    },
+    {
+      q: "How does the 5-day money-back guarantee work?",
+      a: "Drive the car in your everyday routine. If for any reason you are not completely satisfied within 5 days of delivery (or up to 250 km driven), return it to us for a 100% full refund with zero cancellation charges."
+    },
+    {
+      q: "Do you offer financing and car loan assistance?",
+      a: "Yes. Selectt has partnered with leading nationalized and private banks (including HDFC, ICICI, SBI, and Axis Bank) to provide instant on-road loan approvals with low interest rates and flexible tenures up to 7 years."
+    }
+  ];
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": buyerFaqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.a
+      }
+    }))
+  };
+
+  const autoDealerSchema = {
+    "@context": "https://schema.org",
+    "@type": "AutoDealer",
+    "name": `Selectt Certified Used Cars ${displayCity}`,
+    "url": `https://selectt.in${citySlug ? `/used-cars-in-${citySlug}` : '/buy-cars'}`,
+    "description": `Buy 100% certified used cars in ${displayCity} with 200-point inspection, 1-year warranty, and 5-day money-back guarantee.`,
+    "areaServed": displayCity,
+    "priceRange": "₹₹₹"
+  };
 
   useEffect(() => {
     const fetchCars = async () => {
@@ -263,7 +343,7 @@ const BuyCarsPage = () => {
         const response = await fetch(`${API_URL}/api/cars`);
         const data = await response.json();
         const available = data.filter(car => car.status !== 'sold_out');
-        const userCity = localStorage.getItem('user_city') || 'Delhi NCR';
+        const userCity = displayCity;
         const sorted = available.sort((a, b) => {
           if (a.location === userCity && b.location !== userCity) return -1;
           if (a.location !== userCity && b.location === userCity) return 1;
@@ -502,8 +582,10 @@ const BuyCarsPage = () => {
   return (
     <>
       <PageMeta
-        title="Certified Used Cars for Sale - Buy Pre-Owned Cars | Selectt"
-        description="Browse high-quality, certified used cars for sale. Rigorous 200-point inspection and warranty included."
+        title={`Buy Used Cars in ${displayCity} | 500+ Certified Second Hand Cars | Selectt`}
+        description={`Explore a wide range of certified used cars for sale in ${displayCity}. Every Selectt car comes with a 200-point inspection report, 1-year warranty, and a 5-day money-back guarantee. Book a free test drive today!`}
+        canonical={citySlug ? `https://selectt.in/used-cars-in-${citySlug}` : 'https://selectt.in/buy-cars'}
+        schema={[faqSchema, autoDealerSchema]}
       />
 
       {/* ── Page Shell ── */}
@@ -552,14 +634,18 @@ const BuyCarsPage = () => {
               {/* ── MAIN CONTENT ── */}
               <main className="flex-1 min-w-0">
 
-                {/* Page label above banners */}
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
-                  <Sparkles size={12} className="text-black" />
-                  <span className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">Live Inventory</span>
-                  <span className="text-slate-300">|</span>
-                  <h1 className="text-sm font-black text-black">
-                    <span className="text-black">{filteredCars.length}</span> {filters.certification === 'luxury' || (filters.tag && filters.tag.toLowerCase().includes('luxury')) ? 'Luxury' : filters.tag && filters.tag.toLowerCase().includes('offer') ? 'Offer Zone' : 'Standard'} Used Cars
-                    <span className="text-slate-600 font-semibold ml-1">in {city}</span>
+                {/* Page label & SEO H1 Heading */}
+                <div className="flex flex-col gap-1 mb-4">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <Sparkles size={12} className="text-[#00C9AF]" />
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Selectt Certified Pre-Owned</span>
+                    <span className="text-slate-300">|</span>
+                    <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                      {filteredCars.length} Cars Available
+                    </span>
+                  </div>
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                    Find Certified Used Cars in {displayCity}
                   </h1>
                 </div>
 
@@ -714,7 +800,7 @@ const BuyCarsPage = () => {
                   <div className="mt-12 text-center">
                     <button
                       onClick={() => setDisplayLimit(prev => prev + 12)}
-                      className="group inline-flex items-center gap-2 bg-white border-2 border-[#00C9AF] text-[#00C9AF] hover:bg-[#00C9AF] hover:text-[#0C1B33] px-10 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg"
+                      className="group inline-flex items-center gap-2 bg-white border-2 border-[#00C9AF] text-[#00C9AF] hover:bg-[#00C9AF] hover:text-[#0C1B33] px-10 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer"
                     >
                       <Sparkles size={14} className="group-hover:rotate-12 transition-transform" />
                       Explore More Cars
@@ -722,6 +808,194 @@ const BuyCarsPage = () => {
                     </button>
                   </div>
                 )}
+
+                {/* ── The Selectt Advantage for Buyers (SEO Module) ── */}
+                <section className="mt-16 pt-12 border-t border-slate-200">
+                  <div className="text-center max-w-2xl mx-auto mb-10">
+                    <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 border border-[#00C9AF]/30 text-[#008f7d] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+                      <ShieldCheck size={14} /> Buyer Guarantee
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                      The Selectt Advantage for Buyers
+                    </h2>
+                    <p className="text-slate-600 text-sm mt-2">
+                      Every car at Selectt is certified to deliver true peace of mind, transparent pricing, and unmatched post-purchase security in {displayCity}.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-[#00C9AF] transition-all">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+                        <FileCheck2 size={20} />
+                      </div>
+                      <h3 className="font-bold text-slate-900 text-sm mb-1">200-Point Inspected Cars</h3>
+                      <p className="text-slate-500 text-xs leading-relaxed">
+                        Every vehicle undergoes a rigorous mechanical, electrical, and structural evaluation. Zero accident or flood-damaged cars.
+                      </p>
+                      <Link to="/selectt-inspection-process" className="inline-flex items-center gap-1 text-[11px] font-bold text-[#00a892] mt-3 hover:underline">
+                        View Inspection Details <ChevronRight size={12} />
+                      </Link>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-[#00C9AF] transition-all">
+                      <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-3">
+                        <ShieldCheck size={20} />
+                      </div>
+                      <h3 className="font-bold text-slate-900 text-sm mb-1">1-Year Warranty</h3>
+                      <p className="text-slate-500 text-xs leading-relaxed">
+                        Drive with total confidence with comprehensive and powertrain coverage covering engine and transmission.
+                      </p>
+                      <Link to="/selectt-inspection-process" className="inline-flex items-center gap-1 text-[11px] font-bold text-sky-600 mt-3 hover:underline">
+                        Warranty Terms <ChevronRight size={12} />
+                      </Link>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-[#00C9AF] transition-all">
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-3">
+                        <RefreshCw size={20} />
+                      </div>
+                      <h3 className="font-bold text-slate-900 text-sm mb-1">5-Day Money-Back Guarantee</h3>
+                      <p className="text-slate-500 text-xs leading-relaxed">
+                        Not completely satisfied? Return the car within 5 days (up to 250 km) for a 100% no-questions-asked refund.
+                      </p>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-600 mt-3">
+                        100% Refundable
+                      </span>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-[#00C9AF] transition-all">
+                      <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
+                        <BadgePercent size={20} />
+                      </div>
+                      <h3 className="font-bold text-slate-900 text-sm mb-1">Fixed Price Assurance</h3>
+                      <p className="text-slate-500 text-xs leading-relaxed">
+                        No awkward negotiations or hidden dealer fees. You receive data-backed fair market pricing upfront.
+                      </p>
+                      <Link to="/used-car-loan" className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 mt-3 hover:underline">
+                        Calculate Low EMIs <ChevronRight size={12} />
+                      </Link>
+                    </div>
+                  </div>
+                </section>
+
+                {/* ── How Buying a Car Works (4 Steps) ── */}
+                <section className="mt-16 pt-12 border-t border-slate-200">
+                  <div className="text-center max-w-2xl mx-auto mb-10">
+                    <span className="text-[11px] font-bold text-[#00a892] uppercase tracking-wider">Simple 4-Step Journey</span>
+                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1">
+                      How Buying a Car Works with Selectt
+                    </h2>
+                    <p className="text-slate-600 text-sm mt-2">
+                      Experience seamless car ownership with transparent online bookings, test drives, and doorstep delivery.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {[
+                      {
+                        num: "01",
+                        title: "Choose Your Car Online",
+                        desc: `Browse 500+ certified cars with high-definition photos, 360° views, and digital inspection reports in ${displayCity}.`
+                      },
+                      {
+                        num: "02",
+                        title: "Book a Free Test Drive",
+                        desc: "Test drive at your nearest Selectt Hub or schedule a convenient doorstep test drive at your home."
+                      },
+                      {
+                        num: "03",
+                        title: "Secure Online Payment",
+                        desc: "Choose flexible car loan finance options with low EMI or complete full payment via secure digital methods."
+                      },
+                      {
+                        num: "04",
+                        title: "Doorstep Delivery",
+                        desc: "Get your car delivered straight to your home along with complete paperwork, warranty kit, and RC transfer support."
+                      }
+                    ].map((step, idx) => (
+                      <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs relative overflow-hidden">
+                        <div className="text-3xl font-black text-slate-200 mb-2">{step.num}</div>
+                        <h3 className="font-bold text-slate-900 text-sm mb-1.5">{step.title}</h3>
+                        <p className="text-slate-500 text-xs leading-relaxed">{step.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* ── Buyer Frequently Asked Questions ── */}
+                <section className="mt-16 pt-12 border-t border-slate-200">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+                    <div>
+                      <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 text-[#008f7d] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+                        <HelpCircle size={14} /> Clear Answers
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                        Frequently Asked Questions (Buyer FAQs)
+                      </h2>
+                      <p className="text-slate-600 text-xs sm:text-sm mt-1">
+                        Everything you need to know about buying a certified pre-owned car in {displayCity}.
+                      </p>
+                    </div>
+                    <Link
+                      to="/faq"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00C9AF] hover:text-[#009b86] shrink-0"
+                    >
+                      Visit Full FAQ Hub <ArrowRight size={14} />
+                    </Link>
+                  </div>
+
+                  <div className="space-y-3">
+                    {buyerFaqs.map((faq, idx) => {
+                      const isOpen = openFaqIndex === idx;
+                      return (
+                        <div
+                          key={idx}
+                          className="bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all shadow-xs"
+                        >
+                          <button
+                            onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                            className="w-full text-left p-4 sm:p-5 flex items-center justify-between gap-4 font-bold text-slate-900 text-sm hover:text-[#00C9AF] transition-colors cursor-pointer"
+                          >
+                            <span>{faq.q}</span>
+                            <ChevronDown
+                              size={18}
+                              className={`text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-[#00C9AF]' : ''}`}
+                            />
+                          </button>
+                          {isOpen && (
+                            <div className="px-4 sm:px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3 bg-slate-50/50">
+                              {faq.a}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Internal Link CTA Strip */}
+                  <div className="mt-8 bg-gradient-to-r from-[#0C1B33] to-[#122647] rounded-2xl p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-base font-black">Looking for Car Financing or Inspection Details?</h3>
+                      <p className="text-xs text-slate-300 mt-1">
+                        Explore our 200-point inspection protocol or check pre-approved loan options with low EMI.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                      <Link
+                        to="/selectt-inspection-process"
+                        className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-white/20 transition-all"
+                      >
+                        Inspection Process
+                      </Link>
+                      <Link
+                        to="/used-car-loan"
+                        className="bg-[#00C9AF] hover:bg-[#00b29c] text-[#0C1B33] text-xs font-black px-4 py-2.5 rounded-xl transition-all"
+                      >
+                        Car Loan EMI
+                      </Link>
+                    </div>
+                  </div>
+                </section>
               </main>
             </div>
           </div>
