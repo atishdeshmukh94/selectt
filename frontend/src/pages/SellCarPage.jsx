@@ -371,7 +371,7 @@ const SellCarPage = () => {
     },
     {
       icon: <Clock size={24} />,
-      title: "Instant Payment within 24 Hrs",
+      title: "Instant 24-Hour Payment",
       desc: "Receive 100% payment directly in your bank account immediately upon accepting our transparent offer.",
       themeColor: "#3B82F6",
       bg: "linear-gradient(135deg, #09131F 0%, #0D2040 100%)",
@@ -667,7 +667,7 @@ const SellCarPage = () => {
                     </div>
 
                     <div className="relative z-10">
-                      <h3 className="text-lg font-heading font-extrabold text-white mb-2 tracking-tight group-hover:text-[#00C9AF] transition-colors">
+                      <h3 className="text-[15px] sm:text-base lg:text-[14px] xl:text-[16px] font-heading font-extrabold text-white mb-2 tracking-tight whitespace-nowrap overflow-hidden text-ellipsis group-hover:text-[#00C9AF] transition-colors">
                         {item.title}
                       </h3>
                       <p className="text-slate-400 text-xs font-medium leading-relaxed">
