@@ -3132,9 +3132,9 @@ const NewHome = () => {
         }
       `}</style>
 
-      {/* Floating FOMO Notification Badge */}
+      {/* Floating FOMO Notification Badge (Left-Side Positioned) */}
       <div
-        className={`fixed bottom-20 md:bottom-24 right-2 md:right-8 z-50 bg-white text-slate-900 rounded-[20px] p-4 shadow-[0_10px_30px_rgba(0,0,0,0.15)] flex items-center gap-3.5 min-w-[280px] max-w-[320px] border border-slate-100 transition-all duration-500 ease-in-out transform ${showFomo ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0 pointer-events-none'
+        className={`fixed bottom-24 md:bottom-28 left-4 md:left-8 z-50 bg-white text-slate-900 rounded-[20px] p-4 shadow-[0_10px_30px_rgba(0,0,0,0.15)] flex items-center gap-3.5 min-w-[280px] max-w-[320px] border border-slate-100 transition-all duration-500 ease-in-out transform ${showFomo ? 'translate-x-0 opacity-100' : '-translate-x-[120%] opacity-0 pointer-events-none'
           }`}
       >
         <div className="w-[38px] h-[38px] rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ backgroundColor: '#EAFAF4' }}>
@@ -3148,7 +3148,7 @@ const NewHome = () => {
         </div>
         <button
           onClick={() => setShowFomo(false)}
-          className="absolute top-2.5 right-2.5 text-slate-600 hover:text-slate-600 p-1 rounded-full transition-colors cursor-pointer"
+          className="absolute top-2.5 right-2.5 text-slate-400 hover:text-slate-600 p-1 rounded-full transition-colors cursor-pointer"
           aria-label="Close notification"
         >
           <X size={14} />
