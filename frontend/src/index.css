@@ -427,4 +427,36 @@ button, input[type="button"], input[type="submit"] {
   }
 }
 
-/* Cache touch */
+/* ── Position Gallabox Chatty Widget & Floating Support Widgets on the Left Side ── */
+#chatty-widget,
+.chatty-widget,
+#chatty-widget-container,
+.chatty-widget-container,
+#chatty-widget-iframe,
+.chatty-widget-iframe,
+[id^="chatty"],
+[class^="chatty"],
+[id*="chatty"],
+[class*="chatty"],
+iframe[src*="gallabox"],
+div:has(> iframe[src*="gallabox"]),
+div[id*="gallabox"],
+div[class*="gallabox"] {
+  left: 24px !important;
+  right: auto !important;
+}
+
+@media (max-width: 768px) {
+  #chatty-widget,
+  .chatty-widget,
+  #chatty-widget-container,
+  .chatty-widget-container,
+  [id*="chatty"],
+  [class*="chatty"],
+  iframe[src*="gallabox"],
+  div:has(> iframe[src*="gallabox"]) {
+    left: 16px !important;
+    right: auto !important;
+    bottom: 80px !important;
+  }
+}
