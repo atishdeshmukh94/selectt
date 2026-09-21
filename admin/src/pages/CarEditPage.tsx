@@ -1392,7 +1392,7 @@ const CarEditPage = () => {
                   className={inpClass} 
                   value={formData.qualityReport.fullReportUrl} 
                   onChange={e => setFormData({...formData, qualityReport: {...formData.qualityReport, fullReportUrl: e.target.value}})}
-                  placeholder="https://selecttcars.com/reports/car-123"
+                  placeholder="https://selectt.in/reports/car-123"
                 />
               </div>
 

@@ -664,7 +664,7 @@ export default function BlogEditor() {
                         <div className="mt-3 p-3 bg-white border border-gray-200 rounded-xl">
                           <p className="text-[10px] font-black text-gray-400 uppercase mb-2">Google Preview</p>
                           <p className="text-blue-600 text-sm font-semibold truncate">{form.meta_title || form.title || "Post Title"}</p>
-                          <p className="text-green-600 text-[11px]">selecttcars.com/blog/{form.slug || "post-slug"}</p>
+                          <p className="text-green-600 text-[11px]">selectt.in/blog/{form.slug || "post-slug"}</p>
                           <p className="text-gray-600 text-[11px] mt-1 line-clamp-2">{form.meta_description || form.excerpt || "Post description..."}</p>
                         </div>
                       </div>

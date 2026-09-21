@@ -3194,7 +3194,7 @@ async function sendPaymentSuccessEmail(bookingId) {
         const smtpPort = await getSetting('smtp_port') || 587;
         const smtpUser = await getSetting('smtp_user');
         const smtpPass = await getSetting('smtp_pass');
-        const contactEmail = await getSetting('contact_email') || 'no-reply@selecttcars.com';
+        const contactEmail = await getSetting('contact_email') || 'hello@selectt.in';
 
         if (!smtpHost || !smtpUser || !smtpPass) {
             console.log("SMTP not configured. Skipping email.");

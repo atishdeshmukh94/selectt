@@ -1149,7 +1149,7 @@ const CarDetailsPage = () => {
                 {activeInfoModal === 'returns' ? (
                   <div className="space-y-8">
                     <p className="text-slate-500 font-medium leading-relaxed">
-                      Our 30-day return policy makes sure that the car meets your expectations. If you're not satisfied, write to us at <span className="text-[#0C1B33] font-bold">support@selecttcars.com</span> within 30 days of car delivery. We'll inspect the car and issue a refund within 2 working days.
+                      Our 30-day return policy makes sure that the car meets your expectations. If you're not satisfied, write to us at <a href="mailto:hello@selectt.in" className="text-[#0C1B33] font-bold hover:text-[#00C9AF] transition-colors">hello@selectt.in</a> within 30 days of car delivery. We'll inspect the car and issue a refund within 2 working days.
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 mt-10">

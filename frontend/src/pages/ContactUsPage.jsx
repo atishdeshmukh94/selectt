@@ -89,7 +89,11 @@ const ContactUsPage = () => {
               </div>
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Email Inquiries</span>
-                <h3 className="text-lg font-bold text-slate-900 mt-0.5">support@selecttcars.com</h3>
+                <h3 className="text-lg font-bold text-slate-900 mt-0.5">
+                  <a href="mailto:hello@selectt.in" className="hover:text-[#00C9AF] transition-colors">
+                    hello@selectt.in
+                  </a>
+                </h3>
               </div>
               <p className="text-slate-500 text-xs font-normal">
                 Our support desk typically responds to all inquiries within 2 business hours.
