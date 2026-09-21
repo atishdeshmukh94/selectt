@@ -427,7 +427,20 @@ button, input[type="button"], input[type="submit"] {
   }
 }
 
-/* ── Position Gallabox Chatty Widget & Floating Support Widgets on the Right Side ── */
+/* ── Position Gallabox Chatty Widget on the Right Side & Suppress Native Launcher Pill ── */
+#chatty-widget-container > button,
+#chatty-widget > button,
+.chatty-widget > button,
+[class*="chatty-widget-launcher"],
+[class*="chatty-launcher"],
+[id*="chatty-launcher"],
+#chatty-widget-container button:not(.chatty-close-button) {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 #chatty-widget,
 .chatty-widget,
 #chatty-widget-container,
