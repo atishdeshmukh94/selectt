@@ -125,7 +125,7 @@ const WhatsAppChatButton = () => {
         }
       `}</style>
 
-      <div className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-[99998] flex items-center select-none wa-chat-font">
+      <div className="fixed bottom-[74px] md:bottom-6 right-3 sm:right-6 z-[99998] flex items-center select-none wa-chat-font">
         <button
           onClick={handleChatClick}
           onMouseEnter={() => setIsHovered(true)}
@@ -136,8 +136,8 @@ const WhatsAppChatButton = () => {
             isBouncing ? 'animate-wa-whole-bounce' : ''
           } ${
             showText
-              ? 'pl-3.5 pr-2.5 py-2 sm:pl-4.5 sm:pr-3 sm:py-2.5 gap-2.5 sm:gap-3 max-w-[340px]'
-              : 'p-2 sm:p-2.5 max-w-[50px] sm:max-w-[56px]'
+              ? 'pl-3.5 pr-2 py-2 sm:pl-4.5 sm:pr-3 sm:py-2.5 gap-2 sm:gap-3 max-w-[340px]'
+              : 'p-2 sm:p-2.5 max-w-[48px] sm:max-w-[56px]'
           }`}
         >
           {/* Pulse / Ripple Effect Ring */}
@@ -145,20 +145,20 @@ const WhatsAppChatButton = () => {
 
           {/* Text Container on Left Side (Smooth Expand/Collapse with Typewriter) */}
           <div
-            className={`flex flex-col text-left transition-all duration-500 overflow-hidden wa-chat-font ${
+            className={`flex flex-col text-left justify-center transition-all duration-500 overflow-hidden wa-chat-font ${
               showText ? 'opacity-100 max-w-[260px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-3 pointer-events-none'
             }`}
           >
             {/* Top Line: Status / Subtitle */}
-            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-emerald-200 tracking-wide leading-tight whitespace-nowrap wa-chat-font">
+            <div className="flex items-center gap-1.5 text-[9.5px] sm:text-[11px] font-bold text-emerald-200 tracking-wide leading-none whitespace-nowrap wa-chat-font">
               <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] inline-block shadow-[0_0_8px_#25D366] animate-pulse shrink-0" />
               <span>Get Extra Discount</span>
             </div>
 
             {/* Bottom Line: Typing message with blinking cursor */}
-            <div className="text-xs sm:text-[13px] font-bold text-white tracking-tight flex items-center whitespace-nowrap min-w-[150px] sm:min-w-[195px] h-[18px] sm:h-[20px] mt-0.5 wa-chat-font">
+            <div className="text-[11.5px] sm:text-[13px] font-bold text-white tracking-tight flex items-center whitespace-nowrap min-w-[145px] sm:min-w-[195px] leading-tight mt-1 wa-chat-font">
               <span>{currentText || (isHovered ? '💬 Chat with Selectt Experts!' : '')}</span>
-              <span className="text-[#FFB703] font-bold text-sm ml-0.5 animate-[ping_1.2s_cubic-bezier(0,0,0.2,1)_infinite] inline-block">
+              <span className="text-[#FFB703] font-bold text-xs sm:text-sm ml-0.5 animate-[ping_1.2s_cubic-bezier(0,0,0.2,1)_infinite] inline-block">
                 |
               </span>
             </div>
