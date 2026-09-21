@@ -50,6 +50,8 @@ const SelecttAssuredPage = lazy(() => import('./pages/SelecttAssuredPage'));
 const SelecttBuybackPage = lazy(() => import('./pages/SelecttBuybackPage'));
 const SelecttPartnersPage = lazy(() => import('./pages/SelecttPartnersPage'));
 
+import WhatsAppChatButton from './components/common/WhatsAppChatButton';
+
 function MainLayout() {
   return (
     <>
@@ -61,6 +63,7 @@ function MainLayout() {
         <Outlet />
       </main>
       <Footer />
+      <WhatsAppChatButton />
     </>
   );
 }

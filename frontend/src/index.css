@@ -427,7 +427,7 @@ button, input[type="button"], input[type="submit"] {
   }
 }
 
-/* ── Position Gallabox Chatty Widget & Floating Support Widgets on the Left Side ── */
+/* ── Position Gallabox Chatty Widget & Floating Support Widgets on the Right Side ── */
 #chatty-widget,
 .chatty-widget,
 #chatty-widget-container,
@@ -442,8 +442,9 @@ iframe[src*="gallabox"],
 div:has(> iframe[src*="gallabox"]),
 div[id*="gallabox"],
 div[class*="gallabox"] {
-  left: 24px !important;
-  right: auto !important;
+  right: 20px !important;
+  left: auto !important;
+  bottom: 24px !important;
 }
 
 @media (max-width: 768px) {
@@ -455,8 +456,8 @@ div[class*="gallabox"] {
   [class*="chatty"],
   iframe[src*="gallabox"],
   div:has(> iframe[src*="gallabox"]) {
-    left: 16px !important;
-    right: auto !important;
-    bottom: 80px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: 20px !important;
   }
 }
