@@ -13,74 +13,6 @@ const WhatsAppChatButton = () => {
   const [messageIndex, setMessageIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [typingSpeed, setTypingSpeed] = useState(70);
-  const [isGallaboxOpen, setIsGallaboxOpen] = useState(false);
-
-  // Suppress Gallabox default raw launcher pill so only our animated WhatsApp button is visible
-  useEffect(() => {
-    const styleEl = document.createElement('style');
-    styleEl.id = 'suppress-gallabox-launcher-pill';
-    styleEl.innerHTML = `
-      /* Suppress Gallabox default raw launcher button */
-      #chatty-widget-container > button,
-      #chatty-widget > button,
-      .chatty-widget > button,
-      [class*="chatty-widget-launcher"],
-      [class*="chatty-launcher"],
-      [id*="chatty-launcher"],
-      button:has(> svg + span:contains("Chat with us")),
-      #chatty-widget-container button:not(.chatty-close-button) {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
-      }
-    `;
-    document.head.appendChild(styleEl);
-
-    // Watch Gallabox iframe state
-    const interval = setInterval(() => {
-      const iframes = document.querySelectorAll('iframe[src*="gallabox"], iframe[id*="chatty"]');
-      let isOpen = false;
-
-      iframes.forEach((iframe) => {
-        const height = iframe.offsetHeight || parseInt(iframe.style.height || '0', 10);
-        // If iframe is just the launcher pill (small height < 150px), hide it
-        if (height > 0 && height < 150) {
-          iframe.style.opacity = '0';
-          iframe.style.visibility = 'hidden';
-          iframe.style.pointerEvents = 'none';
-        } else if (height >= 150) {
-          // Chat window is OPEN!
-          isOpen = true;
-          iframe.style.opacity = '1';
-          iframe.style.visibility = 'visible';
-          iframe.style.pointerEvents = 'auto';
-          iframe.style.zIndex = '999999';
-        }
-      });
-
-      // Check containers
-      const containers = document.querySelectorAll('#chatty-widget-container, .chatty-widget, [id*="chatty"]');
-      containers.forEach((container) => {
-        const btns = container.querySelectorAll('button');
-        btns.forEach((btn) => {
-          if (btn.innerText && btn.innerText.includes('Chat with us')) {
-            btn.style.display = 'none';
-            btn.style.opacity = '0';
-            btn.style.visibility = 'hidden';
-            btn.style.pointerEvents = 'none';
-          }
-        });
-      });
-
-      setIsGallaboxOpen(isOpen);
-    }, 200);
-
-    return () => {
-      clearInterval(interval);
-      styleEl.remove();
-    };
-  }, []);
 
   // Typewriter effect loop
   useEffect(() => {
@@ -119,66 +51,13 @@ const WhatsAppChatButton = () => {
     return () => clearTimeout(timer);
   }, [currentText, isDeleting, messageIndex, typingSpeed]);
 
-  // Click Handler to trigger Gallabox Chat widget with fail-safe fallback
+  // Open WhatsApp directly with pre-filled message
   const handleChatClick = () => {
-    let gallaboxTriggered = false;
-
-    // 1. Try Gallabox API if initialized
-    if (typeof window !== 'undefined' && window.Chatty) {
-      try {
-        window.Chatty('open');
-        gallaboxTriggered = true;
-      } catch (e) {
-        console.warn('Gallabox API open failed:', e);
-      }
-    }
-
-    // 2. Click any native Gallabox trigger in DOM
-    const selectors = [
-      '#chatty-widget-container button',
-      '#chatty-widget button',
-      '[class*="chatty"] button',
-      'button[class*="chatty"]',
-      '#chatty-widget-iframe',
-      'iframe[src*="gallabox"]'
-    ];
-
-    for (const sel of selectors) {
-      const el = document.querySelector(sel);
-      if (el) {
-        try {
-          el.click();
-          gallaboxTriggered = true;
-          break;
-        } catch (err) {}
-      }
-    }
-
-    // 3. Post message to Gallabox iframes
-    try {
-      const iframes = document.querySelectorAll('iframe');
-      iframes.forEach((iframe) => {
-        if (iframe.src && iframe.src.includes('gallabox')) {
-          iframe.contentWindow?.postMessage({ type: 'OPEN_CHAT' }, '*');
-          iframe.contentWindow?.postMessage({ action: 'open' }, '*');
-          gallaboxTriggered = true;
-        }
-      });
-    } catch (e) {}
-
-    // 4. Fallback directly to official WhatsApp support if Gallabox is blocked by ad-blocker
-    if (!gallaboxTriggered) {
-      const waUrl = `https://wa.me/918574667466?text=${encodeURIComponent(
-        'Hi Selectt, I want to know more about buying/selling a certified car.'
-      )}`;
-      window.open(waUrl, '_blank', 'noopener,noreferrer');
-    }
+    const waUrl = `https://wa.me/918574667466?text=${encodeURIComponent(
+      'Hi Selectt, I would like to know more about buying/selling a certified car.'
+    )}`;
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
   };
-
-  // If Gallabox modal window is actively open, hide the floating trigger button so it doesn't block the chat text input
-  if (isGallaboxOpen) {
-    return null;
-  }
 
   return (
     <div className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-[99998] flex items-center select-none">
