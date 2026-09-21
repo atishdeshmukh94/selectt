@@ -17,17 +17,17 @@ const WhatsAppChatButton = () => {
   const [isBouncing, setIsBouncing] = useState(false);
   const [typingSpeed, setTypingSpeed] = useState(60);
 
-  // Typewriter, bounce, and expand/collapse lifecycle loop
+  // Typewriter, whole-button bounce, and expand/collapse lifecycle loop
   useEffect(() => {
     const fullText = MESSAGES[messageIndex];
 
     const handleStep = () => {
-      // 1. If currently collapsed and not bouncing, trigger bounce first before expanding
+      // 1. If currently collapsed and not bouncing, trigger entire button bounce first before expanding
       if (!isExpanded && !isHovered) {
         if (!isBouncing) {
           setIsBouncing(true);
-          // Bounce for 650ms before opening
-          setTypingSpeed(650);
+          // Whole button bounces for 700ms before expanding
+          setTypingSpeed(700);
           return;
         } else {
           // Bounce completed, now expand and begin typing
@@ -56,13 +56,13 @@ const WhatsAppChatButton = () => {
         setCurrentText(nextText);
 
         if (nextText === '') {
-          // Finished deleting: collapse to icon only
+          // Finished deleting: collapse to compact circle icon only
           setIsDeleting(false);
           setIsExpanded(false);
           setIsBouncing(false);
           setMessageIndex((prev) => (prev + 1) % MESSAGES.length);
-          // Stay compact as icon for 2 seconds before the next bounce & typing
-          setTypingSpeed(2000);
+          // Stay compact as circular button for 2.2 seconds before next whole-button bounce
+          setTypingSpeed(2200);
         } else {
           setTypingSpeed(25);
         }
@@ -86,15 +86,15 @@ const WhatsAppChatButton = () => {
   return (
     <>
       <style>{`
-        @keyframes waIconBounce {
-          0%, 100% { transform: scale(1) translateY(0); }
-          20% { transform: scale(1.3) translateY(-10px) rotate(-10deg); }
-          45% { transform: scale(0.92) translateY(2px) rotate(6deg); }
-          70% { transform: scale(1.15) translateY(-5px) rotate(-4deg); }
-          85% { transform: scale(0.98) translateY(1px); }
+        @keyframes waWholeButtonBounce {
+          0%, 100% { transform: scale(1) translateY(0) rotate(0deg); }
+          22% { transform: scale(1.22) translateY(-15px) rotate(-8deg); }
+          48% { transform: scale(0.92) translateY(3px) rotate(5deg); }
+          72% { transform: scale(1.12) translateY(-7px) rotate(-3deg); }
+          88% { transform: scale(0.98) translateY(1px) rotate(1deg); }
         }
-        .animate-wa-bounce {
-          animation: waIconBounce 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        .animate-wa-whole-bounce {
+          animation: waWholeButtonBounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
       `}</style>
 
@@ -106,6 +106,8 @@ const WhatsAppChatButton = () => {
           type="button"
           aria-label="Chat on WhatsApp"
           className={`group relative flex items-center bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] hover:from-[#086B60] hover:to-[#17A08E] text-white shadow-[0_10px_30px_rgba(7,94,84,0.45)] hover:shadow-[0_14px_38px_rgba(7,94,84,0.6)] border border-white/25 transition-all duration-500 ease-out cursor-pointer rounded-full overflow-hidden ${
+            isBouncing ? 'animate-wa-whole-bounce' : ''
+          } ${
             showText
               ? 'pl-3.5 pr-2.5 py-2 sm:pl-4.5 sm:pr-3 sm:py-2.5 gap-2.5 sm:gap-3 max-w-[340px]'
               : 'p-2 sm:p-2.5 max-w-[50px] sm:max-w-[56px]'
@@ -135,12 +137,8 @@ const WhatsAppChatButton = () => {
             </div>
           </div>
 
-          {/* WhatsApp Circular Icon on Right Side (with bounce animation) */}
-          <div
-            className={`relative shrink-0 w-8 h-8 sm:w-9 sm:h-9 bg-[#25D366] rounded-full flex items-center justify-center shadow-md text-white group-hover:scale-105 transition-transform ${
-              isBouncing ? 'animate-wa-bounce' : ''
-            }`}
-          >
+          {/* WhatsApp Circular Icon on Right Side */}
+          <div className="relative shrink-0 w-8 h-8 sm:w-9 sm:h-9 bg-[#25D366] rounded-full flex items-center justify-center shadow-md text-white group-hover:scale-105 transition-transform">
             <svg
               className="w-5 h-5 sm:w-5.5 sm:h-5.5 fill-current"
               viewBox="0 0 24 24"
