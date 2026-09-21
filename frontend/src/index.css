@@ -426,3 +426,39 @@ button, input[type="button"], input[type="submit"] {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   SUPPRESS & REMOVE ALL GALLABOX / CHATTY 3RD-PARTY WIDGETS
+   ========================================================================== */
+#chatty-widget-container,
+#chatty-widget,
+#chatty-widget-frame,
+.chatty-widget,
+.chatty-widget-container,
+.chatty-widget-frame,
+[id*="chatty"],
+[class*="chatty"],
+[id*="gallabox"],
+[class*="gallabox"],
+iframe[src*="gallabox"],
+iframe[src*="chatty"],
+iframe[id*="chatty"],
+iframe[name*="chatty"],
+div[id*="chatty"],
+div[class*="chatty"],
+.gbox-widget,
+#gbox-widget {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  top: -99999px !important;
+  left: -99999px !important;
+  z-index: -99999 !important;
+}

@@ -17,6 +17,72 @@ const WhatsAppChatButton = () => {
   const [isBouncing, setIsBouncing] = useState(false);
   const [typingSpeed, setTypingSpeed] = useState(60);
 
+  // Aggressively remove any leftover Gallabox / Chatty widgets or scripts
+  useEffect(() => {
+    const purgeGallabox = () => {
+      // 1. Remove scripts
+      document
+        .querySelectorAll('script[src*="gallabox"], script[src*="chatty"]')
+        .forEach((el) => el.remove());
+
+      // 2. Remove injected containers, buttons, iframes, wrappers
+      document
+        .querySelectorAll(
+          '#chatty-widget-container, #chatty-widget, #chatty-widget-frame, .chatty-widget, .chatty-widget-container, [id*="chatty"], [class*="chatty"], [id*="gallabox"], [class*="gallabox"], iframe[src*="gallabox"], iframe[src*="chatty"], .gbox-widget, #gbox-widget'
+        )
+        .forEach((el) => {
+          try {
+            el.remove();
+          } catch (e) {}
+        });
+
+      // 3. Clear window object references
+      if (window.Chatty) {
+        try {
+          if (typeof window.Chatty.destroy === 'function') window.Chatty.destroy();
+        } catch (e) {}
+        delete window.Chatty;
+      }
+      if (window.__chatty) delete window.__chatty;
+      if (window.gallabox) delete window.gallabox;
+    };
+
+    purgeGallabox();
+    const interval = setInterval(purgeGallabox, 400);
+
+    // MutationObserver to immediately destroy any Gallabox nodes on creation
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) {
+            const id = node.id || '';
+            const className = typeof node.className === 'string' ? node.className : '';
+            const src = node.getAttribute ? node.getAttribute('src') || '' : '';
+            if (
+              id.includes('chatty') ||
+              id.includes('gallabox') ||
+              className.includes('chatty') ||
+              className.includes('gallabox') ||
+              src.includes('chatty') ||
+              src.includes('gallabox')
+            ) {
+              node.remove();
+            }
+          }
+        });
+      }
+    });
+
+    try {
+      observer.observe(document.body, { childList: true, subtree: true });
+    } catch (e) {}
+
+    return () => {
+      clearInterval(interval);
+      observer.disconnect();
+    };
+  }, []);
+
   // Typewriter, whole-button bounce, and expand/collapse lifecycle loop
   useEffect(() => {
     const fullText = MESSAGES[messageIndex];
