@@ -26,8 +26,8 @@ const WhatsAppChatButton = () => {
       if (!isExpanded && !isHovered) {
         if (!isBouncing) {
           setIsBouncing(true);
-          // Whole button bounces for 700ms before expanding
-          setTypingSpeed(700);
+          // Whole button bounces like a smooth ball for 1100ms before expanding
+          setTypingSpeed(1100);
           return;
         } else {
           // Bounce completed, now expand and begin typing
@@ -86,26 +86,53 @@ const WhatsAppChatButton = () => {
   return (
     <>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+
+        .wa-chat-font {
+          font-family: 'Varela Round', sans-serif !important;
+          font-weight: 700;
+        }
+
         @keyframes waWholeButtonBounce {
-          0%, 100% { transform: scale(1) translateY(0) rotate(0deg); }
-          22% { transform: scale(1.22) translateY(-15px) rotate(-8deg); }
-          48% { transform: scale(0.92) translateY(3px) rotate(5deg); }
-          72% { transform: scale(1.12) translateY(-7px) rotate(-3deg); }
-          88% { transform: scale(0.98) translateY(1px) rotate(1deg); }
+          0% {
+            transform: translateY(0) scale(1, 1);
+          }
+          10% {
+            transform: translateY(3px) scale(1.18, 0.82);
+          }
+          28% {
+            transform: translateY(-24px) scale(0.92, 1.14);
+          }
+          45% {
+            transform: translateY(0px) scale(1.15, 0.85);
+          }
+          62% {
+            transform: translateY(-12px) scale(0.96, 1.06);
+          }
+          76% {
+            transform: translateY(1px) scale(1.08, 0.93);
+          }
+          88% {
+            transform: translateY(-4px) scale(0.98, 1.02);
+          }
+          100% {
+            transform: translateY(0) scale(1, 1);
+          }
         }
         .animate-wa-whole-bounce {
-          animation: waWholeButtonBounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+          animation: waWholeButtonBounce 1.1s cubic-bezier(0.25, 1, 0.5, 1) both;
+          transform-origin: bottom center;
         }
       `}</style>
 
-      <div className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-[99998] flex items-center select-none">
+      <div className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-[99998] flex items-center select-none wa-chat-font">
         <button
           onClick={handleChatClick}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           type="button"
           aria-label="Chat on WhatsApp"
-          className={`group relative flex items-center bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] hover:from-[#086B60] hover:to-[#17A08E] text-white shadow-[0_10px_30px_rgba(7,94,84,0.45)] hover:shadow-[0_14px_38px_rgba(7,94,84,0.6)] border border-white/25 transition-all duration-500 ease-out cursor-pointer rounded-full overflow-hidden ${
+          className={`group relative flex items-center bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] hover:from-[#086B60] hover:to-[#17A08E] text-white shadow-[0_10px_30px_rgba(7,94,84,0.45)] hover:shadow-[0_14px_38px_rgba(7,94,84,0.6)] border border-white/25 transition-all duration-500 ease-out cursor-pointer rounded-full overflow-hidden wa-chat-font ${
             isBouncing ? 'animate-wa-whole-bounce' : ''
           } ${
             showText
@@ -118,20 +145,20 @@ const WhatsAppChatButton = () => {
 
           {/* Text Container on Left Side (Smooth Expand/Collapse with Typewriter) */}
           <div
-            className={`flex flex-col text-left transition-all duration-500 overflow-hidden ${
+            className={`flex flex-col text-left transition-all duration-500 overflow-hidden wa-chat-font ${
               showText ? 'opacity-100 max-w-[260px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-3 pointer-events-none'
             }`}
           >
             {/* Top Line: Status / Subtitle */}
-            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold text-emerald-200 tracking-wide leading-tight whitespace-nowrap">
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-emerald-200 tracking-wide leading-tight whitespace-nowrap wa-chat-font">
               <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] inline-block shadow-[0_0_8px_#25D366] animate-pulse shrink-0" />
               <span>Get Extra Discount</span>
             </div>
 
             {/* Bottom Line: Typing message with blinking cursor */}
-            <div className="text-xs sm:text-[13px] font-extrabold text-white tracking-tight flex items-center whitespace-nowrap min-w-[150px] sm:min-w-[195px] h-[18px] sm:h-[20px] mt-0.5">
+            <div className="text-xs sm:text-[13px] font-bold text-white tracking-tight flex items-center whitespace-nowrap min-w-[150px] sm:min-w-[195px] h-[18px] sm:h-[20px] mt-0.5 wa-chat-font">
               <span>{currentText || (isHovered ? '💬 Chat with Selectt Experts!' : '')}</span>
-              <span className="text-[#FFB703] font-black text-sm ml-0.5 animate-[ping_1.2s_cubic-bezier(0,0,0.2,1)_infinite] inline-block">
+              <span className="text-[#FFB703] font-bold text-sm ml-0.5 animate-[ping_1.2s_cubic-bezier(0,0,0.2,1)_infinite] inline-block">
                 |
               </span>
             </div>
