@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const MESSAGES = [
-  "🎁 Free Doorstep Car Inspection!",
+  "🎁 Free Doorstep Inspection!",
   "🚗 500+ Certified Used Cars!",
   "⚡ Instant Valuation in 2 Mins!",
   "💬 Chat with Selectt Experts!",
@@ -12,24 +12,33 @@ const WhatsAppChatButton = () => {
   const [currentText, setCurrentText] = useState('');
   const [messageIndex, setMessageIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [typingSpeed, setTypingSpeed] = useState(70);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+  const [typingSpeed, setTypingSpeed] = useState(60);
 
-  // Typewriter effect loop
+  // Typewriter and collapse/expand lifecycle loop
   useEffect(() => {
     const fullText = MESSAGES[messageIndex];
 
-    const handleTyping = () => {
+    const handleStep = () => {
+      // If currently collapsed, wait for pause then expand and start typing
+      if (!isExpanded && !isHovered) {
+        setIsExpanded(true);
+        setTypingSpeed(60);
+        return;
+      }
+
       if (!isDeleting) {
         // Typing forward
         const nextText = fullText.substring(0, currentText.length + 1);
         setCurrentText(nextText);
 
         if (nextText === fullText) {
-          // Finished typing full message, pause before deleting
-          setTypingSpeed(2200);
+          // Finished typing full message: hold expanded for reader
+          setTypingSpeed(3200);
           setIsDeleting(true);
         } else {
-          setTypingSpeed(60);
+          setTypingSpeed(55);
         }
       } else {
         // Deleting backward
@@ -37,19 +46,21 @@ const WhatsAppChatButton = () => {
         setCurrentText(nextText);
 
         if (nextText === '') {
-          // Finished deleting, move to next message
+          // Finished deleting: collapse to icon only
           setIsDeleting(false);
+          setIsExpanded(false);
           setMessageIndex((prev) => (prev + 1) % MESSAGES.length);
-          setTypingSpeed(400);
+          // Stay as icon only for 2.5 seconds before next expansion
+          setTypingSpeed(2500);
         } else {
-          setTypingSpeed(30);
+          setTypingSpeed(25);
         }
       }
     };
 
-    const timer = setTimeout(handleTyping, typingSpeed);
+    const timer = setTimeout(handleStep, typingSpeed);
     return () => clearTimeout(timer);
-  }, [currentText, isDeleting, messageIndex, typingSpeed]);
+  }, [currentText, isDeleting, isExpanded, isHovered, messageIndex, typingSpeed]);
 
   // Open WhatsApp directly with pre-filled message
   const handleChatClick = () => {
@@ -59,36 +70,48 @@ const WhatsAppChatButton = () => {
     window.open(waUrl, '_blank', 'noopener,noreferrer');
   };
 
+  const showText = isExpanded || isHovered;
+
   return (
     <div className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-[99998] flex items-center select-none">
       <button
         onClick={handleChatClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         type="button"
         aria-label="Chat on WhatsApp"
-        className="group relative flex items-center gap-3 bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] hover:from-[#086B60] hover:to-[#17A08E] text-white pl-4 pr-3 py-2 sm:pl-5 sm:pr-3.5 sm:py-2.5 rounded-full shadow-[0_10px_30px_rgba(7,94,84,0.45)] hover:shadow-[0_14px_38px_rgba(7,94,84,0.6)] border border-white/25 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
+        className={`group relative flex items-center bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] hover:from-[#086B60] hover:to-[#17A08E] text-white shadow-[0_10px_30px_rgba(7,94,84,0.45)] hover:shadow-[0_14px_38px_rgba(7,94,84,0.6)] border border-white/25 transition-all duration-500 ease-out cursor-pointer rounded-full overflow-hidden ${
+          showText
+            ? 'pl-3.5 pr-2.5 py-2 sm:pl-4.5 sm:pr-3 sm:py-2.5 gap-2.5 sm:gap-3 max-w-[340px]'
+            : 'p-2 sm:p-2.5 max-w-[50px] sm:max-w-[56px]'
+        }`}
       >
         {/* Pulse / Ripple Effect Ring */}
-        <span className="absolute -inset-1 rounded-full bg-[#25D366]/30 animate-ping pointer-events-none opacity-40 duration-1000" />
+        <span className="absolute -inset-1 rounded-full bg-[#25D366]/35 animate-ping pointer-events-none opacity-50 duration-1000" />
 
-        {/* Text Details on Left Side with Typing Animation */}
-        <div className="flex flex-col text-left">
+        {/* Text Container on Left Side (Smooth Expand/Collapse with Typewriter) */}
+        <div
+          className={`flex flex-col text-left transition-all duration-500 overflow-hidden ${
+            showText ? 'opacity-100 max-w-[260px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-3 pointer-events-none'
+          }`}
+        >
           {/* Top Line: Status / Subtitle */}
-          <div className="flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-semibold text-emerald-200 tracking-wide leading-tight">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] inline-block shadow-[0_0_8px_#25D366] animate-pulse" />
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold text-emerald-200 tracking-wide leading-tight whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] inline-block shadow-[0_0_8px_#25D366] animate-pulse shrink-0" />
             <span>Get Extra Discount</span>
           </div>
 
-          {/* Bottom Line: Typing message */}
-          <div className="text-xs sm:text-[13.5px] font-extrabold text-white tracking-tight flex items-center whitespace-nowrap min-w-[160px] sm:min-w-[210px] h-[18px] sm:h-[20px]">
-            <span>{currentText}</span>
+          {/* Bottom Line: Typing message with blinking cursor */}
+          <div className="text-xs sm:text-[13px] font-extrabold text-white tracking-tight flex items-center whitespace-nowrap min-w-[150px] sm:min-w-[195px] h-[18px] sm:h-[20px] mt-0.5">
+            <span>{currentText || (isHovered ? '💬 Chat with Selectt Experts!' : '')}</span>
             <span className="text-[#FFB703] font-black text-sm ml-0.5 animate-[ping_1.2s_cubic-bezier(0,0,0.2,1)_infinite] inline-block">
               |
             </span>
           </div>
         </div>
 
-        {/* WhatsApp Icon with green circle badge on Right Side */}
-        <div className="relative shrink-0 w-8 h-8 sm:w-9 sm:h-9 bg-[#25D366] rounded-full flex items-center justify-center shadow-md text-white">
+        {/* WhatsApp Circular Icon on Right Side */}
+        <div className="relative shrink-0 w-8 h-8 sm:w-9 sm:h-9 bg-[#25D366] rounded-full flex items-center justify-center shadow-md text-white group-hover:scale-105 transition-transform">
           <svg
             className="w-5 h-5 sm:w-5.5 sm:h-5.5 fill-current"
             viewBox="0 0 24 24"
