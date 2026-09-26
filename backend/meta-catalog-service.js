@@ -57,7 +57,7 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
     const kmStr = car.km ? `${Number(car.km).toLocaleString('en-IN')} KM` : 'Low Mileage';
     const fuelStr = car.fuel_type || 'Petrol';
     const transStr = car.transmission || 'Manual';
-    const locationStr = car.location || 'Raipur Hub';
+    const locationStr = car.location || 'Mumbai Hub';
     const ownerStr = car.ownership ? `${car.ownership} Owner` : 'Certified Pre-Owned';
     const assuredStr = car.is_assured ? '✓ Selectt Assured with 1-Year Warranty & 7-Day Money Back' : '✓ Inspected Quality Used Car';
     

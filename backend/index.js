@@ -411,8 +411,8 @@ db.getConnection((err, connection) => {
             db.query('SELECT COUNT(*) as count FROM car_hub_locations', (cErr, cRes) => {
                 if (!cErr && cRes[0]?.count === 0) {
                     const seedHubs = [
-                        ['Raipur-Selectt Hub', 'Raipur', '36 City mall 2nd floor, Telibandha, Vishal nagar, In front of Magneto mall, Raipur...', '10:00 AM - 07:00 PM (Mon-Sun)', 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=400', 45],
-                        ['Raipur-Civil Lines Hub', 'Raipur', 'Great Eastern Rd, near Phool Chowk, Civil Lines, Raipur, Chhattisgarh 492001', '10:00 AM - 07:00 PM (Mon-Sun)', 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400', 30],
+                        ['Mumbai-Andheri Hub', 'Mumbai', 'Infinity Mall Link Road, Next to Oshiwara Metro, Andheri West, Mumbai, Maharashtra 400053', '10:00 AM - 08:30 PM (Mon-Sun)', 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=400', 85],
+                        ['Mumbai-BKC Hub', 'Mumbai', 'G Block, Bandra Kurla Complex, Bandra East, Mumbai, Maharashtra 400051', '10:00 AM - 08:30 PM (Mon-Sun)', 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400', 92],
                         ['Pune-Viman Nagar Hub', 'Pune', 'Phoenix Marketcity Mall Road, Viman Nagar, Pune, Maharashtra 411014', '09:30 AM - 08:00 PM (Mon-Sun)', 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400', 60]
                     ];
                     db.query('INSERT INTO car_hub_locations (name, city, address, open_hours, image_path, car_count) VALUES ?', [seedHubs], (sErr) => {
@@ -461,8 +461,8 @@ db.getConnection((err, connection) => {
             session_id VARCHAR(100) NOT NULL,
             visitor_id VARCHAR(100) NOT NULL,
             ip_address VARCHAR(45) DEFAULT NULL,
-            city VARCHAR(100) DEFAULT 'Raipur',
-            region VARCHAR(100) DEFAULT 'Chhattisgarh',
+            city VARCHAR(100) DEFAULT 'Mumbai',
+            region VARCHAR(100) DEFAULT 'Maharashtra',
             country VARCHAR(100) DEFAULT 'India',
             page_url VARCHAR(255) NOT NULL,
             page_title VARCHAR(255) DEFAULT NULL,
@@ -783,7 +783,7 @@ app.post('/api/admin/whatsapp/test-send', authMiddleware, isAdmin, async (req, r
         amount: '₹5,000',
         booking_id: '#BK-1049',
         date_slot: 'Tomorrow (11:00 AM)',
-        location: 'Raipur Telibandha Hub',
+        location: 'Mumbai Andheri Hub',
         request_id: '#SELL-882',
         loan_amount: '₹5,00,000',
         monthly_emi: '₹9,500',
@@ -4462,8 +4462,8 @@ app.post('/api/analytics/track', (req, res) => {
             clientIp = clientIp.replace('::ffff:', '');
         }
 
-        const fallbackCity = city || 'Raipur';
-        const fallbackRegion = region || 'Chhattisgarh';
+        const fallbackCity = city || 'Mumbai';
+        const fallbackRegion = region || 'Maharashtra';
         const fallbackCountry = country || 'India';
 
         // Heartbeat / duration update ping
@@ -4915,7 +4915,7 @@ app.get('/api/admin/analytics/live', authMiddleware, isAdmin, async (req, res) =
         // Group active cities
         const cityCounts = {};
         activeVisitors.forEach(v => {
-            const city = v.city || 'Raipur';
+            const city = v.city || 'Mumbai';
             cityCounts[city] = (cityCounts[city] || 0) + 1;
         });
         const activeCities = Object.keys(cityCounts).map(city => ({
