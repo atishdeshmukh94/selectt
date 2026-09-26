@@ -7,6 +7,18 @@ import Label from "../components/form/Label";
 import Input from "../components/form/input/InputField";
 import Button from "../components/ui/button/Button";
 import { toast } from "react-hot-toast";
+import {
+  Image,
+  Video,
+  Cloud,
+  Zap,
+  CheckCircle2,
+  XCircle,
+  Eye,
+  EyeOff,
+  ExternalLink,
+  ShieldCheck
+} from "lucide-react";
 
 interface Setting {
   id: number;
@@ -15,7 +27,7 @@ interface Setting {
 }
 
 interface SiteSettingsProps {
-  section?: "location" | "payment" | "smtp" | "maintenance" | "whatsapp" | "branding";
+  section?: "location" | "payment" | "smtp" | "maintenance" | "whatsapp" | "branding" | "api_keys";
 }
 
 const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
@@ -23,6 +35,15 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // 3rd Party API state
+  const [showIkSecret, setShowIkSecret] = useState(false);
+  const [showBunnySecret, setShowBunnySecret] = useState(false);
+  const [showR2Secret, setShowR2Secret] = useState(false);
+  const [testingIk, setTestingIk] = useState(false);
+  const [ikTestResult, setIkTestResult] = useState<{ success?: boolean; message?: string } | null>(null);
+  const [testingBunny, setTestingBunny] = useState(false);
+  const [bunnyTestResult, setBunnyTestResult] = useState<{ success?: boolean; message?: string; name?: string } | null>(null);
 
   // Live WhatsApp Test Sender state
   const [testPhone, setTestPhone] = useState("");
@@ -146,6 +167,71 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
       toast.error("Failed to save settings");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleTestImageKit = async () => {
+    try {
+      setTestingIk(true);
+      setIkTestResult(null);
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(`${API_URL}/api/admin/imagekit/test-connection`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          publicKey: settings.imagekit_public_key,
+          privateKey: settings.imagekit_private_key,
+          urlEndpoint: settings.imagekit_url_endpoint
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setIkTestResult({ success: true, message: data.message });
+        toast.success("✅ ImageKit API connected successfully!");
+      } else {
+        setIkTestResult({ success: false, message: data.error || "Connection failed" });
+        toast.error(`❌ ImageKit Error: ${data.error || "Failed"}`);
+      }
+    } catch (err: any) {
+      setIkTestResult({ success: false, message: err.message });
+      toast.error("ImageKit connection test failed");
+    } finally {
+      setTestingIk(false);
+    }
+  };
+
+  const handleTestBunny = async () => {
+    try {
+      setTestingBunny(true);
+      setBunnyTestResult(null);
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(`${API_URL}/api/admin/bunny/test-connection`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          libraryId: settings.bunny_stream_library_id,
+          apiKey: settings.bunny_stream_api_key
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBunnyTestResult({ success: true, message: `${data.message} (Library: ${data.name})` });
+        toast.success(`✅ Bunny Stream connected! Library: ${data.name}`);
+      } else {
+        setBunnyTestResult({ success: false, message: data.error || "Connection failed" });
+        toast.error(`❌ Bunny Error: ${data.error || "Failed"}`);
+      }
+    } catch (err: any) {
+      setBunnyTestResult({ success: false, message: err.message });
+      toast.error("Bunny Stream connection test failed");
+    } finally {
+      setTestingBunny(false);
     }
   };
 

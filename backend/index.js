@@ -16,8 +16,10 @@ const compression = require('compression');
 const morgan = require('morgan');
 const hpp = require('hpp');
 const rateLimit = require('express-rate-limit');
-const { authMiddleware, isAdmin } = require('./auth-middleware');
+const { authMiddleware, isAdmin, adminAuth, customerAuth } = require('./auth-middleware');
 const { sendWhatsAppOTP } = require('./whatsapp-service');
+const { imagekit, getAuthenticationParameters, uploadToImageKit, testImageKitConnection, initImageKit } = require('./imagekit');
+const bunnyStream = require('./bunny-stream');
 
 dotenv.config();
 
@@ -48,24 +50,35 @@ const authLimiter = rateLimit({
     legacyHeaders: false,
     message: { success: false, message: "Too many authentication or OTP requests from this IP. Please wait 10 minutes before trying again." }
 });
-app.use(['/api/login', '/api/admin/login', '/api/auth/send-otp', '/api/auth/verify-otp', '/api/auth/whatsapp-otp'], authLimiter);
+app.use(['/api/login', '/api/admin/login', '/api/auth/send-otp', '/api/auth/verify-otp', '/api/auth/whatsapp-otp', '/api/customers/login', '/api/customers/register'], authLimiter);
+
+// Public form submissions limiter (anti-spam)
+const formSubmissionLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 25,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: "Submission limit reached. Please wait a few minutes before submitting again." }
+});
+app.use(['/api/leads', '/api/insurance/request', '/api/sell-requests'], formSubmissionLimiter);
 
 // Logging and Performance
 app.use(morgan('combined'));
 app.use(compression());
 
-// CORS Configuration
+// Hardened CORS Configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) 
     : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', 'https://selectt.in', 'https://admin.selectt.in'];
 
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('ngrok-free.dev') || origin.endsWith('wepnex.com') || origin.endsWith('selectt.in')) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        if (/^https:\/\/([a-zA-Z0-9-]+\.)?selectt\.in$/.test(origin) || /^https:\/\/([a-zA-Z0-9-]+\.)?wepnex\.com$/.test(origin)) {
+            return callback(null, true);
         }
+        callback(new Error('Not allowed by CORS policy'));
     },
     credentials: true
 }));
@@ -76,7 +89,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use('/img', express.static(path.join(__dirname, 'public/img')));
 
 // Production Health & Monitoring Endpoint
-app.get('/api/health', (req, res) => {
+app.get(['/health', '/api/health'], (req, res) => {
     res.json({
         status: 'healthy',
         service: 'Selectt Backend API',
@@ -759,7 +772,7 @@ async function sendAdminWhatsAppAlert(alertEvent, alertData = {}) {
     }
 }
 
-app.post('/api/admin/whatsapp/test-send', authMiddleware, async (req, res) => {
+app.post('/api/admin/whatsapp/test-send', authMiddleware, isAdmin, async (req, res) => {
     const { eventType, phone, customData } = req.body;
     if (!eventType || !phone) {
         return res.status(400).json({ message: 'Missing eventType or phone number' });
@@ -1146,7 +1159,7 @@ app.post('/api/admin/meta-catalog/sync-all', authMiddleware, isAdmin, async (req
 });
 
 // SEC-001 FIX: Admin notifications now require authentication
-app.get('/api/admin/notifications', authMiddleware, (req, res) => {
+app.get('/api/admin/notifications', authMiddleware, isAdmin, (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     db.query('SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT ?', [limit], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -1161,14 +1174,14 @@ app.get('/api/admin/notifications', authMiddleware, (req, res) => {
     });
 });
 
-app.put('/api/admin/notifications/:id/read', authMiddleware, (req, res) => {
+app.put('/api/admin/notifications/:id/read', authMiddleware, isAdmin, (req, res) => {
     db.query('UPDATE admin_notifications SET is_read = TRUE WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true });
     });
 });
 
-app.put('/api/admin/notifications/read-all', authMiddleware, (req, res) => {
+app.put('/api/admin/notifications/read-all', authMiddleware, isAdmin, (req, res) => {
     db.query('UPDATE admin_notifications SET is_read = TRUE WHERE is_read = FALSE', (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true, updated: result.affectedRows });
@@ -1335,7 +1348,7 @@ app.get('/api/cars/:id', (req, res) => {
     });
 });
 
-app.post('/api/cars', authMiddleware, (req, res) => {
+app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
     const { make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
         location, image, tag, badgeText, badge_text, hub, isAssured, listingType, listing_type, ownership, engineCapacity, engine_capacity,
         regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
@@ -1421,7 +1434,7 @@ app.post('/api/cars/bulk-import', authMiddleware, isAdmin, async (req, res) => {
     }
 });
 
-app.put('/api/cars/:id', authMiddleware, (req, res) => {
+app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
     // Check old car images before updating to clean up any removed ones
     db.query('SELECT image, more_images FROM cars WHERE id = ?', [req.params.id], (findErr, findResults) => {
         const oldCar = findResults && findResults[0] ? findResults[0] : null;
@@ -1505,7 +1518,7 @@ app.put('/api/cars/:id', authMiddleware, (req, res) => {
     });
 });
 
-app.patch('/api/cars/bulk-update', authMiddleware, (req, res) => {
+app.patch('/api/cars/bulk-update', authMiddleware, isAdmin, (req, res) => {
     const { ids, status, isAssured, listingType, listing_type } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
         return res.status(400).json({ error: 'ids array is required' });
@@ -1526,7 +1539,7 @@ app.patch('/api/cars/bulk-update', authMiddleware, (req, res) => {
     });
 });
 
-app.patch('/api/cars/:id', authMiddleware, (req, res) => {
+app.patch('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
     const fieldMap = {
         status: 'status',
         isAssured: 'is_assured',
@@ -1556,7 +1569,7 @@ app.patch('/api/cars/:id', authMiddleware, (req, res) => {
     });
 });
 
-app.delete('/api/cars/:id', authMiddleware, (req, res) => {
+app.delete('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
     db.query('SELECT image, more_images FROM cars WHERE id = ?', [req.params.id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(404).json({ message: 'Car not found' });
@@ -1810,18 +1823,7 @@ app.post('/api/auth/verify-otp', async (req, res) => {
     }
 });
 
-// Customer middleware
-function customerAuth(req, res, next) {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ message: 'No token provided' });
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch {
-        res.status(401).json({ message: 'Invalid token' });
-    }
-}
+// customerAuth imported from ./auth-middleware
 
 app.get('/api/customers/profile', customerAuth, (req, res) => {
     db.query('SELECT * FROM customers WHERE id = ?', [req.user.id], (err, results) => {
@@ -1853,7 +1855,7 @@ app.post('/api/customers/avatar', customerAuth, upload.single('avatar'), convert
 });
 
 // Admin: Upload customer profile picture
-app.post('/api/customers/:id/avatar', authMiddleware, upload.single('avatar'), convertRequestImagesToWebp, (req, res) => {
+app.post('/api/customers/:id/avatar', authMiddleware, isAdmin, upload.single('avatar'), convertRequestImagesToWebp, (req, res) => {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
     const imageUrl = `/uploads/${req.file.filename}`;
     db.query('UPDATE customers SET avatar_url = ? WHERE id = ?', [imageUrl, req.params.id], (err) => {
@@ -1863,7 +1865,7 @@ app.post('/api/customers/:id/avatar', authMiddleware, upload.single('avatar'), c
 });
 
 // Admin: Get all customers
-app.get('/api/customers', authMiddleware, (req, res) => {
+app.get('/api/customers', authMiddleware, isAdmin, (req, res) => {
     db.query('SELECT id, first_name, last_name, phone, alt_phone, email, city, state, avatar_url, created_at FROM customers ORDER BY created_at DESC', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
@@ -1871,7 +1873,7 @@ app.get('/api/customers', authMiddleware, (req, res) => {
 });
 
 // Admin: Get single customer
-app.get('/api/customers/:id', authMiddleware, (req, res) => {
+app.get('/api/customers/:id', authMiddleware, isAdmin, (req, res) => {
     db.query('SELECT * FROM customers WHERE id = ?', [req.params.id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(404).json({ message: 'Not found' });
@@ -1882,7 +1884,7 @@ app.get('/api/customers/:id', authMiddleware, (req, res) => {
 });
 
 // Admin: Update customer
-app.put('/api/customers/:id', authMiddleware, (req, res) => {
+app.put('/api/customers/:id', authMiddleware, isAdmin, (req, res) => {
     const { first_name, last_name, phone, alt_phone, email, address, area, city, state, pincode } = req.body;
     db.query('UPDATE customers SET ? WHERE id = ?', [{ first_name, last_name, phone, alt_phone, email, address, area, city, state, pincode }, req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -1891,7 +1893,7 @@ app.put('/api/customers/:id', authMiddleware, (req, res) => {
 });
 
 // Admin: Delete customer
-app.delete('/api/customers/:id', authMiddleware, (req, res) => {
+app.delete('/api/customers/:id', authMiddleware, isAdmin, (req, res) => {
     db.query('DELETE FROM customers WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'Customer deleted successfully' });
@@ -1967,7 +1969,7 @@ app.post('/api/sell-requests', (req, res) => {
     if (!resolvedCustomerId && req.headers.authorization) {
         try {
             const token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
             if (decoded && decoded.id) resolvedCustomerId = decoded.id;
         } catch (e) {}
     }
@@ -2025,7 +2027,7 @@ app.put('/api/sell-requests/:id/inspection', (req, res) => {
     });
 });
 
-app.get('/api/sell-requests', authMiddleware, (req, res) => {
+app.get('/api/sell-requests', authMiddleware, isAdmin, (req, res) => {
     const query = `SELECT sr.*, c.first_name, c.last_name FROM sell_requests sr LEFT JOIN customers c ON sr.customer_id = c.id ORDER BY sr.created_at DESC`;
     db.query(query, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -2046,7 +2048,7 @@ app.post('/api/sell-requests/:id/documents', (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (token) {
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.user = decoded;
         } catch (e) {
             console.error("Doc upload token error:", e.message);
@@ -2120,7 +2122,7 @@ app.put('/api/sell-requests/:id', customerAuth, (req, res) => {
     });
 });
 
-app.put('/api/sell-requests/:id/status', authMiddleware, (req, res) => {
+app.put('/api/sell-requests/:id/status', authMiddleware, isAdmin, (req, res) => {
     const { status, admin_notes, make, model, variant, year, km, fuel_type, transmission, ownership, location, asking_price, description } = req.body;
     if (!['pending', 'approved', 'rejected'].includes(status)) return res.status(400).json({ message: 'Invalid status' });
     
@@ -2201,7 +2203,7 @@ app.put('/api/sell-requests/:id/status', authMiddleware, (req, res) => {
     });
 });
 
-app.delete('/api/sell-requests/:id', authMiddleware, (req, res) => {
+app.delete('/api/sell-requests/:id', authMiddleware, isAdmin, (req, res) => {
     db.query('DELETE FROM sell_requests WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'Deleted successfully' });
@@ -2218,7 +2220,7 @@ app.post('/api/leads', (req, res) => {
     });
 });
 
-app.get('/api/leads', authMiddleware, (req, res) => {
+app.get('/api/leads', authMiddleware, isAdmin, (req, res) => {
     db.query('SELECT l.*, c.make, c.model FROM leads l LEFT JOIN cars c ON l.car_id = c.id ORDER BY l.created_at DESC', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
@@ -2309,7 +2311,7 @@ app.get('/api/test-drives', (req, res) => {
     }
 });
 
-app.put('/api/test-drives/:id/status', authMiddleware, (req, res) => {
+app.put('/api/test-drives/:id/status', authMiddleware, isAdmin, (req, res) => {
     const { status } = req.body;
     if (!status) return res.status(400).json({ message: 'Status is required' });
 
@@ -2618,7 +2620,7 @@ app.post('/api/insurance/request', (req, res) => {
 });
 
 // Get Insurance Requests (Admin / Staff)
-app.get('/api/admin/insurance-requests', authMiddleware, (req, res) => {
+app.get('/api/admin/insurance-requests', authMiddleware, isAdmin, (req, res) => {
     const query = `
         SELECT 
             i.*, 
@@ -2637,7 +2639,7 @@ app.get('/api/admin/insurance-requests', authMiddleware, (req, res) => {
 });
 
 // Update Insurance Request Status & Notes (Admin / Staff)
-app.put('/api/admin/insurance-requests/:id/status', authMiddleware, (req, res) => {
+app.put('/api/admin/insurance-requests/:id/status', authMiddleware, isAdmin, (req, res) => {
     const { status, notes } = req.body;
     const updates = {};
     if (status) updates.status = status;
@@ -2654,7 +2656,7 @@ app.put('/api/admin/insurance-requests/:id/status', authMiddleware, (req, res) =
 });
 
 // Delete Insurance Request (Admin only)
-app.delete('/api/admin/insurance-requests/:id', authMiddleware, (req, res) => {
+app.delete('/api/admin/insurance-requests/:id', authMiddleware, isAdmin, (req, res) => {
     db.query('DELETE FROM insurance_requests WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true, message: 'Insurance request deleted successfully' });
@@ -3158,8 +3160,8 @@ app.post('/api/payments/verify', customerAuth, async (req, res) => {
         if (generated_signature === razorpay_signature) {
             // Payment verified
             db.query(
-                'UPDATE bookings SET payment_status = ?, razorpay_order_id = ?, razorpay_payment_id = ? WHERE id = ?',
-                ['paid', razorpay_order_id, razorpay_payment_id, booking_id],
+                'UPDATE bookings SET payment_status = ?, razorpay_order_id = ?, razorpay_payment_id = ? WHERE id = ? AND customer_id = ?',
+                ['paid', razorpay_order_id, razorpay_payment_id, booking_id, req.user.id],
                 (err) => {
                     if (err) return res.status(500).json({ error: err.message });
                     res.json({ message: 'Payment verified and booking updated' });
@@ -3315,15 +3317,50 @@ app.post('/api/upload-avatar', authMiddleware, upload.single('avatar'), convertR
     });
 });
 
-app.post('/api/upload', authMiddleware, upload.single('file'), convertRequestImagesToWebp, (req, res) => {
+// ImageKit Authentication Endpoint for Client Direct Uploads
+app.get('/api/imagekit/auth', (req, res) => {
+    try {
+        const authParams = getAuthenticationParameters();
+        res.json(authParams);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/upload', authMiddleware, isAdmin, upload.single('file'), convertRequestImagesToWebp, async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
-    const url = `/uploads/${req.file.filename}`;
-    res.json({ url, thumbnailUrl: `/uploads/thumbnails/${req.file.filename}` });
+    
+    const localUrl = `/uploads/${req.file.filename}`;
+    const localThumbnailUrl = `/uploads/thumbnails/${req.file.filename}`;
+
+    // Upload to ImageKit CDN if enabled
+    if (imagekit) {
+        try {
+            const filePath = req.file.path;
+            const fileBuffer = fs.readFileSync(filePath);
+            const ikResult = await uploadToImageKit({
+                file: fileBuffer,
+                fileName: req.file.filename,
+                folder: '/selectt/uploads'
+            });
+
+            return res.json({
+                url: ikResult.url || localUrl,
+                thumbnailUrl: ikResult.thumbnailUrl || ikResult.url || localThumbnailUrl,
+                fileId: ikResult.fileId,
+                name: ikResult.name
+            });
+        } catch (ikErr) {
+            console.warn('⚠️ ImageKit upload fallback to local storage:', ikErr.message);
+        }
+    }
+
+    res.json({ url: localUrl, thumbnailUrl: localThumbnailUrl });
 });
 
-app.get('/api/media', authMiddleware, (req, res) => {
+app.get('/api/media', authMiddleware, isAdmin, (req, res) => {
     const dirPath = path.join(__dirname, 'public/uploads');
     
     // Ensure the uploads directory exists
@@ -3395,7 +3432,7 @@ app.get('/api/media', authMiddleware, (req, res) => {
     });
 });
 
-app.post('/api/media/alt', authMiddleware, (req, res) => {
+app.post('/api/media/alt', authMiddleware, isAdmin, (req, res) => {
     const { filePath, altText } = req.body;
     if (!filePath) return res.status(400).json({ message: 'filePath is required' });
     const text = altText || "";
@@ -3412,7 +3449,7 @@ app.post('/api/media/alt', authMiddleware, (req, res) => {
     res.json({ success: true, message: 'Alt text updated successfully', alt: text });
 });
 
-app.delete('/api/media', authMiddleware, (req, res) => {
+app.delete('/api/media', authMiddleware, isAdmin, (req, res) => {
     const filePath = req.query.filePath || req.body.filePath;
     if (!filePath) return res.status(400).json({ message: 'filePath is required' });
     
@@ -3420,7 +3457,7 @@ app.delete('/api/media', authMiddleware, (req, res) => {
     res.json({ message: 'Media deleted successfully' });
 });
 
-app.post('/api/media/bulk-delete', authMiddleware, (req, res) => {
+app.post('/api/media/bulk-delete', authMiddleware, isAdmin, (req, res) => {
     const { filePaths } = req.body;
     if (!Array.isArray(filePaths) || filePaths.length === 0) {
         return res.status(400).json({ message: 'filePaths array is required' });
@@ -4191,6 +4228,73 @@ db.query("ALTER TABLE video_testimonials ADD COLUMN autoplay TINYINT(1) DEFAULT 
         // Ignored if column already exists
     }
     db.query("UPDATE video_testimonials SET autoplay = 1 WHERE autoplay IS NULL", () => {});
+});
+
+// ============================================================
+// Bunny Stream Video Management API
+// ============================================================
+app.post('/api/admin/videos/upload-bunny', authMiddleware, isAdmin, upload.single('video'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No video file provided' });
+    }
+
+    try {
+        const fileBuffer = fs.readFileSync(req.file.path);
+        const title = req.body.title || req.file.originalname;
+
+        const result = await bunnyStream.createAndUploadVideo({
+            title,
+            fileBuffer
+        });
+
+        // Clean up temporary local file
+        try { fs.unlinkSync(req.file.path); } catch (e) {}
+
+        res.json({
+            success: true,
+            videoId: result.videoId,
+            embedUrl: result.embedUrl,
+            hlsUrl: result.hlsUrl,
+            thumbnailUrl: result.thumbnailUrl,
+            title: result.title
+        });
+    } catch (err) {
+        console.error('Bunny Stream Upload Error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/admin/videos/bunny-status/:id', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const status = await bunnyStream.getVideoStatus(req.params.id);
+        res.json(status);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Test ImageKit API credentials
+app.post('/api/admin/imagekit/test-connection', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { publicKey, privateKey, urlEndpoint } = req.body;
+        const result = await testImageKitConnection({ publicKey, privateKey, urlEndpoint });
+        // Reinitialize runtime instance with verified keys
+        initImageKit({ publicKey, privateKey, urlEndpoint });
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
+
+// Test Bunny Stream API credentials
+app.post('/api/admin/bunny/test-connection', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { libraryId, apiKey } = req.body;
+        const result = await bunnyStream.testBunnyConnection({ libraryId, apiKey });
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
 });
 
 // ============================================================

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node scripts/test_hardened_suite.js"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,7 @@
     "express-rate-limit": "^8.3.1",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
+    "imagekit": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
@@ -31,6 +32,7 @@
     "sharp": "^0.35.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "ssh2": "^1.17.0"
   }
 }

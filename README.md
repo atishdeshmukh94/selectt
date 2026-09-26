@@ -20,8 +20,12 @@ selectt/
 ├── database.sql            # Full MySQL / MariaDB Schema Dump & Seed Data
 ├── docker-compose.yml      # Docker Multi-container Orchestration Config
 ├── nginx/                  # Nginx Reverse Proxy Configuration
-└── README.md               # Complete Setup & Architecture Guide
+├── DEPLOYMENT_GUIDE.md     # Complete Cloud Production Deployment Guide
+└── README.md               # Quickstart & Local Setup Guide
 ```
+
+> 📘 **Looking to deploy to Production?** Check out the complete [Production Deployment Guide](DEPLOYMENT_GUIDE.md) for **Hostinger VPS** (Backend + MySQL + Redis), **Vercel** (Frontend + Admin), **Cloudflare R2**, **ImageKit.io** & **Bunny Stream**.
+
 
 ---
 

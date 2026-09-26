@@ -12,10 +12,9 @@ const WhatsAppChatButton = () => {
   const [currentText, setCurrentText] = useState('');
   const [messageIndex, setMessageIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [isBouncing, setIsBouncing] = useState(false);
-  const [typingSpeed, setTypingSpeed] = useState(60);
+  const [typingSpeed, setTypingSpeed] = useState(1200);
 
   // Aggressively remove any leftover Gallabox / Chatty widgets or scripts
   useEffect(() => {
@@ -83,25 +82,16 @@ const WhatsAppChatButton = () => {
     };
   }, []);
 
-  // Typewriter, whole-button bounce, and expand/collapse lifecycle loop
+  // Smooth expand -> typewriter -> hold -> delete -> collapse lifecycle loop (NO BOUNCING)
   useEffect(() => {
     const fullText = MESSAGES[messageIndex];
 
     const handleStep = () => {
-      // 1. If currently collapsed and not bouncing, trigger entire button bounce first before expanding
+      // 1. If currently collapsed, expand first and then begin typing
       if (!isExpanded && !isHovered) {
-        if (!isBouncing) {
-          setIsBouncing(true);
-          // Whole button bounces like a smooth ball for 1100ms before expanding
-          setTypingSpeed(1100);
-          return;
-        } else {
-          // Bounce completed, now expand and begin typing
-          setIsBouncing(false);
-          setIsExpanded(true);
-          setTypingSpeed(60);
-          return;
-        }
+        setIsExpanded(true);
+        setTypingSpeed(250); // wait for smooth expand transition before typing starts
+        return;
       }
 
       // 2. Typing Forward
@@ -110,11 +100,11 @@ const WhatsAppChatButton = () => {
         setCurrentText(nextText);
 
         if (nextText === fullText) {
-          // Finished typing full message: hold expanded for 3.2 seconds
-          setTypingSpeed(3200);
+          // Finished typing full message: hold open for 3.5 seconds
+          setTypingSpeed(3500);
           setIsDeleting(true);
         } else {
-          setTypingSpeed(55);
+          setTypingSpeed(50);
         }
       } else {
         // 3. Deleting Backward
@@ -122,12 +112,11 @@ const WhatsAppChatButton = () => {
         setCurrentText(nextText);
 
         if (nextText === '') {
-          // Finished deleting: collapse to compact circle icon only
+          // Finished deleting: collapse back to compact round icon smoothly
           setIsDeleting(false);
           setIsExpanded(false);
-          setIsBouncing(false);
           setMessageIndex((prev) => (prev + 1) % MESSAGES.length);
-          // Stay compact as circular button for 2.2 seconds before next whole-button bounce
+          // Stay collapsed as circular icon for 2.2 seconds before next expand
           setTypingSpeed(2200);
         } else {
           setTypingSpeed(25);
@@ -137,7 +126,7 @@ const WhatsAppChatButton = () => {
 
     const timer = setTimeout(handleStep, typingSpeed);
     return () => clearTimeout(timer);
-  }, [currentText, isDeleting, isExpanded, isHovered, isBouncing, messageIndex, typingSpeed]);
+  }, [currentText, isDeleting, isExpanded, isHovered, messageIndex, typingSpeed]);
 
   // Open WhatsApp directly with pre-filled message
   const handleChatClick = () => {
@@ -158,37 +147,6 @@ const WhatsAppChatButton = () => {
           font-family: 'Varela Round', sans-serif !important;
           font-weight: 700;
         }
-
-        @keyframes waWholeButtonBounce {
-          0% {
-            transform: translateY(0) scale(1, 1);
-          }
-          10% {
-            transform: translateY(3px) scale(1.18, 0.82);
-          }
-          28% {
-            transform: translateY(-24px) scale(0.92, 1.14);
-          }
-          45% {
-            transform: translateY(0px) scale(1.15, 0.85);
-          }
-          62% {
-            transform: translateY(-12px) scale(0.96, 1.06);
-          }
-          76% {
-            transform: translateY(1px) scale(1.08, 0.93);
-          }
-          88% {
-            transform: translateY(-4px) scale(0.98, 1.02);
-          }
-          100% {
-            transform: translateY(0) scale(1, 1);
-          }
-        }
-        .animate-wa-whole-bounce {
-          animation: waWholeButtonBounce 1.1s cubic-bezier(0.25, 1, 0.5, 1) both;
-          transform-origin: bottom center;
-        }
       `}</style>
 
       <div className="fixed bottom-[74px] md:bottom-6 right-3 sm:right-6 z-[99998] flex items-center select-none wa-chat-font">
@@ -198,21 +156,16 @@ const WhatsAppChatButton = () => {
           onMouseLeave={() => setIsHovered(false)}
           type="button"
           aria-label="Chat on WhatsApp"
-          className={`group relative flex items-center bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] hover:from-[#086B60] hover:to-[#17A08E] text-white shadow-[0_10px_30px_rgba(7,94,84,0.45)] hover:shadow-[0_14px_38px_rgba(7,94,84,0.6)] border border-white/25 transition-all duration-500 ease-out cursor-pointer rounded-full overflow-hidden wa-chat-font ${
-            isBouncing ? 'animate-wa-whole-bounce' : ''
-          } ${
+          className={`group relative flex items-center justify-end bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] hover:from-[#086B60] hover:to-[#17A08E] text-white shadow-[0_10px_30px_rgba(7,94,84,0.45)] hover:shadow-[0_14px_38px_rgba(7,94,84,0.6)] border border-white/25 transition-all duration-500 ease-in-out cursor-pointer rounded-full overflow-hidden wa-chat-font ${
             showText
-              ? 'pl-3.5 pr-2 py-2 sm:pl-4.5 sm:pr-3 sm:py-2.5 gap-2 sm:gap-3 max-w-[340px]'
-              : 'p-2 sm:p-2.5 max-w-[48px] sm:max-w-[56px]'
+              ? 'pl-3.5 pr-2 py-2 sm:pl-4 sm:pr-2.5 sm:py-2.5 gap-2 sm:gap-3 max-w-[340px]'
+              : 'p-2 sm:p-2.5 max-w-[48px] sm:max-w-[56px] w-[48px] sm:w-[56px] h-[48px] sm:h-[56px] justify-center'
           }`}
         >
-          {/* Pulse / Ripple Effect Ring */}
-          <span className="absolute -inset-1 rounded-full bg-[#25D366]/35 animate-ping pointer-events-none opacity-50 duration-1000" />
-
           {/* Text Container on Left Side (Smooth Expand/Collapse with Typewriter) */}
           <div
-            className={`flex flex-col text-left justify-center transition-all duration-500 overflow-hidden wa-chat-font ${
-              showText ? 'opacity-100 max-w-[260px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-3 pointer-events-none'
+            className={`flex flex-col text-left justify-center transition-all duration-500 ease-in-out overflow-hidden wa-chat-font ${
+              showText ? 'opacity-100 max-w-[260px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-4 pointer-events-none'
             }`}
           >
             {/* Top Line: Status / Subtitle */}
@@ -221,10 +174,10 @@ const WhatsAppChatButton = () => {
               <span>Get Extra Discount</span>
             </div>
 
-            {/* Bottom Line: Typing message with blinking cursor */}
+            {/* Bottom Line: Typing message with cursor */}
             <div className="text-[11.5px] sm:text-[13px] font-bold text-white tracking-tight flex items-center whitespace-nowrap min-w-[145px] sm:min-w-[195px] leading-tight mt-1 wa-chat-font">
               <span>{currentText || (isHovered ? '💬 Chat with Selectt Experts!' : '')}</span>
-              <span className="text-[#FFB703] font-bold text-xs sm:text-sm ml-0.5 animate-[ping_1.2s_cubic-bezier(0,0,0.2,1)_infinite] inline-block">
+              <span className="text-[#FFB703] font-bold text-xs sm:text-sm ml-0.5 animate-[pulse_1.2s_ease-in-out_infinite] inline-block">
                 |
               </span>
             </div>

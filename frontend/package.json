@@ -13,6 +13,7 @@
     "@tabler/icons-react": "^3.44.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
+    "imagekitio-react": "^4.3.0",
     "liquid-glass-react": "^1.1.1",
     "lucide-react": "^0.563.0",
     "ogl": "^1.0.11",

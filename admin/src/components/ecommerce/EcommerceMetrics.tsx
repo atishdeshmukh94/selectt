@@ -15,7 +15,8 @@ import {
   UserCheck,
   Video,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Zap
 } from "lucide-react";
 
 interface EcommerceMetricsProps {
