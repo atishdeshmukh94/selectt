@@ -14,7 +14,7 @@ export const shortenLocation = (loc) => {
     return combined.length > 35 ? combined.slice(0, 35) + '...' : combined;
   }
 
-  // If multi-part full address e.g. "Raipur Junction Raipur Railway Station, Loco Colony, Raipur, Chhattisgarh"
+  // If multi-part full address e.g. "Infinity Mall Link Road, Oshiwara, Andheri West, Mumbai, Maharashtra"
   const city = filtered[filtered.length - 2] || filtered[filtered.length - 1];
   const locality = filtered[filtered.length - 3] || filtered[0];
 

@@ -16,7 +16,9 @@ const PageMeta = ({ title, description, canonical, image, schema }) => {
       ? `${SITE_URL}${canonical}`
       : SITE_URL;
 
-    const fullTitle = title || 'Selectt — Buy & Sell Certified Pre-Owned Cars in Raipur';
+    const fullTitle = title || 'Selectt — Buy & Sell Certified Pre-Owned Cars in Mumbai';
+    const defaultDesc = 'Selectt is Mumbai\'s premier pre-owned car marketplace. Buy, sell, or finance 200+ certified used cars with 200-point inspection, warranty & doorstep test drives in Mumbai.';
+    const finalDesc = description || defaultDesc;
 
     // ── Title ──────────────────────────────────────────
     document.title = fullTitle;
@@ -44,9 +46,7 @@ const PageMeta = ({ title, description, canonical, image, schema }) => {
     };
 
     // Description
-    if (description) {
-      setMeta('name', 'description', description);
-    }
+    setMeta('name', 'description', finalDesc);
 
     // Canonical
     setLink('canonical', canonicalUrl);
@@ -55,18 +55,22 @@ const PageMeta = ({ title, description, canonical, image, schema }) => {
     setMeta('property', 'og:title', fullTitle);
     setMeta('property', 'og:url', canonicalUrl);
     setMeta('property', 'og:image', ogImage);
+    setMeta('property', 'og:image:secure_url', ogImage);
+    setMeta('property', 'og:image:type', 'image/jpeg');
+    setMeta('property', 'og:image:width', '1200');
+    setMeta('property', 'og:image:height', '630');
+    setMeta('property', 'og:image:alt', fullTitle);
+    setMeta('property', 'og:site_name', 'Selectt');
+    setMeta('property', 'og:locale', 'en_IN');
     setMeta('property', 'og:type', 'website');
-    if (description) {
-      setMeta('property', 'og:description', description);
-    }
+    setMeta('property', 'og:description', finalDesc);
 
     // Twitter Card
     setMeta('name', 'twitter:card', 'summary_large_image');
+    setMeta('name', 'twitter:site', '@selecttcars');
     setMeta('name', 'twitter:title', fullTitle);
     setMeta('name', 'twitter:image', ogImage);
-    if (description) {
-      setMeta('name', 'twitter:description', description);
-    }
+    setMeta('name', 'twitter:description', finalDesc);
 
     // JSON-LD Schema
     let schemaScript = document.getElementById('jsonld-schema');

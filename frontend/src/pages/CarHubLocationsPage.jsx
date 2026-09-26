@@ -52,36 +52,47 @@ const DEFAULT_HUBS = [
   },
   {
     id: 'h4',
-    name: 'Raipur - Magneto Mall Hub',
-    city: 'Raipur',
-    address: 'Magneto Offizo, GE Road, Labhandi, Raipur, Chhattisgarh 492001',
-    open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
+    name: 'Mumbai - Andheri West Hub',
+    city: 'Mumbai',
+    address: 'Infinity Mall Link Road, Next to Oshiwara Metro, Andheri West, Mumbai, Maharashtra 400053',
+    open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
     phone: '+91-857466-7466',
     image_path: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=600&auto=format&fit=crop&q=60',
-    car_count: 40,
-    maps_query: 'Magneto Mall GE Road Raipur'
+    car_count: 85,
+    maps_query: 'Infinity Mall Link Road Oshiwara Andheri West Mumbai'
   },
   {
     id: 'h5',
-    name: 'Raipur - VIP Road Hub',
-    city: 'Raipur',
-    address: 'VIP Road, Near Airport Circle, Raipur, Chhattisgarh 492015',
-    open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
+    name: 'Mumbai - Bandra Kurla Complex (BKC) Hub',
+    city: 'Mumbai',
+    address: 'G Block, Bandra Kurla Complex, Bandra East, Mumbai, Maharashtra 400051',
+    open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
     phone: '+91-857466-7466',
     image_path: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=600&auto=format&fit=crop&q=60',
-    car_count: 35,
-    maps_query: 'VIP Road Airport Circle Raipur'
+    car_count: 92,
+    maps_query: 'Bandra Kurla Complex BKC Bandra East Mumbai'
   },
   {
     id: 'h6',
-    name: 'Raipur - Pandri Hub',
-    city: 'Raipur',
-    address: 'City Center Mall Road, Pandri, Raipur, Chhattisgarh 492004',
-    open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
+    name: 'Mumbai - Vashi Navi Mumbai Hub',
+    city: 'Mumbai',
+    address: 'Near Inorbit Mall, Sector 30A, Vashi, Navi Mumbai, Maharashtra 400703',
+    open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
     phone: '+91-857466-7466',
     image_path: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop&q=60',
-    car_count: 28,
-    maps_query: 'City Center Mall Pandri Raipur'
+    car_count: 65,
+    maps_query: 'Inorbit Mall Sector 30A Vashi Navi Mumbai'
+  },
+  {
+    id: 'h6_1',
+    name: 'Mumbai - Thane Majiwada Hub',
+    city: 'Mumbai',
+    address: 'Eastern Express Highway, Near Viviana Mall, Majiwada, Thane West, Maharashtra 400601',
+    open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
+    phone: '+91-857466-7466',
+    image_path: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=60',
+    car_count: 58,
+    maps_query: 'Viviana Mall Eastern Express Highway Thane West'
   },
   {
     id: 'h7',
@@ -176,7 +187,7 @@ export default function CarHubLocationsPage() {
     <>
       <PageMeta
         title="Selectt Car Hub Locations - Test Drive & Physical Inspection | Selectt"
-        description="Visit our state-of-the-art Selectt Car Hubs in Pune, Bengaluru, and Raipur. Experience contactless test drives, instant evaluations, and spot deliveries."
+        description="Visit our state-of-the-art Selectt Car Hubs across Mumbai, Pune, and Bengaluru. Experience contactless test drives, instant evaluations, and spot deliveries."
       />
 
       <div className="min-h-screen bg-[#F8FAFC] pb-20 text-slate-800 antialiased selection:bg-[#00C9AF]/20 selection:text-[#0C1B33]">

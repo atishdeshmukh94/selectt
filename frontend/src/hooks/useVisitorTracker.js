@@ -68,8 +68,8 @@ async function getGeoLocation() {
     if (res && res.ok) {
       const data = await res.json();
       const geo = {
-        city: data.city || appSelectedCity || 'Raipur',
-        region: data.region || 'Chhattisgarh',
+        city: data.city || appSelectedCity || 'Mumbai',
+        region: data.region || 'Maharashtra',
         country: data.country_name || 'India'
       };
       sessionStorage.setItem('selectt_visitor_geo', JSON.stringify(geo));
@@ -79,10 +79,10 @@ async function getGeoLocation() {
     // Graceful fallback
   }
 
-  const appSelectedCity = localStorage.getItem('selected_location') || localStorage.getItem('selectedCity') || 'Raipur';
+  const appSelectedCity = localStorage.getItem('selected_location') || localStorage.getItem('selectedCity') || 'Mumbai';
   return {
     city: appSelectedCity,
-    region: 'Chhattisgarh',
+    region: 'Maharashtra',
     country: 'India'
   };
 }

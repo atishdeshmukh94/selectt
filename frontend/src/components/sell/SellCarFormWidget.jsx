@@ -887,13 +887,13 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
   }, [step]);
 
   const SAMPLE_LOCATION_SUGGESTIONS = [
-    { mainText: 'Raipur', subText: 'Chhattisgarh, India' },
-    { mainText: 'Raipura Chowk', subText: 'Agroha Colony, Changurabhata, Raipur, Chhattisgarh' },
-    { mainText: 'Raipur City Center Mall', subText: 'IGVP, Pandri, Raipur, Chhattisgarh, India' },
-    { mainText: 'Raipur Junction Raipur Railway station', subText: 'Loco Colony, Riapur, Raipur, Chhattisgarh, India' },
-    { mainText: 'Swami Vivekananda Airport, Raipur', subText: 'Atal Nagar-Nava Raipur, Chhattisgarh, India' },
-    { mainText: 'Pimpri Chinchwad', subText: 'Pune, Maharashtra, India' },
     { mainText: 'Andheri West', subText: 'Mumbai, Maharashtra, India' },
+    { mainText: 'Bandra Kurla Complex (BKC)', subText: 'Mumbai, Maharashtra, India' },
+    { mainText: 'Vashi, Navi Mumbai', subText: 'Navi Mumbai, Maharashtra, India' },
+    { mainText: 'Thane West', subText: 'Thane, Maharashtra, India' },
+    { mainText: 'Borivali West', subText: 'Mumbai, Maharashtra, India' },
+    { mainText: 'Powai, Hiranandani', subText: 'Mumbai, Maharashtra, India' },
+    { mainText: 'Koregaon Park', subText: 'Pune, Maharashtra, India' },
     { mainText: 'Connaught Place', subText: 'New Delhi, Delhi, India' },
     { mainText: 'Cyber City, DLF Phase 2', subText: 'Gurugram, Haryana, India' }
   ];
@@ -911,7 +911,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
     ownership: '1st Owner',
     kmText: '',
     kmValue: 35000,
-    location: 'Raipur Junction Raipur Railway Station, Loco Colony, Raipur, Chhattisgarh, India',
+    location: 'Andheri West, Link Road, Mumbai, Maharashtra 400053, India',
     phone: user?.phone || '',
     name: user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : 'Rohit Sharma'
   });
@@ -2721,12 +2721,12 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                     <div className="p-4 bg-white border border-slate-200 rounded-2xl flex items-start gap-3 shadow-xs">
                       <MapPin size={20} className="text-[#09B8B5] shrink-0 mt-0.5" />
                       <div>
-                        <div className="text-xs font-extrabold text-[#0C1B33]">Raipur-Selectt Hub</div>
+                        <div className="text-xs font-extrabold text-[#0C1B33]">Mumbai - Selectt Hub (Andheri)</div>
                         <div className="text-xs text-slate-500 font-medium leading-relaxed mt-0.5">
-                          36 City mall 2nd floor, Telibandha, Vishal nagar, In front of Magneto mall, Raipur...
+                          Infinity Mall Link Road, Next to Oshiwara Metro, Andheri West, Mumbai, Maharashtra 400053
                         </div>
                         <div className="inline-block bg-cyan-50 text-[#09B8B5] text-[10px] font-black px-2 py-0.5 rounded-md mt-2">
-                          0.85 km
+                          1.2 km
                         </div>
                       </div>
                     </div>
@@ -3137,7 +3137,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                           navigator.geolocation.getCurrentPosition((pos) => {
                             const lat = pos.coords.latitude.toFixed(4);
                             const lng = pos.coords.longitude.toFixed(4);
-                            const locStr = `Lat: ${lat}, Lng: ${lng}, Raipur, Chhattisgarh 492099, India`;
+                            const locStr = `Lat: ${lat}, Lng: ${lng}, Mumbai, Maharashtra 400053, India`;
                             setFormData(prev => ({ ...prev, location: locStr }));
                           });
                         }
@@ -3279,7 +3279,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                               navigator.geolocation.getCurrentPosition((pos) => {
                                 const lat = pos.coords.latitude.toFixed(4);
                                 const lng = pos.coords.longitude.toFixed(4);
-                                setFormData(prev => ({ ...prev, location: `Lat: ${lat}, Lng: ${lng}, Raipur, Chhattisgarh, India` }));
+                                setFormData(prev => ({ ...prev, location: `Lat: ${lat}, Lng: ${lng}, Mumbai, Maharashtra, India` }));
                                 setLocationModalStep('map');
                               });
                             }
@@ -3300,7 +3300,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                             navigator.geolocation.getCurrentPosition((pos) => {
                               const lat = pos.coords.latitude.toFixed(4);
                               const lng = pos.coords.longitude.toFixed(4);
-                              setFormData(prev => ({ ...prev, location: `Lat: ${lat}, Lng: ${lng}, Raipur, Chhattisgarh, India` }));
+                              setFormData(prev => ({ ...prev, location: `Lat: ${lat}, Lng: ${lng}, Mumbai, Maharashtra, India` }));
                               setLocationModalStep('map');
                             });
                           }

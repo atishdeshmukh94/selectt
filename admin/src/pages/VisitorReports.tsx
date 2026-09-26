@@ -402,7 +402,7 @@ export default function VisitorReports() {
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-1.5 font-bold text-gray-900 dark:text-white">
                             <MapPin className="size-3 text-emerald-600 shrink-0" />
-                            <span>{log.city || "Raipur"}</span>
+                            <span>{log.city || "Mumbai"}</span>
                             {log.region && <span className="text-gray-400 font-normal">, {log.region}</span>}
                           </div>
                           <span className="text-[10px] text-gray-400 font-mono block pl-4.5">

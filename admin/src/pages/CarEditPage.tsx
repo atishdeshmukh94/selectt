@@ -736,7 +736,7 @@ const CarEditPage = () => {
 
                   <div>
                     <label className={labelClass}>Location (City)</label>
-                    <input type="text" className={inpClass} value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. Raipur, CG" />
+                    <input type="text" className={inpClass} value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. Andheri West, Mumbai" />
                   </div>
                 </div>
 

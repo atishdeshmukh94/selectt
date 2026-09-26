@@ -270,7 +270,7 @@ export default function LiveVisitorsCard() {
                     <td className="py-2.5 px-3 whitespace-nowrap">
                       <div className="flex items-center gap-1 font-bold text-gray-800 dark:text-gray-200">
                         <MapPin className="size-3 text-emerald-600 shrink-0" />
-                        <span>{v.city || "Raipur"}</span>
+                        <span>{v.city || "Mumbai"}</span>
                         {v.region && <span className="text-gray-400 text-[10px] font-normal">({v.region})</span>}
                       </div>
                       <span className="font-mono text-[9px] text-gray-400 block pl-4">
