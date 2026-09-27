@@ -149,34 +149,34 @@ const WhatsAppChatButton = () => {
         }
       `}</style>
 
-      <div className="fixed bottom-[74px] md:bottom-6 right-3 sm:right-6 z-[99998] flex items-center select-none wa-chat-font">
+      <div className="fixed bottom-[68px] md:bottom-6 right-2.5 sm:right-6 z-[99998] flex items-center select-none wa-chat-font">
         <button
           onClick={handleChatClick}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           type="button"
           aria-label="Chat on WhatsApp"
-          className={`group relative flex items-center justify-end bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] hover:from-[#086B60] hover:to-[#17A08E] text-white shadow-[0_10px_30px_rgba(7,94,84,0.45)] hover:shadow-[0_14px_38px_rgba(7,94,84,0.6)] border border-white/25 transition-all duration-500 ease-in-out cursor-pointer rounded-full overflow-hidden wa-chat-font ${
+          className={`group relative flex items-center justify-end bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] hover:from-[#086B60] hover:to-[#17A08E] text-white shadow-[0_8px_24px_rgba(7,94,84,0.4)] hover:shadow-[0_12px_32px_rgba(7,94,84,0.55)] border border-white/25 transition-all duration-500 ease-in-out cursor-pointer rounded-full overflow-hidden wa-chat-font ${
             showText
-              ? 'pl-3.5 pr-2 py-2 sm:pl-4 sm:pr-2.5 sm:py-2.5 gap-2 sm:gap-3 max-w-[340px]'
-              : 'p-2 sm:p-2.5 max-w-[48px] sm:max-w-[56px] w-[48px] sm:w-[56px] h-[48px] sm:h-[56px] justify-center'
+              ? 'pl-3 pr-1.5 py-1.5 sm:pl-4 sm:pr-2.5 sm:py-2.5 gap-2 sm:gap-3 max-w-[285px] sm:max-w-[340px]'
+              : 'p-1.5 sm:p-2.5 max-w-[42px] sm:max-w-[52px] w-[42px] sm:w-[52px] h-[42px] sm:h-[52px] justify-center'
           }`}
         >
           {/* Text Container on Left Side (Smooth Expand/Collapse with Typewriter) */}
           <div
             className={`flex flex-col text-left justify-center transition-all duration-500 ease-in-out overflow-hidden wa-chat-font ${
-              showText ? 'opacity-100 max-w-[260px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-4 pointer-events-none'
+              showText ? 'opacity-100 max-w-[220px] sm:max-w-[260px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-4 pointer-events-none'
             }`}
           >
             {/* Top Line: Status / Subtitle */}
-            <div className="flex items-center gap-1.5 text-[9.5px] sm:text-[11px] font-bold text-emerald-200 tracking-wide leading-none whitespace-nowrap wa-chat-font">
+            <div className="flex items-center gap-1.5 text-[9px] sm:text-[11px] font-bold text-emerald-200 tracking-wide leading-none whitespace-nowrap wa-chat-font">
               <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] inline-block shadow-[0_0_8px_#25D366] animate-pulse shrink-0" />
               <span>Get Extra Discount</span>
             </div>
 
             {/* Bottom Line: Typing message with cursor */}
-            <div className="text-[11.5px] sm:text-[13px] font-bold text-white tracking-tight flex items-center whitespace-nowrap min-w-[145px] sm:min-w-[195px] leading-tight mt-1 wa-chat-font">
-              <span>{currentText || (isHovered ? '💬 Chat with Selectt Experts!' : '')}</span>
+            <div className="text-[11px] sm:text-[13px] font-bold text-white tracking-tight flex items-center whitespace-nowrap min-w-[130px] sm:min-w-[195px] leading-tight mt-0.5 sm:mt-1 wa-chat-font">
+              <span className="truncate">{currentText || (isHovered ? '💬 Chat with Selectt Experts!' : '')}</span>
               <span className="text-[#FFB703] font-bold text-xs sm:text-sm ml-0.5 animate-[pulse_1.2s_ease-in-out_infinite] inline-block">
                 |
               </span>
@@ -184,9 +184,9 @@ const WhatsAppChatButton = () => {
           </div>
 
           {/* WhatsApp Circular Icon on Right Side */}
-          <div className="relative shrink-0 w-8 h-8 sm:w-9 sm:h-9 bg-[#25D366] rounded-full flex items-center justify-center shadow-md text-white group-hover:scale-105 transition-transform">
+          <div className="relative shrink-0 w-7 h-7 sm:w-9 sm:h-9 bg-[#25D366] rounded-full flex items-center justify-center shadow-md text-white group-hover:scale-105 transition-transform">
             <svg
-              className="w-5 h-5 sm:w-5.5 sm:h-5.5 fill-current"
+              className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 fill-current"
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >

@@ -1588,14 +1588,14 @@ const NewHome = () => {
         </div>
 
         {/* Auto-Slide Dots Indicator */}
-        <div className="absolute bottom-9 inset-x-0 flex justify-center gap-1.5 z-20 pointer-events-auto">
+        <div className="absolute bottom-7 inset-x-0 flex items-center justify-center gap-1.5 z-20 pointer-events-auto">
           {mobileHeroSlides.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setMobileHeroIdx(idx)}
               aria-label={`Go to slide ${idx + 1}`}
-              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                mobileHeroIdx === idx ? 'w-6 bg-[#00C9AF]' : 'w-1.5 bg-white/40 hover:bg-white/70'
+              className={`h-1.5 shrink-0 rounded-full transition-all duration-300 cursor-pointer p-0 border-0 outline-none ${
+                mobileHeroIdx === idx ? 'w-5 bg-[#00C9AF] shadow-[0_0_8px_rgba(0,201,175,0.6)]' : 'w-1.5 bg-white/35 hover:bg-white/60'
               }`}
             />
           ))}
@@ -3132,10 +3132,10 @@ const NewHome = () => {
         }
       `}</style>
 
-      {/* Floating FOMO Notification Badge (Left-Side Positioned with Inter Font) */}
+      {/* Floating FOMO Notification Badge (Left-Side Positioned, safely above mobile navigation & WhatsApp button) */}
       <div
         style={{ fontFamily: "'Inter', sans-serif" }}
-        className={`fixed bottom-24 md:bottom-28 left-4 md:left-8 z-50 bg-white text-slate-900 rounded-2xl p-3.5 sm:p-4 shadow-[0_12px_32px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.04)] flex items-center gap-3.5 min-w-[270px] max-w-[310px] border border-slate-100/90 transition-all duration-500 ease-in-out transform ${showFomo ? 'translate-x-0 opacity-100' : '-translate-x-[120%] opacity-0 pointer-events-none'
+        className={`fixed bottom-[126px] md:bottom-28 left-3 sm:left-6 md:left-8 z-50 bg-white text-slate-900 rounded-2xl p-3 sm:p-4 shadow-[0_12px_32px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.04)] flex items-center gap-2.5 sm:gap-3.5 min-w-[210px] max-w-[250px] sm:max-w-[310px] border border-slate-100/90 transition-all duration-500 ease-in-out transform ${showFomo ? 'translate-x-0 opacity-100' : '-translate-x-[120%] opacity-0 pointer-events-none'
           }`}
       >
         <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 bg-[#EAFAF4] border border-[#d1f4e7]">

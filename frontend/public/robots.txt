@@ -34,4 +34,5 @@ Disallow: /api/
 Disallow: /admin/
 
 # Sitemap
-Sitemap: https://selectt.in/api/sitemap.xml
+Sitemap: https://selectt.in/sitemap.xml
+
