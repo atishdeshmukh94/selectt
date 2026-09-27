@@ -763,26 +763,30 @@ const Header = () => {
                   </div>
                 </Link>
 
-                {/* 2 Quick-Action Secondary Cards */}
+                {/* 2 Quick-Action Highlighted Cards (Bold & Prominent) */}
                 <div className="grid grid-cols-2 gap-2.5">
                   <Link
                     to="/sell-car"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white border border-slate-200/90 hover:border-[#13EDE5] hover:bg-cyan-50/50 active:scale-95 transition-all no-underline group text-center shadow-2xs"
+                    className="flex flex-col items-center justify-center p-3 rounded-2xl bg-gradient-to-b from-white to-[#F0FAF8] border-1.5 border-[#00C9AF]/45 hover:border-[#00C9AF] active:scale-95 transition-all no-underline group text-center shadow-[0_4px_14px_rgba(0,201,175,0.14)] hover:shadow-[0_6px_20px_rgba(0,201,175,0.22)]"
                   >
-                    <span className="text-xl mb-0.5 group-hover:scale-110 transition-transform">🏷️</span>
-                    <span className="text-sm font-bold text-[#0C1B33] leading-tight">Valuation</span>
-                    <span className="text-xs text-slate-500 font-normal leading-tight mt-0.5">Free instant quote</span>
+                    <div className="w-9 h-9 rounded-xl bg-[#E6FAF7] border border-[#00C9AF]/30 flex items-center justify-center text-lg mb-1 group-hover:scale-110 transition-transform shadow-xs">
+                      🏷️
+                    </div>
+                    <span className="text-[13px] font-black text-[#0C1B33] leading-tight font-heading">Valuation</span>
+                    <span className="text-[10.5px] text-[#008A77] font-bold leading-tight mt-0.5">Free instant quote</span>
                   </Link>
 
                   <Link
                     to="/used-car-loan"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white border border-slate-200/90 hover:border-[#13EDE5] hover:bg-cyan-50/50 active:scale-95 transition-all no-underline group text-center shadow-2xs"
+                    className="flex flex-col items-center justify-center p-3 rounded-2xl bg-gradient-to-b from-white to-[#F0FAF8] border-1.5 border-[#00C9AF]/45 hover:border-[#00C9AF] active:scale-95 transition-all no-underline group text-center shadow-[0_4px_14px_rgba(0,201,175,0.14)] hover:shadow-[0_6px_20px_rgba(0,201,175,0.22)]"
                   >
-                    <span className="text-xl mb-0.5 group-hover:scale-110 transition-transform">🏦</span>
-                    <span className="text-sm font-bold text-[#0C1B33] leading-tight">Car Loan</span>
-                    <span className="text-xs text-slate-500 font-normal leading-tight mt-0.5">Lowest EMI rates</span>
+                    <div className="w-9 h-9 rounded-xl bg-[#E6FAF7] border border-[#00C9AF]/30 flex items-center justify-center text-lg mb-1 group-hover:scale-110 transition-transform shadow-xs">
+                      🏦
+                    </div>
+                    <span className="text-[13px] font-black text-[#0C1B33] leading-tight font-heading">Car Loan</span>
+                    <span className="text-[10.5px] text-[#008A77] font-bold leading-tight mt-0.5">Lowest EMI rates</span>
                   </Link>
                 </div>
               </div>
