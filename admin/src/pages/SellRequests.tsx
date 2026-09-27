@@ -335,7 +335,7 @@ export default function SellRequests() {
               <table className="w-full text-xs">
                 <thead className="bg-gray-100/90 dark:bg-gray-800 text-xs font-extrabold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
                   <tr>
-                    {["Car", "Customer", "Contact", "KM / Ownership", "Location", "Submitted", "Inspection", "Status", "Actions"].map(h => (
+                    {["Submitted", "Car", "Customer", "Contact", "KM / Ownership", "Location", "Inspection", "Status", "Actions"].map(h => (
                       <th key={h} className="px-3 py-2.5 text-left whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -343,6 +343,9 @@ export default function SellRequests() {
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                   {filtered.map(r => (
                     <tr key={r.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-800/40 transition-colors">
+                      <td className="px-3 py-2.5 text-gray-800 dark:text-gray-200 font-extrabold text-[11px] whitespace-nowrap">
+                        {new Date(r.created_at).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </td>
                       <td className="px-3 py-2.5">
                         <div className="font-extrabold text-gray-900 dark:text-white text-xs">{r.year} {r.make} {r.model}</div>
                         <div className="text-[10px] text-gray-500 font-semibold mt-0.5 whitespace-nowrap">
@@ -356,9 +359,6 @@ export default function SellRequests() {
                       <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300 whitespace-nowrap text-xs font-semibold">{r.customer_phone}</td>
                       <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300 whitespace-nowrap text-xs font-semibold">{r.km ? `${r.km.toLocaleString('en-IN')} km` : "—"} · {r.ownership}</td>
                       <td className="px-3 py-2.5 text-xs max-w-[200px]"><LocationCell location={r.location} /></td>
-                      <td className="px-3 py-2.5 text-gray-800 dark:text-gray-200 font-extrabold text-[11px] whitespace-nowrap">
-                        {new Date(r.created_at).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' })}
-                      </td>
                       <td className="px-3 py-2.5 text-xs whitespace-nowrap">
                         {r.inspection_date ? (
                           <div className="flex flex-col gap-0.5">
