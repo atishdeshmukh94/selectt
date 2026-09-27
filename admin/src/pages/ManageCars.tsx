@@ -213,43 +213,107 @@ export default function ManageCars() {
     
     try {
       const text = await file.text();
-      const lines = text.split(/\r?\n/).filter(line => line.trim());
+      const lines = text.split(/\r?\n/).filter(line => line.trim() && !line.trim().startsWith('#'));
       if (lines.length < 2) {
         showToast("CSV file is empty or missing data rows", "error");
         return;
       }
 
+      // Parse headers
       const headersArr = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
       const newCars: any[] = [];
 
       for (let i = 1; i < lines.length; i++) {
-        const row = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
-        if (!row || row.length === 0) continue;
-        
-        const values = row.map(v => v.trim().replace(/^"|"$/g, ''));
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        // Robust CSV row splitter that preserves quoted strings with commas
+        const row: string[] = [];
+        let inQuotes = false;
+        let currentValue = '';
+        for (let charIdx = 0; charIdx < line.length; charIdx++) {
+          const char = line[charIdx];
+          if (char === '"' || char === "'") {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            row.push(currentValue.trim().replace(/^["']|["']$/g, ''));
+            currentValue = '';
+          } else {
+            currentValue += char;
+          }
+        }
+        row.push(currentValue.trim().replace(/^["']|["']$/g, ''));
+
         const carObj: Record<string, any> = {};
         headersArr.forEach((h, idx) => {
-          if (values[idx] !== undefined) {
-            carObj[h] = values[idx];
+          if (row[idx] !== undefined) {
+            carObj[h] = row[idx];
           }
         });
 
-        if (carObj.make || carObj.model) {
-          newCars.push({
-            make: carObj.make || carObj.brand || "Maruti Suzuki",
-            model: carObj.model || "Swift",
-            variant: carObj.variant || "VXI",
-            year: Number(carObj.year || carObj.regyear || 2023),
-            price: Number(carObj.price || 500000),
-            km: Number(carObj.km || carObj.kms || 10000),
-            fuelType: carObj.fueltype || carObj.fuel_type || carObj.fuel || "Petrol",
-            transmission: carObj.transmission || "Manual",
-            location: carObj.location || carObj.city || "Mumbai",
-            registrationNo: carObj.registrationno || carObj.registration_no || carObj.regno || carObj.registrationnumber || `MH-${Math.floor(Math.random()*45+1).toString().padStart(2,'0')}-XX-${Math.floor(Math.random()*9000+1000)}`,
-            status: carObj.status || "in_stock",
-            image: carObj.image || carObj.image_url || "/img/suv.png"
-          });
+        // Extract Make & Model from either make/model or Meta title/brand
+        let make = carObj.make || carObj.brand || "";
+        let model = carObj.model || "";
+        let variant = carObj.variant || "";
+
+        if ((!make || !model) && carObj.title) {
+          const titleParts = String(carObj.title).trim().split(/\s+/);
+          if (titleParts.length >= 2) {
+            // e.g. "2023 Hyundai Creta SX" or "Hyundai Creta"
+            const firstIsYear = !isNaN(Number(titleParts[0])) && Number(titleParts[0]) > 1990;
+            const startIdx = firstIsYear ? 1 : 0;
+            if (!make) make = titleParts[startIdx] || "Hyundai";
+            if (!model) model = titleParts.slice(startIdx + 1, startIdx + 2).join(' ') || "Car";
+            if (!variant && titleParts.length > startIdx + 2) {
+              variant = titleParts.slice(startIdx + 2).join(' ');
+            }
+          }
         }
+
+        if (!make) make = "Hyundai";
+        if (!model) model = "Creta";
+
+        // Parse price (strip currency suffix like INR, USD, commas)
+        let rawPrice = String(carObj.price || carObj.offer_price || carObj.sale_price || "500000");
+        rawPrice = rawPrice.replace(/[^0-9.]/g, '');
+        const price = Number(rawPrice) || 500000;
+
+        // Parse KM / Mileage
+        let rawKm = String(carObj.km || carObj.kms || carObj["mileage.value"] || carObj.mileage || "15000");
+        rawKm = rawKm.replace(/[^0-9.]/g, '');
+        const km = Number(rawKm) || 15000;
+
+        // Parse status & availability
+        let status = carObj.status || "in_stock";
+        if (carObj.availability) {
+          status = String(carObj.availability).toLowerCase().includes("in stock") ? "in_stock" : "out_of_stock";
+        }
+
+        // Parse image / image_link
+        const image = carObj.image || carObj.image_link || carObj.image_url || "/img/suv.png";
+
+        // Parse year
+        let year = Number(carObj.year || carObj.regyear || carObj.reg_year || new Date().getFullYear());
+        if (isNaN(year) || year < 1990) year = 2023;
+
+        newCars.push({
+          make,
+          model,
+          variant: variant || "Standard",
+          year,
+          price,
+          km,
+          fuelType: carObj.fueltype || carObj.fuel_type || carObj.fuel || "Petrol",
+          transmission: carObj.transmission || "Manual",
+          location: carObj.location || carObj.city || "Mumbai",
+          registrationNo: carObj.registrationno || carObj.registration_no || carObj.regno || `MH-${Math.floor(Math.random()*45+1).toString().padStart(2,'0')}-XX-${Math.floor(Math.random()*9000+1000)}`,
+          status,
+          image,
+          description: carObj.description || "",
+          color: carObj.color || "Standard",
+          bodyType: carObj.bodytype || carObj.body_type || carObj.body_style || "SUV",
+          ownership: carObj.ownership || carObj.custom_label_1 || "1st Owner"
+        });
       }
 
       if (newCars.length === 0) {
@@ -291,6 +355,10 @@ export default function ManageCars() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const downloadMetaCatalogCSV = () => {
+    window.open(`${API}/api/feeds/meta-catalog.csv`, '_blank');
   };
 
   // Bulk Actions
@@ -487,14 +555,24 @@ export default function ManageCars() {
               <input type="file" accept=".csv" onChange={handleCSVUpload} className="hidden" />
             </label>
 
-            {/* CSV Template Download */}
+            {/* Standard CSV Template Download */}
             <button 
               onClick={downloadCSVTemplate} 
               className="px-3 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-extrabold flex items-center gap-1 cursor-pointer transition-all"
-              title="Download CSV Template"
+              title="Download Standard CSV Template"
             >
               <Download className="size-3.5 text-gray-500" />
               <span>CSV Template</span>
+            </button>
+
+            {/* Meta Catalog CSV Export */}
+            <button 
+              onClick={downloadMetaCatalogCSV} 
+              className="px-3.5 py-2 rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 text-blue-700 dark:text-blue-300 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs active:scale-95"
+              title="Export 100% Meta / Facebook Commerce Manager Compliant CSV"
+            >
+              <Download className="size-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Meta Catalog CSV</span>
             </button>
 
             <button
