@@ -3,16 +3,26 @@ import React, { useState, useEffect, useRef } from 'react';
 const VIDEO_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader.mp4';
 const LOCAL_FALLBACK_URL = '/preloader.mp4';
 
-export default function PagePreloader({ minDisplayTime = 3200 }) {
+export default function PagePreloader({ minDisplayTime = 2800 }) {
   const [isVisible, setIsVisible] = useState(true);
   const [shouldRender, setShouldRender] = useState(true);
   const videoRef = useRef(null);
+  const startTimeRef = useRef(Date.now());
+  const finishedRef = useRef(false);
 
-  const handleFinish = () => {
+  const dismiss = () => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
     setIsVisible(false);
     setTimeout(() => {
       setShouldRender(false);
     }, 500);
+  };
+
+  const handleVideoEnded = () => {
+    const elapsed = Date.now() - startTimeRef.current;
+    const remaining = Math.max(0, minDisplayTime - elapsed);
+    setTimeout(dismiss, remaining);
   };
 
   useEffect(() => {
@@ -20,10 +30,10 @@ export default function PagePreloader({ minDisplayTime = 3200 }) {
       videoRef.current.play().catch(() => {});
     }
 
-    // Safety fallback timer so preloader never hangs
+    // Ensure preloader stays visible for 2.8s - 3s all the time
     const timer = setTimeout(() => {
-      handleFinish();
-    }, minDisplayTime);
+      dismiss();
+    }, Math.max(minDisplayTime, 2800));
 
     return () => clearTimeout(timer);
   }, [minDisplayTime]);
@@ -56,7 +66,7 @@ export default function PagePreloader({ minDisplayTime = 3200 }) {
           autoPlay
           muted
           playsInline
-          onEnded={handleFinish}
+          onEnded={handleVideoEnded}
           style={{
             backgroundColor: '#000000',
             maxHeight: '85vh',

@@ -115,7 +115,7 @@ function App() {
 
   return (
     <Router>
-      <PagePreloader minDisplayTime={1200} />
+      <PagePreloader minDisplayTime={2800} />
       <ScrollToTop />
       <VisitorTracker />
       <SiteSettingsProvider>
