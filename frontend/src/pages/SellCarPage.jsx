@@ -710,23 +710,23 @@ const SellCarPage = () => {
           <section className="py-6 sm:py-8 bg-white border-y border-slate-200">
             <div className="max-w-5xl mx-auto px-4">
               {loadingBanners ? (
-                <div className="w-full aspect-[16/9] sm:aspect-[21/9] md:aspect-[2.8/1] max-h-[360px] bg-slate-200 animate-pulse rounded-2xl sm:rounded-3xl" />
+                <div className="w-full h-36 sm:h-52 md:h-64 bg-slate-200 animate-pulse rounded-2xl sm:rounded-3xl" />
               ) : sellBanner ? (
                 <Link
                   to={sellBanner.cta_link || '#'}
-                  className="relative block border border-slate-200/80 dark:border-slate-800/10 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-xl group/banner w-full aspect-[16/9] sm:aspect-[21/9] md:aspect-[2.8/1] max-h-[360px]"
+                  className="relative block rounded-2xl sm:rounded-3xl overflow-hidden shadow-md hover:shadow-xl group/banner w-full border border-slate-200/80 bg-slate-900"
                 >
                   {sellBanner.image_url ? (
                     <img
                       src={getBannerImageUrl(sellBanner.image_url)}
                       alt="Promo Banner"
-                      className="w-full h-full object-cover object-center transition-transform duration-700 group-hover/banner:scale-105"
+                      className="w-full h-auto block rounded-2xl sm:rounded-3xl object-contain object-center transition-transform duration-700 group-hover/banner:scale-[1.01]"
                       style={{
                         transform: sellBanner.flip_image ? 'scaleX(-1)' : 'none',
                       }}
                     />
                   ) : (
-                    <div className="w-full h-full bg-[#0C1B33] flex items-center justify-center text-white text-xs">
+                    <div className="w-full h-44 bg-[#0C1B33] flex items-center justify-center text-white text-xs rounded-2xl sm:rounded-3xl">
                       No Image Uploaded
                     </div>
                   )}

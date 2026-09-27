@@ -1,38 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function PagePreloader({ minDisplayTime = 3200 }) {
+export default function PagePreloader({ minDisplayTime = 1400 }) {
   const [isVisible, setIsVisible] = useState(true);
   const [shouldRender, setShouldRender] = useState(true);
-  const [videoError, setVideoError] = useState(false);
-  const videoRef = useRef(null);
 
   useEffect(() => {
-    // Set html & body background to pure black during preloader
-    const prevBodyBg = document.body.style.backgroundColor;
-    const prevHtmlBg = document.documentElement.style.backgroundColor;
-    document.body.style.backgroundColor = '#000000';
-    document.documentElement.style.backgroundColor = '#000000';
-
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
-    }
-
     const timer = setTimeout(() => {
       setIsVisible(false);
       const removeTimer = setTimeout(() => {
         setShouldRender(false);
-        // Restore background once preloader finishes
-        document.body.style.backgroundColor = prevBodyBg;
-        document.documentElement.style.backgroundColor = prevHtmlBg;
-      }, 600);
+      }, 500);
       return () => clearTimeout(removeTimer);
     }, minDisplayTime);
 
-    return () => {
-      clearTimeout(timer);
-      document.body.style.backgroundColor = prevBodyBg;
-      document.documentElement.style.backgroundColor = prevHtmlBg;
-    };
+    return () => clearTimeout(timer);
   }, [minDisplayTime]);
 
   if (!shouldRender) return null;
@@ -40,7 +21,7 @@ export default function PagePreloader({ minDisplayTime = 3200 }) {
   return (
     <div
       style={{
-        backgroundColor: '#000000',
+        backgroundColor: '#0C1B33',
         position: 'fixed',
         top: 0,
         left: 0,
@@ -53,54 +34,37 @@ export default function PagePreloader({ minDisplayTime = 3200 }) {
         padding: 0,
         overflow: 'hidden'
       }}
-      className={`fixed inset-0 z-[999999] flex items-center justify-center bg-black transition-opacity duration-600 ease-in-out ${
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#0C1B33] transition-opacity duration-500 ease-out ${
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
-      <div
-        style={{
-          backgroundColor: '#000000',
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          margin: 0,
-          padding: 0
-        }}
-        className="relative flex items-center justify-center w-full h-full p-0 m-0 bg-black"
-      >
-        {!videoError ? (
-          <video
-            ref={videoRef}
-            src="/preloader.mov"
-            autoPlay
-            loop
-            muted
-            playsInline
-            onError={() => setVideoError(true)}
-            style={{
-              backgroundColor: '#000000',
-              maxHeight: '85vh',
-              objectFit: 'contain',
-              outline: 'none',
-              border: 'none',
-              boxShadow: 'none'
-            }}
-            className="w-72 sm:w-96 md:w-[480px] max-w-full h-auto object-contain max-h-[85vh] bg-black outline-none border-none shadow-none"
-          >
-            <source src="/preloader.mov" type="video/quicktime" />
-            <source src="/preloader.mov" type="video/mp4" />
-          </video>
-        ) : (
+      <div className="relative flex flex-col items-center justify-center gap-5 select-none">
+        {/* Glowing Animated Ring around Logo */}
+        <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full border-3 border-[#00C9AF]/20 border-t-[#00C9AF] animate-[spin_1s_linear_infinite]" />
+          <div className="absolute inset-2 rounded-full border-2 border-[#13EDE5]/15 border-b-[#13EDE5] animate-[spin_1.5s_linear_infinite_reverse]" />
           <img
-            src="/spiral-css-preloader.gif"
-            onError={(e) => { e.currentTarget.src = '/St.gif'; }}
-            alt="Loading..."
-            style={{ backgroundColor: '#000000' }}
-            className="w-56 sm:w-72 md:w-80 h-auto object-contain bg-black"
+            src="/img/light-logo.svg"
+            alt="Selectt"
+            className="w-14 h-14 sm:w-16 sm:h-16 object-contain animate-pulse"
+            onError={(e) => {
+              e.currentTarget.src = '/favicon.png';
+            }}
           />
-        )}
+        </div>
+
+        {/* Brand Text & Status */}
+        <div className="flex flex-col items-center gap-1.5 text-center">
+          <h1 className="text-xl sm:text-2xl font-black tracking-wider text-white font-['Plus_Jakarta_Sans',sans-serif]">
+            SELECTT<span className="text-[#00C9AF]">.</span>
+          </h1>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#00C9AF] animate-ping inline-block" />
+            <span className="text-xs sm:text-sm font-semibold tracking-widest text-emerald-300/80 uppercase">
+              Certified Cars & Instant Quotes
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

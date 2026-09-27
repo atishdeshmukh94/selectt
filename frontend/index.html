@@ -122,10 +122,8 @@
     }
     </script>
 
-    <!-- Lottie Player -->
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
   </head>
-  <body style="margin: 0; padding: 0; background-color: #000000;">
+  <body style="margin: 0; padding: 0; background-color: #0C1B33;">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W562QPSF"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -137,7 +135,27 @@
     /></noscript>
     <!-- End Meta Pixel (noscript) -->
 
-    <div id="root" style="background-color: #000000; min-height: 100vh;"></div>
+    <div id="root" style="background-color: #0C1B33; min-height: 100vh;">
+      <!-- Instant Zero-Delay Branded Preloader (replaces instantly when React mounts) -->
+      <div id="initial-preloader" style="position: fixed; inset: 0; z-index: 999999; background: #0C1B33; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+          <div style="position: relative; width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;">
+            <div style="position: absolute; inset: 0; border-radius: 50%; border: 3px solid rgba(0, 201, 175, 0.15); border-top-color: #00C9AF; animation: selecttSpin 0.9s linear infinite;"></div>
+            <img src="/img/light-logo.svg" alt="Selectt" style="width: 42px; height: 42px; object-fit: contain;" onerror="this.src='/favicon.png'" />
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <div style="color: #ffffff; font-size: 15px; font-weight: 800; letter-spacing: 0.5px;">Selectt</div>
+            <div style="color: #00C9AF; font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;">Certified Cars</div>
+          </div>
+        </div>
+      </div>
+      <style>
+        @keyframes selecttSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
