@@ -794,14 +794,31 @@ export default function EChallanPage() {
           </div>
 
           {/* Dots Indicator */}
-          <div className="flex justify-center gap-1.5 select-none pt-1">
+          <div className="flex justify-center items-center gap-1.5 select-none pt-1" style={{ height: '16px', lineHeight: 0 }}>
             {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
               <button
                 key={idx}
+                type="button"
                 onClick={() => setActiveIndex(idx)}
-                className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                  activeIndex === idx ? 'bg-[#00C9AF] w-5' : 'bg-slate-300 w-1.5'
-                }`}
+                style={{
+                  height: '4px',
+                  minHeight: '4px',
+                  maxHeight: '4px',
+                  width: activeIndex === idx ? '18px' : '4px',
+                  minWidth: activeIndex === idx ? '18px' : '4px',
+                  maxWidth: activeIndex === idx ? '18px' : '4px',
+                  padding: 0,
+                  margin: 0,
+                  border: 'none',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  backgroundColor: activeIndex === idx ? '#00C9AF' : '#cbd5e1',
+                  borderRadius: '9999px',
+                  display: 'inline-block',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                className="shrink-0"
                 aria-label={`Slide ${idx + 1}`}
               />
             ))}

@@ -406,14 +406,26 @@ const FinancialServicesCarousel = () => {
       </div>
 
       {/* Slide Indicators */}
-      <div className="flex justify-center gap-1.5 mt-1">
+      <div className="flex justify-center items-center gap-1.5 mt-1 select-none" style={{ height: '16px', lineHeight: 0 }}>
         {FINANCIAL_SERVICES_CAROUSEL.map((_, idx) => (
           <span
             key={idx}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              activeIndex === idx ? 'w-5 bg-[#00C9AF]' : 'w-1.5 bg-slate-300'
-            }`}
-          ></span>
+            style={{
+              height: '4px',
+              minHeight: '4px',
+              maxHeight: '4px',
+              width: activeIndex === idx ? '18px' : '4px',
+              minWidth: activeIndex === idx ? '18px' : '4px',
+              maxWidth: activeIndex === idx ? '18px' : '4px',
+              padding: 0,
+              margin: 0,
+              backgroundColor: activeIndex === idx ? '#00C9AF' : '#cbd5e1',
+              borderRadius: '9999px',
+              display: 'inline-block',
+              transition: 'all 0.3s ease'
+            }}
+            className="shrink-0"
+          />
         ))}
       </div>
     </div>
@@ -533,14 +545,26 @@ const NumbersThatTrustUsCarousel = () => {
       </div>
 
       {/* Slide Indicators */}
-      <div className="flex justify-center gap-1.5 mt-1.5">
+      <div className="flex justify-center items-center gap-1.5 mt-1.5 select-none" style={{ height: '16px', lineHeight: 0 }}>
         {TRUST_NUMBERS_CAROUSEL.map((_, idx) => (
           <span
             key={idx}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              activeIndex === idx ? 'w-5 bg-[#00C9AF]' : 'w-1.5 bg-slate-300'
-            }`}
-          ></span>
+            style={{
+              height: '4px',
+              minHeight: '4px',
+              maxHeight: '4px',
+              width: activeIndex === idx ? '18px' : '4px',
+              minWidth: activeIndex === idx ? '18px' : '4px',
+              maxWidth: activeIndex === idx ? '18px' : '4px',
+              padding: 0,
+              margin: 0,
+              backgroundColor: activeIndex === idx ? '#00C9AF' : '#cbd5e1',
+              borderRadius: '9999px',
+              display: 'inline-block',
+              transition: 'all 0.3s ease'
+            }}
+            className="shrink-0"
+          />
         ))}
       </div>
     </div>
@@ -681,10 +705,11 @@ const HowItWorksCarousel = () => {
       </div>
 
       {/* Mobile Auto-Slide Indicators */}
-      <div className="flex sm:hidden justify-center gap-2 mt-4">
+      <div className="flex sm:hidden justify-center items-center gap-1.5 mt-4 select-none" style={{ height: '16px', lineHeight: 0 }}>
         {HOW_IT_WORKS_STEPS.map((step, idx) => (
           <button
             key={step.step}
+            type="button"
             onClick={() => {
               setActiveIndex(idx);
               if (scrollRef.current) {
@@ -697,10 +722,27 @@ const HowItWorksCarousel = () => {
                 }
               }
             }}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              activeIndex === idx ? 'w-6 bg-[#00C9AF]' : 'w-2 bg-slate-600'
-            }`}
-          ></button>
+            aria-label={`Go to step ${idx + 1}`}
+            style={{
+              height: '4px',
+              minHeight: '4px',
+              maxHeight: '4px',
+              width: activeIndex === idx ? '18px' : '4px',
+              minWidth: activeIndex === idx ? '18px' : '4px',
+              maxWidth: activeIndex === idx ? '18px' : '4px',
+              padding: 0,
+              margin: 0,
+              border: 'none',
+              outline: 'none',
+              boxSizing: 'border-box',
+              backgroundColor: activeIndex === idx ? '#00C9AF' : 'rgba(255, 255, 255, 0.35)',
+              borderRadius: '9999px',
+              display: 'inline-block',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+            className="shrink-0"
+          />
         ))}
       </div>
     </div>
@@ -2818,12 +2860,32 @@ const NewHome = () => {
               </div>
 
               {/* Dots */}
-              <div className="flex justify-center items-center gap-2.5 mt-3">
+              <div className="flex justify-center items-center gap-1.5 mt-3 select-none" style={{ height: '16px', lineHeight: 0 }}>
                 {buySteps.map((_, i) => (
                   <button
                     key={i}
+                    type="button"
                     onClick={() => setBuyStepIdx(i)}
-                    className={`h-2 rounded-full transition-all duration-300 ${i === buyStepIdx ? 'w-7 bg-[#00C9AF] shadow-sm shadow-[#00C9AF]/30' : 'w-2 bg-slate-300 hover:bg-slate-400'}`}
+                    aria-label={`Go to step ${i + 1}`}
+                    style={{
+                      height: '4px',
+                      minHeight: '4px',
+                      maxHeight: '4px',
+                      width: buyStepIdx === i ? '18px' : '4px',
+                      minWidth: buyStepIdx === i ? '18px' : '4px',
+                      maxWidth: buyStepIdx === i ? '18px' : '4px',
+                      padding: 0,
+                      margin: 0,
+                      border: 'none',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      backgroundColor: buyStepIdx === i ? '#00C9AF' : '#cbd5e1',
+                      borderRadius: '9999px',
+                      display: 'inline-block',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                    className="shrink-0"
                   />
                 ))}
               </div>

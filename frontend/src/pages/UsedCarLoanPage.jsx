@@ -312,16 +312,31 @@ const CityServicesSection = () => {
             </div>
 
             {/* Pagination Indicator Dots */}
-            <div className="flex items-center gap-1.5 mt-6 z-40">
+            <div className="flex items-center justify-center gap-1.5 mt-6 z-40 select-none" style={{ height: '16px', lineHeight: 0 }}>
               {services.map((_, i) => (
                 <button
                   key={i}
+                  type="button"
                   onClick={() => setActiveIdx(i)}
-                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                    activeIdx === i
-                      ? 'w-6 bg-[#00a892]'
-                      : 'w-2 bg-slate-300 hover:bg-slate-400'
-                  }`}
+                  style={{
+                    height: '4px',
+                    minHeight: '4px',
+                    maxHeight: '4px',
+                    width: activeIdx === i ? '18px' : '4px',
+                    minWidth: activeIdx === i ? '18px' : '4px',
+                    maxWidth: activeIdx === i ? '18px' : '4px',
+                    padding: 0,
+                    margin: 0,
+                    border: 'none',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    backgroundColor: activeIdx === i ? '#00C9AF' : '#cbd5e1',
+                    borderRadius: '9999px',
+                    display: 'inline-block',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  className="shrink-0"
                   aria-label={`Go to slide ${i + 1}`}
                 />
               ))}

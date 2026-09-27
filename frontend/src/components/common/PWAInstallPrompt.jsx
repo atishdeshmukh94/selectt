@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, X, Smartphone, Sparkles, Share, PlusSquare } from 'lucide-react';
+import { Download, X, Smartphone, Sparkles, Share, PlusSquare, ShieldCheck, Zap, Bell } from 'lucide-react';
 
 const PWAInstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -19,11 +19,11 @@ const PWAInstallPrompt = () => {
       return;
     }
 
-    // 2. Check if user dismissed recently (wait 3 days before showing again)
+    // 2. Check if user dismissed recently (wait 2 days before showing again)
     const dismissedAt = localStorage.getItem('selectt_pwa_dismissed_at');
     if (dismissedAt) {
       const daysSinceDismiss = (Date.now() - parseInt(dismissedAt, 10)) / (1000 * 60 * 60 * 24);
-      if (daysSinceDismiss < 3) {
+      if (daysSinceDismiss < 2) {
         return;
       }
     }
@@ -33,14 +33,16 @@ const PWAInstallPrompt = () => {
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
     setIsIOS(isIosDevice);
 
+    let popupTimer = null;
+
     // 4. Handle Chromium `beforeinstallprompt`
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // Wait 2.5 seconds after page load before showing the prompt
-      setTimeout(() => {
+      // Wait 18 seconds (15-20s window) after page load before showing the centered popup modal
+      popupTimer = setTimeout(() => {
         setShowPrompt(true);
-      }, 2500);
+      }, 18000);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -55,15 +57,13 @@ const PWAInstallPrompt = () => {
 
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // 6. For iOS, also show prompt after 3.5s if not standalone
-    if (isIosDevice && !isStandalone) {
-      const timer = setTimeout(() => {
-        setShowPrompt(true);
-      }, 3500);
-      return () => clearTimeout(timer);
-    }
+    // 6. For iOS or other browsers, show after 18s if not already standalone
+    popupTimer = setTimeout(() => {
+      setShowPrompt(true);
+    }, 18000);
 
     return () => {
+      if (popupTimer) clearTimeout(popupTimer);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
@@ -71,6 +71,11 @@ const PWAInstallPrompt = () => {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
+      // If browser doesn't support deferred prompt (e.g. iOS or manual install), show alert instructions
+      if (isIOS) {
+        return;
+      }
+      setShowPrompt(false);
       return;
     }
     // Show browser native install prompt
@@ -97,94 +102,117 @@ const PWAInstallPrompt = () => {
 
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: 60, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 40, scale: 0.95 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed bottom-4 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 pointer-events-auto"
-      >
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#0C1B33]/95 via-[#0A162A]/95 to-[#060D19]/95 backdrop-blur-xl border border-white/15 p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_30px_rgba(0,201,175,0.15)]">
-          
-          {/* Top Edge Neon Highlight */}
-          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#00C9AF] to-transparent"></div>
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full max-w-md overflow-hidden rounded-3xl bg-gradient-to-br from-[#0C1B33] via-[#0A162A] to-[#060D19] border border-[#00C9AF]/30 p-6 sm:p-7 shadow-[0_25px_60px_rgba(0,0,0,0.7),0_0_40px_rgba(0,201,175,0.2)] text-white text-center"
+        >
+          {/* Top Neon Accent Bar */}
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#00C9AF] via-[#14FFEC] to-[#00C9AF]" />
 
-          {/* Close Button */}
+          {/* Close button */}
           <button
             onClick={handleDismiss}
-            className="absolute top-3 right-3 p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-            aria-label="Dismiss install prompt"
+            className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+            aria-label="Close dialog"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
 
-          <div className="flex items-start gap-3.5 sm:gap-4">
-            {/* App Icon */}
-            <div className="relative shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden bg-[#0C1B33] border border-white/20 p-2 shadow-inner flex items-center justify-center">
-              <img
-                src="/pwa-icon-192.png"
-                alt="Selectt"
-                className="w-full h-full object-contain"
-                onError={(e) => { e.currentTarget.src = '/favicon.png'; }}
-              />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#00C9AF] rounded-full border-2 border-[#0C1B33] flex items-center justify-center">
-                <Sparkles size={8} className="text-[#0C1B33]" />
-              </div>
+          {/* App Icon */}
+          <div className="relative mx-auto mb-4 w-20 h-20 rounded-2xl bg-[#081220] border-2 border-[#00C9AF]/40 p-3 shadow-xl flex items-center justify-center">
+            <img
+              src="/pwa-icon-192.png"
+              alt="Selectt App"
+              className="w-full h-full object-contain"
+              onError={(e) => { e.currentTarget.src = '/favicon.png'; }}
+            />
+            <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 bg-[#00C9AF] rounded-full border-2 border-[#0C1B33] flex items-center justify-center shadow-md">
+              <Sparkles size={12} className="text-[#0C1B33]" />
             </div>
+          </div>
 
-            {/* Info */}
-            <div className="flex-1 pr-6">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-white font-heading font-black text-base sm:text-lg tracking-tight">
-                  Install Selectt App
-                </span>
-                <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-[#00C9AF]/20 text-[#00C9AF] border border-[#00C9AF]/30">
-                  Fast
-                </span>
-              </div>
-              <p className="text-slate-300 font-body text-xs sm:text-sm font-medium leading-snug">
-                {isIOS && !deferredPrompt
-                  ? 'Add to home screen for instant booking, live updates & fast experience.'
-                  : 'Install our web app for a 1-click experience, faster browsing & offline access.'}
-              </p>
+          {/* Header */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00C9AF]/15 border border-[#00C9AF]/30 text-[#00C9AF] text-[11px] font-bold uppercase tracking-widest mb-2">
+            <Zap size={12} /> Official Mobile App
+          </div>
+
+          <h3 className="text-xl sm:text-2xl font-black font-heading tracking-tight text-white mb-2">
+            Install Selectt App
+          </h3>
+
+          <p className="text-slate-300 font-body text-xs sm:text-sm leading-relaxed mb-5 px-2">
+            Experience lightning-fast browsing, instant test drive bookings, and real-time price-drop alerts directly on your device.
+          </p>
+
+          {/* Feature Highlights */}
+          <div className="grid grid-cols-2 gap-2.5 mb-6 text-left">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center gap-2">
+              <Zap size={16} className="text-[#00C9AF] shrink-0" />
+              <span className="text-[11px] text-slate-200 font-medium">1-Click Fast Access</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center gap-2">
+              <ShieldCheck size={16} className="text-[#00C9AF] shrink-0" />
+              <span className="text-[11px] text-slate-200 font-medium">Verified Car History</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center gap-2">
+              <Bell size={16} className="text-[#00C9AF] shrink-0" />
+              <span className="text-[11px] text-slate-200 font-medium">Instant Deal Alerts</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center gap-2">
+              <Smartphone size={16} className="text-[#00C9AF] shrink-0" />
+              <span className="text-[11px] text-slate-200 font-medium">Zero Storage Space</span>
             </div>
           </div>
 
           {/* iOS Safari Instructions */}
           {isIOS && !deferredPrompt ? (
-            <div className="mt-3.5 pt-3 border-t border-white/10 bg-white/5 rounded-xl p-2.5 text-xs text-slate-300 font-medium">
-              <p className="flex items-center gap-1.5 text-slate-200 font-bold mb-1">
-                <span>To install on iPhone / iPad:</span>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5 mb-4 text-left">
+              <p className="text-xs text-slate-200 font-bold mb-1.5 flex items-center gap-1.5">
+                <Smartphone size={14} className="text-[#00C9AF]" /> Install on iPhone / iPad:
               </p>
-              <div className="flex items-center gap-2 text-slate-300 text-[11px]">
+              <div className="flex items-center gap-2 text-slate-300 text-xs">
                 <span>1. Tap Share</span>
-                <Share size={12} className="text-[#00C9AF]" />
+                <Share size={13} className="text-[#00C9AF]" />
                 <span>2. Tap "Add to Home Screen"</span>
-                <PlusSquare size={12} className="text-[#00C9AF]" />
+                <PlusSquare size={13} className="text-[#00C9AF]" />
               </div>
             </div>
           ) : (
-            /* Action Buttons for Android, PC & Chrome/Edge */
-            <div className="mt-4 flex items-center gap-2.5">
+            /* Action Buttons */
+            <div className="flex flex-col sm:flex-row gap-2.5">
               <button
                 onClick={handleInstallClick}
-                className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#00C9AF] hover:bg-[#14FFEC] text-[#0C1B33] font-button font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 shadow-md shadow-[#00C9AF]/30 hover:shadow-lg hover:shadow-[#00C9AF]/50 active:scale-95 cursor-pointer"
+                className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#00C9AF] to-[#14FFEC] hover:brightness-110 text-[#0C1B33] font-button font-black text-sm uppercase tracking-wider transition-all duration-200 shadow-lg shadow-[#00C9AF]/30 active:scale-95 cursor-pointer"
               >
-                <Download size={16} strokeWidth={2.5} />
-                <span>Install Now</span>
+                <Download size={18} strokeWidth={2.5} />
+                <span>Install Selectt App</span>
               </button>
 
               <button
                 onClick={handleDismiss}
-                className="py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-button font-bold text-xs sm:text-sm transition-all duration-200 active:scale-95 cursor-pointer"
+                className="w-full sm:w-auto py-3 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-button font-bold text-xs transition-all active:scale-95 cursor-pointer"
               >
                 Maybe Later
               </button>
             </div>
           )}
 
-        </div>
-      </motion.div>
+          {/* Close link under iOS instructions */}
+          {isIOS && !deferredPrompt && (
+            <button
+              onClick={handleDismiss}
+              className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-button font-bold text-xs transition-all cursor-pointer"
+            >
+              Got It
+            </button>
+          )}
+
+        </motion.div>
+      </div>
     </AnimatePresence>
   );
 };

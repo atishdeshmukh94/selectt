@@ -549,15 +549,31 @@ const SellCarPage = () => {
               </div>
 
               {/* Dots Indicator */}
-              <div className="flex justify-center items-center gap-2.5 mt-3">
+              <div className="flex justify-center items-center gap-1.5 mt-3 select-none" style={{ height: '16px', lineHeight: 0 }}>
                 {steps.map((_, idx) => (
                   <button
                     key={idx}
+                    type="button"
                     onClick={() => setActiveStep(idx)}
-                    className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${activeStep === idx
-                      ? 'w-7 bg-[#00C9AF] shadow-sm shadow-[#00C9AF]/30'
-                      : 'w-2 bg-slate-300 hover:bg-slate-400'
-                      }`}
+                    style={{
+                      height: '4px',
+                      minHeight: '4px',
+                      maxHeight: '4px',
+                      width: activeStep === idx ? '18px' : '4px',
+                      minWidth: activeStep === idx ? '18px' : '4px',
+                      maxWidth: activeStep === idx ? '18px' : '4px',
+                      padding: 0,
+                      margin: 0,
+                      border: 'none',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      backgroundColor: activeStep === idx ? '#00C9AF' : '#cbd5e1',
+                      borderRadius: '9999px',
+                      display: 'inline-block',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                    className="shrink-0"
                     aria-label={`Go to step ${idx + 1}`}
                   />
                 ))}
