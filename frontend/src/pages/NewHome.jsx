@@ -3214,10 +3214,10 @@ const NewHome = () => {
         }
       `}</style>
 
-      {/* Floating FOMO Notification Badge (Left-Side Positioned, safely above mobile navigation & WhatsApp button) */}
+      {/* Floating FOMO Notification Badge (Right-Side Positioned) */}
       <div
         style={{ fontFamily: "'Inter', sans-serif" }}
-        className={`fixed bottom-[126px] md:bottom-28 left-3 sm:left-6 md:left-8 z-50 bg-white text-slate-900 rounded-2xl p-3 sm:p-4 shadow-[0_12px_32px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.04)] flex items-center gap-2.5 sm:gap-3.5 min-w-[210px] max-w-[250px] sm:max-w-[310px] border border-slate-100/90 transition-all duration-500 ease-in-out transform ${showFomo ? 'translate-x-0 opacity-100' : '-translate-x-[120%] opacity-0 pointer-events-none'
+        className={`fixed bottom-[88px] sm:bottom-[92px] md:bottom-6 right-3 sm:right-6 md:right-8 z-50 bg-white text-slate-900 rounded-2xl p-3 sm:p-4 shadow-[0_12px_32px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.04)] flex items-center gap-2.5 sm:gap-3.5 min-w-[210px] max-w-[250px] sm:max-w-[310px] border border-slate-100/90 transition-all duration-500 ease-in-out transform ${showFomo ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0 pointer-events-none'
           }`}
       >
         <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 bg-[#EAFAF4] border border-[#d1f4e7]">

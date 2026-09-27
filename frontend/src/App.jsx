@@ -68,16 +68,23 @@ function MainLayout() {
   );
 }
 
+function LoadingFallback() {
+  return (
+    <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
+      <div className="w-9 h-9 border-3 border-[#0B2545] border-t-transparent rounded-full animate-spin"></div>
+      <span className="text-xs font-semibold text-slate-400 tracking-widest uppercase">Loading Selectt...</span>
+    </div>
+  );
+}
+
 function App() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
   const [maintenancePhone, setMaintenancePhone] = useState('+91-857466-7466');
   const [logo, setLogo] = useState('');
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSettings = async () => {
-      const startTime = Date.now();
       try {
         const res = await fetch(`${API_URL}/api/settings/public`);
         if (res.ok) {
@@ -97,20 +104,10 @@ function App() {
         }
       } catch (err) {
         console.error('Error fetching settings:', err);
-      } finally {
-        const elapsedTime = Date.now() - startTime;
-        const remainingDelay = Math.max(0, 3500 - elapsedTime);
-        setTimeout(() => {
-          setLoading(false);
-        }, remainingDelay);
       }
     };
     fetchSettings();
   }, []);
-
-  if (loading) {
-    return <PagePreloader minDisplayTime={4000} />;
-  }
 
   if (maintenanceMode) {
     return <MaintenancePage message={maintenanceMessage} phone={maintenancePhone} logo={logo} />;
@@ -124,7 +121,7 @@ function App() {
         <ToastProvider>
           <AuthProvider>
             <div className="font-sans antialiased text-slate-900 dark:text-slate-100 bg-background-light dark:bg-background-dark min-h-screen">
-              <Suspense fallback={<PagePreloader />}>
+              <Suspense fallback={<LoadingFallback />}>
                 <Routes>
                   {/* Main website layout for normal pages */}
                   <Route element={<MainLayout />}>

@@ -35,54 +35,40 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch Event: Stale-While-Revalidate Strategy for dynamic content, Cache-First for static
+// Fetch Event: Network-First for Navigation, Stale-While-Revalidate for static assets
 self.addEventListener('fetch', (event) => {
   // Only handle http/https GET requests
   if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
     return;
   }
 
-  // Avoid caching API responses or admin calls
-  if (event.request.url.includes('/api/')) {
+  // Avoid caching API responses, admin calls, or backend endpoints
+  if (event.request.url.includes('/api/') || event.request.url.includes('/admin/')) {
     return;
   }
 
+  // Navigation requests (HTML / direct URLs): Network-first with instant index.html fallback for SPA
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Static assets: Cache-first / Stale-While-Revalidate
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch in background to update cache
-        fetch(event.request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-              const responseToCache = networkResponse.clone();
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-            }
-          })
-          .catch(() => {
-            // Ignore offline network error when serving cached asset
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
           });
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
         }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
         return networkResponse;
-      });
-    }).catch(() => {
-      // Fallback for navigation requests
-      if (event.request.mode === 'navigate') {
-        return caches.match('/index.html');
-      }
+      }).catch(() => null);
+
+      return cachedResponse || fetchPromise;
     })
   );
 });
