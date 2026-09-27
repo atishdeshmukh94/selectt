@@ -582,23 +582,23 @@ const SellCarPage = () => {
           </section>
 
           {/* 3. THE SELECTT SELLER PROTECTION GUARANTEE */}
-          <section className="py-16 bg-white border-b border-slate-200">
+          <section className="py-12 sm:py-16 bg-white border-b border-slate-200">
             <div className="max-w-6xl mx-auto px-4">
-              <div className="bg-gradient-to-br from-[#061426] via-[#0C1B33] to-[#061426] rounded-3xl p-8 sm:p-12 border border-[#00C9AF]/30 shadow-2xl relative overflow-hidden text-white text-left">
+              <div className="bg-gradient-to-br from-[#061426] via-[#0C1B33] to-[#061426] rounded-3xl p-6 sm:p-10 md:p-12 border border-[#00C9AF]/30 shadow-2xl relative overflow-hidden text-white text-left">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-[#00C9AF]/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="relative z-10 max-w-3xl">
+                <div className="relative z-10 w-full">
                   <div className="inline-flex items-center gap-2 bg-[#00C9AF]/20 border border-[#00C9AF]/40 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-heading font-black text-xs uppercase tracking-wider mb-4">
                     <ShieldCheck size={16} /> 100% Peace of Mind
                   </div>
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black tracking-tight text-white mb-4">
                     The Selectt Seller Protection Guarantee
                   </h2>
-                  <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed mb-8">
+                  <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed mb-8 max-w-4xl">
                     Selling your car shouldn't come with post-handover anxiety. We protect you from all legal and financial liabilities from the exact minute of car handover until the RC transfer is officially registered in RTO records.
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs hover:border-[#00C9AF]/30 transition-all">
                       <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
                         <ShieldAlert size={20} />
                       </div>
@@ -608,7 +608,7 @@ const SellCarPage = () => {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs hover:border-[#00C9AF]/30 transition-all">
                       <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
                         <FileCheck size={20} />
                       </div>
@@ -618,13 +618,23 @@ const SellCarPage = () => {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs hover:border-[#00C9AF]/30 transition-all">
                       <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
                         <CheckCircle2 size={20} />
                       </div>
                       <h3 className="text-sm font-heading font-bold text-white mb-1">Live Status Tracking</h3>
                       <p className="text-xs text-slate-400 leading-relaxed">
                         Track your RC transfer live at every step on your Selectt dashboard with instant SMS updates.
+                      </p>
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs hover:border-[#00C9AF]/30 transition-all">
+                      <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
+                        <Banknote size={20} />
+                      </div>
+                      <h3 className="text-sm font-heading font-bold text-white mb-1">Instant Bank Transfer</h3>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        100% secure payment directly into your bank account before vehicle handover. Zero escrow risk.
                       </p>
                     </div>
                   </div>
