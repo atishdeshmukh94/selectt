@@ -1587,16 +1587,36 @@ const NewHome = () => {
           })}
         </div>
 
-        {/* Auto-Slide Dots Indicator */}
-        <div className="absolute bottom-7 inset-x-0 flex items-center justify-center gap-1.5 z-20 pointer-events-auto">
+        {/* Auto-Slide Dots Indicator - Ultra Slim Micro-Pills */}
+        <div 
+          style={{ height: '16px', lineHeight: 0 }} 
+          className="absolute bottom-6 inset-x-0 flex items-center justify-center gap-1.5 z-20 pointer-events-auto select-none"
+        >
           {mobileHeroSlides.map((_, idx) => (
             <button
               key={idx}
+              type="button"
               onClick={() => setMobileHeroIdx(idx)}
               aria-label={`Go to slide ${idx + 1}`}
-              className={`h-1.5 shrink-0 rounded-full transition-all duration-300 cursor-pointer p-0 border-0 outline-none ${
-                mobileHeroIdx === idx ? 'w-5 bg-[#00C9AF] shadow-[0_0_8px_rgba(0,201,175,0.6)]' : 'w-1.5 bg-white/35 hover:bg-white/60'
-              }`}
+              style={{
+                height: '4px',
+                minHeight: '4px',
+                maxHeight: '4px',
+                width: mobileHeroIdx === idx ? '18px' : '4px',
+                minWidth: mobileHeroIdx === idx ? '18px' : '4px',
+                maxWidth: mobileHeroIdx === idx ? '18px' : '4px',
+                padding: 0,
+                margin: 0,
+                border: 'none',
+                outline: 'none',
+                boxSizing: 'border-box',
+                backgroundColor: mobileHeroIdx === idx ? '#00C9AF' : 'rgba(255, 255, 255, 0.45)',
+                borderRadius: '9999px',
+                display: 'inline-block',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              className="shrink-0"
             />
           ))}
         </div>
