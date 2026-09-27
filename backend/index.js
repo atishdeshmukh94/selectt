@@ -24,6 +24,7 @@ const bunnyStream = require('./bunny-stream');
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1);
 const port = process.env.PORT || 5000;
 
 // Security Middleware
