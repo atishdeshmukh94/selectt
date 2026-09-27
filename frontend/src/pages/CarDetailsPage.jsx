@@ -366,7 +366,12 @@ const CarDetailsPage = () => {
   };
 
   if (loading) {
-    return null;
+    return (
+      <div className="min-h-[75vh] flex flex-col items-center justify-center gap-4 bg-[#f9f9f9]">
+        <div className="w-12 h-12 border-3 border-[#00C9AF] border-t-transparent rounded-full animate-spin"></div>
+        <span className="text-xs font-bold text-slate-500 tracking-widest uppercase">Loading Vehicle Details...</span>
+      </div>
+    );
   }
 
   if (error || !car) {

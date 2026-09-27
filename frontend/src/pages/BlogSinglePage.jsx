@@ -34,7 +34,12 @@ const BlogSinglePage = () => {
   }, [slug]);
 
   if (loading) {
-    return null;
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 bg-[#f9f9f9]">
+        <div className="w-10 h-10 border-3 border-[#00C9AF] border-t-transparent rounded-full animate-spin"></div>
+        <span className="text-xs font-bold text-slate-500 tracking-widest uppercase">Loading Article...</span>
+      </div>
+    );
   }
 
   if (!post) {
