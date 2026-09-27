@@ -400,7 +400,7 @@ const CarEditPage = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Validation checks
+    // 1. Mandatory Validation Checks - Step 1 (Basic & Pricing)
     if (!formData.make || !String(formData.make).trim()) {
       toast.error("Please select or enter the Brand (Make) in Step 1");
       setActiveTab("basic");
@@ -413,15 +413,76 @@ const CarEditPage = () => {
       return;
     }
 
+    if (!formData.year || isNaN(Number(formData.year)) || Number(formData.year) < 1990) {
+      toast.error("Please enter a valid Manufacturing Year in Step 1");
+      setActiveTab("basic");
+      return;
+    }
+
+    if (!formData.regYear || isNaN(Number(formData.regYear)) || Number(formData.regYear) < 1990) {
+      toast.error("Please enter a valid Registration Year in Step 1");
+      setActiveTab("basic");
+      return;
+    }
+
+    if (!formData.fuelType || !String(formData.fuelType).trim()) {
+      toast.error("Please select Fuel Type in Step 1");
+      setActiveTab("basic");
+      return;
+    }
+
+    if (!formData.transmission || !String(formData.transmission).trim()) {
+      toast.error("Please select Transmission Type in Step 1");
+      setActiveTab("basic");
+      return;
+    }
+
+    if (!formData.bodyType || !String(formData.bodyType).trim()) {
+      toast.error("Please select Body Type in Step 1");
+      setActiveTab("basic");
+      return;
+    }
+
+    if (!formData.location || !String(formData.location).trim()) {
+      toast.error("Please enter Location / City in Step 1");
+      setActiveTab("basic");
+      return;
+    }
+
     if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
       toast.error("Please enter a valid Selling Price in Step 1");
       setActiveTab("basic");
       return;
     }
 
-    if (!formData.year || isNaN(Number(formData.year))) {
-      toast.error("Please enter the Year of Manufacture in Step 1");
-      setActiveTab("basic");
+    // 2. Mandatory Validation Checks - Step 2 (Specs & History)
+    if (formData.km === undefined || formData.km === "" || isNaN(Number(formData.km)) || Number(formData.km) < 0) {
+      toast.error("Please enter KM Driven (Odometer) in Step 2");
+      setActiveTab("specs");
+      return;
+    }
+
+    if (!formData.ownership || !String(formData.ownership).trim()) {
+      toast.error("Please select Ownership in Step 2");
+      setActiveTab("specs");
+      return;
+    }
+
+    if (!formData.regState || !String(formData.regState).trim()) {
+      toast.error("Please enter Registration State (e.g. MH, DL) in Step 2");
+      setActiveTab("specs");
+      return;
+    }
+
+    // 3. Mandatory Validation Checks - Step 4 (Photos & Media)
+    const firstImage = (formData.moreImages || []).find((url: string) => {
+      return getMediaType(url) === 'image';
+    }) || "";
+    const primaryCover = formData.image || firstImage;
+
+    if (!primaryCover || !String(primaryCover).trim()) {
+      toast.error("Please upload or select at least 1 Cover Image for the car in Step 4");
+      setActiveTab("images");
       return;
     }
 
@@ -430,12 +491,6 @@ const CarEditPage = () => {
       const t = getMediaType(url);
       return t === 'video' || t === 'youtube';
     }) || formData.videoUrl || "";
-
-    // Auto-extract primary cover image if not explicitly set
-    const firstImage = (formData.moreImages || []).find((url: string) => {
-      return getMediaType(url) === 'image';
-    }) || "";
-    const primaryCover = formData.image || firstImage || "/img/suv.png";
 
     const updatedFormData = {
       ...formData,
@@ -709,7 +764,9 @@ const CarEditPage = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                   <div>
-                    <label className={labelClass}>Make (Brand)</label>
+                    <label className={labelClass}>
+                      Make (Brand) <span className="text-rose-500 font-black ml-1">*</span>
+                    </label>
                     <select 
                       className={inpClass} 
                       value={formData.make} 
@@ -726,7 +783,9 @@ const CarEditPage = () => {
                   </div>
 
                   <div>
-                    <label className={labelClass}>Model</label>
+                    <label className={labelClass}>
+                      Model <span className="text-rose-500 font-black ml-1">*</span>
+                    </label>
                     <select 
                       className={inpClass} 
                       value={formData.model} 
@@ -773,31 +832,41 @@ const CarEditPage = () => {
                   </div>
 
                   <div>
-                    <label className={labelClass}>Year (Manufacturing)</label>
+                    <label className={labelClass}>
+                      Year (Manufacturing) <span className="text-rose-500 font-black ml-1">*</span>
+                    </label>
                     <input type="number" className={inpClass} value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} placeholder="e.g. 2023" />
                   </div>
 
                   <div>
-                    <label className={labelClass}>Reg. Year</label>
+                    <label className={labelClass}>
+                      Reg. Year <span className="text-rose-500 font-black ml-1">*</span>
+                    </label>
                     <input type="number" className={inpClass} value={formData.regYear || formData.year} onChange={e => setFormData({...formData, regYear: e.target.value})} placeholder="e.g. 2023" />
                   </div>
 
                   <div>
-                    <label className={labelClass}>Fuel Type</label>
+                    <label className={labelClass}>
+                      Fuel Type <span className="text-rose-500 font-black ml-1">*</span>
+                    </label>
                     <select className={inpClass} value={formData.fuelType} onChange={e => setFormData({...formData, fuelType: e.target.value})}>
                       {["Petrol", "Diesel", "CNG", "Electric", "Hybrid"].map(f => <option key={f} value={f}>{f}</option>)}
                     </select>
                   </div>
 
                   <div>
-                    <label className={labelClass}>Transmission</label>
+                    <label className={labelClass}>
+                      Transmission <span className="text-rose-500 font-black ml-1">*</span>
+                    </label>
                     <select className={inpClass} value={formData.transmission || "Automatic"} onChange={e => setFormData({...formData, transmission: e.target.value})}>
                       {["Automatic", "Manual"].map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
 
                   <div>
-                    <label className={labelClass}>Body Type</label>
+                    <label className={labelClass}>
+                      Body Type <span className="text-rose-500 font-black ml-1">*</span>
+                    </label>
                     <select className={inpClass} value={formData.bodyType || ""} onChange={e => setFormData({...formData, bodyType: e.target.value})}>
                       <option value="">Select Body Type...</option>
                       {["Hatchback", "Sedan", "SUV", "MUV", "Luxury Sedan", "Luxury SUV"].map(b => <option key={b} value={b}>{b}</option>)}
@@ -805,7 +874,9 @@ const CarEditPage = () => {
                   </div>
 
                   <div>
-                    <label className={labelClass}>Location (City)</label>
+                    <label className={labelClass}>
+                      Location (City) <span className="text-rose-500 font-black ml-1">*</span>
+                    </label>
                     <input type="text" className={inpClass} value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. Andheri West, Mumbai" />
                   </div>
                 </div>
@@ -894,7 +965,9 @@ const CarEditPage = () => {
                     </div>
 
                     <div>
-                      <label className={labelClass}>Actual Selling Price (₹)</label>
+                      <label className={labelClass}>
+                        Actual Selling Price (₹) <span className="text-rose-500 font-black ml-1">*</span>
+                      </label>
                       <input 
                         type="number" 
                         className={`${inpClass} font-bold text-slate-900 dark:text-white bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800`} 
@@ -992,7 +1065,9 @@ const CarEditPage = () => {
                 <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-gray-800">
                   <div className="flex items-center gap-2">
                     <ImageIcon size={16} className="text-[#155DFC]" />
-                    <h2 className="text-sm font-black text-slate-900 dark:text-white">Main Cover Image</h2>
+                    <h2 className="text-sm font-black text-slate-900 dark:text-white">
+                      Main Cover Image <span className="text-rose-500 font-black ml-1">*</span>
+                    </h2>
                   </div>
                 </div>
 
@@ -1009,7 +1084,8 @@ const CarEditPage = () => {
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
                       <ImageIcon size={32} strokeWidth={1.5} />
-                      <span className="text-xs font-bold mt-2">No Image Selected</span>
+                      <span className="text-xs font-bold mt-2">No Cover Photo Selected</span>
+                      <span className="text-[10px] text-slate-400 mt-0.5">Will auto-pick from gallery or choose here</span>
                     </div>
                   )}
                 </div>
@@ -1106,32 +1182,169 @@ const CarEditPage = () => {
           </section>
         )}
 
-        {/* Specifications Section */}
+        {/* Specifications & History Section */}
         {activeTab === "specs" && (
-          <section className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-[2rem] shadow-sm border border-gray-50 dark:border-gray-800 max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-                Technical Specifications
-              </h2>
-              <button 
-                onClick={() => addItem("specifications", { label: "", value: "", icon: "Gauge" })}
-                className="flex items-center gap-2 text-indigo-600 font-bold bg-indigo-50 dark:bg-indigo-900/20 px-4 py-2 rounded-xl border border-indigo-100/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all"
-              >
-                <Plus size={18} /> Add Spec
-              </button>
-            </div>
+          <div className="space-y-8 max-w-5xl mx-auto">
+            {/* Core Vehicle History & Registration */}
+            <section className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-200/80 dark:border-gray-800">
+              <div className="flex items-center gap-2.5 mb-6 pb-4 border-b border-slate-100 dark:border-gray-800">
+                <div className="w-1.5 h-5 bg-[#155DFC] rounded-full" />
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                  Vehicle History & Core Specs
+                </h2>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {formData.specifications.length === 0 && (
-                <div className="col-span-2 py-12 text-center text-gray-400 font-medium bg-gray-50 dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
-                  No technical specs added yet.
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                <div>
+                  <label className={labelClass}>
+                    KM Driven (Odometer) <span className="text-rose-500 font-black ml-1">*</span>
+                  </label>
+                  <input 
+                    type="number" 
+                    className={inpClass} 
+                    value={formData.km} 
+                    onChange={e => setFormData({...formData, km: e.target.value})} 
+                    placeholder="e.g. 24500" 
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1 font-medium">Total kilometers on odometer.</p>
                 </div>
-              )}
-              {formData.specifications.map((spec: any, idx: number) => (
-                <div key={idx} className="p-5 bg-gray-50 dark:bg-gray-800 rounded-2xl relative group border border-transparent hover:border-indigo-200 transition-all flex gap-4">
-                   <div className="flex-1 space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
+
+                <div>
+                  <label className={labelClass}>
+                    Ownership <span className="text-rose-500 font-black ml-1">*</span>
+                  </label>
+                  <select 
+                    className={inpClass} 
+                    value={formData.ownership || "1st Owner"} 
+                    onChange={e => setFormData({...formData, ownership: e.target.value})}
+                  >
+                    {["1st Owner", "2nd Owner", "3rd Owner", "4th+ Owner"].map(o => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className={labelClass}>
+                    Reg. State <span className="text-rose-500 font-black ml-1">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    className={inpClass} 
+                    value={formData.regState || ""} 
+                    onChange={e => setFormData({...formData, regState: e.target.value.toUpperCase()})} 
+                    placeholder="e.g. MH, DL, CG" 
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1 font-medium">2-letter RTO state code.</p>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Registration Number</label>
+                  <input 
+                    type="text" 
+                    className={inpClass} 
+                    value={formData.registrationNo || formData.registration_no || ""} 
+                    onChange={e => setFormData({...formData, registrationNo: e.target.value.toUpperCase(), registration_no: e.target.value.toUpperCase()})} 
+                    placeholder="e.g. MH02DW8821" 
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Engine Capacity (CC)</label>
+                  <input 
+                    type="text" 
+                    className={inpClass} 
+                    value={formData.engineCapacity || ""} 
+                    onChange={e => setFormData({...formData, engineCapacity: e.target.value})} 
+                    placeholder="e.g. 1498 cc" 
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Color</label>
+                  <input 
+                    type="text" 
+                    className={inpClass} 
+                    value={formData.color || ""} 
+                    onChange={e => setFormData({...formData, color: e.target.value})} 
+                    placeholder="e.g. Polar White" 
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Spare Key</label>
+                  <select 
+                    className={inpClass} 
+                    value={formData.spareKey || "Yes"} 
+                    onChange={e => setFormData({...formData, spareKey: e.target.value})}
+                  >
+                    <option value="Yes">Yes (Available)</option>
+                    <option value="No">No (Single Key)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Insurance Status</label>
+                  <select 
+                    className={inpClass} 
+                    value={formData.insuranceStatus || "Active"} 
+                    onChange={e => setFormData({...formData, insuranceStatus: e.target.value})}
+                  >
+                    <option value="Active">Comprehensive (Active)</option>
+                    <option value="Third Party">Third Party Only</option>
+                    <option value="Expired">Expired</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Hub / Showroom Location</label>
+                  <input 
+                    type="text" 
+                    className={inpClass} 
+                    value={formData.hub || ""} 
+                    onChange={e => setFormData({...formData, hub: e.target.value})} 
+                    placeholder="e.g. Andheri Hub, Mumbai" 
+                  />
+                </div>
+
+                <div className="sm:col-span-2 md:col-span-3">
+                  <label className={labelClass}>Vehicle Description & Overview</label>
+                  <textarea 
+                    className={inpClass + " min-h-[90px] resize-none"} 
+                    value={formData.description || ""} 
+                    onChange={e => setFormData({...formData, description: e.target.value})} 
+                    placeholder="Provide highlights about car condition, service history, tyre condition, battery, warranty, etc."
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Technical Specifications Table */}
+            <section className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-200/80 dark:border-gray-800">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-gray-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-1.5 h-5 bg-[#155DFC] rounded-full" />
+                  <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                    Technical Specifications
+                  </h2>
+                </div>
+                <button 
+                  onClick={() => addItem("specifications", { label: "", value: "", icon: "Gauge" })}
+                  className="flex items-center gap-2 text-indigo-600 font-bold bg-indigo-50 dark:bg-indigo-900/20 px-4 py-2 rounded-xl border border-indigo-100/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all text-xs cursor-pointer"
+                >
+                  <Plus size={16} /> Add Spec
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {formData.specifications.length === 0 && (
+                  <div className="col-span-2 py-8 text-center text-gray-400 font-medium bg-gray-50 dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 text-xs">
+                    No custom technical specs added yet. Click "+ Add Spec" to add extra details like ground clearance, boot space, etc.
+                  </div>
+                )}
+                {formData.specifications.map((spec: any, idx: number) => (
+                  <div key={idx} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl relative group border border-slate-100 dark:border-gray-700 transition-all flex gap-3 items-center">
+                     <div className="flex-1 grid grid-cols-2 gap-3">
                         <input 
                           type="text" 
                           className={inpClass} 
@@ -1146,18 +1359,18 @@ const CarEditPage = () => {
                           onChange={e => updateItem("specifications", idx, "value", e.target.value)} 
                           placeholder="Value (e.g. 18.5 kmpl)"
                         />
-                      </div>
-                   </div>
-                   <button 
-                    onClick={() => removeItem("specifications", idx)}
-                    className="p-2 text-gray-400 hover:text-red-500 rounded-lg"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
+                     </div>
+                     <button 
+                      onClick={() => removeItem("specifications", idx)}
+                      className="p-2 text-gray-400 hover:text-red-500 rounded-lg cursor-pointer transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
         )}
 
         {/* Features Section */}

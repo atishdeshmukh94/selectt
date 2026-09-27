@@ -847,13 +847,13 @@ const seoSlugify = (text) => {
 app.get('/api/sitemap.xml', async (req, res) => {
     try {
         const cars = await queryAsync(
-            "SELECT id, make, model, variant, updated_at, created_at FROM cars WHERE status = 'active' OR status IS NULL OR status = '' ORDER BY updated_at DESC LIMIT 5000"
+            "SELECT id, make, model, variant, created_at FROM cars WHERE status = 'active' OR status IS NULL OR status = '' ORDER BY created_at DESC LIMIT 5000"
         );
 
         let blogs = [];
         try {
             blogs = await queryAsync(
-                "SELECT slug, updated_at FROM blog_posts WHERE status = 'published' ORDER BY updated_at DESC LIMIT 1000"
+                "SELECT slug, created_at FROM blog_posts WHERE status = 'published' ORDER BY created_at DESC LIMIT 1000"
             );
         } catch (_) { /* blog table may not exist */ }
 
@@ -868,7 +868,7 @@ app.get('/api/sitemap.xml', async (req, res) => {
             const make = seoSlugify(car.make || 'car');
             const model = seoSlugify(car.model || 'model');
             const variant = seoSlugify(car.variant || `${car.make}-${car.model}`);
-            const lastmod = car.updated_at ? new Date(car.updated_at).toISOString().split('T')[0] : today;
+            const lastmod = car.created_at ? new Date(car.created_at).toISOString().split('T')[0] : today;
             urls += `  <url>\n    <loc>${SITE_URL}/car/${make}/${model}/${variant}/${car.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
         }
 
@@ -1163,7 +1163,7 @@ app.post('/api/admin/meta-catalog/sync-all', authMiddleware, isAdmin, async (req
 });
 
 // SEC-001 FIX: Admin notifications now require authentication
-app.get('/api/admin/notifications', authMiddleware, isAdmin, (req, res) => {
+app.get(['/api/admin/notifications', '/api/notifications'], authMiddleware, isAdmin, (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     db.query('SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT ?', [limit], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -1178,14 +1178,14 @@ app.get('/api/admin/notifications', authMiddleware, isAdmin, (req, res) => {
     });
 });
 
-app.put('/api/admin/notifications/:id/read', authMiddleware, isAdmin, (req, res) => {
+app.put(['/api/admin/notifications/:id/read', '/api/notifications/:id/read'], authMiddleware, isAdmin, (req, res) => {
     db.query('UPDATE admin_notifications SET is_read = TRUE WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true });
     });
 });
 
-app.put('/api/admin/notifications/read-all', authMiddleware, isAdmin, (req, res) => {
+app.put(['/api/admin/notifications/read-all', '/api/notifications/read-all'], authMiddleware, isAdmin, (req, res) => {
     db.query('UPDATE admin_notifications SET is_read = TRUE WHERE is_read = FALSE', (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true, updated: result.affectedRows });
@@ -4031,6 +4031,21 @@ app.get('/api/brands', (req, res) => {
     });
 });
 
+// Public: Get models (optionally filtered by ?brand_id=...)
+app.get(['/api/models', '/api/car-models'], (req, res) => {
+    let query = 'SELECT m.*, b.name as brand_name FROM models m LEFT JOIN brands b ON m.brand_id = b.id';
+    let params = [];
+    if (req.query.brand_id) {
+        query += ' WHERE m.brand_id = ?';
+        params.push(req.query.brand_id);
+    }
+    query += ' ORDER BY m.name ASC';
+    db.query(query, params, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
 // Admin: Add a brand
 app.post('/api/admin/brands', authMiddleware, isAdmin, upload.single('logo'), convertRequestImagesToWebp, (req, res) => {
     const { name } = req.body;
@@ -4288,7 +4303,7 @@ db.query("ALTER TABLE car_hub_locations ADD COLUMN phone VARCHAR(50) DEFAULT NUL
     }
 });
 
-app.get('/api/car-hub-locations', (req, res) => {
+app.get(['/api/car-hub-locations', '/api/car-hubs', '/api/hubs'], (req, res) => {
     db.query('SELECT * FROM car_hub_locations ORDER BY city ASC, name ASC', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
