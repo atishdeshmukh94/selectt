@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
           setUser(initialUser);
 
           // Fetch fresh user profile details from DB to sync first_name/last_name
-          fetch(`/api/customers/profile`, {
+          fetch(`${API}/api/customers/profile`, {
             headers: { 'Authorization': `Bearer ${storedToken}` }
           })
           .then(res => {

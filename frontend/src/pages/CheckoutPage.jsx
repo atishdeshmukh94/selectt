@@ -21,7 +21,7 @@ const CheckoutPage = () => {
     }
 
     // Fetch car details from API
-    fetch(`/api/cars/${carId}`)
+    fetch(`${API_URL}/api/cars/${carId}`)
       .then(res => {
         if (!res.ok) throw new Error();
         return res.json();
@@ -69,7 +69,7 @@ const CheckoutPage = () => {
 
     try {
       // 1. Create a placeholder booking in backend
-      const bookingResp = await fetch(`/api/bookings`, {
+      const bookingResp = await fetch(`${API_URL}/api/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ const CheckoutPage = () => {
       const bookingId = bookingData.id;
 
       // 2. Create Razorpay Order
-      const orderResp = await fetch(`/api/payments/create-order`, {
+      const orderResp = await fetch(`${API_URL}/api/payments/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ const CheckoutPage = () => {
       const orderData = await orderResp.json();
 
       // 3. Get Public Key (I'll need to implement this endpoint or just fetch it here if I had it)
-      const settingsResp = await fetch(`/api/settings/public`);
+      const settingsResp = await fetch(`${API_URL}/api/settings/public`);
       const settingsData = await settingsResp.json();
       const razorpayKey = settingsData.razorpay_key_id;
 
@@ -123,7 +123,7 @@ const CheckoutPage = () => {
         order_id: orderData.id,
         handler: async function (response) {
           // 5. Verify Payment
-          const verifyResp = await fetch(`/api/payments/verify`, {
+          const verifyResp = await fetch(`${API_URL}/api/payments/verify`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

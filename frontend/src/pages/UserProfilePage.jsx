@@ -53,7 +53,7 @@ const UserProfilePage = () => {
   const handleSaveEdit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`/api/sell-requests/${editingCar.id}`, {
+      const res = await fetch(`${API}/api/sell-requests/${editingCar.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +113,7 @@ const UserProfilePage = () => {
     const formData = new FormData();
     formData.append('avatar', blob, 'avatar.jpg');
     try {
-      const res = await fetch(`/api/customers/avatar`, {
+      const res = await fetch(`${API}/api/customers/avatar`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
@@ -173,7 +173,7 @@ const UserProfilePage = () => {
     });
 
     try {
-      const res = await fetch(`/api/loan-application`, {
+      const res = await fetch(`${API}/api/loan-application`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
@@ -211,7 +211,7 @@ const UserProfilePage = () => {
     if (!token || !user || profileFetched.current) return;
     profileFetched.current = true;
     setProfileLoading(true);
-    fetch(`/api/customers/profile`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/customers/profile`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => res.json())
       .then(data => {
         setProfile({
@@ -242,7 +242,7 @@ const UserProfilePage = () => {
   const fetchLoan = () => {
     if (!token || activeTab !== 'loan') return;
     setLoanLoading(true);
-    fetch(`/api/loan-applications`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/loan-applications`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => res.json())
       .then(data => {
         // We take the latest application
@@ -262,7 +262,7 @@ const UserProfilePage = () => {
   useEffect(() => {
     if (!token || activeTab !== 'wishlisted') return;
     setWishlistLoading(true);
-    fetch(`/api/wishlist`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/wishlist`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setWishlistedCars(data);
@@ -275,7 +275,7 @@ const UserProfilePage = () => {
   useEffect(() => {
     if (!token || (activeTab !== 'bookings' && activeTab !== 'buy')) return;
     setBookingsLoading(true);
-    fetch(`/api/bookings`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/bookings`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setBookings(data);
@@ -288,7 +288,7 @@ const UserProfilePage = () => {
   useEffect(() => {
     if (!token || activeTab !== 'testdrives') return;
     setTestDrivesLoading(true);
-    fetch(`/api/test-drives`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/test-drives`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setTestDrives(data);
@@ -301,7 +301,7 @@ const UserProfilePage = () => {
   const fetchSellRequests = () => {
     if (!token || activeTab !== 'sell') return;
     setSellCarsLoading(true);
-    fetch(`/api/sell-requests/mine`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/sell-requests/mine`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -434,7 +434,7 @@ const UserProfilePage = () => {
     setProfileSaving(true);
     setProfileMsg('');
     try {
-      const res = await fetch(`/api/customers/profile`, {
+      const res = await fetch(`${API}/api/customers/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(profile)

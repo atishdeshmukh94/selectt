@@ -35,7 +35,7 @@ export default function Customers() {
 
   const fetchCustomers = () => {
     setLoading(true);
-    fetch(`/api/customers`, { headers: authHeaders })
+    fetch(`${API}/api/customers`, { headers: authHeaders })
       .then(r => r.json()).then(data => setCustomers(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
   };
@@ -121,7 +121,7 @@ export default function Customers() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch(`/api/customers/${editing.id}`, {
+      const res = await fetch(`${API}/api/customers/${editing.id}`, {
         method: "PUT", headers: authHeaders, body: JSON.stringify(editForm)
       });
       if (!res.ok) throw new Error();
@@ -148,7 +148,7 @@ export default function Customers() {
     const formData = new FormData();
     formData.append("avatar", blob, "avatar.jpg");
     try {
-      const res = await fetch(`/api/customers/${editing.id}/avatar`, {
+      const res = await fetch(`${API}/api/customers/${editing.id}/avatar`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData
@@ -184,7 +184,7 @@ export default function Customers() {
 
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this customer?")) return;
-    await fetch(`/api/customers/${id}`, { method: "DELETE", headers: authHeaders });
+    await fetch(`${API}/api/customers/${id}`, { method: "DELETE", headers: authHeaders });
     fetchCustomers();
   };
 

@@ -86,7 +86,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
       : dates.find(d => d.id === selectedDate);
 
     try {
-      const response = await fetch(`/api/test-drives`, {
+      const response = await fetch(`${API}/api/test-drives`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
