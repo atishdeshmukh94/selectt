@@ -18,7 +18,8 @@ import {
   Play,
   Search,
   IndianRupee,
-  Tag
+  Tag,
+  Star
 } from "lucide-react";
 
 import { API_URL } from "../config/api";
@@ -31,6 +32,7 @@ const CarEditPage = () => {
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(isEdit);
+  const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const [videoSource, setVideoSource] = useState<"upload" | "youtube" | "url">("upload");
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
@@ -159,7 +161,12 @@ const CarEditPage = () => {
               newImages.push(url);
             }
           });
-          setFormData({ ...formData, moreImages: newImages });
+          const firstRealImg = newImages.find(u => getMediaType(u) === 'image') || '';
+          setFormData({ 
+            ...formData, 
+            moreImages: newImages, 
+            image: formData.image || firstRealImg 
+          });
           toast.success(`Successfully uploaded ${validUrls.length} file(s)!`);
         }
       }
@@ -199,10 +206,16 @@ const CarEditPage = () => {
   const selectLibraryImage = (url: string) => {
     if (libraryTarget === 'main') {
       setFormData({ ...formData, image: url });
-      toast.success("Main image set from library!");
+      toast.success("Main cover image set from library!");
     } else {
       if (!formData.moreImages.includes(url)) {
-        setFormData({ ...formData, moreImages: [...formData.moreImages, url] });
+        const updatedImages = [...formData.moreImages, url];
+        const firstRealImg = updatedImages.find(u => getMediaType(u) === 'image') || '';
+        setFormData({ 
+          ...formData, 
+          moreImages: updatedImages,
+          image: formData.image || firstRealImg
+        });
         toast.success("Image added to gallery!");
       } else {
         toast.error("Image already in gallery!");
@@ -230,7 +243,12 @@ const CarEditPage = () => {
         addedCount++;
       }
     });
-    setFormData({ ...formData, moreImages: newImages });
+    const firstRealImg = newImages.find(u => getMediaType(u) === 'image') || '';
+    setFormData({ 
+      ...formData, 
+      moreImages: newImages,
+      image: formData.image || firstRealImg
+    });
     if (addedCount > 0) {
       toast.success(`Added ${addedCount} image(s) to gallery!`);
     }
@@ -382,35 +400,76 @@ const CarEditPage = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 1. Validation checks
+    if (!formData.make || !String(formData.make).trim()) {
+      toast.error("Please select or enter the Brand (Make) in Step 1");
+      setActiveTab("basic");
+      return;
+    }
+
+    if (!formData.model || !String(formData.model).trim()) {
+      toast.error("Please select or enter the Model in Step 1");
+      setActiveTab("basic");
+      return;
+    }
+
+    if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
+      toast.error("Please enter a valid Selling Price in Step 1");
+      setActiveTab("basic");
+      return;
+    }
+
+    if (!formData.year || isNaN(Number(formData.year))) {
+      toast.error("Please enter the Year of Manufacture in Step 1");
+      setActiveTab("basic");
+      return;
+    }
+
     // Auto-extract first video to sync with videoUrl field in database
-    const firstVideo = formData.moreImages.find((url: string) => {
+    const firstVideo = (formData.moreImages || []).find((url: string) => {
       const t = getMediaType(url);
       return t === 'video' || t === 'youtube';
+    }) || formData.videoUrl || "";
+
+    // Auto-extract primary cover image if not explicitly set
+    const firstImage = (formData.moreImages || []).find((url: string) => {
+      return getMediaType(url) === 'image';
     }) || "";
+    const primaryCover = formData.image || firstImage || "/img/suv.png";
 
     const updatedFormData = {
       ...formData,
+      image: primaryCover,
       videoUrl: firstVideo
     };
 
     const url = isEdit ? `${API}/api/cars/${id}` : `${API}/api/cars`;
     const method = isEdit ? "PUT" : "POST";
 
+    setIsSaving(true);
     try {
+      const token = localStorage.getItem("adminToken");
       const response = await fetch(url, {
         method,
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("adminToken")}`
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(updatedFormData)
       });
 
-      if (!response.ok) throw new Error("Failed to save car");
-      toast.success(isEdit ? "Car updated successfully" : "Car added successfully");
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || errData.message || `Failed to save car (HTTP ${response.status})`);
+      }
+
+      toast.success(isEdit ? "Car listing updated successfully!" : "New car listing published successfully!");
       navigate("/cars");
-    } catch (error) {
-      toast.error("Error saving car");
+    } catch (error: any) {
+      console.error("Error saving car:", error);
+      toast.error(error.message || "Error saving car");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -549,15 +608,26 @@ const CarEditPage = () => {
            <button 
             onClick={() => navigate("/cars")}
             className="px-5 py-2.5 rounded-xl font-bold text-xs text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all cursor-pointer"
+            disabled={isSaving}
           >
             Cancel
           </button>
           <button 
             onClick={handleSave}
-            className="flex items-center gap-2 bg-[#1C3EB9] text-white px-6 py-2.5 rounded-xl font-black text-xs hover:bg-[#00B49D] transition-all shadow-xs cursor-pointer active:scale-95"
+            disabled={isSaving}
+            className="flex items-center gap-2 bg-[#1C3EB9] text-white px-6 py-2.5 rounded-xl font-black text-xs hover:bg-[#00B49D] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer active:scale-95"
           >
-            <Save size={16} />
-            {isEdit ? "Update Car" : "Publish Listing"}
+            {isSaving ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                <span>Saving Listing...</span>
+              </>
+            ) : (
+              <>
+                <Save size={16} />
+                <span>{isEdit ? "Update Car" : "Publish Listing"}</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -1176,13 +1246,16 @@ const CarEditPage = () => {
               {formData.moreImages.map((img: string, idx: number) => {
                 const mediaType = getMediaType(img);
                 const isDragging = draggedIndex === idx;
+                const isCover = formData.image === img || (!formData.image && idx === 0 && mediaType === 'image');
                 return (
                   <div 
                     key={img} 
                     className={`aspect-video bg-gray-50 dark:bg-gray-800 rounded-2xl overflow-hidden relative group border transition-all cursor-move select-none ${
                       isDragging 
                         ? 'border-indigo-500 scale-95 opacity-50 shadow-inner' 
-                        : 'border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md'
+                        : isCover 
+                          ? 'border-amber-400 ring-2 ring-amber-400/40 shadow-md'
+                          : 'border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md'
                     }`}
                     draggable
                     onDragStart={(e) => handleDragStart(e, idx)}
@@ -1190,6 +1263,14 @@ const CarEditPage = () => {
                     onDrop={(e) => handleDrop(e, idx)}
                     onDragEnd={handleDragEnd}
                   >
+                     {/* Cover Badge */}
+                     {isCover && (
+                       <div className="absolute top-2.5 left-2.5 bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-md flex items-center gap-1 z-10">
+                         <Star size={10} className="fill-white" />
+                         <span>Cover Photo</span>
+                       </div>
+                     )}
+
                      {mediaType === 'video' ? (
                        <div className="w-full h-full bg-[#0C1B33] flex flex-col items-center justify-center text-white text-[10px] font-bold p-3">
                          <span className="text-lg">▶</span>
@@ -1203,24 +1284,40 @@ const CarEditPage = () => {
                          <span className="text-[7px] text-gray-200 mt-1 font-mono text-center truncate w-full">{img}</span>
                        </div>
                      ) : (
-                       <img src={img} className="w-full h-full object-cover pointer-events-none" />
+                       <img src={img.startsWith('/') ? `${API}${img}` : img} className="w-full h-full object-cover pointer-events-none" />
                      )}
                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all">
+                        {mediaType === 'image' && !isCover && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormData({ ...formData, image: img });
+                              toast.success("Set as main cover photo!");
+                            }}
+                            className="p-2 bg-amber-500 text-white rounded-full hover:scale-110 transition-transform cursor-pointer shadow-md"
+                            title="Set as Main Cover Photo"
+                          >
+                            <Star size={16} />
+                          </button>
+                        )}
                         <button 
                           type="button"
                           onClick={() => {
                             const newer = [...formData.moreImages];
                             newer.splice(idx, 1);
                             const isVid = mediaType === 'video' || mediaType === 'youtube';
+                            const nextCover = formData.image === img ? (newer.find((u: string) => getMediaType(u) === 'image') || '') : formData.image;
                             setFormData({
                               ...formData,
                               moreImages: newer,
+                              image: nextCover,
                               videoUrl: isVid ? "" : formData.videoUrl
                             });
                           }}
-                          className="p-2 bg-red-600 text-white rounded-full hover:scale-110 transition-transform"
+                          className="p-2 bg-red-600 text-white rounded-full hover:scale-110 transition-transform cursor-pointer shadow-md"
+                          title="Delete"
                         >
-                          <Trash2 size={20} />
+                          <Trash2 size={16} />
                         </button>
                      </div>
                   </div>
@@ -1606,10 +1703,20 @@ const CarEditPage = () => {
 
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2.5 rounded-xl font-black text-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-md cursor-pointer active:scale-95"
+              disabled={isSaving}
+              className="flex items-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2.5 rounded-xl font-black text-xs hover:bg-slate-800 dark:hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md cursor-pointer active:scale-95"
             >
-              <Save size={16} />
-              <span>{isEdit ? "Update Car" : "Publish Listing"}</span>
+              {isSaving ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Saving Listing...</span>
+                </>
+              ) : (
+                <>
+                  <Save size={16} />
+                  <span>{isEdit ? "Update Car" : "Publish Listing"}</span>
+                </>
+              )}
             </button>
           </div>
         </div>

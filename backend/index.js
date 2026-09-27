@@ -111,21 +111,24 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml', 'application/pdf'];
-    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.pdf'];
+    const allowedMimes = [
+        'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml', 'application/pdf',
+        'video/mp4', 'video/quicktime', 'video/webm', 'video/x-matroska', 'video/avi'
+    ];
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.pdf', '.mp4', '.mov', '.webm', '.mkv', '.avi'];
     const ext = path.extname(file.originalname).toLowerCase();
     
-    if (allowedMimes.includes(file.mimetype) && allowedExts.includes(ext)) {
+    if (allowedMimes.includes(file.mimetype) || allowedExts.includes(ext)) {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file format. Only JPEG, PNG, WEBP, GIF, SVG and PDF files are allowed.'), false);
+        cb(new Error('Invalid file format. Only JPEG, PNG, WEBP, GIF, SVG, PDF, MP4, MOV and WEBM files are allowed.'), false);
     }
 };
 
 const upload = multer({ 
     storage,
     fileFilter,
-    limits: { fileSize: 15 * 1024 * 1024 } // 15MB limit per file
+    limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit per file
 });
 
 // Generate thumbnail helper
@@ -1353,40 +1356,71 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
     const { make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
         location, image, tag, badgeText, badge_text, hub, isAssured, listingType, listing_type, ownership, engineCapacity, engine_capacity,
         regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
-        insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status } = req.body;
+        insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status, registrationNo, registration_no } = req.body;
+
+    if (!make || !model) {
+        return res.status(400).json({ error: 'Make and Model are required' });
+    }
+
+    // Determine primary cover image
+    let primaryImage = (image && typeof image === 'string' && image.trim()) ? image.trim() : '';
+    if (!primaryImage && req.body.moreImages) {
+        const gallery = Array.isArray(req.body.moreImages) ? req.body.moreImages : [];
+        const firstImg = gallery.find(url => typeof url === 'string' && !url.includes('youtube.com') && !url.includes('youtu.be') && !url.endsWith('.mp4') && !url.endsWith('.mov') && !url.endsWith('.webm'));
+        if (firstImg) primaryImage = firstImg;
+    }
+    if (!primaryImage) primaryImage = '/img/suv.png';
+
+    // Auto extract video URL if not explicitly set
+    let finalVideoUrl = videoUrl || video_url || null;
+    if (!finalVideoUrl && req.body.moreImages && Array.isArray(req.body.moreImages)) {
+        const firstVid = req.body.moreImages.find(url => typeof url === 'string' && (url.includes('youtube.com') || url.includes('youtu.be') || url.endsWith('.mp4') || url.endsWith('.mov') || url.endsWith('.webm')));
+        if (firstVid) finalVideoUrl = firstVid;
+    }
 
     const data = {
-        make, model, variant, year, price, emi, km,
-        original_price: originalPrice !== undefined ? originalPrice : (original_price !== undefined ? original_price : null),
+        make: String(make).trim(),
+        model: String(model).trim(),
+        variant: variant || null,
+        year: year ? parseInt(year, 10) : new Date().getFullYear(),
+        price: price ? parseFloat(price) : 0,
+        emi: emi ? parseFloat(emi) : null,
+        km: km ? parseInt(km, 10) : 0,
+        original_price: originalPrice !== undefined && originalPrice !== '' ? parseFloat(originalPrice) : (original_price !== undefined && original_price !== '' ? parseFloat(original_price) : null),
         discount_type: discountType || discount_type || 'none',
-        discount_value: discountValue !== undefined ? discountValue : (discount_value !== undefined ? discount_value : 0),
-        offer_price: offerPrice !== undefined ? offerPrice : (offer_price !== undefined ? offer_price : null),
-        fuel_type: fuelType || fuel_type,
-        transmission, location, image, tag, hub,
-        badge_text: badgeText || badge_text,
-        is_assured: isAssured || false,
+        discount_value: discountValue !== undefined && discountValue !== '' ? parseFloat(discountValue) : (discount_value !== undefined && discount_value !== '' ? parseFloat(discount_value) : 0),
+        offer_price: offerPrice !== undefined && offerPrice !== '' ? parseFloat(offerPrice) : (offer_price !== undefined && offer_price !== '' ? parseFloat(offer_price) : null),
+        fuel_type: fuelType || fuel_type || 'Petrol',
+        transmission: transmission || 'Manual',
+        location: location || 'Mumbai',
+        image: primaryImage,
+        tag: tag || null,
+        hub: hub || null,
+        badge_text: badgeText || badge_text || null,
+        is_assured: isAssured ? 1 : 0,
         listing_type: listingType || listing_type || 'standard',
-        ownership,
-        engine_capacity: engineCapacity || engine_capacity,
-        reg_year: regYear || reg_year,
-        reg_state: regState || reg_state,
-        spare_key: spareKey || spare_key,
-        insurance_status: insuranceStatus || insurance_status,
-        color,
-        body_type: bodyType || body_type,
-        description,
-        reasons_to_buy: req.body.reasonsToBuy ? JSON.stringify(req.body.reasonsToBuy) : null,
-        specifications: req.body.specifications ? JSON.stringify(req.body.specifications) : null,
-        features: req.body.features ? JSON.stringify(req.body.features) : null,
-        quality_report: req.body.qualityReport ? JSON.stringify(req.body.qualityReport) : null,
-        more_images: req.body.moreImages ? JSON.stringify(req.body.moreImages) : null,
-        video_url: videoUrl || video_url || null,
+        ownership: ownership || '1st Owner',
+        engine_capacity: engineCapacity || engine_capacity || null,
+        reg_year: regYear || reg_year || (year ? parseInt(year, 10) : new Date().getFullYear()),
+        reg_state: regState || reg_state || null,
+        spare_key: spareKey || spare_key || 'Yes',
+        insurance_status: insuranceStatus || insurance_status || 'Active',
+        color: color || null,
+        body_type: bodyType || body_type || null,
+        description: description || null,
+        registration_no: registrationNo || registration_no || null,
+        reasons_to_buy: req.body.reasonsToBuy ? (typeof req.body.reasonsToBuy === 'string' ? req.body.reasonsToBuy : JSON.stringify(req.body.reasonsToBuy)) : null,
+        specifications: req.body.specifications ? (typeof req.body.specifications === 'string' ? req.body.specifications : JSON.stringify(req.body.specifications)) : null,
+        features: req.body.features ? (typeof req.body.features === 'string' ? req.body.features : JSON.stringify(req.body.features)) : null,
+        quality_report: req.body.qualityReport ? (typeof req.body.qualityReport === 'string' ? req.body.qualityReport : JSON.stringify(req.body.qualityReport)) : null,
+        more_images: req.body.moreImages ? (typeof req.body.moreImages === 'string' ? req.body.moreImages : JSON.stringify(req.body.moreImages)) : null,
+        video_url: finalVideoUrl,
         status: status || 'active'
     };
 
     db.query('INSERT INTO cars SET ?', data, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
-        triggerMetaAutoSync(result.insertId, 'CREATE');
+        try { triggerMetaAutoSync(result.insertId, 'CREATE'); } catch (_) {}
         res.status(201).json({ id: result.insertId, ...mapCar({ ...data, id: result.insertId }) });
     });
 });
@@ -1427,7 +1461,7 @@ app.post('/api/cars/bulk-import', authMiddleware, isAdmin, async (req, res) => {
             });
         }
         if (insertedIds.length > 0) {
-            triggerMetaAutoSync(insertedIds, 'CREATE');
+            try { triggerMetaAutoSync(insertedIds, 'CREATE'); } catch (_) {}
         }
         res.json({ message: `Successfully imported ${insertedCount} cars`, count: insertedCount });
     } catch (err) {
@@ -1443,34 +1477,66 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
         const { make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
             location, image, tag, badgeText, badge_text, hub, isAssured, listingType, listing_type, ownership, engineCapacity, engine_capacity,
             regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
-            insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status } = req.body;
+            insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status, registrationNo, registration_no } = req.body;
+
+        if (!make || !model) {
+            return res.status(400).json({ error: 'Make and Model are required' });
+        }
+
+        // Determine primary cover image
+        let primaryImage = (image && typeof image === 'string' && image.trim()) ? image.trim() : '';
+        if (!primaryImage && req.body.moreImages) {
+            const gallery = Array.isArray(req.body.moreImages) ? req.body.moreImages : [];
+            const firstImg = gallery.find(url => typeof url === 'string' && !url.includes('youtube.com') && !url.includes('youtu.be') && !url.endsWith('.mp4') && !url.endsWith('.mov') && !url.endsWith('.webm'));
+            if (firstImg) primaryImage = firstImg;
+        }
+        if (!primaryImage && oldCar && oldCar.image) primaryImage = oldCar.image;
+        if (!primaryImage) primaryImage = '/img/suv.png';
+
+        // Auto extract video URL if not explicitly set
+        let finalVideoUrl = videoUrl || video_url || null;
+        if (!finalVideoUrl && req.body.moreImages && Array.isArray(req.body.moreImages)) {
+            const firstVid = req.body.moreImages.find(url => typeof url === 'string' && (url.includes('youtube.com') || url.includes('youtu.be') || url.endsWith('.mp4') || url.endsWith('.mov') || url.endsWith('.webm')));
+            if (firstVid) finalVideoUrl = firstVid;
+        }
 
         const data = {
-            make, model, variant, year, price, emi, km,
-            original_price: originalPrice !== undefined ? originalPrice : (original_price !== undefined ? original_price : null),
+            make: String(make).trim(),
+            model: String(model).trim(),
+            variant: variant || null,
+            year: year ? parseInt(year, 10) : new Date().getFullYear(),
+            price: price ? parseFloat(price) : 0,
+            emi: emi ? parseFloat(emi) : null,
+            km: km ? parseInt(km, 10) : 0,
+            original_price: originalPrice !== undefined && originalPrice !== '' ? parseFloat(originalPrice) : (original_price !== undefined && original_price !== '' ? parseFloat(original_price) : null),
             discount_type: discountType || discount_type || 'none',
-            discount_value: discountValue !== undefined ? discountValue : (discount_value !== undefined ? discount_value : 0),
-            offer_price: offerPrice !== undefined ? offerPrice : (offer_price !== undefined ? offer_price : null),
-            fuel_type: fuelType || fuel_type,
-            transmission, location, image, tag, hub,
-            badge_text: badgeText || badge_text,
-            is_assured: isAssured !== undefined ? isAssured : false,
+            discount_value: discountValue !== undefined && discountValue !== '' ? parseFloat(discountValue) : (discount_value !== undefined && discount_value !== '' ? parseFloat(discount_value) : 0),
+            offer_price: offerPrice !== undefined && offerPrice !== '' ? parseFloat(offerPrice) : (offer_price !== undefined && offer_price !== '' ? parseFloat(offer_price) : null),
+            fuel_type: fuelType || fuel_type || 'Petrol',
+            transmission: transmission || 'Manual',
+            location: location || 'Mumbai',
+            image: primaryImage,
+            tag: tag || null,
+            hub: hub || null,
+            badge_text: badgeText || badge_text || null,
+            is_assured: isAssured !== undefined ? (isAssured ? 1 : 0) : 0,
             listing_type: listingType || listing_type || 'standard',
-            ownership,
-            engine_capacity: engineCapacity || engine_capacity,
-            reg_year: regYear || reg_year,
-            reg_state: regState || reg_state,
-            spare_key: spareKey || spare_key,
-            insurance_status: insuranceStatus || insurance_status,
-            color,
-            body_type: bodyType || body_type,
-            description,
-            reasons_to_buy: req.body.reasonsToBuy ? JSON.stringify(req.body.reasonsToBuy) : null,
-            specifications: req.body.specifications ? JSON.stringify(req.body.specifications) : null,
-            features: req.body.features ? JSON.stringify(req.body.features) : null,
-            quality_report: req.body.qualityReport ? JSON.stringify(req.body.qualityReport) : null,
-            more_images: req.body.moreImages ? JSON.stringify(req.body.moreImages) : null,
-            video_url: videoUrl || video_url || null,
+            ownership: ownership || '1st Owner',
+            engine_capacity: engineCapacity || engine_capacity || null,
+            reg_year: regYear || reg_year || (year ? parseInt(year, 10) : new Date().getFullYear()),
+            reg_state: regState || reg_state || null,
+            spare_key: spareKey || spare_key || 'Yes',
+            insurance_status: insuranceStatus || insurance_status || 'Active',
+            color: color || null,
+            body_type: bodyType || body_type || null,
+            description: description || null,
+            registration_no: registrationNo || registration_no || null,
+            reasons_to_buy: req.body.reasonsToBuy ? (typeof req.body.reasonsToBuy === 'string' ? req.body.reasonsToBuy : JSON.stringify(req.body.reasonsToBuy)) : null,
+            specifications: req.body.specifications ? (typeof req.body.specifications === 'string' ? req.body.specifications : JSON.stringify(req.body.specifications)) : null,
+            features: req.body.features ? (typeof req.body.features === 'string' ? req.body.features : JSON.stringify(req.body.features)) : null,
+            quality_report: req.body.qualityReport ? (typeof req.body.qualityReport === 'string' ? req.body.qualityReport : JSON.stringify(req.body.qualityReport)) : null,
+            more_images: req.body.moreImages ? (typeof req.body.moreImages === 'string' ? req.body.moreImages : JSON.stringify(req.body.moreImages)) : null,
+            video_url: finalVideoUrl,
             status: status || 'active'
         };
 
@@ -1478,7 +1544,7 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             if (err) return res.status(500).json({ error: err.message });
 
             // Storage cleanup: If main image replaced, delete old main image
-            if (oldCar && oldCar.image && data.image && oldCar.image !== data.image) {
+            if (oldCar && oldCar.image && data.image && oldCar.image !== data.image && oldCar.image.startsWith('/uploads/')) {
                 deleteLocalUploadFile(oldCar.image);
             }
             // Storage cleanup: If more_images items were removed, delete them from disk
@@ -1488,7 +1554,7 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
                     const newGallery = typeof data.more_images === 'string' ? JSON.parse(data.more_images) : data.more_images;
                     if (Array.isArray(oldGallery) && Array.isArray(newGallery)) {
                         oldGallery.forEach(oldImg => {
-                            if (oldImg && !newGallery.includes(oldImg)) {
+                            if (oldImg && !newGallery.includes(oldImg) && typeof oldImg === 'string' && oldImg.startsWith('/uploads/')) {
                                 deleteLocalUploadFile(oldImg);
                             }
                         });
@@ -1512,7 +1578,7 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             }
 
             // Auto-sync updated car with Meta Catalog
-            triggerMetaAutoSync(req.params.id, 'UPDATE');
+            try { triggerMetaAutoSync(req.params.id, 'UPDATE'); } catch (_) {}
 
             res.json({ message: 'Car updated successfully' });
         });
