@@ -12,13 +12,14 @@ const GALLABOX_MAPPINGS = [
   // Authentication / OTP
   { key: 'gallabox_tpl_auth_otp', value: 'otp_template_name' },
   { key: 'gallabox_template_name', value: 'otp_template_name' },
+  { key: 'gallabox_tpl_welcome_customer', value: 'hi_message' },
 
   // Sell Car Workflow
   { key: 'gallabox_tpl_sell_request', value: 'customer_got_sell_price_for_their_car' },
-  { key: 'gallabox_tpl_sell_price_offered', value: 'customer_got_sell_price_for_their_car' },
-  { key: 'gallabox_tpl_sell_inspection_scheduled', value: 'schedule_visit_confim' },
-  { key: 'gallabox_tpl_sell_deal_completed', value: 'happy_customers_clinch' },
-  { key: 'gallabox_tpl_sell_car_rejected', value: 'try_to_help_you' },
+  { key: 'gallabox_tpl_sell_inspection_booked', value: 'schedule_visit_confim' },
+  { key: 'gallabox_tpl_sell_request_approved', value: 'customer_got_sell_price_for_their_car' },
+  { key: 'gallabox_tpl_sell_car_sold', value: 'happy_customers_clinch' },
+  { key: 'gallabox_tpl_sell_request_rejected', value: 'try_to_help_you' },
 
   // Buy & Bookings
   { key: 'gallabox_tpl_car_booking', value: 'car_booking_confirmation' },
@@ -29,34 +30,28 @@ const GALLABOX_MAPPINGS = [
   // Test Drives & Visits
   { key: 'gallabox_tpl_test_drive', value: 'schedule_visit_confim' },
   { key: 'gallabox_tpl_test_drive_confirmed', value: 'schedule_visit_confim' },
-  { key: 'gallabox_tpl_test_drive_completed', value: 'visted_sequence_6' },
-  { key: 'gallabox_tpl_test_drive_cancelled', value: 'try_to_help_you' },
+  { key: 'gallabox_tpl_test_drive_completed', value: 'visted_sequence_1' },
 
   // Finance, EMI & Insurance
-  { key: 'gallabox_tpl_loan_application', value: 'hot_lead_sequence_3_2026' },
-  { key: 'gallabox_tpl_loan_approved', value: 'hot_lead_sequence_1_2026' },
-  { key: 'gallabox_tpl_insurance_enquiry', value: 'try_to_help_you' },
-  { key: 'gallabox_tpl_emi_query', value: 'hot_lead_sequence_3_2026' },
+  { key: 'gallabox_tpl_emi_query', value: 'hot_lead_sequence_1_2026' },
+  { key: 'gallabox_tpl_loan_approved', value: 'hot_lead_sequence_3_2026' },
+  { key: 'gallabox_tpl_loan_rejected', value: 'try_to_help_you' },
+  { key: 'gallabox_tpl_insurance_query', value: 'sequenceutlity_1' },
+  { key: 'gallabox_tpl_warranty_inquiry', value: 'sequence_utility2' },
+  { key: 'gallabox_tpl_buyback_inquiry', value: 'sequence_ultility4' },
+  { key: 'gallabox_tpl_challan_paid', value: 'sequenceutlity8' },
 
   // Leads, Wishlist & Retention
-  { key: 'gallabox_tpl_lead_inquiry', value: 'try_to_help_you' },
   { key: 'gallabox_tpl_wishlist', value: 'price_drop_message' },
-  { key: 'gallabox_tpl_price_drop', value: 'price_drop_message' },
-  { key: 'gallabox_tpl_callback_requested', value: 'try_to_help_you' },
-  { key: 'gallabox_tpl_welcome_new_user', value: 'hi_message' },
-  { key: 'gallabox_tpl_feedback_nps', value: 'happy_customers_clinch' },
-  { key: 'gallabox_tpl_warranty_activated', value: 'sequenceutlity_1' },
+  { key: 'gallabox_tpl_lead_inquiry', value: 'try_to_help_you' },
 
-  // Promotional & Follow-up campaigns
-  { key: 'gallabox_tpl_promo_festive', value: 'independence_day2026' },
-  { key: 'gallabox_tpl_promo_weekend', value: 'free_this_saturday_or_sunday_' },
-  { key: 'gallabox_tpl_promo_summer', value: 'summer_sale_may' },
-  { key: 'gallabox_tpl_followup_march', value: 'final_followup_march_2026_clone' },
-  { key: 'gallabox_tpl_visited_followup_1', value: 'visited_sequence_1' },
-  { key: 'gallabox_tpl_visited_followup_6', value: 'visted_sequence_6' },
-  { key: 'gallabox_tpl_cold_followup_1', value: 'cold_seqeunce_1' },
-  { key: 'gallabox_tpl_hot_lead_1', value: 'hot_lead_sequence_1_2026' },
-  { key: 'gallabox_tpl_hot_lead_3', value: 'hot_lead_sequence_3_2026' },
+  // Admin Alerts
+  { key: 'gallabox_tpl_admin_sell_request', value: 'customer_got_sell_price_for_their_car' },
+  { key: 'gallabox_tpl_admin_booking', value: 'car_booking_confirmation' },
+  { key: 'gallabox_tpl_admin_test_drive', value: 'schedule_visit_confim' },
+  { key: 'gallabox_tpl_admin_loan', value: 'hot_lead_sequence_1_2026' },
+  { key: 'gallabox_tpl_admin_insurance', value: 'sequenceutlity_1' },
+  { key: 'gallabox_tpl_admin_contact', value: 'try_to_help_you' },
 
   // Global Settings
   { key: 'gallabox_channel_id', value: '687de856ba93969639c5815d' },
