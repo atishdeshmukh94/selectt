@@ -1,6 +1,6 @@
 import { useState } from "react";
-
 import { Link } from "react-router";
+import { Globe } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
@@ -23,6 +23,8 @@ const AppHeader: React.FC = () => {
   const toggleApplicationMenu = () => {
     setApplicationMenuOpen(!isApplicationMenuOpen);
   };
+
+  const frontendUrl = import.meta.env.VITE_FRONTEND_URL || "https://selectt.in";
 
   return (
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-30 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
@@ -64,7 +66,6 @@ const AppHeader: React.FC = () => {
                 />
               </svg>
             )}
-            {/* Cross Icon */}
           </button>
 
           <Link to="/" className="lg:hidden">
@@ -110,6 +111,17 @@ const AppHeader: React.FC = () => {
           } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
+            {/* Visit Website Button */}
+            <a
+              href={frontendUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-[#1C3EB9] h-11 w-11 hover:bg-blue-50/50 hover:border-blue-200 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-blue-400"
+              title="Visit Live Website"
+            >
+              <Globe size={20} className="stroke-[1.8]" />
+            </a>
+
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}

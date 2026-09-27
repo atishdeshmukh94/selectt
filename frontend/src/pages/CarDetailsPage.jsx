@@ -165,6 +165,22 @@ const CarDetailsPage = () => {
       .then(data => {
         setCar(data);
 
+        // Track Meta Pixel ViewContent for Catalog
+        try {
+          if (window.fbq && data && data.id) {
+            window.fbq('track', 'ViewContent', {
+              content_name: `${data.make || ''} ${data.model || ''} ${data.variant || ''}`.trim(),
+              content_category: 'Vehicles & Parts > Vehicles > Motor Vehicles > Cars',
+              content_ids: [String(data.id)],
+              content_type: 'product',
+              value: Number(data.price) || 0,
+              currency: 'INR'
+            });
+          }
+        } catch (e) {
+          console.error("Error firing Meta ViewContent pixel event", e);
+        }
+
         // Track recently viewed cars
         try {
           if (data && data.id) {

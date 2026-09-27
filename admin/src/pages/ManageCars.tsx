@@ -4,7 +4,7 @@ import {
   ChevronsUpDown, CheckCircle, Tag, Fuel, Sliders, X, Filter, RefreshCw,
   ExternalLink, ShieldCheck, CheckSquare, Square, Info, Calendar, MapPin, IndianRupee,
   Upload, Download, Clock, Sparkles, Key, FileText, CheckCircle2, Play, AlertCircle,
-  Percent, Award, Layers, Shield
+  Percent, Award, Layers, Shield, FileSpreadsheet
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import PageMeta from "../components/common/PageMeta";
@@ -86,6 +86,12 @@ export default function ManageCars() {
   const [quickViewCar, setQuickViewCar] = useState<any | null>(null);
   const [selectedModalImg, setSelectedModalImg] = useState<string | null>(null);
   const [activeModalTab, setActiveModalTab] = useState<"specs" | "features" | "report" | "description">("specs");
+
+  // CSV Import Modal
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [selectedCSVFile, setSelectedCSVFile] = useState<File | null>(null);
+  const [isUploadingCSV, setIsUploadingCSV] = useState(false);
+  const [csvPreviewCount, setCsvPreviewCount] = useState<number | null>(null);
 
   // Pagination & Sorting
   const [currentPage, setCurrentPage] = useState(1);
@@ -206,16 +212,36 @@ export default function ManageCars() {
     }
   };
 
-  // CSV Bulk Upload Handler
-  const handleCSVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
+  // CSV File Selection & Preview Handler
+  const handleFileSelection = async (file: File) => {
+    setSelectedCSVFile(file);
     try {
       const text = await file.text();
       const lines = text.split(/\r?\n/).filter(line => line.trim() && !line.trim().startsWith('#'));
+      if (lines.length > 1) {
+        setCsvPreviewCount(lines.length - 1);
+      } else {
+        setCsvPreviewCount(0);
+      }
+    } catch {
+      setCsvPreviewCount(null);
+    }
+  };
+
+  // CSV Bulk Import Executor
+  const handleExecuteCSVImport = async () => {
+    if (!selectedCSVFile) {
+      showToast("Please choose a CSV file to import", "error");
+      return;
+    }
+
+    setIsUploadingCSV(true);
+    try {
+      const text = await selectedCSVFile.text();
+      const lines = text.split(/\r?\n/).filter(line => line.trim() && !line.trim().startsWith('#'));
       if (lines.length < 2) {
         showToast("CSV file is empty or missing data rows", "error");
+        setIsUploadingCSV(false);
         return;
       }
 
@@ -259,7 +285,6 @@ export default function ManageCars() {
         if ((!make || !model) && carObj.title) {
           const titleParts = String(carObj.title).trim().split(/\s+/);
           if (titleParts.length >= 2) {
-            // e.g. "2023 Hyundai Creta SX" or "Hyundai Creta"
             const firstIsYear = !isNaN(Number(titleParts[0])) && Number(titleParts[0]) > 1990;
             const startIdx = firstIsYear ? 1 : 0;
             if (!make) make = titleParts[startIdx] || "Hyundai";
@@ -273,7 +298,7 @@ export default function ManageCars() {
         if (!make) make = "Hyundai";
         if (!model) model = "Creta";
 
-        // Parse price (strip currency suffix like INR, USD, commas)
+        // Parse price
         let rawPrice = String(carObj.price || carObj.offer_price || carObj.sale_price || "500000");
         rawPrice = rawPrice.replace(/[^0-9.]/g, '');
         const price = Number(rawPrice) || 500000;
@@ -318,6 +343,7 @@ export default function ManageCars() {
 
       if (newCars.length === 0) {
         showToast("No valid car records found in CSV", "error");
+        setIsUploadingCSV(false);
         return;
       }
 
@@ -330,6 +356,9 @@ export default function ManageCars() {
       if (res.ok) {
         showToast(`Successfully imported ${newCars.length} cars from CSV!`, "success");
         fetchCars();
+        setIsImportModalOpen(false);
+        setSelectedCSVFile(null);
+        setCsvPreviewCount(null);
       } else {
         await Promise.all(newCars.map(c => fetch(`${API}/api/cars`, {
           method: "POST",
@@ -338,11 +367,15 @@ export default function ManageCars() {
         })));
         showToast(`Successfully imported ${newCars.length} cars from CSV!`, "success");
         fetchCars();
+        setIsImportModalOpen(false);
+        setSelectedCSVFile(null);
+        setCsvPreviewCount(null);
       }
     } catch (err) {
       showToast("Failed to upload cars CSV", "error");
+    } finally {
+      setIsUploadingCSV(false);
     }
-    e.target.value = "";
   };
 
   const downloadCSVTemplate = () => {
@@ -549,30 +582,26 @@ export default function ManageCars() {
           {/* Quick Actions */}
           <div className="flex items-center flex-wrap gap-2 shrink-0">
             {/* CSV Import Button */}
-            <label className="px-3.5 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all active:scale-95">
+            <button
+              onClick={() => {
+                setIsImportModalOpen(true);
+                setSelectedCSVFile(null);
+                setCsvPreviewCount(null);
+              }}
+              className="px-3.5 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all active:scale-95"
+            >
               <Upload className="size-4 text-[#1C3EB9]" />
               <span>Import CSV</span>
-              <input type="file" accept=".csv" onChange={handleCSVUpload} className="hidden" />
-            </label>
-
-            {/* Standard CSV Template Download */}
-            <button 
-              onClick={downloadCSVTemplate} 
-              className="px-3 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-extrabold flex items-center gap-1 cursor-pointer transition-all"
-              title="Download Standard CSV Template"
-            >
-              <Download className="size-3.5 text-gray-500" />
-              <span>CSV Template</span>
             </button>
 
-            {/* Meta Catalog CSV Export */}
+            {/* Export CSV Button (Meta & System Format) */}
             <button 
               onClick={downloadMetaCatalogCSV} 
               className="px-3.5 py-2 rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 text-blue-700 dark:text-blue-300 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs active:scale-95"
-              title="Export 100% Meta / Facebook Commerce Manager Compliant CSV"
+              title="Export Inventory CSV (Meta Commerce Manager & Catalog Compliant)"
             >
               <Download className="size-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Meta Catalog CSV</span>
+              <span>Export CSV</span>
             </button>
 
             <button
@@ -1723,6 +1752,164 @@ export default function ManageCars() {
           </div>
         );
       })()}
+
+      {/* Bulk Import CSV Modal */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="p-5 sm:px-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-blue-50/50 to-indigo-50/30 dark:from-gray-900 dark:to-gray-800">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-2xl bg-[#1C3EB9]/10 dark:bg-[#1C3EB9]/20 text-[#1C3EB9] flex items-center justify-center shadow-inner">
+                  <FileSpreadsheet size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                    Bulk Import Cars via CSV
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Upload multiple car listings or sync from Meta Catalog
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setIsImportModalOpen(false);
+                  setSelectedCSVFile(null);
+                  setCsvPreviewCount(null);
+                }}
+                className="p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Close modal"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 space-y-5">
+              {/* CSV Template Download Card */}
+              <div className="p-4 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="space-y-0.5">
+                  <div className="text-xs font-black text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
+                    <FileSpreadsheet size={15} className="text-indigo-600 dark:text-indigo-400" />
+                    <span>Need the CSV Format?</span>
+                  </div>
+                  <p className="text-[11px] text-indigo-700/90 dark:text-indigo-300/80 font-medium leading-relaxed">
+                    Download our sample CSV template with pre-filled columns (Make, Model, Variant, Year, Price, KM, etc.).
+                  </p>
+                </div>
+                <button
+                  onClick={downloadCSVTemplate}
+                  className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 shrink-0 shadow-sm transition-all active:scale-95 cursor-pointer"
+                  title="Download Sample CSV Template"
+                >
+                  <Download size={14} />
+                  <span>CSV Template</span>
+                </button>
+              </div>
+
+              {/* Upload Dropzone */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                  Select CSV File to Upload
+                </label>
+                
+                {!selectedCSVFile ? (
+                  <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-[#1C3EB9] dark:hover:border-blue-500 rounded-2xl bg-gray-50/60 dark:bg-gray-800/40 hover:bg-blue-50/30 transition-all cursor-pointer text-center group">
+                    <div className="size-12 rounded-2xl bg-blue-50 dark:bg-gray-700 group-hover:bg-blue-100 dark:group-hover:bg-gray-600 text-[#1C3EB9] flex items-center justify-center mb-2.5 transition-colors">
+                      <Upload size={22} />
+                    </div>
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 mb-0.5">
+                      Click to browse or drag & drop CSV file
+                    </span>
+                    <span className="text-[11px] text-gray-400">
+                      Supports standard Selectt CSV & Meta Commerce Manager CSV exports
+                    </span>
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileSelection(file);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <div className="size-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <FileSpreadsheet size={20} />
+                      </div>
+                      <div className="truncate">
+                        <p className="text-xs font-extrabold text-emerald-950 dark:text-emerald-200 truncate">
+                          {selectedCSVFile.name}
+                        </p>
+                        <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">
+                          {(selectedCSVFile.size / 1024).toFixed(1)} KB
+                          {csvPreviewCount !== null && (
+                            <span className="ml-2 px-1.5 py-0.5 rounded bg-emerald-200/80 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200 font-bold text-[10px]">
+                              {csvPreviewCount} cars detected
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedCSVFile(null);
+                        setCsvPreviewCount(null);
+                      }}
+                      className="p-1.5 rounded-lg text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:text-emerald-200 transition-colors"
+                      title="Remove selected file"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 sm:px-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsImportModalOpen(false);
+                  setSelectedCSVFile(null);
+                  setCsvPreviewCount(null);
+                }}
+                disabled={isUploadingCSV}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-200/60 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleExecuteCSVImport}
+                disabled={!selectedCSVFile || isUploadingCSV}
+                className={`px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all cursor-pointer ${
+                  !selectedCSVFile || isUploadingCSV
+                    ? "bg-gray-300 dark:bg-gray-800 text-gray-500 cursor-not-allowed shadow-none"
+                    : "bg-[#1C3EB9] hover:bg-[#153299] text-white shadow-blue-900/20 active:scale-95"
+                }`}
+              >
+                {isUploadingCSV ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>Processing Cars...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload size={14} />
+                    <span>Import {csvPreviewCount ? `${csvPreviewCount} Cars` : 'Cars'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
