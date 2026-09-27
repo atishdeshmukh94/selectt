@@ -31,16 +31,21 @@ export default function Customers() {
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  const authHeaders = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+  const activeToken = token || localStorage.getItem("adminToken");
+  const authHeaders = { "Content-Type": "application/json", Authorization: `Bearer ${activeToken}` };
 
   const fetchCustomers = () => {
+    const currentToken = token || localStorage.getItem("adminToken");
+    if (!currentToken) return;
     setLoading(true);
-    fetch(`${API}/api/customers`, { headers: authHeaders })
+    fetch(`${API}/api/customers`, { 
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${currentToken}` } 
+    })
       .then(r => r.json()).then(data => setCustomers(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchCustomers(); }, []);
+  useEffect(() => { fetchCustomers(); }, [token]);
 
   // Extract unique cities / states for filter dropdown
   const uniqueCities = Array.from(new Set(customers.map(c => c.city || c.state).filter(Boolean))).sort();

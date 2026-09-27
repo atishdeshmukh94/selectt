@@ -42,18 +42,23 @@ export default function BookedCars() {
   const [paymentMode, setPaymentMode] = useState("Cash");
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
 
-  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+  const activeToken = token || localStorage.getItem("adminToken");
+  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${activeToken}` };
 
   const fetchBookings = () => {
+    const currentToken = token || localStorage.getItem("adminToken");
+    if (!currentToken) return;
     setLoading(true);
-    fetch(`${API}/api/bookings`, { headers })
+    fetch(`${API}/api/bookings`, { 
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${currentToken}` } 
+    })
       .then(r => r.json())
       .then(data => setBookings(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error fetching bookings:", err))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchBookings(); }, []);
+  useEffect(() => { fetchBookings(); }, [token]);
 
   const updateStatus = async (id: number, field: "booking_status" | "payment_status", value: string, additionalData = {}) => {
     setUpdating(id);

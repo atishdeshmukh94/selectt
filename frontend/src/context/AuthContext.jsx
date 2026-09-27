@@ -10,8 +10,33 @@ export const useAuth = () => {
 const API = API_URL;
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState(() => {
+    try {
+      const storedToken = localStorage.getItem('customerToken');
+      if (storedToken) {
+        const payload = JSON.parse(atob(storedToken.split('.')[1]));
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+          localStorage.removeItem('customerToken');
+          localStorage.removeItem('customerUser');
+          return null;
+        }
+        return storedToken;
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  });
+
+  const [user, setUser] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem('customerUser');
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      return null;
+    }
+  });
+
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [redirectAfterLogin, setRedirectAfterLogin] = useState(null);
   const [loginSuccessCallback, setLoginSuccessCallback] = useState(null);

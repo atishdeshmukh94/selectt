@@ -70,16 +70,21 @@ export default function SellRequests() {
   const [adminNotes, setAdminNotes] = useState("");
   const [editForm, setEditForm] = useState<any>({});
 
-  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+  const activeToken = token || localStorage.getItem("adminToken");
+  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${activeToken}` };
 
   const fetchRequests = () => {
+    const currentToken = token || localStorage.getItem("adminToken");
+    if (!currentToken) return;
     setLoading(true);
-    fetch(`${API}/api/sell-requests`, { headers })
+    fetch(`${API}/api/sell-requests`, { 
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${currentToken}` } 
+    })
       .then(r => r.json()).then(data => setRequests(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchRequests(); }, []);
+  useEffect(() => { fetchRequests(); }, [token]);
 
   const updateStatus = async (id: number, status: string) => {
     setUpdating(id);

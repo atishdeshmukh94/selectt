@@ -47,18 +47,23 @@ export default function TestDriveRequests() {
   // Car Details Modal State
   const [selectedRequestModal, setSelectedRequestModal] = useState<any | null>(null);
 
-  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+  const activeToken = token || localStorage.getItem("adminToken");
+  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${activeToken}` };
 
   const fetchRequests = () => {
+    const currentToken = token || localStorage.getItem("adminToken");
+    if (!currentToken) return;
     setLoading(true);
-    fetch(`${API}/api/test-drives`, { headers })
+    fetch(`${API}/api/test-drives`, { 
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${currentToken}` } 
+    })
       .then(r => r.json())
       .then(data => setRequests(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error fetching test drives:", err))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchRequests(); }, []);
+  useEffect(() => { fetchRequests(); }, [token]);
 
   const updateStatus = async (id: number, status: string) => {
     setUpdating(id);

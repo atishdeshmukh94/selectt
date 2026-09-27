@@ -38,18 +38,23 @@ export default function LoanApplications() {
   const [updating, setUpdating] = useState<number | null>(null);
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
 
-  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+  const activeToken = token || localStorage.getItem("adminToken");
+  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${activeToken}` };
 
   const fetchApplications = () => {
+    const currentToken = token || localStorage.getItem("adminToken");
+    if (!currentToken) return;
     setLoading(true);
-    fetch(`${API}/api/loan-applications`, { headers })
+    fetch(`${API}/api/loan-applications`, { 
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${currentToken}` } 
+    })
       .then(r => r.json())
       .then(data => setApplications(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error fetching loan applications:", err))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchApplications(); }, []);
+  useEffect(() => { fetchApplications(); }, [token]);
 
   const updateStatus = async (id: number, status: string) => {
     setUpdating(id);

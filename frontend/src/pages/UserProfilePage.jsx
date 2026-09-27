@@ -208,10 +208,11 @@ const UserProfilePage = () => {
 
   // Load real profile data
   useEffect(() => {
-    if (!token || !user || profileFetched.current) return;
+    const currentToken = token || localStorage.getItem('customerToken');
+    if (!currentToken || !user || profileFetched.current) return;
     profileFetched.current = true;
     setProfileLoading(true);
-    fetch(`${API}/api/customers/profile`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/customers/profile`, { headers: { Authorization: `Bearer ${currentToken}` } })
       .then(res => res.json())
       .then(data => {
         setProfile({
@@ -240,9 +241,10 @@ const UserProfilePage = () => {
 
   // Load loan status
   const fetchLoan = () => {
-    if (!token || activeTab !== 'loan') return;
+    const currentToken = token || localStorage.getItem('customerToken');
+    if (!currentToken || activeTab !== 'loan') return;
     setLoanLoading(true);
-    fetch(`${API}/api/loan-applications`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/loan-applications`, { headers: { Authorization: `Bearer ${currentToken}` } })
       .then(res => res.json())
       .then(data => {
         // We take the latest application
@@ -260,9 +262,10 @@ const UserProfilePage = () => {
 
   // Load wishlisted cars
   useEffect(() => {
-    if (!token || activeTab !== 'wishlisted') return;
+    const currentToken = token || localStorage.getItem('customerToken');
+    if (!currentToken || activeTab !== 'wishlisted') return;
     setWishlistLoading(true);
-    fetch(`${API}/api/wishlist`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/wishlist`, { headers: { Authorization: `Bearer ${currentToken}` } })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setWishlistedCars(data);
@@ -273,9 +276,10 @@ const UserProfilePage = () => {
 
   // Load real bookings
   useEffect(() => {
-    if (!token || (activeTab !== 'bookings' && activeTab !== 'buy')) return;
+    const currentToken = token || localStorage.getItem('customerToken');
+    if (!currentToken || (activeTab !== 'bookings' && activeTab !== 'buy')) return;
     setBookingsLoading(true);
-    fetch(`${API}/api/bookings`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/bookings`, { headers: { Authorization: `Bearer ${currentToken}` } })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setBookings(data);
@@ -286,9 +290,10 @@ const UserProfilePage = () => {
 
   // Load real test drives
   useEffect(() => {
-    if (!token || activeTab !== 'testdrives') return;
+    const currentToken = token || localStorage.getItem('customerToken');
+    if (!currentToken || activeTab !== 'testdrives') return;
     setTestDrivesLoading(true);
-    fetch(`${API}/api/test-drives`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/test-drives`, { headers: { Authorization: `Bearer ${currentToken}` } })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setTestDrives(data);
@@ -299,9 +304,10 @@ const UserProfilePage = () => {
 
   // Load real sell requests
   const fetchSellRequests = () => {
-    if (!token || activeTab !== 'sell') return;
+    const currentToken = token || localStorage.getItem('customerToken');
+    if (!currentToken || activeTab !== 'sell') return;
     setSellCarsLoading(true);
-    fetch(`${API}/api/sell-requests/mine`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API}/api/sell-requests/mine`, { headers: { Authorization: `Bearer ${currentToken}` } })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
