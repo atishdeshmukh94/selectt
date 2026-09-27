@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
+import { API_URL } from "../../config/api";
+
+const API = API_URL;
 
 interface Notification {
   id: number;
@@ -29,9 +32,12 @@ const getIconForType = (type: string) => {
     case 'NEW_USER': return 'bg-blue-500';
     case 'CAR_SELL_REQUEST': return 'bg-purple-500';
     case 'TEST_DRIVE': return 'bg-brand-500';
-    case 'PAYMENT': return 'bg-success-500';
+    case 'PAYMENT':
+    case 'BOOKING': return 'bg-success-500';
     case 'LOAN_APPLICATION': return 'bg-warning-500';
     case 'WISHLIST': return 'bg-rose-500';
+    case 'INSURANCE':
+    case 'INSURANCE_ENQUIRY': return 'bg-indigo-500';
     default: return 'bg-gray-500';
   }
 };
@@ -44,10 +50,11 @@ export default function NotificationDropdown() {
   const navigate = useNavigate();
 
   const fetchNotifications = async () => {
-    if (!token) return;
+    const activeToken = token || localStorage.getItem("adminToken");
+    if (!activeToken) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/admin/notifications`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await fetch(`${API}/api/admin/notifications?limit=50`, {
+        headers: { Authorization: `Bearer ${activeToken}` }
       });
       if (res.ok) {
         const data = await res.json();
@@ -61,11 +68,14 @@ export default function NotificationDropdown() {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
+    const interval = setInterval(fetchNotifications, 15000); // Poll every 15s
     return () => clearInterval(interval);
   }, [token]);
 
   function toggleDropdown() {
+    if (!isOpen) {
+      fetchNotifications();
+    }
     setIsOpen(!isOpen);
   }
 
@@ -74,10 +84,12 @@ export default function NotificationDropdown() {
   }
 
   const markAsRead = async (id: number) => {
+    const activeToken = token || localStorage.getItem("adminToken");
+    if (!activeToken) return;
     try {
-      await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/admin/notifications/${id}/read`, {
+      await fetch(`${API}/api/admin/notifications/${id}/read`, {
         method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${activeToken}` }
       });
       fetchNotifications();
     } catch (err) {
@@ -86,10 +98,12 @@ export default function NotificationDropdown() {
   };
 
   const markAllAsRead = async () => {
+    const activeToken = token || localStorage.getItem("adminToken");
+    if (!activeToken) return;
     try {
-      await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/admin/notifications/read-all`, {
+      await fetch(`${API}/api/admin/notifications/read-all`, {
         method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${activeToken}` }
       });
       fetchNotifications();
     } catch (err) {
@@ -103,12 +117,14 @@ export default function NotificationDropdown() {
     }
     closeDropdown();
     
-    // Optional routing based on type
+    // Routing based on type
     if (notif.type === 'NEW_USER') navigate('/customers');
     if (notif.type === 'CAR_SELL_REQUEST') navigate('/sell-requests');
     if (notif.type === 'TEST_DRIVE') navigate('/test-drives');
     if (notif.type === 'LOAN_APPLICATION') navigate('/loan-applications');
-    if (notif.type === 'PAYMENT') navigate('/booked-cars');
+    if (notif.type === 'PAYMENT' || notif.type === 'BOOKING') navigate('/booked-cars');
+    if (notif.type === 'WISHLIST') navigate('/wishlisted-cars');
+    if (notif.type === 'INSURANCE' || notif.type === 'INSURANCE_ENQUIRY') navigate('/insurance-requests');
   };
 
   return (
