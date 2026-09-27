@@ -1623,10 +1623,10 @@ const NewHome = () => {
                 <button
                   key={type.id}
                   onClick={() => setActiveMobileType(type.id)}
-                  className={`flex flex-col items-center justify-center w-[75px] h-[75px] rounded-[16px] border ${isActive ? 'bg-[#E6FAF7] border-[#00C9AF]' : 'bg-white border-slate-200/60'} shadow-sm transition-all duration-300 shrink-0 relative overflow-hidden`}
+                  className={`flex flex-col items-center justify-center w-[78px] h-[78px] rounded-[16px] border ${isActive ? 'bg-[#E6FAF7] border-[#00C9AF]' : 'bg-white border-slate-200/70'} shadow-xs transition-all duration-300 shrink-0 relative overflow-hidden`}
                 >
                   {type.id === 'EV' && (
-                    <span className="absolute top-1 right-1 text-[9px] bg-emerald-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center font-bold">⚡</span>
+                    <span className="absolute top-1 right-1 text-[10px] bg-emerald-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-bold">⚡</span>
                   )}
                   <img
                     src={type.img}
@@ -1636,7 +1636,7 @@ const NewHome = () => {
                       e.target.style.display = 'none';
                     }}
                   />
-                  <span className="text-[10px] font-bold text-[#0C1B33] leading-tight text-center px-0.5">{type.label}</span>
+                  <span className="text-[11.5px] font-extrabold text-[#0C1B33] leading-tight text-center px-0.5">{type.label}</span>
                 </button>
               );
             })}
@@ -1645,7 +1645,7 @@ const NewHome = () => {
 
         {/* Recommended for You List */}
         <div className="text-left">
-          <h3 className="text-sm sm:text-base font-black text-[#0C1B33] uppercase tracking-wider mb-3">Recommended for you</h3>
+          <h3 className="text-sm sm:text-base font-extrabold text-[#0C1B33] uppercase tracking-wider mb-3">Recommended for you</h3>
 
           <div className="flex flex-col gap-3">
             {getMobileRecommendedCars().map((car) => {
@@ -1654,7 +1654,7 @@ const NewHome = () => {
                 <Link
                   key={car.id}
                   to={getCarDetailsUrl(car)}
-                  className="bg-white border border-slate-200/60 rounded-2xl p-3.5 flex gap-4 hover:shadow-md transition-all duration-300 text-slate-900"
+                  className="bg-white border border-slate-200/70 rounded-2xl p-3.5 flex gap-4 hover:shadow-md transition-all duration-300 text-slate-900"
                 >
                   {/* Left: Car Image inside soft background */}
                   <div className={`w-[115px] h-[90px] rounded-xl overflow-hidden shrink-0 flex items-center justify-center ${car.fuelType === 'EV' ? 'bg-[#EBF7F2]' : 'bg-[#EBF3FC]'}`}>
@@ -1676,17 +1676,17 @@ const NewHome = () => {
                           {car.make}
                         </span>
                         {badge.label && (
-                          <div className={`${badge.bg} ${badge.color} ${badge.border || 'border-slate-200'} border px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 whitespace-nowrap shadow-xs max-w-[140px]`}>
+                          <div className={`${badge.bg} ${badge.color} ${badge.border || 'border-slate-200'} border px-2.5 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 whitespace-nowrap shadow-xs max-w-[140px]`}>
                             <span className="truncate">{badge.label}</span>
                           </div>
                         )}
                       </div>
 
-                      <h4 className="text-base font-black text-[#0C1B33] leading-snug mt-0.5 truncate w-full">
+                      <h4 className="text-[15px] font-extrabold text-[#0C1B33] leading-snug mt-0.5 truncate w-full">
                         {car.model}
                       </h4>
 
-                      <span className="text-xs font-bold text-slate-600 block leading-none mt-1 truncate">
+                      <span className="text-xs font-semibold text-slate-600 block leading-none mt-1 truncate">
                         {car.year} · {car.km ? car.km.toLocaleString('en-IN') : '18,200'} km · {car.fuelType}
                       </span>
                     </div>
@@ -1697,8 +1697,8 @@ const NewHome = () => {
                           ₹{(car.price / 100000).toFixed(2)}L
                         </span>
                         {hasPriceDrop(car) && (
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
-                            <TrendingDown size={10} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                          <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
+                            <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
                             <span>Price Drop</span>
                           </span>
                         )}

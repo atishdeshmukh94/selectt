@@ -22,13 +22,13 @@ const CarCard = ({ image, title, spec, tags, emi, price, isCertified, isLuxury, 
           src={image}
         />
         {isCertified && (
-          <div className="absolute top-3 left-3 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-lg">
+          <div className="absolute top-3 left-3 bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-lg">
             <ShieldCheck size={12} />
             CERTIFIED
           </div>
         )}
         {(isLuxury || isPremium) && (
-          <div className="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-lg">
+          <div className="absolute top-3 left-3 bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-lg">
             <Award size={12} />
             {isLuxury ? 'LUXURY' : 'PREMIUM'}
           </div>
@@ -41,8 +41,8 @@ const CarCard = ({ image, title, spec, tags, emi, price, isCertified, isLuxury, 
       </div>
       <div className="p-5">
         <div className="mb-4">
-          <h3 className="font-bold text-base text-navy dark:text-white group-hover:text-primary transition-colors">{title}</h3>
-          <p className="text-[11px] text-slate-500 dark:text-purple-200 mt-1">{spec}</p>
+          <h3 className="font-heading font-extrabold text-[15px] sm:text-base text-navy dark:text-white group-hover:text-primary transition-colors">{title}</h3>
+          <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-purple-200 mt-1">{spec}</p>
           <div className="flex gap-2 mt-3">
             {tags.map((tag, index) => (
               <span
@@ -60,10 +60,10 @@ const CarCard = ({ image, title, spec, tags, emi, price, isCertified, isLuxury, 
             <p className="font-semibold text-sm text-slate-700 dark:text-slate-200">{emi}</p>
           </div>
           <div className="text-right whitespace-nowrap">
-            <span className="text-[#00C9AF] font-bold text-lg sm:text-xl block leading-none">{price}</span>
+            <span className="text-[#00C9AF] font-heading font-extrabold text-lg sm:text-xl block leading-none">{price}</span>
           </div>
         </div>
-        <button className="w-full bg-purple-50 dark:bg-purple-900/30 text-primary dark:text-purple-200 py-2.5 rounded-lg text-sm font-bold hover:bg-primary hover:text-white transition-all uppercase cursor-pointer border border-purple-100 dark:border-purple-800">
+        <button className="w-full bg-purple-50 dark:bg-purple-900/30 text-primary dark:text-purple-200 py-2.5 rounded-lg text-xs sm:text-sm font-bold hover:bg-primary hover:text-white transition-all uppercase cursor-pointer border border-purple-100 dark:border-purple-800">
           View Details
         </button>
       </div>

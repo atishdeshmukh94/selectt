@@ -151,10 +151,10 @@ const BodyTypeFilter = () => {
                                 className={`w-12 h-6 object-contain ${activeType === type.name ? 'brightness-0 invert' : 'grayscale group-hover:grayscale-0 transition-all opacity-70 group-hover:opacity-100'
                                     }`}
                             />
-                            <span className={`text-[11px] font-bold tracking-tight ${activeType === type.name ? '' : 'text-slate-500 group-hover:text-[#00C9AF]'}`}>
+                            <span className={`text-xs sm:text-sm font-heading font-bold tracking-tight ${activeType === type.name ? '' : 'text-slate-700 dark:text-slate-300 group-hover:text-[#00C9AF]'}`}>
                                 {type.name}
                             </span>
-                            <span className={`text-[9px] font-medium opacity-80 ${activeType === type.name ? 'text-white/90' : 'text-slate-400'}`}>
+                            <span className={`text-[11px] sm:text-xs font-semibold ${activeType === type.name ? 'text-[#0A1C3A]/80' : 'text-slate-500'}`}>
                                 {loading ? '...' : `${count} cars`}
                             </span>
                         </button>

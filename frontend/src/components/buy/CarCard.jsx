@@ -223,14 +223,14 @@ const CarCard = ({ car, lightBg = false }) => {
         </div>
 
         {/* Content details */}
-        <div className="px-5 pb-5 pt-1 flex-grow flex flex-col justify-between gap-3">
+        <div className="px-4.5 sm:px-5 pb-4.5 sm:pb-5 pt-1 flex-grow flex flex-col justify-between gap-2.5">
           <div>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <h3 className={`text-[14px] font-heading font-bold leading-snug truncate transition-colors duration-200 ${lightBg ? 'text-slate-800 group-hover:text-[#00C9AF]' : 'text-white group-hover:text-[#00C9AF]'}`}>
+                <h3 className={`text-[15px] sm:text-[16px] font-heading font-extrabold leading-snug truncate transition-colors duration-200 ${lightBg ? 'text-slate-800 group-hover:text-[#00C9AF]' : 'text-white group-hover:text-[#00C9AF]'}`}>
                   {car.year} {car.make} {car.model}
                 </h3>
-                <span className={`text-[11px] font-medium block truncate mt-0.5 ${lightBg ? 'text-slate-500' : 'text-slate-400'}`}>
+                <span className={`text-[12px] sm:text-[13px] font-medium block truncate mt-0.5 ${lightBg ? 'text-slate-500' : 'text-slate-400'}`}>
                   {car.variant || car.fuelType}
                 </span>
               </div>
@@ -247,8 +247,8 @@ const CarCard = ({ car, lightBg = false }) => {
                 }
                 return (
                   <div className="shrink-0 pt-0.5">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
-                      <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
+                      <TrendingDown size={12} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
                       <span>{dropBadgeText}</span>
                     </span>
                   </div>
@@ -258,18 +258,18 @@ const CarCard = ({ car, lightBg = false }) => {
 
             {/* Spec pills */}
             <div className="flex flex-wrap gap-1.5 mt-2.5">
-              <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/50' : 'bg-white/5 border-white/[0.05]'}`}>
-                <Gauge size={11} className="text-[#00C9AF]" />
-                <span className={`text-[10px] font-semibold ${lightBg ? 'text-slate-600' : 'text-slate-300'}`}>{(car.km / 1000).toFixed(0)}k km</span>
+              <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
+                <Gauge size={12} className="text-[#00C9AF]" />
+                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>{(car.km / 1000).toFixed(0)}k km</span>
               </div>
-              <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/50' : 'bg-white/5 border-white/[0.05]'}`}>
-                <Fuel size={11} className="text-[#00C9AF]" />
-                <span className={`text-[10px] font-semibold ${lightBg ? 'text-slate-600' : 'text-slate-300'}`}>{car.fuelType || car.fuel_type}</span>
+              <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
+                <Fuel size={12} className="text-[#00C9AF]" />
+                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>{car.fuelType || car.fuel_type}</span>
               </div>
               {car.location && (
-                <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/50' : 'bg-white/5 border-white/[0.05]'}`}>
-                  <MapPin size={11} className="text-[#00C9AF]" />
-                  <span title={car.location} className={`text-[10px] font-semibold truncate max-w-[85px] ${lightBg ? 'text-slate-600' : 'text-slate-300'}`}>{shortenLocation(car.location)}</span>
+                <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
+                  <MapPin size={12} className="text-[#00C9AF]" />
+                  <span title={car.location} className={`text-[11.5px] sm:text-[12px] font-semibold truncate max-w-[95px] ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>{shortenLocation(car.location)}</span>
                 </div>
               )}
             </div>
@@ -280,26 +280,26 @@ const CarCard = ({ car, lightBg = false }) => {
             <div className="flex flex-col items-start text-left min-w-0 pr-2">
               {/* Only show strikethrough if there's a real original price */}
               {(car.original_price || car.originalPrice || car.old_price || car.oldPrice) && (
-                <span className={`text-[11px] font-medium line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
+                <span className={`text-[12px] font-medium line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
                   ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)} Lakh
                 </span>
               )}
               <div className="whitespace-nowrap flex items-baseline gap-1">
-                <span className={`text-[17px] sm:text-[19px] font-bold tracking-tight leading-none ${lightBg ? 'text-slate-900' : 'text-white'}`}>
+                <span className={`text-[18px] sm:text-[20px] font-extrabold tracking-tight leading-none ${lightBg ? 'text-slate-900' : 'text-white'}`}>
                   ₹{(car.price / 100000).toFixed(2)} Lakh
                 </span>
               </div>
-              <span className={`text-[11px] font-medium leading-none mt-1.5 whitespace-nowrap ${lightBg ? 'text-teal-600' : 'text-[#00C9AF]'}`}>
+              <span className={`text-[12px] font-bold leading-none mt-1.5 whitespace-nowrap ${lightBg ? 'text-teal-700' : 'text-[#00C9AF]'}`}>
                 EMI ₹{car.emi ? car.emi.toLocaleString('en-IN') : '0'}/m*
               </span>
             </div>
 
-            <div className={`px-3.5 py-2 rounded-xl text-[11px] font-sans font-bold uppercase tracking-wider transition-all duration-300 shrink-0 shadow-xs flex items-center gap-1 cursor-pointer ${lightBg 
+            <div className={`px-3.5 py-2.5 rounded-xl text-[12px] font-heading font-bold uppercase tracking-wider transition-all duration-300 shrink-0 shadow-xs flex items-center gap-1 cursor-pointer ${lightBg 
               ? 'bg-[#0C1B33] text-white group-hover:bg-[#00C9AF] group-hover:text-[#0C1B33]' 
               : 'bg-[#00C9AF] text-[#0C1B33] group-hover:bg-white group-hover:text-[#0C1B33]'
             }`}>
-              <span>View Details</span>
-              <ArrowUpRight size={13} className="stroke-[2.5] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <span>View</span>
+              <ArrowUpRight size={14} className="stroke-[2.5] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </div>
           </div>
         </div>

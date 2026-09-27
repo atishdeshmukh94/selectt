@@ -635,16 +635,16 @@ const BuyCarsPage = () => {
               <main className="flex-1 min-w-0">
 
                 {/* Page label & SEO H1 Heading */}
-                <div className="flex flex-col gap-1 mb-4">
+                <div className="flex flex-col gap-1.5 mb-4 text-left">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <Sparkles size={12} className="text-[#00C9AF]" />
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Selectt Certified Pre-Owned</span>
+                    <Sparkles size={13} className="text-[#00C9AF]" />
+                    <span className="text-xs font-extrabold text-slate-500 uppercase tracking-widest">Selectt Certified Pre-Owned</span>
                     <span className="text-slate-300">|</span>
-                    <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                    <span className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
                       {filteredCars.length} Cars Available
                     </span>
                   </div>
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
                     Find Certified Used Cars in {displayCity}
                   </h1>
                 </div>
@@ -656,16 +656,16 @@ const BuyCarsPage = () => {
                       <div className="w-8 h-8 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center shrink-0">
                         <MapPin size={16} />
                       </div>
-                      <div>
-                        <span className="block text-[10px] font-bold text-[#00A38D] uppercase tracking-wider">Filtered by Car Hub</span>
-                        <h3 className="text-xs sm:text-sm font-black text-[#0C1B33]">{filters.hub} ({filters.city || city})</h3>
+                      <div className="text-left">
+                        <span className="block text-xs font-bold text-[#00A38D] uppercase tracking-wider">Filtered by Car Hub</span>
+                        <h3 className="text-sm font-black text-[#0C1B33]">{filters.hub} ({filters.city || city})</h3>
                       </div>
                     </div>
                     <button
                       onClick={() => setFilters(prev => ({ ...prev, hub: '' }))}
-                      className="flex items-center gap-1 bg-white hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-[10px] font-bold text-slate-700 uppercase tracking-wider transition-all shadow-xs shrink-0 cursor-pointer"
+                      className="flex items-center gap-1 bg-white hover:bg-slate-100 border border-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 uppercase tracking-wider transition-all shadow-xs shrink-0 cursor-pointer"
                     >
-                      <X size={13} /> Clear Hub Filter
+                      <X size={14} /> Clear Hub Filter
                     </button>
                   </div>
                 )}
@@ -679,12 +679,12 @@ const BuyCarsPage = () => {
                     {/* Mobile filter btn */}
                     <button
                       onClick={() => setShowMobileFilters(true)}
-                      className="md:hidden flex items-center gap-1.5 bg-white border border-slate-200 hover:border-[#00C9AF] px-3 py-2.5 rounded-xl text-[10px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider transition-all shadow-sm"
+                      className="md:hidden flex items-center gap-1.5 bg-white border border-slate-200 hover:border-[#00C9AF] px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 uppercase tracking-wider transition-all shadow-sm"
                     >
-                      <SlidersHorizontal size={12} /> Filters
+                      <SlidersHorizontal size={14} /> Filters
                     </button>
-                    <div className="flex items-center gap-1.5 text-[10px] sm:text-xs md:text-sm text-slate-700 font-bold uppercase tracking-wider whitespace-nowrap">
-                      <Car size={16} className="text-[#000]" />
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-700 font-bold uppercase tracking-wider whitespace-nowrap">
+                      <Car size={16} className="text-[#0C1B33]" />
                       <span>{filteredCars.length} results</span>
                     </div>
                   </div>
@@ -725,7 +725,7 @@ const BuyCarsPage = () => {
                                 setSortOrder(option.value);
                                 setIsSortOpen(false);
                               }}
-                              className={`w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider rounded-xl transition-all ${
+                              className={`w-full text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${
                                 isSelected 
                                   ? 'bg-[#00C9AF]/10 text-[#00C9AF]' 
                                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'

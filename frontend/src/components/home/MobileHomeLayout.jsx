@@ -179,7 +179,7 @@ const MobileHomeLayout = () => {
                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 shadow-[0_4px_16px_0_rgba(0,201,175,0.08)] bg-gradient-to-br ${item.theme} border backdrop-blur-md transition-all duration-300 group-hover:scale-105 active:scale-95`}>
                       {item.icon}
                     </div>
-                    <span className="text-[11px] font-bold text-slate-700 leading-tight px-1 group-hover:text-[#00C9AF] transition-colors">{item.label}</span>
+                    <span className="text-xs font-heading font-bold text-slate-800 leading-tight px-1 group-hover:text-[#00C9AF] transition-colors">{item.label}</span>
                 </Link>
               </Reveal>
             ))}
@@ -202,14 +202,14 @@ const MobileHomeLayout = () => {
 
       {/* Numbers Don't Lie */}
       <div className="px-4 py-6">
-         <Reveal><h2 className="text-lg font-bold text-slate-800 mb-4 px-1">Numbers don't lie</h2></Reveal>
+         <Reveal><h2 className="text-xl font-heading font-extrabold text-slate-900 mb-4 px-1">Numbers don't lie</h2></Reveal>
          <div className="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar" style={{ scrollbarWidth: 'none' }}>
             <Reveal direction="left" delay={0.2} className="min-w-[85%] snap-start">
               <div className="bg-gradient-to-br from-[#5D5CFF] to-[#3B3AF0] rounded-2xl p-5 relative overflow-hidden shadow-md h-full">
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.2) 10px, rgba(255,255,255,0.2) 20px)' }}></div>
                 <div className="relative z-10 w-2/3">
-                    <h3 className="text-3xl font-black text-white mb-2">4.8/5</h3>
-                    <p className="text-white/90 text-[11px] leading-tight font-medium">Our average review rating on<br/>Google and on Social platforms</p>
+                    <h3 className="text-3xl font-heading font-black text-white mb-2">4.8/5</h3>
+                    <p className="text-white/95 text-xs sm:text-sm leading-snug font-medium">Our average review rating on<br/>Google and on Social platforms</p>
                 </div>
                 <img src="/img/car-key.png" alt="Car" className="absolute -right-2 h-25 bottom-0 w-40 object-contain" />
               </div>
@@ -218,8 +218,8 @@ const MobileHomeLayout = () => {
               <div className="bg-gradient-to-br from-[#E86616] to-[#D5570E] rounded-2xl p-5 relative overflow-hidden shadow-md h-full">
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-radial-gradient(circle at center, transparent 0, transparent 2px, rgba(0,0,0,0.2) 2px, rgba(0,0,0,0.2) 6px)', backgroundSize: '12px 12px' }}></div>
                 <div className="relative z-10 w-2/3">
-                    <h3 className="text-3xl font-black text-white mb-2">3.5L+</h3>
-                    <p className="text-white/90 text-[11px] leading-tight font-medium">The number of happy<br/>customers we've served</p>
+                    <h3 className="text-3xl font-heading font-black text-white mb-2">3.5L+</h3>
+                    <p className="text-white/95 text-xs sm:text-sm leading-snug font-medium">The number of happy<br/>customers we've served</p>
                 </div>
                 <img src="/img/car-illustration.png" alt="Car" className="absolute -right-2 h-25 bottom-0 w-40 object-contain" />
               </div>
@@ -229,34 +229,34 @@ const MobileHomeLayout = () => {
 
       {/* Explore More */}
       <div className="px-4 py-6">
-         <Reveal><h2 className="text-lg font-bold text-slate-800 mb-4 px-1">Explore more</h2></Reveal>
+         <Reveal><h2 className="text-xl font-heading font-extrabold text-slate-900 mb-4 px-1">Explore more</h2></Reveal>
          <div className="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar" style={{ scrollbarWidth: 'none' }}>
             <Reveal direction="up" delay={0.2} className="min-w-[70%] snap-start">
               <div className="bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] rounded-2xl p-5 flex flex-col justify-between items-center text-center aspect-[3/4] shadow-md relative overflow-hidden">
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
                 <div className="z-10 mt-2">
-                    <p className="text-blue-200 text-[9px] uppercase tracking-widest font-bold mb-1">Right cover, zero hassle</p>
-                    <h3 className="text-white font-bold text-lg tracking-wide">SELECTT INSURANCE</h3>
+                    <p className="text-blue-100 text-[11px] uppercase tracking-wider font-bold mb-1">Right cover, zero hassle</p>
+                    <h3 className="text-white font-heading font-black text-lg tracking-wide">SELECTT INSURANCE</h3>
                 </div>
                 <div className="relative w-full h-32 flex items-center justify-center z-10">
                     <div className="absolute top-0 right-1/4 w-12 h-12 bg-green-400 rounded-lg rotate-12 flex items-center justify-center shadow-lg"><span className="text-white font-bold text-xl">✓</span></div>
                     <img src="/img/car-insurance.png" alt="Car" className="w-full object-contain drop-shadow-2xl z-20 mt-8" />
                 </div>
-                <button className="w-full bg-black text-white font-bold py-3 mt-4 rounded-full text-sm z-10">Get quotes</button>
+                <button className="w-full bg-black text-white font-bold py-3 mt-4 rounded-full text-xs sm:text-sm z-10 uppercase tracking-wider">Get quotes</button>
               </div>
             </Reveal>
             <Reveal direction="up" delay={0.4} className="min-w-[70%] snap-start">
               <div className="bg-gradient-to-b from-[#D9381E] to-[#991B1B] rounded-2xl p-5 flex flex-col justify-between items-center text-center aspect-[3/4] shadow-md relative overflow-hidden">
                 <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%)' }}></div>
                 <div className="z-10 mt-2">
-                    <p className="text-red-200 text-[9px] uppercase tracking-widest font-bold mb-1">Easy & Fast</p>
-                    <h3 className="text-white font-bold text-lg tracking-wide">CAR LOANS</h3>
+                    <p className="text-red-100 text-[11px] uppercase tracking-wider font-bold mb-1">Easy & Fast</p>
+                    <h3 className="text-white font-heading font-black text-lg tracking-wide">CAR LOANS</h3>
                 </div>
                 <div className="relative w-full h-32 flex items-center justify-center z-10">
                     <div className="absolute top-4 left-4 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg transform -rotate-12"><span className="text-amber-700 font-bold text-xs">₹</span></div>
                     <img src="/img/car-loan.png" alt="Car" className="w-full object-contain drop-shadow-2xl z-20 mt-8" />
                 </div>
-                <Link to="/profile?tab=loan" className="w-full bg-black text-white font-bold py-3 mt-4 rounded-full text-sm z-10 block text-center">Check eligibility</Link>
+                <Link to="/profile?tab=loan" className="w-full bg-black text-white font-bold py-3 mt-4 rounded-full text-xs sm:text-sm z-10 block text-center uppercase tracking-wider no-underline">Check eligibility</Link>
               </div>
             </Reveal>
          </div>

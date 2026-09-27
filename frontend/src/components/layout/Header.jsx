@@ -622,7 +622,7 @@ const Header = () => {
               {/* 1. BUY Section */}
               <div className="text-left">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
+                  <span className="text-xs font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
                     BUY
                   </span>
                   <div className="flex-1 h-px bg-slate-100" />
@@ -630,7 +630,7 @@ const Header = () => {
 
                 {/* By category */}
                 <div className="mb-4">
-                  <h4 className="text-xs font-bold text-[#0C1B33] mb-2.5 text-left">By category</h4>
+                  <h4 className="text-sm font-bold text-[#0C1B33] mb-2.5 text-left">By category</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       {
@@ -669,10 +669,10 @@ const Header = () => {
                         {/* Clean Brand Styling Box */}
                         <div className="w-full h-15 bg-slate-50 hover:bg-[#13EDE5]/10 border border-slate-200 hover:border-[#13EDE5] text-[#0C1B33] rounded-2xl flex flex-col items-center justify-center p-1 transition-all duration-200">
                           <span className="text-lg leading-none mb-0.5 group-hover:scale-110 transition-transform">{cat.icon}</span>
-                          <span className="text-[11px] font-bold text-[#0C1B33] leading-tight tracking-tight">{cat.name}</span>
+                          <span className="text-xs font-bold text-[#0C1B33] leading-tight tracking-tight">{cat.name}</span>
                         </div>
                         {/* Subtitle written BELOW the box */}
-                        <span className="text-[9px] text-slate-500 font-normal leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
+                        <span className="text-[11px] text-slate-600 font-medium leading-tight mt-1.5 w-full truncate">{cat.subtitle}</span>
                       </button>
                     ))}
                   </div>
@@ -680,7 +680,7 @@ const Header = () => {
 
                 {/* By body type */}
                 <div className="mb-4">
-                  <h4 className="text-xs font-bold text-[#0C1B33] mb-2 text-left">By body type</h4>
+                  <h4 className="text-sm font-bold text-[#0C1B33] mb-2 text-left">By body type</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
@@ -699,7 +699,7 @@ const Header = () => {
                         <span className="text-2.5xl mb-1 group-hover:scale-115 transition-transform duration-200 filter drop-shadow-xs">
                           {type.icon}
                         </span>
-                        <span className="text-xs font-bold text-slate-800">{type.name}</span>
+                        <span className="text-xs sm:text-sm font-bold text-slate-800">{type.name}</span>
                       </button>
                     ))}
                   </div>
@@ -709,7 +709,7 @@ const Header = () => {
                 <Link
                   to="/buy-cars"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 bg-slate-50 hover:bg-[#13EDE5]/15 border border-slate-200 hover:border-[#13EDE5]/40 text-[#0C1B33] font-bold text-xs rounded-full flex items-center justify-center gap-1.5 transition-colors no-underline shadow-2xs"
+                  className="w-full py-2.5 bg-slate-50 hover:bg-[#13EDE5]/15 border border-slate-200 hover:border-[#13EDE5]/40 text-[#0C1B33] font-bold text-xs sm:text-sm rounded-full flex items-center justify-center gap-1.5 transition-colors no-underline shadow-2xs"
                 >
                   <span>View all cars</span>
                   <ChevronRight size={16} className="text-[#0C1B33]" />
@@ -724,12 +724,12 @@ const Header = () => {
                 {/* Header with Badges */}
                 <div className="flex items-center justify-between mb-3 relative z-10">
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5] text-[#0C1B33] shadow-xs">
+                    <span className="text-xs font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5] text-[#0C1B33] shadow-xs">
                       SELL
                     </span>
-                    <span className="text-xs font-bold text-[#0C1B33]">Sell In 24 Hours</span>
+                    <span className="text-sm font-bold text-[#0C1B33]">Sell In 24 Hours</span>
                   </div>
-                  <span className="text-[9px] font-bold text-[#00A884] bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-200 uppercase tracking-wide">
+                  <span className="text-[10px] font-bold text-[#00A884] bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-200 uppercase tracking-wide">
                     BEST PRICE
                   </span>
                 </div>
@@ -746,14 +746,14 @@ const Header = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-white whitespace-nowrap">
+                        <span className="text-sm font-bold text-white whitespace-nowrap">
                           Sell Your Car
                         </span>
-                        <span className="text-[9px] font-bold bg-[#13EDE5] text-[#0C1B33] px-1.5 py-0.5 rounded leading-none">
+                        <span className="text-[10px] font-bold bg-[#13EDE5] text-[#0C1B33] px-1.5 py-0.5 rounded leading-none">
                           INSTANT
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-300 font-normal truncate mt-0.5">
+                      <div className="text-xs text-slate-300 font-normal truncate mt-0.5">
                         Instant payment • Free doorstep pickup
                       </div>
                     </div>
@@ -771,8 +771,8 @@ const Header = () => {
                     className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white border border-slate-200/90 hover:border-[#13EDE5] hover:bg-cyan-50/50 active:scale-95 transition-all no-underline group text-center shadow-2xs"
                   >
                     <span className="text-xl mb-0.5 group-hover:scale-110 transition-transform">🏷️</span>
-                    <span className="text-xs font-bold text-[#0C1B33] leading-tight">Valuation</span>
-                    <span className="text-[10px] text-slate-500 font-normal leading-tight mt-0.5">Free instant quote</span>
+                    <span className="text-sm font-bold text-[#0C1B33] leading-tight">Valuation</span>
+                    <span className="text-xs text-slate-500 font-normal leading-tight mt-0.5">Free instant quote</span>
                   </Link>
 
                   <Link
@@ -781,8 +781,8 @@ const Header = () => {
                     className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white border border-slate-200/90 hover:border-[#13EDE5] hover:bg-cyan-50/50 active:scale-95 transition-all no-underline group text-center shadow-2xs"
                   >
                     <span className="text-xl mb-0.5 group-hover:scale-110 transition-transform">🏦</span>
-                    <span className="text-xs font-bold text-[#0C1B33] leading-tight">Car Loan</span>
-                    <span className="text-[10px] text-slate-500 font-normal leading-tight mt-0.5">Lowest EMI rates</span>
+                    <span className="text-sm font-bold text-[#0C1B33] leading-tight">Car Loan</span>
+                    <span className="text-xs text-slate-500 font-normal leading-tight mt-0.5">Lowest EMI rates</span>
                   </Link>
                 </div>
               </div>
@@ -790,7 +790,7 @@ const Header = () => {
               {/* 3. SERVICES & MORE Section */}
               <div className="text-left">
                 <div className="flex items-center gap-2 mb-2.5">
-                  <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
+                  <span className="text-xs font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#13EDE5]/15 text-[#0C1B33] border border-[#13EDE5]/30">
                     SERVICES & MORE
                   </span>
                   <div className="flex-1 h-px bg-slate-100" />
@@ -799,116 +799,116 @@ const Header = () => {
 
                   <Link
                     to="/selectt-buyback"
-                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-sm group-hover:scale-110 transition-transform">🔄</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">🔄</span>
                       <span>Exchange & Buyback</span>
                     </div>
-                    <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/selectt-assured"
-                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-sm group-hover:scale-110 transition-transform">🛠️</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">🛠️</span>
                       <span>Pro Service & Warranty</span>
                     </div>
-                    <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/car-insurance"
-                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-sm group-hover:scale-110 transition-transform">🛡️</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">🛡️</span>
                       <span>Car Insurance</span>
                     </div>
-                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                   <Link
                     to="/e-challan"
-                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-sm group-hover:scale-110 transition-transform">📄</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">📄</span>
                       <span>Check Challan</span>
                     </div>
-                    <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-[#13EDE5] text-[#0C1B33] tracking-wider">
                       NEW
                     </span>
                   </Link>
 
                   <Link
                     to="/pricing"
-                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-sm group-hover:scale-110 transition-transform">⛽</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">⛽</span>
                       <span>Recharge FASTag & EMI</span>
                     </div>
-                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                   <Link
                     to="/profile?tab=wishlisted"
-                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-sm group-hover:scale-110 transition-transform">💖</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">💖</span>
                       <span>Wishlist & Shortlist</span>
                     </div>
-                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                   <Link
                     to="/car-hub-locations"
-                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-sm group-hover:scale-110 transition-transform">📍</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">📍</span>
                       <span>Car Hub Locations</span>
                     </div>
-                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                   <Link
                     to="/customer-reviews"
-                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-sm group-hover:scale-110 transition-transform">🌟</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">🌟</span>
                       <span>Customer Reviews</span>
                     </div>
-                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                   <Link
                     to="/about-us"
-                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-bold text-xs hover:bg-slate-50 transition-colors no-underline group"
+                    className="flex items-center justify-between p-2 rounded-xl text-slate-800 font-semibold text-sm hover:bg-slate-50 transition-colors no-underline group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-sm group-hover:scale-110 transition-transform">ℹ️</span>
+                      <span className="text-base group-hover:scale-110 transition-transform">ℹ️</span>
                       <span>About Us & FAQ</span>
                     </div>
-                    <ChevronRight size={14} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight size={16} className="text-slate-400 group-hover:text-[#0C1B33] group-hover:translate-x-0.5 transition-all" />
                   </Link>
 
                 </div>
@@ -927,8 +927,8 @@ const Header = () => {
                     <Phone size={18} />
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
-                    <div className="text-xs font-normal text-[#0C1B33]">Call us at 8574667466</div>
+                    <div className="text-xs font-bold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
+                    <div className="text-xs sm:text-sm font-medium text-[#0C1B33]">Call us at 8574667466</div>
                   </div>
                 </a>
               </div>
