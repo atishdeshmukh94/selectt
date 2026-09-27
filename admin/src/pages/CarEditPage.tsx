@@ -369,8 +369,22 @@ const CarEditPage = () => {
         moreImages = [data.videoUrl, ...moreImages];
       }
 
+      const carYear = data.year ? Number(data.year) : new Date().getFullYear();
       setFormData({
         ...data,
+        make: data.make || "",
+        model: data.model || "",
+        variant: data.variant || "",
+        year: carYear,
+        regYear: data.regYear ? Number(data.regYear) : (data.reg_year ? Number(data.reg_year) : carYear),
+        regState: data.regState || data.reg_state || "MH",
+        bodyType: data.bodyType || data.body_type || "Hatchback",
+        fuelType: data.fuelType || data.fuel_type || "Petrol",
+        transmission: data.transmission || "Manual",
+        location: data.location || "Mumbai",
+        price: data.price !== undefined && data.price !== null ? data.price : "",
+        km: data.km !== undefined && data.km !== null ? data.km : 0,
+        ownership: data.ownership || "1st Owner",
         listingType: data.listingType || data.listing_type || (data.tag && data.tag.toLowerCase().includes('luxury') ? "luxury" : "standard"),
         reasonsToBuy: data.reasonsToBuy || [],
         specifications: data.specifications || [],
@@ -397,8 +411,10 @@ const CarEditPage = () => {
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
+    }
 
     // 1. Mandatory Validation Checks - Step 1 (Basic & Pricing)
     if (!formData.make || !String(formData.make).trim()) {
@@ -413,41 +429,21 @@ const CarEditPage = () => {
       return;
     }
 
-    if (!formData.year || isNaN(Number(formData.year)) || Number(formData.year) < 1990) {
+    const finalYear = formData.year ? Number(formData.year) : new Date().getFullYear();
+    if (!finalYear || isNaN(finalYear) || finalYear < 1990) {
       toast.error("Please enter a valid Manufacturing Year in Step 1");
       setActiveTab("basic");
       return;
     }
 
-    if (!formData.regYear || isNaN(Number(formData.regYear)) || Number(formData.regYear) < 1990) {
-      toast.error("Please enter a valid Registration Year in Step 1");
-      setActiveTab("basic");
-      return;
-    }
-
-    if (!formData.fuelType || !String(formData.fuelType).trim()) {
-      toast.error("Please select Fuel Type in Step 1");
-      setActiveTab("basic");
-      return;
-    }
-
-    if (!formData.transmission || !String(formData.transmission).trim()) {
-      toast.error("Please select Transmission Type in Step 1");
-      setActiveTab("basic");
-      return;
-    }
-
-    if (!formData.bodyType || !String(formData.bodyType).trim()) {
-      toast.error("Please select Body Type in Step 1");
-      setActiveTab("basic");
-      return;
-    }
-
-    if (!formData.location || !String(formData.location).trim()) {
-      toast.error("Please enter Location / City in Step 1");
-      setActiveTab("basic");
-      return;
-    }
+    const finalRegYear = formData.regYear ? Number(formData.regYear) : finalYear;
+    const finalRegState = (formData.regState && String(formData.regState).trim()) ? String(formData.regState).trim() : "MH";
+    const finalBodyType = (formData.bodyType && String(formData.bodyType).trim()) ? String(formData.bodyType).trim() : "Hatchback";
+    const finalFuelType = (formData.fuelType && String(formData.fuelType).trim()) ? String(formData.fuelType).trim() : "Petrol";
+    const finalTransmission = (formData.transmission && String(formData.transmission).trim()) ? String(formData.transmission).trim() : "Manual";
+    const finalLocation = (formData.location && String(formData.location).trim()) ? String(formData.location).trim() : "Mumbai";
+    const finalOwnership = (formData.ownership && String(formData.ownership).trim()) ? String(formData.ownership).trim() : "1st Owner";
+    const finalKm = (formData.km !== undefined && formData.km !== "" && !isNaN(Number(formData.km))) ? Number(formData.km) : 0;
 
     if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
       toast.error("Please enter a valid Selling Price in Step 1");
@@ -455,36 +451,11 @@ const CarEditPage = () => {
       return;
     }
 
-    // 2. Mandatory Validation Checks - Step 2 (Specs & History)
-    if (formData.km === undefined || formData.km === "" || isNaN(Number(formData.km)) || Number(formData.km) < 0) {
-      toast.error("Please enter KM Driven (Odometer) in Step 2");
-      setActiveTab("specs");
-      return;
-    }
-
-    if (!formData.ownership || !String(formData.ownership).trim()) {
-      toast.error("Please select Ownership in Step 2");
-      setActiveTab("specs");
-      return;
-    }
-
-    if (!formData.regState || !String(formData.regState).trim()) {
-      toast.error("Please enter Registration State (e.g. MH, DL) in Step 2");
-      setActiveTab("specs");
-      return;
-    }
-
     // 3. Mandatory Validation Checks - Step 4 (Photos & Media)
     const firstImage = (formData.moreImages || []).find((url: string) => {
       return getMediaType(url) === 'image';
     }) || "";
-    const primaryCover = formData.image || firstImage;
-
-    if (!primaryCover || !String(primaryCover).trim()) {
-      toast.error("Please upload or select at least 1 Cover Image for the car in Step 4");
-      setActiveTab("images");
-      return;
-    }
+    const primaryCover = formData.image || firstImage || "/img/suv.png";
 
     // Auto-extract first video to sync with videoUrl field in database
     const firstVideo = (formData.moreImages || []).find((url: string) => {
@@ -494,6 +465,15 @@ const CarEditPage = () => {
 
     const updatedFormData = {
       ...formData,
+      year: finalYear,
+      regYear: finalRegYear,
+      regState: finalRegState,
+      bodyType: finalBodyType,
+      fuelType: finalFuelType,
+      transmission: finalTransmission,
+      location: finalLocation,
+      ownership: finalOwnership,
+      km: finalKm,
       image: primaryCover,
       videoUrl: firstVideo
     };
@@ -503,7 +483,7 @@ const CarEditPage = () => {
 
     setIsSaving(true);
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const response = await fetch(url, {
         method,
         headers: { 

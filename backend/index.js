@@ -1378,18 +1378,24 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
         if (firstVid) finalVideoUrl = firstVid;
     }
 
+    const safeNumber = (val, fallback = null) => {
+        if (val === undefined || val === null || val === '') return fallback;
+        const n = Number(val);
+        return isNaN(n) ? fallback : n;
+    };
+
     const data = {
         make: String(make).trim(),
         model: String(model).trim(),
         variant: variant || null,
-        year: year ? parseInt(year, 10) : new Date().getFullYear(),
-        price: price ? parseFloat(price) : 0,
-        emi: emi ? parseFloat(emi) : null,
-        km: km ? parseInt(km, 10) : 0,
-        original_price: originalPrice !== undefined && originalPrice !== '' ? parseFloat(originalPrice) : (original_price !== undefined && original_price !== '' ? parseFloat(original_price) : null),
+        year: safeNumber(year, new Date().getFullYear()),
+        price: safeNumber(price, 0),
+        emi: safeNumber(emi, null),
+        km: safeNumber(km, 0),
+        original_price: safeNumber(originalPrice !== undefined ? originalPrice : original_price, null),
         discount_type: discountType || discount_type || 'none',
-        discount_value: discountValue !== undefined && discountValue !== '' ? parseFloat(discountValue) : (discount_value !== undefined && discount_value !== '' ? parseFloat(discount_value) : 0),
-        offer_price: offerPrice !== undefined && offerPrice !== '' ? parseFloat(offerPrice) : (offer_price !== undefined && offer_price !== '' ? parseFloat(offer_price) : null),
+        discount_value: safeNumber(discountValue !== undefined ? discountValue : discount_value, 0),
+        offer_price: safeNumber(offerPrice !== undefined ? offerPrice : offer_price, null),
         fuel_type: fuelType || fuel_type || 'Petrol',
         transmission: transmission || 'Manual',
         location: location || 'Mumbai',
@@ -1401,7 +1407,7 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
         listing_type: listingType || listing_type || 'standard',
         ownership: ownership || '1st Owner',
         engine_capacity: engineCapacity || engine_capacity || null,
-        reg_year: regYear || reg_year || (year ? parseInt(year, 10) : new Date().getFullYear()),
+        reg_year: safeNumber(regYear !== undefined ? regYear : reg_year, safeNumber(year, new Date().getFullYear())),
         reg_state: regState || reg_state || null,
         spare_key: spareKey || spare_key || 'Yes',
         insurance_status: insuranceStatus || insurance_status || 'Active',
@@ -1500,18 +1506,24 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             if (firstVid) finalVideoUrl = firstVid;
         }
 
+        const safeNumber = (val, fallback = null) => {
+            if (val === undefined || val === null || val === '') return fallback;
+            const n = Number(val);
+            return isNaN(n) ? fallback : n;
+        };
+
         const data = {
             make: String(make).trim(),
             model: String(model).trim(),
             variant: variant || null,
-            year: year ? parseInt(year, 10) : new Date().getFullYear(),
-            price: price ? parseFloat(price) : 0,
-            emi: emi ? parseFloat(emi) : null,
-            km: km ? parseInt(km, 10) : 0,
-            original_price: originalPrice !== undefined && originalPrice !== '' ? parseFloat(originalPrice) : (original_price !== undefined && original_price !== '' ? parseFloat(original_price) : null),
+            year: safeNumber(year, new Date().getFullYear()),
+            price: safeNumber(price, 0),
+            emi: safeNumber(emi, null),
+            km: safeNumber(km, 0),
+            original_price: safeNumber(originalPrice !== undefined ? originalPrice : original_price, null),
             discount_type: discountType || discount_type || 'none',
-            discount_value: discountValue !== undefined && discountValue !== '' ? parseFloat(discountValue) : (discount_value !== undefined && discount_value !== '' ? parseFloat(discount_value) : 0),
-            offer_price: offerPrice !== undefined && offerPrice !== '' ? parseFloat(offerPrice) : (offer_price !== undefined && offer_price !== '' ? parseFloat(offer_price) : null),
+            discount_value: safeNumber(discountValue !== undefined ? discountValue : discount_value, 0),
+            offer_price: safeNumber(offerPrice !== undefined ? offerPrice : offer_price, null),
             fuel_type: fuelType || fuel_type || 'Petrol',
             transmission: transmission || 'Manual',
             location: location || 'Mumbai',
@@ -1523,7 +1535,7 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             listing_type: listingType || listing_type || 'standard',
             ownership: ownership || '1st Owner',
             engine_capacity: engineCapacity || engine_capacity || null,
-            reg_year: regYear || reg_year || (year ? parseInt(year, 10) : new Date().getFullYear()),
+            reg_year: safeNumber(regYear !== undefined ? regYear : reg_year, safeNumber(year, new Date().getFullYear())),
             reg_state: regState || reg_state || null,
             spare_key: spareKey || spare_key || 'Yes',
             insurance_status: insuranceStatus || insurance_status || 'Active',
