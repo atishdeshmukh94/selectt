@@ -256,7 +256,7 @@ const checkLocationMatch = (carLocation, userCity) => {
   return cLoc.includes(uCity) || uCity.includes(cLoc);
 };
 
-// Body type button with hover image swap
+// Body type button with hover image swap & micro-animation
 function BodyTypeButton({ type, isActive, onClick }) {
   const [hovered, setHovered] = useState(false);
   const showHover = isActive || hovered;
@@ -273,17 +273,21 @@ function BodyTypeButton({ type, isActive, onClick }) {
         border: '1px solid rgba(0,228,192,0.55)',
         boxShadow: '0 4px 24px rgba(0,204,179,0.25), inset 0 1px 0 rgba(255,255,255,0.18)',
       } : {}}
-      className={`flex flex-col items-center justify-center gap-1 min-w-[100px] md:min-w-[120px] py-2 px-3 rounded-xl transition-all shrink-0 cursor-pointer ${isActive
-        ? 'text-white scale-[1.04] font-extrabold'
-        : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+      className={`group flex flex-col items-center justify-center gap-1.5 min-w-[100px] md:min-w-[120px] py-2.5 px-3 rounded-xl transition-all duration-300 shrink-0 cursor-pointer ${isActive
+        ? 'text-white scale-[1.05] font-extrabold shadow-lg'
+        : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent hover:scale-102 active:scale-95'
         }`}
     >
-      <img
-        src={showHover ? type.hoverIcon : type.icon}
-        alt={type.name}
-        className="w-18 h-10 object-contain transition-all duration-200"
-      />
-      <span className="text-[10px] md:text-[11px] font-bold tracking-tight leading-none">
+      <div className="w-18 h-10 flex items-center justify-center">
+        <img
+          src={showHover ? type.hoverIcon : type.icon}
+          alt={type.name}
+          className={`w-full h-full object-contain transition-all duration-300 ${
+            showHover ? 'scale-110 -translate-y-0.5' : 'group-hover:scale-105'
+          }`}
+        />
+      </div>
+      <span className="text-[11px] md:text-[12px] font-bold tracking-tight leading-none">
         {type.name}
       </span>
     </button>
@@ -1671,34 +1675,46 @@ const NewHome = () => {
           <h3 className="text-sm font-extrabold text-[#0C1B33] uppercase tracking-wider mb-3">Browse by type</h3>
           <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
             {[
-              { id: 'All', label: 'All', img: '/img/car-illustration.png' },
-              { id: 'Hatchback', label: 'Hatchback', img: '/img/hatchback.png' },
-              { id: 'Sedan', label: 'Sedan', img: '/img/sedan.png' },
-              { id: 'SUV', label: 'SUV', img: '/img/suv.png' },
-              { id: 'MUV', label: 'MUV', img: '/img/muv.png' },
-              { id: 'Luxury Sedan', label: 'Luxury Sedan', img: '/img/luxury-sedan.png' },
-              { id: 'Luxury SUV', label: 'Luxury SUV', img: '/img/luxury-suv.png' },
-              { id: 'EV', label: 'EV', img: '/img/hatchback.png' }
+              { id: 'All', label: 'All', img: '/img/hatchback.png', hoverImg: '/img/hatchback-hover.png' },
+              { id: 'Hatchback', label: 'Hatchback', img: '/img/hatchback.png', hoverImg: '/img/hatchback-hover.png' },
+              { id: 'Sedan', label: 'Sedan', img: '/img/sedan.png', hoverImg: '/img/sedan-hover.png' },
+              { id: 'SUV', label: 'SUV', img: '/img/suv.png', hoverImg: '/img/suv-hover.png' },
+              { id: 'MUV', label: 'MUV', img: '/img/muv.png', hoverImg: '/img/muv-hover.png' },
+              { id: 'Luxury Sedan', label: 'Luxury Sedan', img: '/img/luxury-sedan.png', hoverImg: '/img/luxury-sedan-hover.png' },
+              { id: 'Luxury SUV', label: 'Luxury SUV', img: '/img/luxury-suv.png', hoverImg: '/img/luxury-suv-hover.png' },
+              { id: 'EV', label: 'EV', img: '/img/suv.png', hoverImg: '/img/suv-hover.png' }
             ].map((type) => {
               const isActive = activeMobileType === type.id;
               return (
                 <button
                   key={type.id}
                   onClick={() => setActiveMobileType(type.id)}
-                  className={`flex flex-col items-center justify-center w-[78px] h-[78px] rounded-[16px] border ${isActive ? 'bg-[#E6FAF7] border-[#00C9AF]' : 'bg-white border-slate-200/70'} shadow-xs transition-all duration-300 shrink-0 relative overflow-hidden`}
+                  className={`group flex flex-col items-center justify-center w-[80px] h-[80px] rounded-[18px] border transition-all duration-300 shrink-0 relative overflow-hidden cursor-pointer ${
+                    isActive
+                      ? 'bg-gradient-to-b from-[#E6FAF7] to-[#D6F6F1] border-[#00C9AF] shadow-[0_4px_16px_rgba(0,201,175,0.25)] ring-2 ring-[#00C9AF]/30 scale-[1.03]'
+                      : 'bg-white border-slate-200/80 hover:border-slate-300 shadow-xs hover:shadow-sm active:scale-95'
+                  }`}
                 >
                   {type.id === 'EV' && (
-                    <span className="absolute top-1 right-1 text-[10px] bg-emerald-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-bold">⚡</span>
+                    <span className="absolute top-1.5 right-1.5 text-[9px] bg-emerald-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-black shadow-xs">⚡</span>
                   )}
-                  <img
-                    src={type.img}
-                    alt={type.label}
-                    className="w-12 h-7 object-contain mb-1"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                  <span className="text-[11.5px] font-extrabold text-[#0C1B33] leading-tight text-center px-0.5">{type.label}</span>
+                  <div className="w-13 h-7 flex items-center justify-center mb-1">
+                    <img
+                      src={isActive ? type.hoverImg : type.img}
+                      alt={type.label}
+                      className={`w-full h-full object-contain transition-transform duration-300 ${
+                        isActive ? 'scale-110 -translate-y-0.5' : 'group-hover:scale-105'
+                      }`}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                  <span className={`text-[11.5px] font-extrabold leading-tight text-center px-0.5 tracking-tight transition-colors ${
+                    isActive ? 'text-[#008A77]' : 'text-[#0C1B33]'
+                  }`}>
+                    {type.label}
+                  </span>
                 </button>
               );
             })}
@@ -3214,10 +3230,10 @@ const NewHome = () => {
         }
       `}</style>
 
-      {/* Floating FOMO Notification Badge (Right-Side Positioned) */}
+      {/* Floating FOMO Notification Badge (Right-Side Vertically Centered) */}
       <div
         style={{ fontFamily: "'Inter', sans-serif" }}
-        className={`fixed bottom-[88px] sm:bottom-[92px] md:bottom-6 right-3 sm:right-6 md:right-8 z-50 bg-white text-slate-900 rounded-2xl p-3 sm:p-4 shadow-[0_12px_32px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.04)] flex items-center gap-2.5 sm:gap-3.5 min-w-[210px] max-w-[250px] sm:max-w-[310px] border border-slate-100/90 transition-all duration-500 ease-in-out transform ${showFomo ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0 pointer-events-none'
+        className={`fixed top-1/2 -translate-y-1/2 right-3 sm:right-6 md:right-8 z-50 bg-white text-slate-900 rounded-2xl p-3 sm:p-4 shadow-[0_12px_32px_rgba(0,0,0,0.14),0_2px_6px_rgba(0,0,0,0.04)] flex items-center gap-2.5 sm:gap-3.5 min-w-[210px] max-w-[250px] sm:max-w-[310px] border border-slate-100/90 transition-all duration-500 ease-out transform ${showFomo ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-[130%] opacity-0 scale-95 pointer-events-none'
           }`}
       >
         <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 bg-[#EAFAF4] border border-[#d1f4e7]">
