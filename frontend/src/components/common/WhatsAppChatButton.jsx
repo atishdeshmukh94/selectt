@@ -149,7 +149,7 @@ const WhatsAppChatButton = () => {
         }
       `}</style>
 
-      <div className="fixed bottom-[68px] md:bottom-6 right-2.5 sm:right-6 z-[99998] flex items-center select-none wa-chat-font">
+      <div className="fixed bottom-[88px] sm:bottom-[92px] md:bottom-6 right-3 sm:right-6 z-[99998] flex items-center select-none wa-chat-font">
         <button
           onClick={handleChatClick}
           onMouseEnter={() => setIsHovered(true)}
