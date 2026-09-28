@@ -16,9 +16,9 @@ const formatIndianCompact = (num) => {
 };
 
 const EmiCalculator = ({
-  price = 2500000,
+  price = 500000,
   minAmount = 100000,
-  maxAmount = 100000000,
+  maxAmount = 1000000,
   defaultLoanAmount,
   theme = 'white',
   className = ''
@@ -27,12 +27,12 @@ const EmiCalculator = ({
   const { user, openLoginModal } = useAuth();
 
   const effectiveMin = minAmount || 100000;
-  const effectiveMax = Math.max(maxAmount || 100000000, effectiveMin + 100000);
+  const effectiveMax = Math.max(maxAmount || 1000000, effectiveMin + 50000);
   const initialLoan = defaultLoanAmount 
     ? Math.min(Math.max(defaultLoanAmount, effectiveMin), effectiveMax)
     : price 
       ? Math.min(Math.max(price <= effectiveMin ? effectiveMin : price > effectiveMax ? effectiveMax : price, effectiveMin), effectiveMax)
-      : 2500000;
+      : 500000;
 
   const [loanAmount, setLoanAmount] = useState(initialLoan);
   const [downPayment, setDownPayment] = useState(Math.round(initialLoan * 0.2));

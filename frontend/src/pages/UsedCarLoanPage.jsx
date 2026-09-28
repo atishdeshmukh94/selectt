@@ -426,7 +426,7 @@ const UsedCarLoanPage = () => {
 
       {/* ───────────── Floating EMI Calculator ───────────── */}
       <SectionReveal amount={0.3} className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 -mt-28 mb-16">
-        <EmiCalculator price={2500000} minAmount={100000} maxAmount={100000000} theme="white" className="shadow-xl shadow-slate-900/5 rounded-2xl border border-slate-200/80" />
+        <EmiCalculator price={500000} minAmount={100000} maxAmount={1000000} theme="white" className="shadow-xl shadow-slate-900/5 rounded-2xl border border-slate-200/80" />
       </SectionReveal>
 
       {/* ───────────── 4-Step Process (Illustrated Zigzag Workflow) ───────────── */}
