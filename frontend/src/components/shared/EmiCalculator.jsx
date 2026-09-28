@@ -3,17 +3,49 @@ import { CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
+const formatIndianCompact = (num) => {
+  if (num >= 10000000) {
+    const cr = num / 10000000;
+    return `₹${cr % 1 === 0 ? cr : cr.toFixed(2)} Cr`;
+  }
+  if (num >= 100000) {
+    const lakh = num / 100000;
+    return `₹${lakh % 1 === 0 ? lakh : lakh.toFixed(2)} Lakh`;
+  }
+  return `₹${num.toLocaleString('en-IN')}`;
+};
+
+const EmiCalculator = ({
+  price = 2500000,
+  minAmount = 100000,
+  maxAmount = 100000000,
+  defaultLoanAmount,
+  theme = 'white',
+  className = ''
+}) => {
   const navigate = useNavigate();
   const { user, openLoginModal } = useAuth();
-  const [loanAmount, setLoanAmount] = useState(price * 0.8);
-  const [tenure, setTenure] = useState(36);
-  const [interestRate, setInterestRate] = useState(12); // annual % — user adjustable
 
-  // React to price changes (e.g. if loaded on a generic page vs specific car page)
+  const effectiveMin = minAmount || 100000;
+  const effectiveMax = Math.max(maxAmount || 100000000, effectiveMin + 100000);
+  const initialLoan = defaultLoanAmount 
+    ? Math.min(Math.max(defaultLoanAmount, effectiveMin), effectiveMax)
+    : price 
+      ? Math.min(Math.max(price <= effectiveMin ? effectiveMin : price > effectiveMax ? effectiveMax : price, effectiveMin), effectiveMax)
+      : 2500000;
+
+  const [loanAmount, setLoanAmount] = useState(initialLoan);
+  const [downPayment, setDownPayment] = useState(Math.round(initialLoan * 0.2));
+  const [tenure, setTenure] = useState(36);
+  const [interestRate, setInterestRate] = useState(10.5); // annual % — user adjustable
+
+  // React to price/prop changes
   useEffect(() => {
-    setLoanAmount(price * 0.8);
-  }, [price]);
+    if (price && price >= effectiveMin && price <= effectiveMax) {
+      setLoanAmount(price);
+      setDownPayment(Math.round(price * 0.2));
+    }
+  }, [price, effectiveMin, effectiveMax]);
 
   const annualRate = interestRate / 100;
   const monthlyRate = annualRate / 12;
@@ -21,8 +53,10 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
     ? Math.round(loanAmount / tenure)
     : Math.round(loanAmount * monthlyRate * Math.pow(1 + monthlyRate, tenure) / (Math.pow(1 + monthlyRate, tenure) - 1));
   const totalPayable = monthlyEMI * tenure;
-  const totalInterest = totalPayable - loanAmount;
-  const gaugeRatio = Math.min(Math.max((loanAmount || 0) / (price || 1), 0), 1);
+  const totalInterest = Math.max(0, totalPayable - loanAmount);
+  
+  // Smooth Gauge Ratio from Min to Max
+  const gaugeRatio = Math.min(Math.max((loanAmount - effectiveMin) / (effectiveMax - effectiveMin), 0), 1);
   const dotX = 100 - 80 * Math.cos(gaugeRatio * Math.PI);
   const dotY = 100 - 80 * Math.sin(gaugeRatio * Math.PI);
   const dotColor = (theme === 'dark' || theme === 'white') ? '#00D2B6' : '#9333ea';
@@ -34,6 +68,10 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
       : 'bg-white/95 backdrop-blur-sm shadow-xl border-white/20 text-slate-800';
 
   const progressColor = (theme === 'dark' || theme === 'white') ? 'stroke-[#00D2B6]' : 'stroke-purple-600';
+
+  // Dynamic slider step based on magnitude
+  const loanStep = loanAmount >= 10000000 ? 500000 : loanAmount >= 1000000 ? 100000 : 25000;
+  const maxDownPayment = Math.max(loanAmount * 0.5, 100000);
 
   return (
     <div className={`rounded-2xl p-5 lg:p-6 border overflow-hidden ${bgClasses} ${className}`}>
@@ -83,7 +121,7 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
                 strokeLinecap="round"
                 strokeDasharray="251"
                 strokeDashoffset={251 - (251 * gaugeRatio)}
-                className={`transition-all duration-1000 ease-out ${progressColor}`}
+                className={`transition-all duration-700 ease-out ${progressColor}`}
               />
               {/* Highlighted Dot Thumb Indicator */}
               <circle
@@ -92,7 +130,7 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
                 r="11"
                 fill={dotColor}
                 fillOpacity="0.25"
-                className="transition-all duration-1000 ease-out pointer-events-none"
+                className="transition-all duration-700 ease-out pointer-events-none"
               />
               <circle
                 cx={dotX}
@@ -101,7 +139,7 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
                 fill={dotColor}
                 stroke="#FFFFFF"
                 strokeWidth="2.5"
-                className="transition-all duration-1000 ease-out pointer-events-none filter drop-shadow-md"
+                className="transition-all duration-700 ease-out pointer-events-none filter drop-shadow-md"
               />
             </svg>
           </div>
@@ -112,14 +150,14 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
                 <div className={`w-2.5 h-2.5 rounded-sm ${theme === 'dark' ? 'bg-[#00D2B6]/30' : theme === 'white' ? 'bg-red-100' : 'bg-purple-100'}`} />
                 <span className={`font-bold text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Principal Loan Amount</span>
               </div>
-              <span className={`font-bold text-xs md:text-sm tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{loanAmount.toLocaleString()}</span>
+              <span className={`font-bold text-xs md:text-sm tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{loanAmount.toLocaleString('en-IN')}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 <div className={`w-2.5 h-2.5 rounded-sm ${theme === 'dark' ? 'bg-[#00D2B6]' : theme === 'white' ? 'bg-red-400' : 'bg-purple-400'}`} />
                 <span className={`font-bold text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Total Interest Payable</span>
               </div>
-              <span className={`font-bold text-xs md:text-sm tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{totalInterest.toLocaleString()}</span>
+              <span className={`font-bold text-xs md:text-sm tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{totalInterest.toLocaleString('en-IN')}</span>
             </div>
             <div className={`h-px my-2.5 ${theme === 'dark' ? 'bg-white/10' : 'bg-slate-200/60'}`} />
             <div className="flex items-center justify-between">
@@ -130,7 +168,7 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
                 <span className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-350' : 'text-slate-700'}`}>Total Amount Payable</span>
               </div>
               <span className={`text-base font-bold tracking-tighter ${theme === 'dark' || theme === 'white' ? 'text-[#00d2b6]' : 'text-purple-700'}`}>
-                ₹{totalPayable.toLocaleString()}
+                ₹{totalPayable.toLocaleString('en-IN')}
               </span>
             </div>
           </div>
@@ -144,40 +182,46 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
             <div>
               <div className="flex justify-between items-center mb-1.5">
                 <label className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-slate-350' : 'text-slate-700'}`}>Loan Amount</label>
-                <div className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{loanAmount.toLocaleString()}</div>
+                <div className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{loanAmount.toLocaleString('en-IN')}</div>
               </div>
               <input
                 type="range"
-                min={price * 0.5}
-                max={price}
-                step="10000"
+                min={effectiveMin}
+                max={effectiveMax}
+                step={loanStep}
                 value={loanAmount}
-                onChange={(e) => setLoanAmount(parseInt(e.target.value))}
-                className={`w-full h-1 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  setLoanAmount(val);
+                  if (downPayment > val * 0.5) {
+                    setDownPayment(Math.round(val * 0.2));
+                  }
+                }}
+                className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
               />
               <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-0.5">
-                <span>₹{(price * 0.5).toLocaleString()}</span>
-                <span>₹{price.toLocaleString()}</span>
+                <span>{formatIndianCompact(effectiveMin)}</span>
+                <span>{formatIndianCompact(effectiveMax)}</span>
               </div>
             </div>
 
             <div>
               <div className="flex justify-between items-center mb-1.5">
                 <label className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-slate-350' : 'text-slate-700'}`}>Down Payment*</label>
-                <div className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{(price - loanAmount).toLocaleString()}</div>
+                <div className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{downPayment.toLocaleString('en-IN')}</div>
               </div>
               <input
                 type="range"
                 min={0}
-                max={price * 0.5}
-                step="10000"
-                value={price - loanAmount}
-                onChange={(e) => setLoanAmount(price - parseInt(e.target.value))}
-                className={`w-full h-1 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
+                max={maxDownPayment}
+                step={loanStep}
+                value={downPayment}
+                onChange={(e) => setDownPayment(parseInt(e.target.value))}
+                className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
               />
               <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-0.5">
                 <span>₹0</span>
-                <span>₹{(price * 0.5).toLocaleString()}</span>
+                <span>{formatIndianCompact(maxDownPayment)}</span>
               </div>
             </div>
 
@@ -194,7 +238,7 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
                 step="0.5"
                 value={interestRate}
                 onChange={(e) => setInterestRate(parseFloat(e.target.value))}
-                className={`w-full h-1 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
+                className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
               />
               <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-0.5">
                 <span>8%</span>
@@ -215,7 +259,7 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
                 step="12"
                 value={tenure}
                 onChange={(e) => setTenure(parseInt(e.target.value))}
-                className={`w-full h-1 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
+                className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
               />
               <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-0.5">
                 <span>12 Months</span>
@@ -227,7 +271,7 @@ const EmiCalculator = ({ price = 500000, theme = 'white', className = '' }) => {
           <div className="mt-4">
             <button
               onClick={() => user ? navigate('/profile?tab=loan') : openLoginModal()}
-              className="w-full px-6 py-2.5 bg-[#18273D] text-[#00D2B6] rounded-2xl font-black text-[10px] md:text-[11px] uppercase tracking-widest cursor-pointer hover:text-black hover:bg-white transition-all shadow-sm  flex items-center justify-center gap-2"
+              className="w-full px-6 py-2.5 bg-[#18273D] text-[#00D2B6] rounded-2xl font-black text-[10px] md:text-[11px] uppercase tracking-widest cursor-pointer hover:text-black hover:bg-white transition-all shadow-sm flex items-center justify-center gap-2"
             >
               <span className="text-base md:text-lg">🏆</span>
               <span>CHECK YOUR ELIGIBILITY</span>

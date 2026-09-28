@@ -67,11 +67,13 @@ const PricingPage = () => {
             <div className="space-y-12 relative">
 
               {/* ── Step 1 (Scroll Reveal) ── */}
+
+              {/* ── Step 1 (Scroll Reveal from Right) ── */}
               <motion.div
-                initial={{ opacity: 0, y: 45 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ opacity: 0, x: 60 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-col lg:flex-row items-center gap-6 lg:gap-[76px] lg:pt-[30px] relative z-10 gpu-accelerated"
               >
                 <div className="w-full lg:w-[55%] flex items-center gap-6 lg:pl-[117px]">
@@ -103,12 +105,12 @@ const PricingPage = () => {
                 <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
-              {/* ── Step 2 (Scroll Reveal) ── */}
+              {/* ── Step 2 (Scroll Reveal from Left) ── */}
               <motion.div
-                initial={{ opacity: 0, y: 45 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ opacity: 0, x: -60 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-col lg:flex-row-reverse items-center gap-6 lg:gap-[76px] lg:pt-[30px] relative z-10 gpu-accelerated"
               >
                 <div className="w-full lg:w-[55%] flex items-center gap-6 lg:pr-[117px]">
@@ -140,12 +142,12 @@ const PricingPage = () => {
                 <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterEvenLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
-              {/* ── Step 3 (Scroll Reveal) ── */}
+              {/* ── Step 3 (Scroll Reveal from Right) ── */}
               <motion.div
-                initial={{ opacity: 0, y: 45 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ opacity: 0, x: 60 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-col lg:flex-row items-center gap-6 lg:gap-[76px] lg:pt-[30px] relative z-10 gpu-accelerated"
               >
                 <div className="w-full lg:w-[55%] flex items-center gap-6 lg:pl-[117px]">
@@ -177,12 +179,12 @@ const PricingPage = () => {
                 <img src="https://spn-sta.spinny.com/spinny-web/static-images/assets/images/components/InstructionSteps/assets/AfterOddLine.svg?q=85&dpr=1.3" alt="" className="w-[72%] max-w-3xl h-auto opacity-80" />
               </div>
 
-              {/* ── Step 4 (Scroll Reveal) ── */}
+              {/* ── Step 4 (Scroll Reveal from Left) ── */}
               <motion.div
-                initial={{ opacity: 0, y: 45 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ opacity: 0, x: -60 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-col lg:flex-row-reverse items-center gap-6 lg:gap-[76px] lg:pt-[30px] relative z-10 gpu-accelerated"
               >
                 <div className="w-full lg:w-[55%] flex items-center gap-6 lg:pr-[117px]">
