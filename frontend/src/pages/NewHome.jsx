@@ -1409,8 +1409,8 @@ const NewHome = () => {
   return (
     <div className="relative bg-gradient-to-b from-[#162947] via-[#0C1B33] to-[#050B16] text-white min-h-screen overflow-x-hidden font-sans">
       <PageMeta
-        title="Selectt — Buy & Sell Certified Pre-Owned Cars in Mumbai"
-        description="Selectt is Mumbai's premier pre-owned car marketplace. Browse 200+ certified pre-owned cars with 200-point inspection, free doorstep test drives, and easy financing across Mumbai, Navi Mumbai & Thane."
+        title={`Selectt — Buy & Sell Certified Pre-Owned Cars in ${city || 'Delhi NCR'}`}
+        description={`Selectt is ${city || 'Delhi NCR'}'s premier pre-owned car marketplace. Browse 200+ certified pre-owned cars with 200-point inspection, free doorstep test drives, and easy financing across ${city || 'Delhi NCR'}.`}
         canonical="/"
       />
       {/* Global blueprint grid lines background */}

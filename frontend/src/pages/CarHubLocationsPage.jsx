@@ -136,6 +136,15 @@ export default function CarHubLocationsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
+  const pickDefaultCity = (availableCities) => {
+    const stored = localStorage.getItem('user_city') || localStorage.getItem('selectedCity') || localStorage.getItem('selected_location') || '';
+    if (stored) {
+      const match = availableCities.find(c => c.toLowerCase() === stored.toLowerCase() || stored.toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes(stored.toLowerCase()));
+      if (match) return match;
+    }
+    return availableCities.length > 0 ? availableCities[0] : '';
+  };
+
   useEffect(() => {
     setLoading(true);
     fetch(`${API_URL}/api/car-hub-locations`)
@@ -148,21 +157,33 @@ export default function CarHubLocationsPage() {
 
         const uniqueCities = [...new Set(loadedHubs.map((h) => h.city))].sort();
         setCities(uniqueCities);
-        if (uniqueCities.length > 0) {
-          setSelectedCity(uniqueCities[0]);
-        }
+        setSelectedCity(pickDefaultCity(uniqueCities));
       })
       .catch((err) => {
         console.error('Error fetching car hubs:', err);
         setHubs(DEFAULT_HUBS);
         const uniqueCities = [...new Set(DEFAULT_HUBS.map((h) => h.city))].sort();
         setCities(uniqueCities);
-        if (uniqueCities.length > 0) {
-          setSelectedCity(uniqueCities[0]);
-        }
+        setSelectedCity(pickDefaultCity(uniqueCities));
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const stored = localStorage.getItem('user_city') || localStorage.getItem('selectedCity') || localStorage.getItem('selected_location') || '';
+      if (stored && cities.length > 0) {
+        const match = cities.find(c => c.toLowerCase() === stored.toLowerCase() || stored.toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes(stored.toLowerCase()));
+        if (match) setSelectedCity(match);
+      }
+    };
+    window.addEventListener('location-changed', handleLocationChange);
+    window.addEventListener('storage', handleLocationChange);
+    return () => {
+      window.removeEventListener('location-changed', handleLocationChange);
+      window.removeEventListener('storage', handleLocationChange);
+    };
+  }, [cities]);
 
   const getCityHubCount = (cityName) => {
     return hubs.filter((h) => h.city === cityName).length;

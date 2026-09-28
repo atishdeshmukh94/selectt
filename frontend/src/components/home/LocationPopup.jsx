@@ -44,6 +44,8 @@ const LocationPopup = () => {
 
   const handleCitySelect = (cityName) => {
     localStorage.setItem('user_city', cityName);
+    localStorage.setItem('selectedCity', cityName);
+    localStorage.setItem('selected_location', cityName);
     setIsVisible(false);
     window.dispatchEvent(new Event('location-changed'));
   };

@@ -107,6 +107,22 @@ const CityServicesSection = () => {
     }
   ];
 
+  const [city, setCity] = useState(
+    () => localStorage.getItem('user_city') || localStorage.getItem('selectedCity') || localStorage.getItem('selected_location') || 'Delhi NCR'
+  );
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCity(localStorage.getItem('user_city') || localStorage.getItem('selectedCity') || localStorage.getItem('selected_location') || 'Delhi NCR');
+    };
+    window.addEventListener('location-changed', handleLocationChange);
+    window.addEventListener('storage', handleLocationChange);
+    return () => {
+      window.removeEventListener('location-changed', handleLocationChange);
+      window.removeEventListener('storage', handleLocationChange);
+    };
+  }, []);
+
   // Automatic Smooth Card Rotation Timer
   useEffect(() => {
     if (isHovered) return;
@@ -127,8 +143,8 @@ const CityServicesSection = () => {
   return (
     <section className="py-16 lg:py-24 bg-[#F8FAFC] overflow-hidden relative border-t border-slate-200/80 text-slate-800">
       <PageMeta
-        title="Used Car Loan in Mumbai — Low EMI, Instant Approval | Selectt"
-        description="Get a used car loan in Mumbai with the lowest EMI and instant approval. Up to 90% on-road financing, flexible tenure up to 7 years, and minimal documentation with top partner banks."
+        title={`Used Car Loan in ${city} — Low EMI, Instant Approval | Selectt`}
+        description={`Get a used car loan in ${city} with the lowest EMI and instant approval. Up to 90% on-road financing, flexible tenure up to 7 years, and minimal documentation with top partner banks.`}
         canonical="/used-car-loan"
       />
       {/* Background Subtle Gradient Glow */}

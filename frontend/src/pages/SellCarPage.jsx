@@ -231,11 +231,57 @@ const SellCarPage = () => {
   const { citySlug } = useParams();
   const { user } = useAuth();
   
-  // Dynamic City Resolution
-  const rawCity = citySlug
-    ? citySlug.charAt(0).toUpperCase() + citySlug.slice(1).toLowerCase()
-    : localStorage.getItem('selectedCity') || 'Mumbai';
-  const displayCity = rawCity === 'All' ? 'Mumbai' : rawCity;
+  // Dynamic City Resolution with reactive sync to Header & Location Picker
+  const formatCityName = (slug) => {
+    if (!slug) return '';
+    const normalized = slug.toLowerCase().trim();
+    if (normalized === 'delhi' || normalized === 'delhi-ncr') return 'Delhi NCR';
+    if (normalized === 'mumbai') return 'Mumbai';
+    if (normalized === 'pune') return 'Pune';
+    if (normalized === 'bengaluru' || normalized === 'bangalore') return 'Bengaluru';
+    if (normalized === 'hyderabad') return 'Hyderabad';
+    if (normalized === 'ahmedabad') return 'Ahmedabad';
+    if (normalized === 'chennai') return 'Chennai';
+    if (normalized === 'kolkata') return 'Kolkata';
+    return slug.charAt(0).toUpperCase() + slug.slice(1);
+  };
+
+  const getStoredCity = () => {
+    return localStorage.getItem('user_city') || localStorage.getItem('selectedCity') || localStorage.getItem('selected_location') || 'Delhi NCR';
+  };
+
+  const [currentCity, setCurrentCity] = useState(() => {
+    if (citySlug) {
+      return formatCityName(citySlug);
+    }
+    return getStoredCity();
+  });
+
+  useEffect(() => {
+    if (citySlug) {
+      const resolved = formatCityName(citySlug);
+      setCurrentCity(resolved);
+      localStorage.setItem('user_city', resolved);
+      localStorage.setItem('selectedCity', resolved);
+      localStorage.setItem('selected_location', resolved);
+    }
+  }, [citySlug]);
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      if (!citySlug) {
+        setCurrentCity(getStoredCity());
+      }
+    };
+    window.addEventListener('location-changed', handleLocationChange);
+    window.addEventListener('storage', handleLocationChange);
+    return () => {
+      window.removeEventListener('location-changed', handleLocationChange);
+      window.removeEventListener('storage', handleLocationChange);
+    };
+  }, [citySlug]);
+
+  const displayCity = currentCity === 'All' ? 'Delhi NCR' : currentCity;
 
   const [widgetStep, setWidgetStep] = useState(1);
   const [submittedData, setSubmittedData] = useState(null);
