@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, MapPin, Gauge, Fuel, ArrowUpRight, TrendingDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { API_URL } from '../../config/api';
+import { API_URL, getCarImageUrl } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 import { shortenLocation, getCarDetailsUrl } from '../../utils/formatters';
 import SkeletonImage from '../animation/SkeletonImage';
@@ -158,7 +158,7 @@ const CarCard = ({ car, lightBg = false }) => {
       ? 'bg-slate-50 text-slate-500 hover:text-red-500 hover:bg-slate-100 border-slate-200/60 shadow-sm'
       : 'bg-slate-950/40 text-white/80 hover:text-red-500 hover:bg-white/10 border-white/10';
 
-  const imageSrc = car.image?.startsWith('/') ? `${API_URL}${car.image}` : car.image;
+  const imageSrc = getCarImageUrl(car.image);
 
   return (
     <motion.div

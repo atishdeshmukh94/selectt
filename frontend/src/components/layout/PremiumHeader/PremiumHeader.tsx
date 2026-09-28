@@ -29,7 +29,7 @@ import {
 import styles from './PremiumHeader.module.css';
 
 import { useAuth } from '../../../context/AuthContext';
-import { API_URL } from '../../../config/api';
+import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../../../config/api';
 import { getCarDetailsUrl } from '../../../utils/formatters';
 
 interface FilterOption {
@@ -315,7 +315,7 @@ export const PremiumHeader: React.FC = () => {
                 <>
                   <div className={styles.searchResultsList}>
                     {searchResults.slice(0, 5).map((car) => {
-                      const carImg = car.image?.startsWith('/') ? `${API_URL}${car.image}` : car.image;
+                      const carImg = getCarImageUrl(car.image);
                       return (
                         <Link
                           key={car.id}
@@ -323,7 +323,14 @@ export const PremiumHeader: React.FC = () => {
                           className={styles.searchResultItem}
                           onClick={() => setShowDropdown(false)}
                         >
-                          <img src={carImg} alt={`${car.make} ${car.model}`} className={styles.searchResultImg} />
+                          <img
+                            src={carImg}
+                            alt={`${car.make} ${car.model}`}
+                            className={styles.searchResultImg}
+                            onError={(e: any) => {
+                              e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                            }}
+                          />
                           <div className={styles.searchResultInfo}>
                             <div className={styles.searchResultTitle}>
                               {car.year} {car.make} {car.model}
@@ -951,7 +958,7 @@ export const PremiumHeader: React.FC = () => {
                       <>
                         <div className="divide-y divide-slate-100 max-h-60 overflow-y-auto">
                           {searchResults.slice(0, 5).map((car) => {
-                            const carImg = car.image?.startsWith('/') ? `${API_URL}${car.image}` : car.image;
+                            const carImg = getCarImageUrl(car.image);
                             return (
                               <Link
                                 key={car.id}
@@ -962,7 +969,14 @@ export const PremiumHeader: React.FC = () => {
                                   setMobileMenuOpen(false);
                                 }}
                               >
-                                <img src={carImg} alt={`${car.make} ${car.model}`} className="w-12 h-10 object-cover rounded-lg shrink-0 bg-slate-100" />
+                                <img
+                                  src={carImg}
+                                  alt={`${car.make} ${car.model}`}
+                                  className="w-12 h-10 object-cover rounded-lg shrink-0 bg-slate-100"
+                                  onError={(e: any) => {
+                                    e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                                  }}
+                                />
                                 <div className="flex-1 min-w-0">
                                   <div className="text-xs font-bold text-slate-900 truncate">
                                     {car.year} {car.make} {car.model}

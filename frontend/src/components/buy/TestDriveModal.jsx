@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, MapPin, Calendar, Clock, ChevronRight, ChevronDown, Check, Car, ShieldCheck, Navigation, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-import { API_URL } from '../../config/api';
+import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../../config/api';
 const API = API_URL;
 
 const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
@@ -187,8 +187,15 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
             <>
               {/* Simple Car Card */}
               <div className="flex gap-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-150 mb-6 items-center">
-                <div className="w-20 h-14 rounded-xl overflow-hidden bg-white shrink-0 border border-slate-200">
-                  <img src={car.image} alt={car.model} className="w-full h-full object-cover" />
+                <div className="w-20 h-14 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                  <img
+                    src={getCarImageUrl(car?.image || car?.images?.[0])}
+                    alt={car?.model || 'Car'}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                    }}
+                  />
                 </div>
                 <div className="min-w-0">
                   <h3 className="font-extrabold text-slate-850 text-base leading-tight truncate">

@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
 import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, X, FileText } from 'lucide-react';
-import { API_URL } from '../config/api';
+import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
 import TestDriveModal from '../components/buy/TestDriveModal';
 
@@ -352,7 +352,14 @@ const CheckoutPage = () => {
                 {/* Header Car Info */}
                 <div className="p-4 sm:p-6 flex items-center gap-3.5 sm:gap-4 border-b border-slate-100">
                   <div className="w-24 h-20 sm:w-32 sm:h-24 bg-slate-100 rounded-xl overflow-hidden shrink-0 shadow-sm">
-                    <img src={car.image} alt={car.model} className="w-full h-full object-cover" />
+                    <img
+                      src={getCarImageUrl(car?.image || car?.images?.[0])}
+                      alt={car?.model || 'Car'}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                      }}
+                    />
                   </div>
                   <div className="flex flex-col justify-center min-w-0 flex-1">
                     <h3 className="font-black text-[#0C1B33] text-base sm:text-lg leading-tight mb-1 truncate">

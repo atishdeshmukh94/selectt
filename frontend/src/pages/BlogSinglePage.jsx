@@ -4,7 +4,7 @@ import { ChevronRight, Calendar, User, Facebook, Twitter, Linkedin, Link as Link
 import PageMeta from '../components/common/PageMeta';
 import { getCarDetailsUrl } from '../utils/formatters';
 
-import { API_URL } from "../config/api";
+import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from "../config/api";
 const API = API_URL;
 
 const BlogSinglePage = () => {
@@ -167,10 +167,13 @@ const BlogSinglePage = () => {
                   >
                     <div className="w-full aspect-[4/3] rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-800 mb-2 flex items-center justify-center">
                       <img
-                        src={car.image}
+                        src={getCarImageUrl(car.image)}
                         alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} - Used Car for Sale`}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
+                        onError={(e) => {
+                          e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                        }}
                       />
                     </div>
                     <div>

@@ -5,7 +5,7 @@ import { Heart, Clock, Navigation, CheckCircle2, ChevronRight, User, FileText, C
 import CarCard from '../components/buy/CarCard';
 import AvatarCropModal from '../components/shared/AvatarCropModal';
 
-import { API_URL } from '../config/api';
+import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 
 const API = API_URL;
 
@@ -654,7 +654,14 @@ const UserProfilePage = () => {
                   activeBookings.map(b => (
                     <div key={b.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                       <div className="aspect-[4/3] bg-slate-100 relative">
-                        <img src={b.image?.startsWith('/') ? `${API}${b.image}` : b.image} alt={b.model} className="w-full h-full object-cover" />
+                        <img
+                          src={getCarImageUrl(b.image)}
+                          alt={b.model || 'Booked Car'}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                          }}
+                        />
                         <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${b.payment_status === 'paid' ? 'bg-green-500 text-white' : 'bg-yellow-400 text-[#0C1B33]'
                           }`}>
                           {b.payment_status}
@@ -732,7 +739,14 @@ const UserProfilePage = () => {
                   testDrives.map(td => (
                     <div key={td.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                       <div className="aspect-[4/3] bg-slate-100 relative">
-                        <img src={td.image?.startsWith('/') ? `${API}${td.image}` : td.image} alt={td.model} className="w-full h-full object-cover" />
+                        <img
+                          src={getCarImageUrl(td.image)}
+                          alt={td.model || 'Test Drive Car'}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                          }}
+                        />
                         <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${td.status === 'completed'
                           ? 'bg-green-500 text-white'
                           : td.status === 'cancelled'

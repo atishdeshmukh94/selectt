@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { DEFAULT_CAR_FALLBACK_IMAGE } from '../../config/api';
 
 /**
  * SkeletonImage
@@ -8,6 +9,7 @@ import { motion } from 'framer-motion';
  * - Fades in smoothly after loading
  * - Subtle zoom on hover (1.03 scale)
  * - Retains consistent rounded corners
+ * - Automatic fallback for broken/missing images
  */
 const SkeletonImage = ({
   src,
@@ -16,15 +18,20 @@ const SkeletonImage = ({
   imageClassName = '',
   aspectRatio = 'aspect-[16/10]',
   hoverZoom = true,
+  fallback = DEFAULT_CAR_FALLBACK_IMAGE,
   ...props
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [imgSrc, setImgSrc] = useState(src || fallback);
+
+  useEffect(() => {
+    setImgSrc(src || fallback);
+  }, [src, fallback]);
 
   return (
     <div className={`relative overflow-hidden ${aspectRatio} ${className}`}>
       {/* Skeleton Shimmer Overlay */}
-      {!isLoaded && !hasError && (
+      {!isLoaded && (
         <div className="absolute inset-0 bg-slate-800/40 animate-shimmer z-10 flex items-center justify-center">
           <div className="w-6 h-6 border-2 border-[#00C9AF]/20 border-t-[#00C9AF] rounded-full animate-spin" />
         </div>
@@ -32,13 +39,15 @@ const SkeletonImage = ({
 
       {/* Actual Image */}
       <motion.img
-        src={src}
+        src={imgSrc}
         alt={alt}
         loading="lazy"
         onLoad={() => setIsLoaded(true)}
         onError={() => {
+          if (imgSrc !== fallback) {
+            setImgSrc(fallback);
+          }
           setIsLoaded(true);
-          setHasError(true);
         }}
         initial={{ opacity: 0, scale: 1 }}
         animate={{ opacity: isLoaded ? 1 : 0 }}
@@ -55,3 +64,4 @@ const SkeletonImage = ({
 };
 
 export default SkeletonImage;
+

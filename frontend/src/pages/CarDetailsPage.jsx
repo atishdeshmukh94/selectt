@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { API_URL } from '../config/api';
+import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
 import {
   ChevronRight,
@@ -487,10 +487,13 @@ const CarDetailsPage = () => {
 
                       <img
                         key={activeImage}
-                        src={images[activeImage]?.startsWith('/') ? `${API_URL}${images[activeImage]}` : images[activeImage]}
+                        src={getCarImageUrl(images[activeImage])}
                         alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''} - Photo ${activeImage + 1} | Selectt Pre-Owned`}
                         loading="eager"
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                        }}
                       />
                       <div
                         className="absolute inset-0 pointer-events-none transition-opacity duration-150 border border-white/10 shadow-inner"
@@ -663,10 +666,13 @@ const CarDetailsPage = () => {
                                 </div>
                               ) : (
                                 <img
-                                  src={img?.startsWith('/') ? `${API_URL}${img}` : img}
+                                  src={getCarImageUrl(img)}
                                   className="w-full h-full object-cover"
                                   alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} - Thumbnail ${idx + 1}`}
                                   loading="lazy"
+                                  onError={(e) => {
+                                    e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                                  }}
                                 />
                               )}
                             </button>
