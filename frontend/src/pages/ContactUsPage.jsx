@@ -291,12 +291,13 @@ const ContactUsPage = () => {
               {/* Google Maps Embed */}
               <div className="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs h-[320px]">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3718.518934921303!2d81.6249335!3d21.250916699999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a28ddc706886a21%3A0x3427ad396965afa5!2sWEPNEX!5e0!3m2!1sen!2sin!4v1772273391007!5m2!1sen!2sin"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3816.0104434779314!2d72.84024937526559!3d19.240511081998196!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7b1225805846b%3A0x41b6768c541beaf8!2sTechno%20It%20Park%2C%20Eksar%20Village%2C%20Eksar%2C%20Borivali%2C%20Mumbai%2C%20Maharashtra%20400091!5e1!3m2!1sen!2sin!4v1790604300027!5m2!1sen!2sin"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
                   allowFullScreen=""
                   loading="lazy"
+                  referrerPolicy="strict-origin-when-cross-origin"
                   title="Selectt Corporate Location"
                 ></iframe>
               </div>
