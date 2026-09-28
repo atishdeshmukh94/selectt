@@ -1672,8 +1672,8 @@ const NewHome = () => {
       <div className="block md:hidden relative z-20 bg-[#F4F6F9] rounded-t-[32px] -mt-6 pt-6 pb-6 px-4">
         {/* Browse by Type */}
         <div className="text-left mb-6">
-          <h3 className="text-sm font-extrabold text-[#0C1B33] uppercase tracking-wider mb-3">Browse by type</h3>
-          <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
+          <h3 className="text-sm font-extrabold text-[#0C1B33] uppercase tracking-wider mb-2">Browse by type</h3>
+          <div className="flex gap-3 overflow-x-auto pt-2.5 pb-3.5 px-4 -mx-4 scrollbar-none">
             {[
               { id: 'All', label: 'All', img: '/img/hatchback.png', hoverImg: '/img/hatchback-hover.png' },
               { id: 'Hatchback', label: 'Hatchback', img: '/img/hatchback.png', hoverImg: '/img/hatchback-hover.png' },
@@ -1689,14 +1689,14 @@ const NewHome = () => {
                 <button
                   key={type.id}
                   onClick={() => setActiveMobileType(type.id)}
-                  className={`group flex flex-col items-center justify-center w-[80px] h-[80px] rounded-[18px] border transition-all duration-300 shrink-0 relative overflow-hidden cursor-pointer ${
+                  className={`group flex flex-col items-center justify-center w-[80px] h-[80px] rounded-[18px] transition-all duration-300 shrink-0 relative cursor-pointer ${
                     isActive
-                      ? 'bg-gradient-to-b from-[#E6FAF7] to-[#D6F6F1] border-[#00C9AF] shadow-[0_4px_16px_rgba(0,201,175,0.25)] ring-2 ring-[#00C9AF]/30 scale-[1.03]'
-                      : 'bg-white border-slate-200/80 hover:border-slate-300 shadow-xs hover:shadow-sm active:scale-95'
+                      ? 'bg-gradient-to-b from-[#E6FAF7] to-[#D6F6F1] border-2 border-[#00C9AF] shadow-[0_4px_16px_rgba(0,201,175,0.3)] ring-2 ring-[#00C9AF]/35 scale-[1.02]'
+                      : 'bg-white border border-slate-200/80 hover:border-slate-300 shadow-xs hover:shadow-sm active:scale-95'
                   }`}
                 >
                   {type.id === 'EV' && (
-                    <span className="absolute top-1.5 right-1.5 text-[9px] bg-emerald-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-black shadow-xs">⚡</span>
+                    <span className="absolute top-1 right-1 text-[9px] bg-emerald-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-black shadow-xs">⚡</span>
                   )}
                   <div className="w-13 h-7 flex items-center justify-center mb-1">
                     <img
