@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const VIDEO_CDN_URL = 'https://ik.imagekit.io/Selectt/selectt/branding/selectt-preloader_nSHd9kRGc.mp4';
+const VIDEO_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader.mp4/ik-video.mp4?updatedAt=1790511923241';
+const FALLBACK_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader.mp4';
 const LOCAL_FALLBACK_URL = '/preloader.mp4';
 
-export default function PagePreloader({ minDisplayTime = 2500 }) {
-  // Only show on home page on initial session entry to prevent black screen on direct car pages or refreshes
+export default function PagePreloader({ minDisplayTime = 2200 }) {
   const shouldSkip = () => {
     try {
       if (typeof window === 'undefined') return true;
-      const path = window.location.pathname;
-      // Skip if visiting a specific car, search, admin, or sub-page directly
-      if (path !== '/' && path !== '' && path !== '/new-home2' && path !== '/home-2') {
-        return true;
-      }
       const alreadySeen = sessionStorage.getItem('selectt_preloader_seen');
       if (alreadySeen) return true;
     } catch (_) {}
@@ -49,15 +44,14 @@ export default function PagePreloader({ minDisplayTime = 2500 }) {
 
     if (videoRef.current) {
       videoRef.current.play().catch(() => {
-        // If autoplay fails, dismiss immediately to prevent blank black screen
-        dismiss();
+        setTimeout(dismiss, 1200);
       });
     }
 
-    // Maximum timeout guarantee
+    // Safety maximum timeout guarantee
     const timer = setTimeout(() => {
       dismiss();
-    }, Math.max(minDisplayTime, 2800));
+    }, 3200);
 
     return () => clearTimeout(timer);
   }, [minDisplayTime, skipInitial]);
@@ -101,9 +95,10 @@ export default function PagePreloader({ minDisplayTime = 2500 }) {
             border: 'none',
             boxShadow: 'none'
           }}
-          className="w-80 sm:w-[420px] md:w-[480px] h-auto object-contain max-h-[85vh] bg-black outline-none border-none"
+          className="w-80 sm:w-[440px] md:w-[500px] h-auto object-contain max-h-[85vh] bg-black outline-none border-none"
         >
           <source src={VIDEO_CDN_URL} type="video/mp4" />
+          <source src={FALLBACK_CDN_URL} type="video/mp4" />
           <source src={LOCAL_FALLBACK_URL} type="video/mp4" />
           <source src="/preloader.mov" type="video/quicktime" />
         </video>
@@ -111,4 +106,5 @@ export default function PagePreloader({ minDisplayTime = 2500 }) {
     </div>
   );
 }
+
 

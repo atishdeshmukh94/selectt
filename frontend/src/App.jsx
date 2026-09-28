@@ -129,9 +129,8 @@ function MainLayout() {
 
 function LoadingFallback() {
   return (
-    <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
-      <div className="w-9 h-9 border-3 border-[#0B2545] border-t-transparent rounded-full animate-spin"></div>
-      <span className="text-xs font-semibold text-slate-400 tracking-widest uppercase">Loading Selectt...</span>
+    <div className="min-h-[50vh] flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-[#00C9AF] border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 }
