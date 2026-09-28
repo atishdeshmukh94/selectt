@@ -20,8 +20,9 @@ const hpp = require('hpp');
 const rateLimit = require('express-rate-limit');
 const { authMiddleware, isAdmin, adminAuth, customerAuth } = require('./auth-middleware');
 const { sendWhatsAppOTP } = require('./whatsapp-service');
-const { imagekit, getAuthenticationParameters, uploadToImageKit, testImageKitConnection, initImageKit } = require('./imagekit');
+const { imagekit, getAuthenticationParameters, uploadToImageKit, testImageKitConnection, initImageKit, deleteFromImageKit } = require('./imagekit');
 const bunnyStream = require('./bunny-stream');
+const { deleteFromBunnyStream } = require('./bunny-stream');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -261,42 +262,57 @@ function writeAltStore(data) {
     }
 }
 
-// ── Physical file & thumbnail cleanup helper ─────────────────────────────
+// ── Physical & cloud file cleanup helper (ImageKit + Bunny Stream + VPS disk) ───────────
 const deleteLocalUploadFile = (filePath) => {
     if (!filePath || typeof filePath !== 'string') return;
     try {
-        const cleanPath = filePath.split('?')[0].split('#')[0];
+        const cleanPath = filePath.split('?')[0].split('#')[0].trim();
+        if (!cleanPath) return;
+
+        // 1. Delete from Bunny Stream if it is a video (MP4/WebM/HLS/Bunny embed/GUID)
+        const isVideo = /\.(mp4|webm|mov|m4v|avi|mkv|m3u8)(\?|$)/i.test(cleanPath) ||
+                        cleanPath.includes('bunny') ||
+                        cleanPath.includes('mediadelivery.net') ||
+                        /^[0-9a-fA-F-]{36}$/.test(cleanPath);
+        if (isVideo) {
+            deleteFromBunnyStream(cleanPath).catch(err => console.warn('[BunnyStream Cascade Delete Warning]:', err.message));
+        }
+
+        // 2. Delete from ImageKit CDN
+        deleteFromImageKit(cleanPath).catch(err => console.warn('[ImageKit Cascade Delete Warning]:', err.message));
+
+        // 3. Delete from Local VPS disk (if physical file exists)
         const filename = path.basename(cleanPath);
-        if (!filename || filename === '.' || filename === '/') return;
-
-        const mainPath = path.join(__dirname, 'public/uploads', filename);
-        if (fs.existsSync(mainPath)) {
-            fs.unlink(mainPath, (err) => {
-                if (err && err.code !== 'ENOENT') console.error(`Failed to unlink file ${mainPath}:`, err.message);
-            });
-        }
-
-        const thumbPath = path.join(__dirname, 'public/uploads/thumbnails', filename);
-        if (fs.existsSync(thumbPath)) {
-            fs.unlink(thumbPath, (err) => {
-                if (err && err.code !== 'ENOENT') console.error(`Failed to unlink thumbnail ${thumbPath}:`, err.message);
-            });
-        }
-
-        // Clean from DB
-        db.query('DELETE FROM media_alt_tags WHERE file_path = ? OR file_path LIKE ?', [`/uploads/${filename}`, `%${filename}`], (err) => {
-            if (err) console.error(`Error deleting alt tag for ${filename}:`, err.message);
-        });
-
-        // Clean from JSON alt store
-        try {
-            const altStore = readAltStore();
-            const urlPath = `/uploads/${filename}`;
-            if (altStore[urlPath]) {
-                delete altStore[urlPath];
-                writeAltStore(altStore);
+        if (filename && filename !== '.' && filename !== '/') {
+            const mainPath = path.join(__dirname, 'public/uploads', filename);
+            if (fs.existsSync(mainPath)) {
+                fs.unlink(mainPath, (err) => {
+                    if (err && err.code !== 'ENOENT') console.error(`Failed to unlink file ${mainPath}:`, err.message);
+                });
             }
-        } catch {}
+
+            const thumbPath = path.join(__dirname, 'public/uploads/thumbnails', filename);
+            if (fs.existsSync(thumbPath)) {
+                fs.unlink(thumbPath, (err) => {
+                    if (err && err.code !== 'ENOENT') console.error(`Failed to unlink thumbnail ${thumbPath}:`, err.message);
+                });
+            }
+
+            // Clean from DB
+            db.query('DELETE FROM media_alt_tags WHERE file_path = ? OR file_path LIKE ?', [`/uploads/${filename}`, `%${filename}`], (err) => {
+                if (err) console.error(`Error deleting alt tag for ${filename}:`, err.message);
+            });
+
+            // Clean from JSON alt store
+            try {
+                const altStore = readAltStore();
+                const urlPath = `/uploads/${filename}`;
+                if (altStore[urlPath]) {
+                    delete altStore[urlPath];
+                    writeAltStore(altStore);
+                }
+            } catch {}
+        }
     } catch (e) {
         console.error('Error in deleteLocalUploadFile:', e.message);
     }
@@ -1568,18 +1584,22 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
         db.query('UPDATE cars SET ? WHERE id = ?', [data, req.params.id], (err) => {
             if (err) return res.status(500).json({ error: err.message });
 
-            // Storage cleanup: If main image replaced, delete old main image
-            if (oldCar && oldCar.image && data.image && oldCar.image !== data.image && oldCar.image.startsWith('/uploads/')) {
+            // Storage cleanup: If main image replaced, delete old main image from ImageKit / disk
+            if (oldCar && oldCar.image && data.image && oldCar.image !== data.image) {
                 deleteLocalUploadFile(oldCar.image);
             }
-            // Storage cleanup: If more_images items were removed, delete them from disk
+            // Storage cleanup: If video replaced, delete old video from Bunny Stream / disk
+            if (oldCar && oldCar.video_url && data.video_url && oldCar.video_url !== data.video_url) {
+                deleteLocalUploadFile(oldCar.video_url);
+            }
+            // Storage cleanup: If more_images items were removed, delete them from ImageKit / disk
             if (oldCar && oldCar.more_images && data.more_images) {
                 try {
                     const oldGallery = typeof oldCar.more_images === 'string' ? JSON.parse(oldCar.more_images) : oldCar.more_images;
                     const newGallery = typeof data.more_images === 'string' ? JSON.parse(data.more_images) : data.more_images;
                     if (Array.isArray(oldGallery) && Array.isArray(newGallery)) {
                         oldGallery.forEach(oldImg => {
-                            if (oldImg && !newGallery.includes(oldImg) && typeof oldImg === 'string' && oldImg.startsWith('/uploads/')) {
+                            if (oldImg && !newGallery.includes(oldImg)) {
                                 deleteLocalUploadFile(oldImg);
                             }
                         });
@@ -1662,19 +1682,20 @@ app.patch('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
 });
 
 app.delete('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
-    db.query('SELECT image, more_images FROM cars WHERE id = ?', [req.params.id], (err, results) => {
+    db.query('SELECT image, more_images, video_url FROM cars WHERE id = ?', [req.params.id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(404).json({ message: 'Car not found' });
         
         const car = results[0];
-        const imagesToDelete = [];
-        if (car.image) imagesToDelete.push(car.image);
+        const mediaToDelete = [];
+        if (car.image) mediaToDelete.push(car.image);
+        if (car.video_url) mediaToDelete.push(car.video_url);
         if (car.more_images) {
             try {
                 const gallery = typeof car.more_images === 'string' ? JSON.parse(car.more_images) : car.more_images;
                 if (Array.isArray(gallery)) {
                     gallery.forEach(img => {
-                        if (img) imagesToDelete.push(img);
+                        if (img) mediaToDelete.push(img);
                     });
                 }
             } catch (e) {
@@ -1686,13 +1707,13 @@ app.delete('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
         db.query('DELETE FROM cars WHERE id = ?', [req.params.id], (delErr) => {
             if (delErr) return res.status(500).json({ error: delErr.message });
             
-            // Delete all associated files and thumbnails from disk and DB
-            imagesToDelete.forEach(filePath => deleteLocalUploadFile(filePath));
+            // Delete all associated files from ImageKit, Bunny Stream, local disk, and DB
+            mediaToDelete.forEach(filePath => deleteLocalUploadFile(filePath));
             
             // Trigger Meta Catalog item removal
             triggerMetaAutoSync(req.params.id, 'DELETE');
 
-            res.json({ message: 'Car deleted successfully and associated images removed' });
+            res.json({ message: 'Car deleted successfully and associated images & videos removed from cloud' });
         });
     });
 });
@@ -3461,21 +3482,22 @@ app.post('/api/upload', authMiddleware, isAdmin, upload.single('file'), convertR
         return res.status(400).json({ message: 'No file uploaded' });
     }
     
-    const localUrl = `/uploads/${req.file.filename}`;
-    const localThumbnailUrl = `/uploads/thumbnails/${req.file.filename}`;
+    const filePath = req.file.path;
     const ext = path.extname(req.file.filename).toLowerCase();
     const isVideo = ['.mp4', '.mov', '.webm', '.mkv', '.avi'].includes(ext) || (req.file.mimetype && req.file.mimetype.startsWith('video/'));
 
-    // 1. VIDEO UPLOAD: Direct to Bunny.net Stream Video Library
+    // 1. VIDEO UPLOAD: Direct to Bunny.net Stream Video Library (Never stored on VPS)
     if (isVideo) {
         try {
             console.log(`[Upload] Uploading video to Bunny Stream: ${req.file.filename} (${(req.file.size / (1024 * 1024)).toFixed(1)} MB)`);
-            const filePath = req.file.path;
             const fileBuffer = fs.readFileSync(filePath);
             const bunnyResult = await bunnyStream.createAndUploadVideo({
                 title: req.body.title || req.file.originalname || `Vehicle_Video_${Date.now()}`,
                 fileBuffer: fileBuffer
             });
+
+            // Clean up temporary local file immediately
+            try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch (_) {}
 
             console.log(`[Bunny Stream] Video uploaded successfully! ID: ${bunnyResult.videoId}`);
             return res.json({
@@ -3485,25 +3507,23 @@ app.post('/api/upload', authMiddleware, isAdmin, upload.single('file'), convertR
                 url: bunnyResult.embedUrl, // Direct iframe embed URL
                 embedUrl: bunnyResult.embedUrl,
                 hlsUrl: bunnyResult.hlsUrl,
-                thumbnailUrl: bunnyResult.thumbnailUrl || localThumbnailUrl,
+                thumbnailUrl: bunnyResult.thumbnailUrl,
                 videoId: bunnyResult.videoId,
                 libraryId: bunnyResult.libraryId
             });
         } catch (bunnyErr) {
-            console.error('⚠️ Bunny Stream upload failed, falling back to local/CDN storage:', bunnyErr.message || bunnyErr);
-            return res.json({
-                success: true,
-                mediaType: 'video',
-                provider: 'local',
-                url: localUrl,
-                thumbnailUrl: localThumbnailUrl
+            console.error('⚠️ Bunny Stream upload failed:', bunnyErr.message || bunnyErr);
+            // Fallback: remove local file or return error
+            try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch (_) {}
+            return res.status(500).json({
+                success: false,
+                message: `Failed to upload video to Bunny.net Stream: ${bunnyErr.message}`
             });
         }
     }
 
-    // 2. IMAGE UPLOAD: Direct to ImageKit CDN
+    // 2. IMAGE UPLOAD: Direct to ImageKit CDN (Never stored on VPS)
     try {
-        const filePath = req.file.path;
         const fileBuffer = fs.readFileSync(filePath);
         const ikResult = await uploadToImageKit({
             file: fileBuffer,
@@ -3511,23 +3531,24 @@ app.post('/api/upload', authMiddleware, isAdmin, upload.single('file'), convertR
             folder: '/selectt/uploads'
         });
 
+        // Clean up temporary local file immediately
+        try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch (_) {}
+
         return res.json({
             success: true,
             mediaType: 'image',
             provider: 'imagekit',
-            url: ikResult.url || localUrl,
-            thumbnailUrl: ikResult.thumbnailUrl || ikResult.url || localThumbnailUrl,
+            url: ikResult.url,
+            thumbnailUrl: ikResult.thumbnailUrl || ikResult.url,
             fileId: ikResult.fileId,
             name: ikResult.name
         });
     } catch (ikErr) {
-        console.warn('⚠️ ImageKit upload fallback to local storage:', ikErr.message);
-        return res.json({
-            success: true,
-            mediaType: 'image',
-            provider: 'local',
-            url: localUrl,
-            thumbnailUrl: localThumbnailUrl
+        console.error('⚠️ ImageKit upload failed:', ikErr.message);
+        try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch (_) {}
+        return res.status(500).json({
+            success: false,
+            message: `Failed to upload image to ImageKit CDN: ${ikErr.message}`
         });
     }
 });

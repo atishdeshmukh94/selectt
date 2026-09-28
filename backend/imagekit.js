@@ -100,11 +100,65 @@ function getOptimizedImageUrl(imagePath, transformation = {}) {
   });
 }
 
+/**
+ * Deletes an image from ImageKit by URL, filename, path, or fileId
+ */
+async function deleteFromImageKit(urlOrPath, customConfig = null) {
+  if (!urlOrPath || typeof urlOrPath !== 'string') return;
+  const ik = customConfig ? new ImageKit(customConfig) : (activeImageKit || initImageKit());
+  if (!ik) return;
+
+  try {
+    const cleanPath = urlOrPath.split('?')[0].split('#')[0].trim();
+    if (!cleanPath) return;
+
+    // Check if directly a 24-char hex fileId
+    if (/^[0-9a-fA-F]{24}$/.test(cleanPath)) {
+      await ik.deleteFile(cleanPath);
+      console.log(`[ImageKit] Deleted file by fileId: ${cleanPath}`);
+      return;
+    }
+
+    const filename = path.basename(cleanPath);
+    if (!filename || filename === '.' || filename === '/') return;
+
+    // Search exact filename in ImageKit
+    let files = await ik.listFiles({
+      searchQuery: `name = ${JSON.stringify(filename)}`,
+      limit: 10
+    });
+
+    if (!files || files.length === 0) {
+      // Try search by raw name without extension prefix if applicable
+      const rawName = path.parse(filename).name;
+      if (rawName && rawName.length > 3) {
+        files = await ik.listFiles({
+          searchQuery: `name : ${JSON.stringify(rawName)}`,
+          limit: 10
+        });
+      }
+    }
+
+    if (files && files.length > 0) {
+      for (const file of files) {
+        if (file.fileId) {
+          await ik.deleteFile(file.fileId);
+          console.log(`[ImageKit] Deleted file: ${file.name} (fileId: ${file.fileId})`);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(`[ImageKit] Deletion warning for "${urlOrPath}":`, err.message);
+  }
+}
+
 module.exports = {
   imagekit: activeImageKit,
   initImageKit,
   getAuthenticationParameters,
   uploadToImageKit,
   testImageKitConnection,
-  getOptimizedImageUrl
+  getOptimizedImageUrl,
+  deleteFromImageKit
 };
+

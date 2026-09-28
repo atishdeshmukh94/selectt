@@ -154,6 +154,33 @@ async function deleteVideo(videoId, customConfig = null) {
   return response.data;
 }
 
+/**
+ * Helper to delete a video from Bunny Stream using full embed URL, HLS URL, or video GUID
+ */
+async function deleteFromBunnyStream(videoUrlOrId, customConfig = null) {
+  if (!videoUrlOrId || typeof videoUrlOrId !== 'string') return;
+  try {
+    const raw = videoUrlOrId.trim();
+    if (!raw) return;
+
+    // Extract UUID format (guid)
+    const uuidMatch = raw.match(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/);
+    let videoId = uuidMatch ? uuidMatch[0] : null;
+
+    if (!videoId && raw.includes('/embed/')) {
+      const parts = raw.split('/embed/')[1].split('?')[0].split('/');
+      videoId = parts[parts.length - 1];
+    }
+
+    if (videoId && videoId.length > 20) {
+      await deleteVideo(videoId, customConfig);
+      console.log(`[BunnyStream] Deleted video: ${videoId}`);
+    }
+  } catch (err) {
+    console.warn(`[BunnyStream] Deletion warning for "${videoUrlOrId}":`, err.message);
+  }
+}
+
 module.exports = {
   createVideo,
   uploadVideoBinary,
@@ -161,5 +188,7 @@ module.exports = {
   getVideoStatus,
   testBunnyConnection,
   deleteVideo,
+  deleteFromBunnyStream,
   getBunnyConfig
 };
+
