@@ -135,7 +135,7 @@ const TopSearchAndBanners = () => {
           <GlassBannerCard
             key={`m-${banner.id}`}
             banner={banner}
-            className="flex-shrink-0 w-[calc(100vw-32px)] h-[200px] snap-start"
+            className="flex-shrink-0 w-full min-w-full h-[180px] sm:h-[200px] snap-start"
           />
         ))}
       </div>

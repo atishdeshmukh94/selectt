@@ -674,23 +674,23 @@ const BuyCarsPage = () => {
                 <TopSearchAndBanners />
 
                 {/* Results bar */}
-                <div className="flex items-center justify-between gap-2 mb-6 mt-2 w-full">
-                  <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex items-center justify-between gap-1.5 sm:gap-2 mb-6 mt-2 w-full min-w-0 max-w-full">
+                  <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink">
                     {/* Mobile filter btn */}
                     <button
                       onClick={() => setShowMobileFilters(true)}
-                      className="md:hidden flex items-center gap-1.5 bg-white border border-slate-200 hover:border-[#00C9AF] px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 uppercase tracking-wider transition-all shadow-sm"
+                      className="md:hidden flex items-center gap-1 bg-white border border-slate-200 hover:border-[#00C9AF] px-2.5 sm:px-3.5 py-2 rounded-xl text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider transition-all shadow-sm shrink-0"
                     >
-                      <SlidersHorizontal size={14} /> Filters
+                      <SlidersHorizontal size={13} className="text-slate-600" /> Filters
                     </button>
-                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-700 font-bold uppercase tracking-wider whitespace-nowrap">
-                      <Car size={16} className="text-[#0C1B33]" />
-                      <span>{filteredCars.length} results</span>
+                    <div className="flex items-center gap-1 text-[11px] sm:text-xs text-slate-700 font-bold uppercase tracking-wider whitespace-nowrap shrink">
+                      <Car size={14} className="text-[#0C1B33] hidden sm:inline" />
+                      <span>{filteredCars.length} <span className="hidden sm:inline">results</span><span className="sm:hidden">cars</span></span>
                     </div>
                   </div>
 
                   {/* Custom Sort Dropdown */}
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     {/* Invisible click-away overlay when open */}
                     {isSortOpen && (
                       <div 
@@ -701,13 +701,16 @@ const BuyCarsPage = () => {
                     
                     <button
                       onClick={() => setIsSortOpen(!isSortOpen)}
-                      className={`relative flex items-center gap-1.5 bg-white border ${isSortOpen ? 'border-[#00C9AF] ring-2 ring-[#00C9AF]/10' : 'border-slate-200 hover:border-[#00C9AF]'} text-slate-800 pl-8 pr-7 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider outline-none cursor-pointer transition-all shadow-sm z-50 whitespace-nowrap`}
+                      className={`relative flex items-center gap-1 bg-white border ${isSortOpen ? 'border-[#00C9AF] ring-2 ring-[#00C9AF]/10' : 'border-slate-200 hover:border-[#00C9AF]'} text-slate-800 pl-6 pr-6 sm:pl-8 sm:pr-7 py-2 rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-wider outline-none cursor-pointer transition-all shadow-sm z-50 whitespace-nowrap`}
                     >
-                      <ArrowUpDown size={14} className="absolute left-2.5 text-slate-500" />
-                      <span>
+                      <ArrowUpDown size={12} className="absolute left-2 sm:left-2.5 text-slate-500" />
+                      <span className="hidden sm:inline">
                         Sort: {sortOrder === 'relevance' ? 'Relevance' : sortOrder === 'price_asc' ? 'Price: Low → High' : 'Price: High → Low'}
                       </span>
-                      <ChevronDown size={13} className={`absolute right-2 text-slate-500 transition-transform duration-200 ${isSortOpen ? 'rotate-180' : ''}`} />
+                      <span className="sm:hidden">
+                        Sort: {sortOrder === 'relevance' ? 'Relevance' : sortOrder === 'price_asc' ? 'Price: Low' : 'Price: High'}
+                      </span>
+                      <ChevronDown size={12} className={`absolute right-1.5 sm:right-2 text-slate-500 transition-transform duration-200 ${isSortOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     {isSortOpen && (
