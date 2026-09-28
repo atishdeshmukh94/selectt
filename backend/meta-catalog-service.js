@@ -90,7 +90,7 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
         title,
         description,
         availability,
-        condition: 'used',
+        condition: 'used_like_new',
         price: `${priceNum} INR`,
         sale_price: offerPriceNum && offerPriceNum < priceNum ? `${offerPriceNum} INR` : '',
         effective_price: effectivePrice,
@@ -305,29 +305,20 @@ async function pushBatchToMetaGraphApi({ catalogId, accessToken, items, method =
                 title: item.title,
                 description: item.description,
                 availability: item.availability,
-                condition: item.condition,
+                condition: item.condition || 'used_like_new',
                 price: item.price,
                 sale_price: item.sale_price || undefined,
-                url: item.link,
-                image_url: item.image_link,
-                additional_image_urls: item.additional_images_array?.slice(0, 10),
+                link: item.link,
+                image_link: item.image_link,
+                additional_image_link: item.additional_image_link || undefined,
                 brand: item.brand,
-                make: item.make,
-                model: item.model,
-                year: item.year,
-                mileage: {
-                    value: item.mileage_value,
-                    unit: item.mileage_unit
-                },
-                transmission: item.transmission,
-                fuel_type: item.fuel_type,
-                body_style: item.body_style,
-                color: item.color,
-                state_of_vehicle: item.state_of_vehicle,
+                fb_product_category: 'Vehicles & Parts > Vehicles > Motor Vehicles > Cars',
+                google_product_category: 'Vehicles & Parts > Vehicles > Motor Vehicles > Cars',
                 custom_label_0: item.custom_label_0,
                 custom_label_1: item.custom_label_1,
                 custom_label_2: item.custom_label_2,
-                custom_label_3: item.custom_label_3
+                custom_label_3: item.custom_label_3,
+                custom_label_4: item.custom_label_4
             }
         };
     });
