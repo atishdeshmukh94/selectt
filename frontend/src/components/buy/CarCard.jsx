@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { API_URL, getCarImageUrl } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 import { shortenLocation, getCarDetailsUrl } from '../../utils/formatters';
+import { trackCarView } from '../../utils/userPreferences';
 import SkeletonImage from '../animation/SkeletonImage';
 import { cardHoverVariants } from '../../utils/animationVariants';
 
@@ -168,7 +169,11 @@ const CarCard = ({ car, lightBg = false }) => {
       whileTap="tap"
       className={`rounded-[20px] overflow-hidden group flex flex-col w-full h-full relative border gpu-accelerated ${containerBgClass}`}
     >
-      <Link to={getCarDetailsUrl(car)} className="block flex-grow flex flex-col h-full w-full">
+      <Link 
+        to={getCarDetailsUrl(car)} 
+        onClick={() => trackCarView(car)}
+        className="block flex-grow flex flex-col h-full w-full"
+      >
 
         {/* Image Container with Skeleton & Subtle Hover Zoom */}
         <div className={`relative h-[155px] overflow-hidden shrink-0 m-3 rounded-[14px] ${lightBg ? 'bg-slate-100' : 'bg-slate-950/20'}`}>

@@ -58,6 +58,7 @@ import SectionDivider from '../components/common/SectionDivider';
 import EmiCalculator from '../components/shared/EmiCalculator';
 import PriceSummaryModal from '../components/car-details/PriceSummaryModal';
 import { shortenLocation } from '../utils/formatters';
+import { trackCarView, getSimilarCarsForCarDetails } from '../utils/userPreferences';
 
 const hasPriceDrop = (car) => {
   if (!car || !car.price) return false;
@@ -107,6 +108,7 @@ const CarDetailsPage = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [similarCars, setSimilarCars] = useState([]);
+  const [allCars, setAllCars] = useState([]);
   const [activeImage, setActiveImage] = useState(0);
   const [thumbStartIndex, setThumbStartIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(5);
@@ -186,21 +188,8 @@ const CarDetailsPage = () => {
           console.error("Error firing Meta ViewContent pixel event", e);
         }
 
-        // Track recently viewed cars
-        try {
-          if (data && data.id) {
-            let viewed = JSON.parse(localStorage.getItem('recently_viewed_cars')) || [];
-            // Remove existing entry to move to front
-            viewed = viewed.filter(c => c.id !== data.id);
-            // Add to beginning
-            viewed.unshift(data);
-            // Keep maximum 10 cars
-            if (viewed.length > 10) viewed = viewed.slice(0, 10);
-            localStorage.setItem('recently_viewed_cars', JSON.stringify(viewed));
-          }
-        } catch (e) {
-          console.error("Error saving recently viewed cars", e);
-        }
+        // Track view and update affinity algorithm
+        trackCarView(data);
         setLoading(false);
       })
       .catch(err => {
@@ -212,8 +201,12 @@ const CarDetailsPage = () => {
     fetch(`${API_URL}/api/cars`)
       .then(res => res.json())
       .then(data => {
-        const filtered = data.filter(c => c.id.toString() !== id.toString() && c.status !== 'sold_out');
-        setSimilarCars(filtered.slice(0, 4));
+        if (Array.isArray(data)) {
+          const available = data.filter(c => c.status !== 'sold_out');
+          setAllCars(available);
+          const filtered = available.filter(c => c.id.toString() !== id.toString());
+          setSimilarCars(filtered.slice(0, 4));
+        }
       })
       .catch(err => console.error('Error fetching similar cars', err));
 
@@ -1175,7 +1168,7 @@ const CarDetailsPage = () => {
 
         {/* Full Width Bottom Sections */}
         <div className="mt-20">
-          <RecentlyViewed title="Still Can’t Decide?" lightBg={true} />
+          <RecentlyViewed title="Still Can’t Decide?" lightBg={true} currentCar={car} allCars={allCars} />
         </div>
 
         <SectionDivider title="What Motivates Us" align="left" bgClass="bg-[#f9f9f9]" textClass="text-[#0C1B33]" pyClass="pt-6 pb-0 md:pt-8 md:pb-0" />

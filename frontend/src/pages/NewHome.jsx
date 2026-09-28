@@ -38,6 +38,7 @@ import WhyChooseSection from '../components/home/WhySelectt/WhyChooseSection';
 import StatCounter from '../components/animation/StatCounter';
 import SectionReveal from '../components/animation/SectionReveal';
 import { shortenLocation, getCarDetailsUrl } from '../utils/formatters';
+import { getPersonalizedRecommendations, getRecentlyViewedCars, getUserPreferences } from '../utils/userPreferences';
 
 const FALLBACK_CARS = [
   {
@@ -898,7 +899,22 @@ const NewHome = () => {
 
     // Location changed listener
     const handleLocationChange = () => {
-      setCity(localStorage.getItem('user_city') || 'Delhi NCR');
+      const activeCity = localStorage.getItem('user_city') || 'Delhi NCR';
+      setCity(activeCity);
+      fetch(`${API_URL}/api/cars`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const availableCars = data.filter(car => car.status !== 'sold_out');
+            setAllCars(availableCars);
+            const personalized = getPersonalizedRecommendations(availableCars, {
+              limit: 8,
+              city: activeCity
+            });
+            setSelectedForYouCars(personalized);
+          }
+        })
+        .catch(() => {});
     };
     window.addEventListener('location-changed', handleLocationChange);
 
@@ -927,33 +943,43 @@ const NewHome = () => {
     fetch(`${API_URL}/api/cars`)
       .then(res => res.json())
       .then(data => {
-        const availableCars = data.filter(car => car.status !== 'sold_out');
-        setAllCars(availableCars);
-        // Take the first 4 for featured
-        setFeaturedCars(availableCars.slice(0, 4));
+        if (Array.isArray(data)) {
+          const availableCars = data.filter(car => car.status !== 'sold_out');
+          setAllCars(availableCars);
+          setFeaturedCars(availableCars.slice(0, 4));
 
-        // Use the first 3 cars for the Hero section floating cards if they exist!
-        if (availableCars.length >= 3) {
-          const heroData = availableCars.slice(0, 3).map((car, index) => ({
-            ...car,
-            // Fallback default images if DB doesn't have good images
-            image: car.image || FALLBACK_CARS[index].image,
-            tag: car.tag || (index === 0 ? 'Verified' : undefined),
-            badgeText: car.badgeText || (index === 1 ? 'Electric' : index === 2 ? 'Hot deal' : undefined)
-          }));
-          setHeroCars(heroData);
-        } else if (availableCars.length > 0) {
-          // Mix database and fallback
-          const heroData = [...FALLBACK_CARS];
-          availableCars.forEach((car, index) => {
-            if (index < 3) {
-              heroData[index] = {
-                ...car,
-                image: car.image || FALLBACK_CARS[index].image
-              };
-            }
+          // Personalized recommendations based on past user behavior & affinities
+          const userCity = localStorage.getItem('user_city') || 'Mumbai';
+          const personalized = getPersonalizedRecommendations(availableCars, {
+            limit: 8,
+            city: userCity
           });
-          setHeroCars(heroData);
+          setSelectedForYouCars(personalized);
+          setFeaturedTab('selected');
+
+          // Use the first 3 cars for the Hero section floating cards if they exist!
+          if (availableCars.length >= 3) {
+            const heroData = availableCars.slice(0, 3).map((car, index) => ({
+              ...car,
+              // Fallback default images if DB doesn't have good images
+              image: car.image || FALLBACK_CARS[index].image,
+              tag: car.tag || (index === 0 ? 'Verified' : undefined),
+              badgeText: car.badgeText || (index === 1 ? 'Electric' : index === 2 ? 'Hot deal' : undefined)
+            }));
+            setHeroCars(heroData);
+          } else if (availableCars.length > 0) {
+            // Mix database and fallback
+            const heroData = [...FALLBACK_CARS];
+            availableCars.forEach((car, index) => {
+              if (index < 3) {
+                heroData[index] = {
+                  ...car,
+                  image: car.image || FALLBACK_CARS[index].image
+                };
+              }
+            });
+            setHeroCars(heroData);
+          }
         }
         setLoadingCars(false);
       })
@@ -1012,18 +1038,6 @@ const NewHome = () => {
         console.error('Error fetching brand counts:', err);
         setLoadingBrands(false);
       });
-
-    // 3. Load recently viewed/clicked/searched cars from localStorage
-    try {
-      const viewed = JSON.parse(localStorage.getItem('recently_viewed_cars')) || [];
-      const availableViewed = viewed.filter(car => car.status !== 'sold_out');
-      if (availableViewed && availableViewed.length > 0) {
-        setSelectedForYouCars(availableViewed);
-        setFeaturedTab('selected');
-      }
-    } catch (e) {
-      console.error("Failed to load viewed cars", e);
-    }
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
