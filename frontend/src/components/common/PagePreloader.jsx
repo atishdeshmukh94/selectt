@@ -3,9 +3,25 @@ import React, { useState, useEffect, useRef } from 'react';
 const VIDEO_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader.mp4';
 const LOCAL_FALLBACK_URL = '/preloader.mp4';
 
-export default function PagePreloader({ minDisplayTime = 2800 }) {
-  const [isVisible, setIsVisible] = useState(true);
-  const [shouldRender, setShouldRender] = useState(true);
+export default function PagePreloader({ minDisplayTime = 2500 }) {
+  // Only show on home page on initial session entry to prevent black screen on direct car pages or refreshes
+  const shouldSkip = () => {
+    try {
+      if (typeof window === 'undefined') return true;
+      const path = window.location.pathname;
+      // Skip if visiting a specific car, search, admin, or sub-page directly
+      if (path !== '/' && path !== '' && path !== '/new-home2' && path !== '/home-2') {
+        return true;
+      }
+      const alreadySeen = sessionStorage.getItem('selectt_preloader_seen');
+      if (alreadySeen) return true;
+    } catch (_) {}
+    return false;
+  };
+
+  const [skipInitial] = useState(shouldSkip);
+  const [isVisible, setIsVisible] = useState(!skipInitial);
+  const [shouldRender, setShouldRender] = useState(!skipInitial);
   const videoRef = useRef(null);
   const startTimeRef = useRef(Date.now());
   const finishedRef = useRef(false);
@@ -13,10 +29,13 @@ export default function PagePreloader({ minDisplayTime = 2800 }) {
   const dismiss = () => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    try {
+      sessionStorage.setItem('selectt_preloader_seen', 'true');
+    } catch (_) {}
     setIsVisible(false);
     setTimeout(() => {
       setShouldRender(false);
-    }, 500);
+    }, 400);
   };
 
   const handleVideoEnded = () => {
@@ -26,19 +45,24 @@ export default function PagePreloader({ minDisplayTime = 2800 }) {
   };
 
   useEffect(() => {
+    if (skipInitial) return;
+
     if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => {
+        // If autoplay fails, dismiss immediately to prevent blank black screen
+        dismiss();
+      });
     }
 
-    // Ensure preloader stays visible for 2.8s - 3s all the time
+    // Maximum timeout guarantee
     const timer = setTimeout(() => {
       dismiss();
     }, Math.max(minDisplayTime, 2800));
 
     return () => clearTimeout(timer);
-  }, [minDisplayTime]);
+  }, [minDisplayTime, skipInitial]);
 
-  if (!shouldRender) return null;
+  if (!shouldRender || skipInitial) return null;
 
   return (
     <div
@@ -56,7 +80,7 @@ export default function PagePreloader({ minDisplayTime = 2800 }) {
         padding: 0,
         overflow: 'hidden'
       }}
-      className={`fixed inset-0 z-[999999] flex items-center justify-center bg-black transition-opacity duration-500 ease-out ${
+      className={`fixed inset-0 z-[999999] flex items-center justify-center bg-black transition-opacity duration-400 ease-out ${
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
@@ -67,6 +91,7 @@ export default function PagePreloader({ minDisplayTime = 2800 }) {
           muted
           playsInline
           onEnded={handleVideoEnded}
+          onError={dismiss}
           style={{
             backgroundColor: '#000000',
             maxHeight: '85vh',
