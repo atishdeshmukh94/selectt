@@ -1213,6 +1213,7 @@ function mapCar(car) {
 
     return {
         id: car.id,
+        title: car.title || `${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''}`.trim(),
         make: car.make,
         model: car.model,
         variant: car.variant,
@@ -1353,7 +1354,7 @@ app.get('/api/cars/:id', (req, res) => {
 });
 
 app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
-    const { make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
+    const { title, make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
         location, image, tag, badgeText, badge_text, hub, isAssured, listingType, listing_type, ownership, engineCapacity, engine_capacity,
         regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
         insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status, registrationNo, registration_no } = req.body;
@@ -1384,11 +1385,17 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
         return isNaN(n) ? fallback : n;
     };
 
+    const finalYear = safeNumber(year, new Date().getFullYear());
+    const finalTitle = (title && typeof title === 'string' && title.trim())
+        ? title.trim()
+        : `${finalYear} ${String(make).trim()} ${String(model).trim()} ${variant ? String(variant).trim() : ''}`.trim();
+
     const data = {
+        title: finalTitle,
         make: String(make).trim(),
         model: String(model).trim(),
         variant: variant || null,
-        year: safeNumber(year, new Date().getFullYear()),
+        year: finalYear,
         price: safeNumber(price, 0),
         emi: safeNumber(emi, null),
         km: safeNumber(km, 0),
@@ -1480,7 +1487,7 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
     db.query('SELECT image, more_images FROM cars WHERE id = ?', [req.params.id], (findErr, findResults) => {
         const oldCar = findResults && findResults[0] ? findResults[0] : null;
 
-        const { make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
+        const { title, make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
             location, image, tag, badgeText, badge_text, hub, isAssured, listingType, listing_type, ownership, engineCapacity, engine_capacity,
             regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
             insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status, registrationNo, registration_no } = req.body;
@@ -1512,11 +1519,17 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             return isNaN(n) ? fallback : n;
         };
 
+        const finalYear = safeNumber(year, new Date().getFullYear());
+        const finalTitle = (title && typeof title === 'string' && title.trim())
+            ? title.trim()
+            : `${finalYear} ${String(make).trim()} ${String(model).trim()} ${variant ? String(variant).trim() : ''}`.trim();
+
         const data = {
+            title: finalTitle,
             make: String(make).trim(),
             model: String(model).trim(),
             variant: variant || null,
-            year: safeNumber(year, new Date().getFullYear()),
+            year: finalYear,
             price: safeNumber(price, 0),
             emi: safeNumber(emi, null),
             km: safeNumber(km, 0),

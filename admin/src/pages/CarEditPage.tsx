@@ -283,6 +283,7 @@ const CarEditPage = () => {
     }
   };
   const [formData, setFormData] = useState<any>({
+    title: "",
     make: "",
     model: "",
     variant: "",
@@ -370,8 +371,10 @@ const CarEditPage = () => {
       }
 
       const carYear = data.year ? Number(data.year) : new Date().getFullYear();
+      const autoDefaultTitle = `${carYear} ${data.make || ''} ${data.model || ''} ${data.variant || ''}`.replace(/\s+/g, ' ').trim();
       setFormData({
         ...data,
+        title: data.title || autoDefaultTitle,
         make: data.make || "",
         model: data.model || "",
         variant: data.variant || "",
@@ -463,8 +466,13 @@ const CarEditPage = () => {
       return t === 'video' || t === 'youtube';
     }) || formData.videoUrl || "";
 
+    const finalTitle = (formData.title && String(formData.title).trim())
+      ? String(formData.title).trim()
+      : `${finalYear} ${String(formData.make).trim()} ${String(formData.model).trim()} ${formData.variant ? String(formData.variant).trim() : ''}`.replace(/\s+/g, ' ').trim();
+
     const updatedFormData = {
       ...formData,
+      title: finalTitle,
       year: finalYear,
       regYear: finalRegYear,
       regState: finalRegState,
@@ -738,11 +746,42 @@ const CarEditPage = () => {
                 <div className="flex items-center gap-2.5 mb-6 pb-4 border-b border-slate-100 dark:border-gray-800">
                   <div className="w-1.5 h-5 bg-[#155DFC] rounded-full" />
                   <h2 className="text-lg font-black text-slate-900 dark:text-white">
-                    Vehicle Overview
+                    Vehicle Overview & Details
                   </h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                  {/* Car Custom Title Field */}
+                  <div className="col-span-full pb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5 ml-1">
+                      <label className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                        <span>Vehicle Display / Meta Catalog Title</span>
+                        <span className="text-[11px] font-medium text-slate-400 dark:text-gray-500">(Auto-generated or custom title)</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const auto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                          setFormData({ ...formData, title: auto });
+                          toast.success("Title reset to default vehicle name!");
+                        }}
+                        className="text-xs font-bold text-[#155DFC] hover:text-[#00B49D] flex items-center gap-1 transition-colors cursor-pointer w-fit"
+                      >
+                        <span>✨ Auto-Generate Name</span>
+                      </button>
+                    </div>
+                    <input 
+                      type="text" 
+                      className={`${inpClass} font-bold text-slate-900 dark:text-white bg-slate-50/70 dark:bg-gray-800/80 focus:bg-white`}
+                      value={formData.title || ""} 
+                      onChange={e => setFormData({ ...formData, title: e.target.value })} 
+                      placeholder="e.g. 2022 Maruti Suzuki XL6 Alpha AT or 🏆 2023 MG Hector Savvy Pro 7S | 33K" 
+                    />
+                    <p className="text-[11px] text-slate-400 dark:text-gray-500 mt-1.5 ml-1">
+                      This title appears on website search, car details page, Meta Commerce catalog ads, and WhatsApp shares.
+                    </p>
+                  </div>
+
                   <div>
                     <label className={labelClass}>
                       Make (Brand) <span className="text-rose-500 font-black ml-1">*</span>
@@ -752,7 +791,15 @@ const CarEditPage = () => {
                       value={formData.make} 
                       onChange={e => {
                         const newMake = e.target.value;
-                        setFormData({...formData, make: newMake, model: ""});
+                        const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                        const nextAuto = `${formData.year || ''} ${newMake || ''}`.replace(/\s+/g, ' ').trim();
+                        const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
+                        setFormData({
+                          ...formData, 
+                          make: newMake, 
+                          model: "",
+                          title: isUntouched ? nextAuto : formData.title
+                        });
                       }}
                     >
                       <option value="">Select Brand...</option>
@@ -769,7 +816,17 @@ const CarEditPage = () => {
                     <select 
                       className={inpClass} 
                       value={formData.model} 
-                      onChange={e => setFormData({...formData, model: e.target.value})}
+                      onChange={e => {
+                        const newModel = e.target.value;
+                        const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                        const nextAuto = `${formData.year || ''} ${formData.make || ''} ${newModel || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                        const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
+                        setFormData({
+                          ...formData, 
+                          model: newModel,
+                          title: isUntouched ? nextAuto : formData.title
+                        });
+                      }}
                       disabled={!formData.make}
                     >
                       <option value="">Select Model...</option>
@@ -785,13 +842,24 @@ const CarEditPage = () => {
                       const selectedModelObj = brandsList.find(b => b.name === formData.make)?.models?.find((m: any) => m.name === formData.model);
                       const modelVariants = selectedModelObj?.variants || [];
 
+                      const handleVariantChange = (newVariant: string) => {
+                        const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                        const nextAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${newVariant || ''}`.replace(/\s+/g, ' ').trim();
+                        const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
+                        setFormData({ 
+                          ...formData, 
+                          variant: newVariant,
+                          title: isUntouched ? nextAuto : formData.title
+                        });
+                      };
+
                       return (
                         <div className="space-y-1.5">
                           {modelVariants.length > 0 && (
                             <select
                               className={inpClass}
                               value={formData.variant}
-                              onChange={e => setFormData({ ...formData, variant: e.target.value })}
+                              onChange={e => handleVariantChange(e.target.value)}
                             >
                               <option value="">Select Catalog Variant...</option>
                               {modelVariants.map((v: any) => (
@@ -803,7 +871,7 @@ const CarEditPage = () => {
                             type="text"
                             className={inpClass}
                             value={formData.variant}
-                            onChange={e => setFormData({ ...formData, variant: e.target.value })}
+                            onChange={e => handleVariantChange(e.target.value)}
                             placeholder="e.g. SX (O) / Asta"
                           />
                         </div>
@@ -815,7 +883,23 @@ const CarEditPage = () => {
                     <label className={labelClass}>
                       Year (Manufacturing) <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
-                    <input type="number" className={inpClass} value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} placeholder="e.g. 2023" />
+                    <input 
+                      type="number" 
+                      className={inpClass} 
+                      value={formData.year} 
+                      onChange={e => {
+                        const newYear = e.target.value;
+                        const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                        const nextAuto = `${newYear || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                        const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
+                        setFormData({
+                          ...formData, 
+                          year: newYear,
+                          title: isUntouched ? nextAuto : formData.title
+                        });
+                      }} 
+                      placeholder="e.g. 2023" 
+                    />
                   </div>
 
                   <div>
@@ -858,6 +942,26 @@ const CarEditPage = () => {
                       Location (City) <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
                     <input type="text" className={inpClass} value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. Andheri West, Mumbai" />
+                  </div>
+
+                  {/* Custom Details / Long Description Box in Step 1 */}
+                  <div className="col-span-full pt-3 mt-1 border-t border-slate-100 dark:border-gray-800/80">
+                    <div className="flex items-center justify-between mb-1.5 ml-1">
+                      <label className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                        <span>Vehicle Description & Custom Highlights</span>
+                        <span className="text-[11px] font-medium text-slate-400 dark:text-gray-500">(Custom Details / Overview)</span>
+                      </label>
+                      <span className="text-[10px] text-slate-400 font-mono">{(formData.description || '').length} chars</span>
+                    </div>
+                    <textarea 
+                      className={inpClass + " min-h-[90px] resize-y font-normal"} 
+                      value={formData.description || ""} 
+                      onChange={e => setFormData({...formData, description: e.target.value})} 
+                      placeholder="Enter vehicle highlights (e.g. 🔥 Premium 7-seater space, single owner, fully authorized service history, pristine condition, comprehensive insurance valid until Oct 2026)."
+                    />
+                    <p className="text-[11px] text-slate-400 dark:text-gray-500 mt-1 ml-1">
+                      Shows on vehicle details page and feeds into Meta Commerce catalog description.
+                    </p>
                   </div>
                 </div>
 

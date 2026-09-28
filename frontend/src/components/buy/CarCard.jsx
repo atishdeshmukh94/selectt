@@ -228,7 +228,7 @@ const CarCard = ({ car, lightBg = false }) => {
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <h3 className={`text-[15px] sm:text-[16px] font-heading font-extrabold leading-snug truncate transition-colors duration-200 ${lightBg ? 'text-slate-800 group-hover:text-[#00C9AF]' : 'text-white group-hover:text-[#00C9AF]'}`}>
-                  {car.year} {car.make} {car.model}
+                  {car.title || `${car.year} ${car.make} ${car.model}`}
                 </h3>
                 <span className={`text-[12px] sm:text-[13px] font-medium block truncate mt-0.5 ${lightBg ? 'text-slate-500' : 'text-slate-400'}`}>
                   {car.variant || car.fuelType}

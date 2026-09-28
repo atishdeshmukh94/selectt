@@ -30,8 +30,11 @@ function escapeXml(val) {
 function buildFullUrl(uri, baseUrl) {
     if (!uri) return '';
     if (uri.startsWith('http://') || uri.startsWith('https://')) return uri;
-    const cleanBase = (baseUrl || 'https://selectt.in').replace(/\/+$/, '');
     const cleanUri = uri.startsWith('/') ? uri : `/${uri}`;
+    if (cleanUri.startsWith('/uploads/')) {
+        return `https://api.selectt.in${cleanUri}`;
+    }
+    const cleanBase = (baseUrl || 'https://selectt.in').replace(/\/+$/, '');
     return `${cleanBase}${cleanUri}`;
 }
 
@@ -46,12 +49,13 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
     const isActive = car.status === 'active' || car.status === 'in_stock' || !car.status;
     const availability = isActive ? 'in stock' : 'out of stock';
 
-    // Title construction
+    // Title construction (custom car title takes priority, falls back to Year Make Model Variant)
     const yearStr = car.year ? `${car.year} ` : '';
     const makeStr = car.make || defaultBrand;
     const modelStr = car.model ? ` ${car.model}` : '';
     const variantStr = car.variant ? ` ${car.variant}` : '';
-    const title = `${yearStr}${makeStr}${modelStr}${variantStr}`.trim() || 'Selectt Pre-Owned Car';
+    const defaultTitle = `${yearStr}${makeStr}${modelStr}${variantStr}`.replace(/\s+/g, ' ').trim() || 'Selectt Pre-Owned Car';
+    const title = (car.title && String(car.title).trim()) ? String(car.title).trim() : defaultTitle;
 
     // Description construction
     const kmStr = car.km ? `${Number(car.km).toLocaleString('en-IN')} KM` : 'Low Mileage';

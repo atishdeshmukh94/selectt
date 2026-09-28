@@ -699,7 +699,7 @@ const CarDetailsPage = () => {
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h1 className="text-lg sm:text-xl font-heading font-extrabold text-[#0C1B33] leading-snug mb-1">
-                      {car.year} {car.make} {car.model}
+                      {car.title || `${car.year} ${car.make} ${car.model}`}
                     </h1>
                     <div className="text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-2">
                       <span>{car.km.toLocaleString()} km</span>
@@ -832,6 +832,21 @@ const CarDetailsPage = () => {
                       </div>
                     ))}
                   </div>
+
+                  {/* Custom Description & Highlights */}
+                  {car.description && (
+                    <div className="mt-6 pt-5 border-t border-slate-100">
+                      <div className="flex items-center gap-2 mb-2.5">
+                        <div className="w-1 h-4 bg-[#00C9AF] rounded-full" />
+                        <h3 className="text-xs font-sans font-bold text-[#0C1B33] uppercase tracking-wider">
+                          Vehicle Highlights & Overview
+                        </h3>
+                      </div>
+                      <div className="bg-slate-50/90 rounded-xl p-4 border border-slate-100/80 text-sm font-sans text-slate-700 leading-relaxed whitespace-pre-line">
+                        {car.description}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -916,7 +931,7 @@ const CarDetailsPage = () => {
                   <div className="flex justify-between items-start mb-1.5">
                     <div>
                       <h1 className="text-base xl:text-lg font-bold text-[#0C1B33] leading-snug mb-0.5">
-                        {car.year} {car.make} {car.model}
+                        {car.title || `${car.year} ${car.make} ${car.model}`}
                       </h1>
                       <div className="text-xs xl:text-sm text-slate-500 font-sans font-medium flex items-center gap-1.5">
                         <span>{(car.km || 0).toLocaleString()} km</span>
