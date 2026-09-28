@@ -862,7 +862,21 @@ const CarDetailsPage = () => {
 
               {/* Inline EMI Calculator Section */}
               <div ref={emiRef} className="scroll-mt-24 mb-8">
-                <EmiCalculator price={car?.price || 500000} theme="white" />
+                {(() => {
+                  const rawPrice = Number(car?.price || 500000);
+                  // 10% buffer amount on car price (e.g. ₹10 Lakh price -> ₹11 Lakh loan amount)
+                  const bufferLoan = Math.round(rawPrice * 1.1);
+                  const maxLoan = Math.max(Math.round(rawPrice * 1.25), bufferLoan + 50000);
+                  return (
+                    <EmiCalculator 
+                      price={bufferLoan} 
+                      minAmount={100000} 
+                      maxAmount={maxLoan} 
+                      defaultLoanAmount={bufferLoan}
+                      theme="white" 
+                    />
+                  );
+                })()}
               </div>
 
               {/* Why Choose Selectt Section */}

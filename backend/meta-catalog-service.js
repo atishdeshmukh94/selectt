@@ -78,13 +78,24 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
     // Main Image Link
     const imageLink = car.image ? buildFullUrl(car.image, siteUrl) : buildFullUrl('/img/suv.png', siteUrl);
 
-    // Additional Images
+    // Additional Images & Video Link
     let additionalImages = [];
+    let videoLink = '';
+    if (car.video_url && typeof car.video_url === 'string' && car.video_url.trim()) {
+        videoLink = buildFullUrl(car.video_url.trim(), siteUrl);
+    }
     if (car.more_images) {
         try {
             const parsed = typeof car.more_images === 'string' ? JSON.parse(car.more_images) : car.more_images;
             if (Array.isArray(parsed)) {
-                additionalImages = parsed.map(img => buildFullUrl(img, siteUrl)).filter(Boolean);
+                additionalImages = parsed
+                    .filter(img => typeof img === 'string' && !img.endsWith('.mp4') && !img.endsWith('.mov') && !img.endsWith('.webm') && !img.includes('youtube.com') && !img.includes('youtu.be'))
+                    .map(img => buildFullUrl(img, siteUrl))
+                    .filter(Boolean);
+                if (!videoLink) {
+                    const vid = parsed.find(u => typeof u === 'string' && (u.endsWith('.mp4') || u.endsWith('.mov') || u.endsWith('.webm') || u.includes('youtube.com') || u.includes('youtu.be')));
+                    if (vid) videoLink = buildFullUrl(vid, siteUrl);
+                }
             }
         } catch (_) {}
     }
@@ -105,6 +116,9 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
         image_link: imageLink,
         additional_image_link: additionalImages.join(','),
         additional_images_array: additionalImages,
+        video_link: videoLink || undefined,
+        video: videoLink || undefined,
+        rich_media: videoLink ? [{ type: 'video', url: videoLink }] : undefined,
         brand: car.make || defaultBrand,
         make: car.make || defaultBrand,
         model: car.model || 'Model',
@@ -143,6 +157,7 @@ function generateMetaCatalogCsv(cars, baseUrl, defaultBrand) {
         'link',
         'image_link',
         'additional_image_link',
+        'video_link',
         'brand',
         'make',
         'model',
@@ -176,6 +191,7 @@ function generateMetaCatalogCsv(cars, baseUrl, defaultBrand) {
             escapeCsv(item.link),
             escapeCsv(item.image_link),
             escapeCsv(item.additional_image_link),
+            escapeCsv(item.video_link || ''),
             escapeCsv(item.brand),
             escapeCsv(item.make),
             escapeCsv(item.model),
@@ -325,6 +341,9 @@ async function pushBatchToMetaGraphApi({ catalogId, accessToken, items, method =
                 link: item.link,
                 image_link: item.image_link,
                 additional_image_link: item.additional_image_link || undefined,
+                video_link: item.video_link || undefined,
+                video: item.video ? [{ url: item.video }] : undefined,
+                rich_media: item.rich_media || undefined,
                 brand: item.brand,
                 fb_product_category: 'Vehicles & Parts > Vehicles > Motor Vehicles > Cars',
                 google_product_category: 'Vehicles & Parts > Vehicles > Motor Vehicles > Cars',

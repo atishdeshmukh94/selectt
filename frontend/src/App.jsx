@@ -136,6 +136,8 @@ function App() {
                     <Route path="/car/:make/:model/:id" element={<CarDetailsPage />} />
                     <Route path="/car/:id" element={<CarDetailsPage />} />
                     <Route path="/car/*" element={<CarDetailsPage />} />
+                    <Route path="/cars/:id" element={<CarDetailsPage />} />
+                    <Route path="/cars/*" element={<CarDetailsPage />} />
                     <Route path="/sell-car" element={<SellCarPage />} />
                     <Route path="/sell-car-in-:citySlug" element={<SellCarPage />} />
                     <Route path="/sell-car-in-mumbai" element={<SellCarPage />} />

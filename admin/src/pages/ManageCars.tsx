@@ -107,7 +107,17 @@ export default function ManageCars() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  const frontendUrl = import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173";
+  const frontendUrl = useMemo(() => {
+    if (typeof window !== "undefined") {
+      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        return window.location.port === "5173" ? "http://localhost:5174" : "http://localhost:5173";
+      }
+      if (window.location.hostname.includes("admin.selectt.in") || window.location.hostname.includes("selectt.in")) {
+        return "https://selectt.in";
+      }
+    }
+    return import.meta.env.VITE_FRONTEND_URL || "https://selectt.in";
+  }, []);
 
   const headers = useMemo(() => ({
     "Content-Type": "application/json",

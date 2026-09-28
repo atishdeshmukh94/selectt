@@ -548,21 +548,29 @@ const CarEditPage = () => {
     <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 mb-6">
       <h3 className="text-md font-bold mb-4 text-gray-800 dark:text-white">{title}</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {options.map(opt => (
-          <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+        {options.map(opt => {
+          const isSelected = formData.features[title]?.includes(opt);
+          return (
             <div 
+              key={opt} 
               onClick={() => toggleFeature(title, opt)}
-              className={`w-5 h-5 rounded border transition-all flex items-center justify-center ${
-                formData.features[title]?.includes(opt) 
-                ? "bg-indigo-600 border-indigo-600 text-white" 
-                : "border-gray-300 dark:border-gray-600 group-hover:border-indigo-400"
-              }`}
+              className="flex items-center gap-2.5 cursor-pointer group select-none py-1 px-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors"
             >
-              {formData.features[title]?.includes(opt) && <CheckCircle2 size={12} />}
+              <div 
+                className={`w-5 h-5 rounded border transition-all flex items-center justify-center flex-shrink-0 ${
+                  isSelected 
+                  ? "bg-indigo-600 border-indigo-600 text-white shadow-sm" 
+                  : "border-gray-300 dark:border-gray-600 group-hover:border-indigo-400 bg-white dark:bg-gray-800"
+                }`}
+              >
+                {isSelected && <CheckCircle2 size={13} />}
+              </div>
+              <span className={`text-sm transition-colors ${isSelected ? "text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}`}>
+                {opt}
+              </span>
             </div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">{opt}</span>
-          </label>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
