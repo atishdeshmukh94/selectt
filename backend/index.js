@@ -1,7 +1,9 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
@@ -20,8 +22,6 @@ const { authMiddleware, isAdmin, adminAuth, customerAuth } = require('./auth-mid
 const { sendWhatsAppOTP } = require('./whatsapp-service');
 const { imagekit, getAuthenticationParameters, uploadToImageKit, testImageKitConnection, initImageKit } = require('./imagekit');
 const bunnyStream = require('./bunny-stream');
-
-dotenv.config();
 
 const app = express();
 app.set('trust proxy', 1);
@@ -3463,30 +3463,73 @@ app.post('/api/upload', authMiddleware, isAdmin, upload.single('file'), convertR
     
     const localUrl = `/uploads/${req.file.filename}`;
     const localThumbnailUrl = `/uploads/thumbnails/${req.file.filename}`;
+    const ext = path.extname(req.file.filename).toLowerCase();
+    const isVideo = ['.mp4', '.mov', '.webm', '.mkv', '.avi'].includes(ext) || (req.file.mimetype && req.file.mimetype.startsWith('video/'));
 
-    // Upload to ImageKit CDN if enabled
-    if (imagekit) {
+    // 1. VIDEO UPLOAD: Direct to Bunny.net Stream Video Library
+    if (isVideo) {
         try {
+            console.log(`[Upload] Uploading video to Bunny Stream: ${req.file.filename} (${(req.file.size / (1024 * 1024)).toFixed(1)} MB)`);
             const filePath = req.file.path;
             const fileBuffer = fs.readFileSync(filePath);
-            const ikResult = await uploadToImageKit({
-                file: fileBuffer,
-                fileName: req.file.filename,
-                folder: '/selectt/uploads'
+            const bunnyResult = await bunnyStream.createAndUploadVideo({
+                title: req.body.title || req.file.originalname || `Vehicle_Video_${Date.now()}`,
+                fileBuffer: fileBuffer
             });
 
+            console.log(`[Bunny Stream] Video uploaded successfully! ID: ${bunnyResult.videoId}`);
             return res.json({
-                url: ikResult.url || localUrl,
-                thumbnailUrl: ikResult.thumbnailUrl || ikResult.url || localThumbnailUrl,
-                fileId: ikResult.fileId,
-                name: ikResult.name
+                success: true,
+                mediaType: 'video',
+                provider: 'bunny_stream',
+                url: bunnyResult.embedUrl, // Direct iframe embed URL
+                embedUrl: bunnyResult.embedUrl,
+                hlsUrl: bunnyResult.hlsUrl,
+                thumbnailUrl: bunnyResult.thumbnailUrl || localThumbnailUrl,
+                videoId: bunnyResult.videoId,
+                libraryId: bunnyResult.libraryId
             });
-        } catch (ikErr) {
-            console.warn('⚠️ ImageKit upload fallback to local storage:', ikErr.message);
+        } catch (bunnyErr) {
+            console.error('⚠️ Bunny Stream upload failed, falling back to local/CDN storage:', bunnyErr.message || bunnyErr);
+            return res.json({
+                success: true,
+                mediaType: 'video',
+                provider: 'local',
+                url: localUrl,
+                thumbnailUrl: localThumbnailUrl
+            });
         }
     }
 
-    res.json({ url: localUrl, thumbnailUrl: localThumbnailUrl });
+    // 2. IMAGE UPLOAD: Direct to ImageKit CDN
+    try {
+        const filePath = req.file.path;
+        const fileBuffer = fs.readFileSync(filePath);
+        const ikResult = await uploadToImageKit({
+            file: fileBuffer,
+            fileName: req.file.filename,
+            folder: '/selectt/uploads'
+        });
+
+        return res.json({
+            success: true,
+            mediaType: 'image',
+            provider: 'imagekit',
+            url: ikResult.url || localUrl,
+            thumbnailUrl: ikResult.thumbnailUrl || ikResult.url || localThumbnailUrl,
+            fileId: ikResult.fileId,
+            name: ikResult.name
+        });
+    } catch (ikErr) {
+        console.warn('⚠️ ImageKit upload fallback to local storage:', ikErr.message);
+        return res.json({
+            success: true,
+            mediaType: 'image',
+            provider: 'local',
+            url: localUrl,
+            thumbnailUrl: localThumbnailUrl
+        });
+    }
 });
 
 app.get('/api/media', authMiddleware, isAdmin, (req, res) => {

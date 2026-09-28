@@ -83,8 +83,12 @@ const getYouTubeId = (url) => {
 
 const getMediaType = (url) => {
   if (!url) return 'image';
+  if (typeof url !== 'string') return 'image';
+  if (url.includes('iframe.mediadelivery.net') || url.includes('b-cdn.net') || url.includes('bunnycdn.com') || url.includes('video.bunnycdn')) {
+    return 'bunny_stream';
+  }
   const cleanUrl = url.split('?')[0]; // Remove query params for checking extension
-  if (cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.mov') || cleanUrl.endsWith('.MP4') || cleanUrl.endsWith('.MOV')) {
+  if (cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.mov') || cleanUrl.endsWith('.MP4') || cleanUrl.endsWith('.MOV') || cleanUrl.endsWith('.webm')) {
     return 'video';
   }
   if (url.includes('youtube.com') || url.includes('youtu.be')) {
@@ -450,13 +454,22 @@ const CarDetailsPage = () => {
               {/* Gallery Section */}
               <div className="bg-transparent border-none rounded-none -mx-4 lg:mx-0 lg:bg-white lg:border lg:border-slate-200 lg:rounded-2xl overflow-hidden lg:shadow-md mb-3 lg:mb-6">
                 <div className="relative w-full aspect-video bg-[#050B16] lg:max-h-[380px] xl:max-h-[410px] overflow-hidden">
-                  {getMediaType(images[activeImage]) === 'video' ? (
+                  {getMediaType(images[activeImage]) === 'bunny_stream' ? (
+                    <iframe
+                      src={images[activeImage]}
+                      loading="lazy"
+                      className="w-full h-full border-0"
+                      allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+                      allowFullScreen
+                    />
+                  ) : getMediaType(images[activeImage]) === 'video' ? (
                     <video
                       src={images[activeImage]?.startsWith('/') ? `${API_URL}${images[activeImage]}` : images[activeImage]}
                       className="w-full h-full object-cover"
                       controls
                       autoPlay
                       muted
+                      playsInline
                     />
                   ) : getMediaType(images[activeImage]) === 'youtube' ? (
                     <iframe
