@@ -78,10 +78,19 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
     // Main Image Link
     const imageLink = car.image ? buildFullUrl(car.image, siteUrl) : buildFullUrl('/img/suv.png', siteUrl);
 
-    // Additional Images & Video Link
+    // Additional Images & Video Link (Meta Catalog requires direct MP4/MOV files under limit, not iframe players)
     let additionalImages = [];
     let videoLink = '';
-    if (car.video_url && typeof car.video_url === 'string' && car.video_url.trim()) {
+    const isValidDirectVideo = (url) => {
+        if (!url || typeof url !== 'string') return false;
+        const lower = url.toLowerCase().trim();
+        if (lower.includes('iframe.mediadelivery.net') || lower.includes('/embed/') || lower.includes('youtube.com') || lower.includes('youtu.be')) {
+            return false;
+        }
+        return lower.endsWith('.mp4') || lower.endsWith('.mov') || lower.endsWith('.webm') || lower.endsWith('.m4v') || lower.includes('.mp4?') || lower.includes('.mov?');
+    };
+
+    if (car.video_url && isValidDirectVideo(car.video_url)) {
         videoLink = buildFullUrl(car.video_url.trim(), siteUrl);
     }
     if (car.more_images) {
@@ -89,11 +98,11 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
             const parsed = typeof car.more_images === 'string' ? JSON.parse(car.more_images) : car.more_images;
             if (Array.isArray(parsed)) {
                 additionalImages = parsed
-                    .filter(img => typeof img === 'string' && !img.endsWith('.mp4') && !img.endsWith('.mov') && !img.endsWith('.webm') && !img.includes('youtube.com') && !img.includes('youtu.be'))
+                    .filter(img => typeof img === 'string' && !img.endsWith('.mp4') && !img.endsWith('.mov') && !img.endsWith('.webm') && !img.includes('youtube.com') && !img.includes('youtu.be') && !img.includes('iframe.mediadelivery.net'))
                     .map(img => buildFullUrl(img, siteUrl))
                     .filter(Boolean);
                 if (!videoLink) {
-                    const vid = parsed.find(u => typeof u === 'string' && (u.endsWith('.mp4') || u.endsWith('.mov') || u.endsWith('.webm') || u.includes('youtube.com') || u.includes('youtu.be')));
+                    const vid = parsed.find(u => isValidDirectVideo(u));
                     if (vid) videoLink = buildFullUrl(vid, siteUrl);
                 }
             }
