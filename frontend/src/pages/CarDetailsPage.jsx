@@ -442,9 +442,9 @@ const CarDetailsPage = () => {
             <span className="text-slate-800 font-bold">{car.make} {car.model}</span>
           </nav>
 
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row items-start gap-8 relative">
             {/* Main Content Area */}
-            <div className="flex-1 order-1 lg:order-1">
+            <div className="flex-1 min-w-0 order-1 lg:order-1 w-full">
               {/* Gallery Section */}
               <div className="bg-transparent border-none rounded-none -mx-4 lg:mx-0 lg:bg-white lg:border lg:border-slate-200 lg:rounded-2xl overflow-hidden lg:shadow-md mb-3 lg:mb-6">
                 <div className="relative w-full aspect-video bg-[#050B16] lg:max-h-[380px] xl:max-h-[410px] overflow-hidden">
@@ -938,8 +938,8 @@ const CarDetailsPage = () => {
             </div>
 
             {/* Sticky Sidebar Info - Hidden on Mobile */}
-            <aside className="hidden lg:block lg:w-[360px] xl:w-[380px] lg:order-2">
-              <div className="lg:sticky lg:top-[128px] space-y-3">
+            <aside className="hidden lg:block lg:w-[360px] xl:w-[380px] lg:order-2 shrink-0 sticky top-[80px] self-start space-y-3 z-20">
+              <div className="space-y-3">
 
                 {/* Promotional Banner - Dynamic from admin */}
                 {sidebarBanner && sidebarBanner.image_url && (

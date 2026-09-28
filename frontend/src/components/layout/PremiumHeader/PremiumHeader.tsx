@@ -46,6 +46,8 @@ export const PremiumHeader: React.FC = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const lastScrollYRef = React.useRef(0);
   const [city, setCity] = useState('Mumbai');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
@@ -147,8 +149,28 @@ export const PremiumHeader: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 20);
+
+      // At top of page: always visible
+      if (currentScrollY <= 80) {
+        setIsHeaderVisible(true);
+      } else {
+        // Scrolling down: hide header
+        if (currentScrollY > lastScrollYRef.current + 8 && currentScrollY > 120) {
+          setIsHeaderVisible(false);
+          setActiveDropdown(null);
+          setShowDropdown(false);
+        } 
+        // Scrolling up: show sticky header
+        else if (currentScrollY < lastScrollYRef.current - 6) {
+          setIsHeaderVisible(true);
+        }
+      }
+
+      lastScrollYRef.current = currentScrollY;
     };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -246,9 +268,14 @@ export const PremiumHeader: React.FC = () => {
   };
 
   return (
-    <div className={styles.headerContainer} style={{
-      background: scrolled ? 'rgba(12, 27, 51, 0.95)' : '#0c1b33'
-    }}>
+    <header 
+      className={`${styles.headerContainer} ${!isHeaderVisible ? styles.headerHidden : ''}`} 
+      style={{
+        background: scrolled ? 'rgba(12, 27, 51, 0.96)' : '#0c1b33',
+        transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',
+        transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease'
+      }}
+    >
       {/* Top Bar (64px) */}
       <div className={styles.topBar}>
         {/* Left: Logo & Location */}
@@ -1362,7 +1389,7 @@ export const PremiumHeader: React.FC = () => {
           </div>
         </>
       )}
-    </div>
+    </header>
   );
 };
 
