@@ -1540,10 +1540,10 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
     const heroSubheading = siteContent.sell_hero_subheading;
 
     return (
-      <div className="w-full relative overflow-hidden bg-slate-100 min-h-[380px] lg:min-h-[420px] flex flex-col md:flex-row md:items-center justify-between py-6 md:py-0">
+      <div className="w-full relative overflow-hidden bg-slate-900 min-h-[520px] md:h-[630px] flex flex-col md:flex-row md:items-center justify-between py-6 md:py-0">
 
         {/* Hero Background Image */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 w-full h-full">
           <img
             src={heroImage}
             alt="Sell Car Banner Background"
