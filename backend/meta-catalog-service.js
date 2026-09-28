@@ -46,8 +46,10 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
     const effectivePrice = offerPriceNum && offerPriceNum > 0 ? offerPriceNum : priceNum;
     
     // Status & Availability mapping
-    const isActive = car.status === 'active' || car.status === 'in_stock' || !car.status;
-    const availability = isActive ? 'in stock' : 'out of stock';
+    const statusVal = String(car.status || '').toLowerCase().trim();
+    const isInStock = statusVal === 'active' || statusVal === 'in_stock' || statusVal === '';
+    const availability = isInStock ? 'in stock' : 'out of stock';
+    const visibility = isInStock ? 'published' : 'staging';
 
     // Title construction (custom car title takes priority, falls back to Year Make Model Variant)
     const yearStr = car.year ? `${car.year} ` : '';
@@ -94,6 +96,7 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
         title,
         description,
         availability,
+        visibility,
         condition: 'used_like_new',
         price: `${priceNum} INR`,
         sale_price: offerPriceNum && offerPriceNum < priceNum ? `${offerPriceNum} INR` : '',
@@ -301,14 +304,21 @@ async function pushBatchToMetaGraphApi({ catalogId, accessToken, items, method =
 
     // Prepare batch payload for Meta Catalog items_batch API
     const requests = items.map(item => {
+        if (method === 'DELETE') {
+            return {
+                method: 'DELETE',
+                retailer_id: item.id || item.retailer_id
+            };
+        }
         return {
             method: method,
-            retailer_id: item.id,
+            retailer_id: item.id || item.retailer_id,
             data: {
                 id: item.id,
                 title: item.title,
                 description: item.description,
                 availability: item.availability,
+                visibility: item.visibility || (item.availability === 'in stock' ? 'published' : 'staging'),
                 condition: item.condition || 'used_like_new',
                 price: item.price,
                 sale_price: item.sale_price || undefined,
