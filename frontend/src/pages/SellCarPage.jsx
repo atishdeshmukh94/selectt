@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import PageMeta from '../components/common/PageMeta';
 import {
   CheckCircle2,
@@ -360,38 +361,119 @@ const SellCarPage = () => {
     }
   };
 
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 768 : false));
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const getAlternatingCardMotion = (idx) => {
+    if (isMobile) {
+      // Mobile: Alternating Left / Right entrance
+      const isFromLeft = idx % 2 === 0;
+      return {
+        initial: { opacity: 0, x: isFromLeft ? -50 : 50 },
+        whileInView: { opacity: 1, x: 0 },
+        viewport: { once: true, amount: 0.2 },
+        transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.05 }
+      };
+    }
+    // Desktop: Staggered smooth fade up
+    return {
+      initial: { opacity: 0, y: 35 },
+      whileInView: { opacity: 1, y: 0 },
+      viewport: { once: true, amount: 0.2 },
+      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 }
+    };
+  };
+
   const advantages = [
     {
       icon: <TrendingUp size={24} />,
       title: "Best Price Guarantee",
       desc: `We leverage real-time auction bids across 1,500+ verified dealers to ensure you get top market value in ${displayCity}.`,
-      themeColor: "#00C9AF",
-      bg: "linear-gradient(135deg, #09131F 0%, #06282E 100%)",
-      border: "rgba(0, 196, 175, 0.3)"
+      gradient: "bg-gradient-to-br from-emerald-50 via-teal-50/40 to-white",
+      border: "border-emerald-200/80 hover:border-[#00C9AF]",
+      iconBg: "bg-gradient-to-tr from-[#00A38D] to-[#00C9AF] text-white shadow-md shadow-emerald-500/25",
+      accentText: "text-[#00A38D]"
     },
     {
       icon: <Clock size={24} />,
       title: "Instant 24-Hour Payment",
       desc: "Receive 100% payment directly in your bank account immediately upon accepting our transparent offer.",
-      themeColor: "#3B82F6",
-      bg: "linear-gradient(135deg, #09131F 0%, #0D2040 100%)",
-      border: "rgba(59, 130, 246, 0.3)"
+      gradient: "bg-gradient-to-br from-sky-50 via-blue-50/40 to-white",
+      border: "border-sky-200/80 hover:border-blue-400",
+      iconBg: "bg-gradient-to-tr from-blue-600 to-sky-400 text-white shadow-md shadow-blue-500/25",
+      accentText: "text-blue-600"
     },
     {
       icon: <Award size={24} />,
       title: "100% Free RC Transfer",
       desc: "Our RTO specialists handle all legal documentation, hypothecation removal, and registration transfers for free.",
-      themeColor: "#10B981",
-      bg: "linear-gradient(135deg, #09131F 0%, #072F22 100%)",
-      border: "rgba(16, 185, 129, 0.3)"
+      gradient: "bg-gradient-to-br from-purple-50 via-indigo-50/40 to-white",
+      border: "border-purple-200/80 hover:border-purple-400",
+      iconBg: "bg-gradient-to-tr from-purple-600 to-indigo-500 text-white shadow-md shadow-purple-500/25",
+      accentText: "text-purple-600"
     },
     {
       icon: <ShieldCheck size={24} />,
       title: "Seller Protection Policy",
       desc: "You are legally protected from all traffic challans, accidents, or misuse liabilities until the RC is transferred.",
-      themeColor: "#A855F7",
-      bg: "linear-gradient(135deg, #09131F 0%, #20133F 100%)",
-      border: "rgba(168, 85, 247, 0.3)"
+      gradient: "bg-gradient-to-br from-amber-50 via-orange-50/40 to-white",
+      border: "border-amber-200/80 hover:border-amber-400",
+      iconBg: "bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25",
+      accentText: "text-amber-600"
+    }
+  ];
+
+  const sellerProtections = [
+    {
+      num: "01",
+      icon: <ShieldAlert size={20} />,
+      title: "Zero Traffic Challan Liability",
+      desc: "Any e-challans or traffic fines incurred post-handover are 100% indemnified and covered by Selectt.",
+      numGradient: "from-teal-600 to-[#00C9AF]",
+      borderColor: "border-t-[#00C9AF]",
+      hoverBorder: "hover:border-[#00C9AF]",
+      badgeBg: "bg-teal-50 text-teal-700 border-teal-200/60",
+      iconBg: "bg-teal-50 text-[#00A38D]"
+    },
+    {
+      num: "02",
+      icon: <FileCheck size={20} />,
+      title: "Free RTO Documentation",
+      desc: "Complete management of Form 29, 30, and state NOC clearance handled without any fees.",
+      numGradient: "from-blue-600 to-sky-400",
+      borderColor: "border-t-sky-500",
+      hoverBorder: "hover:border-sky-500",
+      badgeBg: "bg-sky-50 text-sky-700 border-sky-200/60",
+      iconBg: "bg-sky-50 text-sky-600"
+    },
+    {
+      num: "03",
+      icon: <CheckCircle2 size={20} />,
+      title: "Live Status Tracking",
+      desc: "Track your RC transfer live at every step on your Selectt dashboard with instant SMS updates.",
+      numGradient: "from-purple-600 to-indigo-400",
+      borderColor: "border-t-purple-500",
+      hoverBorder: "hover:border-purple-500",
+      badgeBg: "bg-purple-50 text-purple-700 border-purple-200/60",
+      iconBg: "bg-purple-50 text-purple-600"
+    },
+    {
+      num: "04",
+      icon: <Banknote size={20} />,
+      title: "Instant Bank Transfer",
+      desc: "100% secure payment directly into your bank account before vehicle handover. Zero escrow risk.",
+      numGradient: "from-amber-500 to-rose-400",
+      borderColor: "border-t-amber-500",
+      hoverBorder: "hover:border-amber-500",
+      badgeBg: "bg-amber-50 text-amber-700 border-amber-200/60",
+      iconBg: "bg-amber-50 text-amber-600"
     }
   ];
 
@@ -587,56 +669,51 @@ const SellCarPage = () => {
               <div className="bg-gradient-to-br from-[#061426] via-[#0C1B33] to-[#061426] rounded-3xl p-6 sm:p-10 md:p-12 border border-[#00C9AF]/30 shadow-2xl relative overflow-hidden text-white text-left">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-[#00C9AF]/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 w-full">
-                  <div className="inline-flex items-center gap-2 bg-[#00C9AF]/20 border border-[#00C9AF]/40 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-heading font-black text-xs uppercase tracking-wider mb-4">
-                    <ShieldCheck size={16} /> 100% Peace of Mind
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black tracking-tight text-white mb-4">
-                    The Selectt Seller Protection Guarantee
-                  </h2>
-                  <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed mb-8 max-w-4xl">
-                    Selling your car shouldn't come with post-handover anxiety. We protect you from all legal and financial liabilities from the exact minute of car handover until the RC transfer is officially registered in RTO records.
-                  </p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <div className="inline-flex items-center gap-2 bg-[#00C9AF]/20 border border-[#00C9AF]/40 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-heading font-black text-xs uppercase tracking-wider mb-4">
+                      <ShieldCheck size={16} /> 100% Peace of Mind
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black tracking-tight text-white mb-4">
+                      The Selectt Seller Protection Guarantee
+                    </h2>
+                    <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed mb-8 max-w-4xl">
+                      Selling your car shouldn't come with post-handover anxiety. We protect you from all legal and financial liabilities from the exact minute of car handover until the RC transfer is officially registered in RTO records.
+                    </p>
+                  </motion.div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full">
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs hover:border-[#00C9AF]/30 transition-all">
-                      <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
-                        <ShieldAlert size={20} />
-                      </div>
-                      <h3 className="text-sm font-heading font-bold text-white mb-1">Zero Traffic Challan Liability</h3>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        Any e-challans or traffic fines incurred post-handover are 100% indemnified and covered by Selectt.
-                      </p>
-                    </div>
-
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs hover:border-[#00C9AF]/30 transition-all">
-                      <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
-                        <FileCheck size={20} />
-                      </div>
-                      <h3 className="text-sm font-heading font-bold text-white mb-1">Free RTO Documentation</h3>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        Complete management of Form 29, 30, and state NOC clearance handled without any fees.
-                      </p>
-                    </div>
-
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs hover:border-[#00C9AF]/30 transition-all">
-                      <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
-                        <CheckCircle2 size={20} />
-                      </div>
-                      <h3 className="text-sm font-heading font-bold text-white mb-1">Live Status Tracking</h3>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        Track your RC transfer live at every step on your Selectt dashboard with instant SMS updates.
-                      </p>
-                    </div>
-
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xs hover:border-[#00C9AF]/30 transition-all">
-                      <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/20 text-[#00C9AF] flex items-center justify-center font-bold mb-3">
-                        <Banknote size={20} />
-                      </div>
-                      <h3 className="text-sm font-heading font-bold text-white mb-1">Instant Bank Transfer</h3>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        100% secure payment directly into your bank account before vehicle handover. Zero escrow risk.
-                      </p>
-                    </div>
+                    {sellerProtections.map((item, idx) => (
+                      <motion.div
+                        key={idx}
+                        {...getAlternatingCardMotion(idx)}
+                        className={`bg-white p-6 rounded-2xl border border-slate-200/90 ${item.borderColor} border-t-4 ${item.hoverBorder} shadow-xs hover:shadow-xl transition-all duration-300 relative overflow-hidden group flex flex-col justify-between`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className={`text-3xl sm:text-4xl font-black bg-gradient-to-r ${item.numGradient} bg-clip-text text-transparent tracking-tight leading-none`}>
+                              {item.num}
+                            </span>
+                            <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${item.badgeBg}`}>
+                              Step {item.num}
+                            </span>
+                          </div>
+                          <div className={`w-9 h-9 rounded-xl ${item.iconBg} flex items-center justify-center font-bold mb-3`}>
+                            {item.icon}
+                          </div>
+                          <h3 className="text-sm sm:text-[15px] font-heading font-bold text-slate-900 mb-1.5 leading-snug">
+                            {item.title}
+                          </h3>
+                          <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                            {item.desc}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
 
                   <div className="mt-8 flex flex-wrap gap-4 items-center">
@@ -662,45 +739,43 @@ const SellCarPage = () => {
           {/* 4. WHY CHOOSE US (BENEFITS) */}
           <section className="py-16 bg-transparent">
             <div className="max-w-7xl mx-auto px-4">
-              <div className="mb-12 text-center md:text-left">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.5 }}
+                className="mb-12 text-center md:text-left"
+              >
                 <span className="text-[#00A38D] font-heading font-black text-xs tracking-wider uppercase mb-1 block">The Selectt Advantage</span>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black text-[#0C1B33]">
                   Why Sell Your Car to Selectt in {displayCity}?
                 </h2>
-              </div>
+              </motion.div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {advantages.map((item, idx) => (
-                  <div
+                  <motion.div
                     key={idx}
-                    className="relative p-7 rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 group cursor-default shadow-xl border text-left"
-                    style={{
-                      background: item.bg,
-                      borderColor: item.border,
-                    }}
+                    {...getAlternatingCardMotion(idx)}
+                    className={`relative p-6 sm:p-7 rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group cursor-default border text-left flex flex-col justify-between ${item.gradient} ${item.border}`}
                   >
-                    <div className="flex justify-between items-start mb-6 relative z-10">
-                      <div
-                        className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"
-                        style={{
-                          background: `radial-gradient(circle, ${item.themeColor}33 0%, ${item.themeColor}11 100%)`,
-                          color: item.themeColor,
-                          border: `1px solid ${item.themeColor}44`,
-                        }}
-                      >
-                        {item.icon}
+                    <div>
+                      <div className="flex justify-between items-start mb-5 relative z-10">
+                        <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform ${item.iconBg}`}>
+                          {item.icon}
+                        </div>
+                      </div>
+
+                      <div className="relative z-10">
+                        <h3 className="text-[15px] sm:text-base font-heading font-extrabold text-slate-900 mb-2 tracking-tight group-hover:text-[#00A38D] transition-colors">
+                          {item.title}
+                        </h3>
+                        <p className="text-slate-600 text-xs font-normal leading-relaxed">
+                          {item.desc}
+                        </p>
                       </div>
                     </div>
-
-                    <div className="relative z-10">
-                      <h3 className="text-[15px] sm:text-base lg:text-[14px] xl:text-[16px] font-heading font-extrabold text-white mb-2 tracking-tight whitespace-nowrap overflow-hidden text-ellipsis group-hover:text-[#00C9AF] transition-colors">
-                        {item.title}
-                      </h3>
-                      <p className="text-slate-400 text-xs font-medium leading-relaxed">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
