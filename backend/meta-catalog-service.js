@@ -301,6 +301,7 @@ async function pushBatchToMetaGraphApi({ catalogId, accessToken, items, method =
             method: method,
             retailer_id: item.id,
             data: {
+                id: item.id,
                 title: item.title,
                 description: item.description,
                 availability: item.availability,
@@ -334,7 +335,7 @@ async function pushBatchToMetaGraphApi({ catalogId, accessToken, items, method =
     try {
         const url = `https://graph.facebook.com/v21.0/${encodeURIComponent(catalogId)}/items_batch`;
         
-        // Chunk requests in batches of 4999 (Meta limit is 5000 per call)
+        // Chunk requests in batches of 100
         const batchSize = 100;
         let successCount = 0;
         let lastResponse = null;
@@ -342,6 +343,7 @@ async function pushBatchToMetaGraphApi({ catalogId, accessToken, items, method =
         for (let i = 0; i < requests.length; i += batchSize) {
             const chunk = requests.slice(i, i + batchSize);
             const body = {
+                item_type: 'PRODUCT_ITEM',
                 requests: chunk
             };
 
