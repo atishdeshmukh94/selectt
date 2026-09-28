@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Shield, CheckSquare, RotateCcw, RefreshCw, BadgeIndianRupee, AlertTriangle, X, CheckCircle2 } from 'lucide-react';
 
-const BenefitsAddons = () => {
+export default function BenefitsAddons() {
   const [selectedBenefit, setSelectedBenefit] = useState(null);
 
   const benefits = [
@@ -189,6 +189,4 @@ const BenefitsAddons = () => {
       )}
     </>
   );
-};
-
-export default BenefitsAddons;
+}
