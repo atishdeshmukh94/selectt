@@ -84,14 +84,15 @@ const getYouTubeId = (url) => {
 const getMediaType = (url) => {
   if (!url) return 'image';
   if (typeof url !== 'string') return 'image';
-  if (url.includes('iframe.mediadelivery.net') || url.includes('b-cdn.net') || url.includes('bunnycdn.com') || url.includes('video.bunnycdn')) {
+  const trimmed = url.trim();
+  if (trimmed.includes('iframe.mediadelivery.net') || trimmed.includes('b-cdn.net') || trimmed.includes('bunnycdn.com') || trimmed.includes('video.bunnycdn') || /^[0-9a-fA-F-]{36}$/.test(trimmed)) {
     return 'bunny_stream';
   }
-  const cleanUrl = url.split('?')[0]; // Remove query params for checking extension
+  const cleanUrl = trimmed.split('?')[0]; // Remove query params for checking extension
   if (cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.mov') || cleanUrl.endsWith('.MP4') || cleanUrl.endsWith('.MOV') || cleanUrl.endsWith('.webm')) {
     return 'video';
   }
-  if (url.includes('youtube.com') || url.includes('youtu.be')) {
+  if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be')) {
     return 'youtube';
   }
   return 'image';
@@ -456,7 +457,7 @@ const CarDetailsPage = () => {
                 <div className="relative w-full aspect-video bg-[#050B16] lg:max-h-[380px] xl:max-h-[410px] overflow-hidden">
                   {getMediaType(images[activeImage]) === 'bunny_stream' ? (
                     <iframe
-                      src={images[activeImage]}
+                      src={images[activeImage]?.includes('?') ? images[activeImage] : `${images[activeImage]}?autoplay=true&loop=false&muted=false&preload=true&responsive=true`}
                       loading="lazy"
                       className="w-full h-full border-0"
                       allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
@@ -592,7 +593,7 @@ const CarDetailsPage = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        const videoIdx = images.findIndex(img => getMediaType(img) === 'video' || getMediaType(img) === 'youtube');
+                        const videoIdx = images.findIndex(img => ['bunny_stream', 'video', 'youtube'].includes(getMediaType(img)));
                         if (videoIdx !== -1) {
                           setActiveImage(videoIdx);
                         } else {
@@ -600,7 +601,7 @@ const CarDetailsPage = () => {
                         }
                       }}
                       className={`flex-1 py-2 px-2 rounded-xl flex items-center justify-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-95 ${
-                        getMediaType(images[activeImage]) === 'video' || getMediaType(images[activeImage]) === 'youtube'
+                        ['bunny_stream', 'video', 'youtube'].includes(getMediaType(images[activeImage]))
                           ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/50 shadow-sm'
                           : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50'
                       }`}
@@ -649,7 +650,12 @@ const CarDetailsPage = () => {
                                 : 'border-transparent opacity-60 hover:opacity-100'
                                 }`}
                             >
-                              {mediaType === 'video' ? (
+                              {mediaType === 'bunny_stream' ? (
+                                <div className="relative w-full h-full bg-[#0C1B33] flex items-center justify-center">
+                                  <div className="w-6 h-6 rounded-full bg-[#00C9AF] text-[#0A1C3A] flex items-center justify-center shadow text-[10px] pl-0.5 animate-pulse">▶</div>
+                                  <span className="absolute bottom-1 text-[8px] font-bold text-white uppercase tracking-wider bg-black/70 px-1 rounded">Video</span>
+                                </div>
+                              ) : mediaType === 'video' ? (
                                 <div className="relative w-full h-full bg-slate-950">
                                   <video
                                     src={img?.startsWith('/') ? `${API_URL}${img}` : img}
