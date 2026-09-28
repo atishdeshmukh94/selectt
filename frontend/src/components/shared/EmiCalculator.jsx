@@ -69,8 +69,8 @@ const EmiCalculator = ({
 
   const progressColor = (theme === 'dark' || theme === 'white') ? 'stroke-[#00D2B6]' : 'stroke-purple-600';
 
-  // Dynamic slider step based on magnitude
-  const loanStep = loanAmount >= 10000000 ? 500000 : loanAmount >= 1000000 ? 100000 : 25000;
+  // Precision slider step (10,000 increments)
+  const loanStep = 10000;
   const maxDownPayment = Math.max(loanAmount * 0.5, 100000);
 
   return (

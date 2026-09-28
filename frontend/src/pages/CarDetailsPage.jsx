@@ -883,15 +883,14 @@ const CarDetailsPage = () => {
               <div ref={emiRef} className="scroll-mt-24 mb-8">
                 {(() => {
                   const rawPrice = Number(car?.price || 500000);
-                  // 10% buffer amount on car price (e.g. ₹10 Lakh price -> ₹11 Lakh loan amount)
-                  const bufferLoan = Math.round(rawPrice * 1.1);
-                  const maxLoan = Math.max(Math.round(rawPrice * 1.25), bufferLoan + 50000);
+                  // Max loan limit is exactly Car Price + ₹1,00,000 (1 Lakh extra buffer over car price)
+                  const maxLoan = rawPrice + 100000;
                   return (
                     <EmiCalculator 
-                      price={bufferLoan} 
+                      price={rawPrice} 
                       minAmount={100000} 
                       maxAmount={maxLoan} 
-                      defaultLoanAmount={bufferLoan}
+                      defaultLoanAmount={rawPrice}
                       theme="white" 
                     />
                   );

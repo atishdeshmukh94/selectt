@@ -19,7 +19,7 @@ conn.on('ready', () => {
   for (const [filename, embedUrl] of Object.entries(videoMap)) {
     sql += `UPDATE cars SET video_url = '${embedUrl}' WHERE video_url LIKE '%${filename}'; `;
   }
-  const cmd = `mysql -u selectt-api -p'6a3c631e8da6181f' selectt-api-db -e "${sql}"`;
+  const cmd = `mysql -u selectt-wepnex -p'6EVSUZ7RNYA9bV0WUoxy' connect-db -e "${sql}" && mysql -u selectt-wepnex -p'6EVSUZ7RNYA9bV0WUoxy' connect-db -e "SELECT id, make, model, video_url FROM cars WHERE video_url IS NOT NULL AND video_url != '' LIMIT 10;"`;
   conn.exec(cmd, (err, stream) => {
     if (err) throw err;
     stream.on('data', d => process.stdout.write(d));

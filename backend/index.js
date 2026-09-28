@@ -1211,6 +1211,20 @@ app.put(['/api/admin/notifications/read-all', '/api/notifications/read-all'], au
 // ============================================================
 // Helper: map car row to camelCase
 // ============================================================
+const safeJsonParse = (str, fallback) => {
+    if (!str) return fallback;
+    if (typeof str !== 'string') return str;
+    try {
+        return JSON.parse(str);
+    } catch {
+        if (str.startsWith('[') && str.endsWith(']')) {
+            const inner = str.slice(1, -1);
+            return inner.split(',').map(s => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+        }
+        return fallback;
+    }
+};
+
 function mapCar(car) {
     const rawPrice = Number(car.price || 0);
     const origPrice = car.original_price ? Number(car.original_price) : null;
@@ -1264,11 +1278,11 @@ function mapCar(car) {
         color: car.color,
         bodyType: car.body_type,
         description: car.description,
-        reasonsToBuy: car.reasons_to_buy ? JSON.parse(car.reasons_to_buy) : [],
-        specifications: car.specifications ? JSON.parse(car.specifications) : [],
-        features: car.features ? JSON.parse(car.features) : {},
-        qualityReport: car.quality_report ? JSON.parse(car.quality_report) : null,
-        moreImages: car.more_images ? JSON.parse(car.more_images) : [],
+        reasonsToBuy: safeJsonParse(car.reasons_to_buy, []),
+        specifications: safeJsonParse(car.specifications, []),
+        features: safeJsonParse(car.features, {}),
+        qualityReport: safeJsonParse(car.quality_report, null),
+        moreImages: safeJsonParse(car.more_images, []),
         videoUrl: car.video_url || '',
         createdAt: car.created_at,
         registrationNo: car.registration_no || car.registrationNo || null,
