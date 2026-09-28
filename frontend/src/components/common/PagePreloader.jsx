@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const VIDEO_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader.mp4';
+const VIDEO_CDN_URL = 'https://ik.imagekit.io/Selectt/selectt/branding/selectt-preloader_nSHd9kRGc.mp4';
 const LOCAL_FALLBACK_URL = '/preloader.mp4';
 
 export default function PagePreloader({ minDisplayTime = 2500 }) {
