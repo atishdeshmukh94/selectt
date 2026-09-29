@@ -84,7 +84,7 @@ const FAQ = ({ dark = true }) => {
                     : 'max-h-0 opacity-0'
                     }`}
                 >
-                  <div className={`px-5 md:px-6 pb-5 md:pb-6 pt-4 text-xs md:text-sm leading-relaxed font-normal ${dark ? 'text-slate-300' : 'text-slate-600'
+                  <div className={`px-5 md:px-6 pb-5 md:pb-6 pt-4 text-sm sm:text-base leading-[1.75] font-normal ${dark ? 'text-slate-300' : 'text-slate-700'
                     }`}>
                     {faq.answer}
                   </div>

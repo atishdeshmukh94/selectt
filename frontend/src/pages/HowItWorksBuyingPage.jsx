@@ -54,12 +54,12 @@ const HowItWorksBuyingPage = () => {
         <SectionReveal amount={0.3} className="py-14 bg-white text-center border-b border-slate-100 relative z-20">
           <div className="max-w-3xl mx-auto px-4">
             <h2 className="text-2xl md:text-3xl font-heading font-black text-[#0C1B33] mb-3.5">Car joy, assured.</h2>
-            <p className="text-slate-500 font-body text-sm md:text-base font-medium leading-relaxed mb-8">
+            <p className="text-slate-700 font-body text-sm md:text-base font-normal leading-[1.8] mb-8">
               Whether it's a first set of wheels you're after, or something bigger for everybody in the family or that big upgrade, with us you'll be a happy car owner, confident about your purchase.
             </p>
             <Link
               to="/buy-cars"
-              className="inline-flex items-center gap-2 border-2 border-[#00C9AF] text-[#00C9AF] hover:bg-[#00C9AF] hover:text-[#0C1B33] font-button font-extrabold py-3 px-8 rounded-full transition-all duration-300 text-xs tracking-wider uppercase active:scale-95 shadow-sm hover:shadow-md hover:shadow-[#00C9AF]/20"
+              className="inline-flex items-center gap-2 border-2 border-[#00C9AF] text-[#00C9AF] hover:bg-[#00C9AF] hover:text-[#0C1B33] font-button font-extrabold py-3 px-8 rounded-full transition-all duration-300 text-xs sm:text-sm tracking-wider uppercase active:scale-95 shadow-sm hover:shadow-md hover:shadow-[#00C9AF]/20"
             >
               Buy Car <ChevronRight size={14} />
             </Link>
@@ -88,7 +88,7 @@ const HowItWorksBuyingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       God is in the details
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
+                    <p className="text-slate-700 font-body font-normal text-sm sm:text-base leading-[1.75]">
                       A detailed 200-point inspection report for every single car - features, specs, price, financing and buyback options, you name it.
                     </p>
                   </div>
@@ -122,7 +122,7 @@ const HowItWorksBuyingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       A test drive to remember
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
+                    <p className="text-slate-700 font-body font-normal text-sm sm:text-base leading-[1.75]">
                       Test drive any of our cars at your home or at a Selectt car hub and see if it's what you've always wanted.
                     </p>
                   </div>
@@ -162,7 +162,7 @@ const HowItWorksBuyingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Paperwork. Financing. Check.
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
+                    <p className="text-slate-700 font-body font-normal text-sm sm:text-base leading-[1.75]">
                       Savour financing options for your Selectt Assured car with interest rates starting as low as 10.49%. And rest assured, all your information is confidential, 100%.
                     </p>
                   </div>
@@ -196,7 +196,7 @@ const HowItWorksBuyingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Pick the bill, online.
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
+                    <p className="text-slate-700 font-body font-normal text-sm sm:text-base leading-[1.75]">
                       We support most national and international banking partners and accept payments through major credit cards, debit cards and net banking systems. We also enable part payment or fractional payments using UPI.
                     </p>
                   </div>
@@ -236,7 +236,7 @@ const HowItWorksBuyingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Signed. Sealed. Delivered.
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
+                    <p className="text-slate-700 font-body font-normal text-sm sm:text-base leading-[1.75]">
                       Your gleaming, professionally polished Selectt Assured car – serviced, dry-cleaned and waxed – will be home-delivered.
                     </p>
                   </div>

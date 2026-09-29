@@ -109,10 +109,10 @@ export default function SelecttBuybackPage() {
               <span className="inline-block text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20 mb-3.5">
                 Core Advantages
               </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3.5">
+              <h2 className="text-2xl sm:text-3xl font-heading font-extrabold text-slate-900 tracking-normal mb-3.5">
                 Why smart buyers choose Selectt Buyback
               </h2>
-              <p className="text-slate-500 text-sm font-normal leading-relaxed">
+              <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.8]">
                 Enjoy transparent terms and predictable resale valuation right from day one.
               </p>
             </div>
@@ -122,8 +122,8 @@ export default function SelecttBuybackPage() {
                 <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5 border border-emerald-100">
                   <ShieldCheck size={22} />
                 </div>
-                <h3 className="font-bold text-slate-900 text-base mb-2.5">Guaranteed Locked-in Price</h3>
-                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                <h3 className="font-heading font-bold text-slate-900 text-base sm:text-lg mb-2.5">Guaranteed Locked-in Price</h3>
+                <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.75]">
                   Your car's future resale value is calculated and printed on your purchase invoice on Day 1. No surprises or market swings.
                 </p>
               </div>
@@ -132,8 +132,8 @@ export default function SelecttBuybackPage() {
                 <div className="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-5 border border-sky-100">
                   <TrendingUp size={22} />
                 </div>
-                <h3 className="font-bold text-slate-900 text-base mb-2.5">Seamless Model Upgrades</h3>
-                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                <h3 className="font-heading font-bold text-slate-900 text-base sm:text-lg mb-2.5">Seamless Model Upgrades</h3>
+                <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.75]">
                   Switch from a hatchback to a compact SUV or sedan whenever your family needs grow by rolling your buyback equity directly into the next car.
                 </p>
               </div>
@@ -142,8 +142,8 @@ export default function SelecttBuybackPage() {
                 <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-5 border border-purple-100">
                   <Calendar size={22} />
                 </div>
-                <h3 className="font-bold text-slate-900 text-base mb-2.5">Flexible Tenures</h3>
-                <p className="text-slate-500 text-xs sm:text-sm font-normal leading-[1.75]">
+                <h3 className="font-heading font-bold text-slate-900 text-base sm:text-lg mb-2.5">Flexible Tenures</h3>
+                <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.75]">
                   Select between 12, 18, or 36 months tenure based on your career plans, family requirements, or relocation timelines.
                 </p>
               </div>

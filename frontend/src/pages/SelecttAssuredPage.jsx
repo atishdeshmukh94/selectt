@@ -321,10 +321,10 @@ export default function SelecttAssuredPage() {
         <section className="py-20 bg-[#F8FAFC] border-b border-slate-200/80">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20 inline-block mb-3.5">
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3.5 py-1.5 rounded-full border border-[#00C9AF]/20 inline-block mb-3.5">
                 Buyer Protection
               </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3.5">
+              <h2 className="text-2xl sm:text-3xl font-heading font-extrabold text-slate-900 tracking-normal mb-3.5">
                 Our Triple Guarantee For Every Certified Car
               </h2>
             </div>
@@ -335,9 +335,9 @@ export default function SelecttAssuredPage() {
                   <ShieldCheck size={24} />
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#00a892]">Zero Risk Test Period</span>
-                  <h3 className="text-lg font-bold text-slate-900 mt-1 mb-2">5-Day Money-Back Guarantee</h3>
-                  <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#00a892]">Zero Risk Test Period</span>
+                  <h3 className="text-base sm:text-lg font-heading font-bold text-slate-900 mt-1 mb-2">5-Day Money-Back Guarantee</h3>
+                  <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.75]">
                     Test your car on your daily commute and with your family. If it doesn't fit your life, return it within 5 days (up to 250 km) for a 100% full refund with no questions asked.
                   </p>
                 </div>
@@ -348,9 +348,9 @@ export default function SelecttAssuredPage() {
                   <Shield size={24} />
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600">Complete Protection</span>
-                  <h3 className="text-lg font-bold text-slate-900 mt-1 mb-2">1-Year Warranty Included</h3>
-                  <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                  <span className="text-xs font-bold uppercase tracking-wider text-sky-600">Complete Protection</span>
+                  <h3 className="text-base sm:text-lg font-heading font-bold text-slate-900 mt-1 mb-2">1-Year Warranty Included</h3>
+                  <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.75]">
                     Comprehensive and powertrain protection covering engine block, transmission, steering rack, and air conditioning for up to 12,000 kilometers.
                   </p>
                 </div>
@@ -361,9 +361,9 @@ export default function SelecttAssuredPage() {
                   <Award size={24} />
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Inspection Assurance</span>
-                  <h3 className="text-lg font-bold text-slate-900 mt-1 mb-2">₹50,000 Zero Hidden Damages Promise</h3>
-                  <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-600">Inspection Assurance</span>
+                  <h3 className="text-base sm:text-lg font-heading font-bold text-slate-900 mt-1 mb-2">₹50,000 Zero Hidden Damages Promise</h3>
+                  <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.75]">
                     If an undisclosed mechanical issue arises during your warranty period that was missed during inspection, Selectt fixes it for free or offers up to ₹50,000 assurance cover.
                   </p>
                 </div>

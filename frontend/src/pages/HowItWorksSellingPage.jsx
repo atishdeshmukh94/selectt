@@ -54,12 +54,12 @@ const HowItWorksSellingPage = () => {
         <SectionReveal amount={0.3} className="py-14 bg-white text-center border-b border-slate-100 relative z-20">
           <div className="max-w-2xl mx-auto px-4">
             <h2 className="text-2xl md:text-3xl font-heading font-black text-[#0C1B33] mb-3.5">Selling never felt this good</h2>
-            <p className="text-slate-500 font-body text-sm md:text-base font-medium leading-relaxed mb-8">
+            <p className="text-slate-700 font-body text-sm md:text-base font-normal leading-[1.8] mb-8">
               Selectt SellRight gets you more value for your car. The process is far simpler and safer, as we directly communicate with registered sellers and buyers, an integral part of our end-to-end experience.
             </p>
             <Link
               to="/sell-car"
-              className="inline-flex items-center gap-2 border-2 border-[#00C9AF] text-[#00C9AF] hover:bg-[#00C9AF] hover:text-white font-button font-extrabold py-3 px-8 rounded-full transition-all duration-300 text-xs tracking-wider uppercase active:scale-95 shadow-sm hover:shadow-md hover:shadow-purple-500/20"
+              className="inline-flex items-center gap-2 border-2 border-[#00C9AF] text-[#00C9AF] hover:bg-[#00C9AF] hover:text-white font-button font-extrabold py-3 px-8 rounded-full transition-all duration-300 text-xs sm:text-sm tracking-wider uppercase active:scale-95 shadow-sm hover:shadow-md hover:shadow-purple-500/20"
             >
               Sell your car <ChevronRight size={14} />
             </Link>
@@ -88,7 +88,7 @@ const HowItWorksSellingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Let's talk about your car
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
+                    <p className="text-slate-700 font-body font-normal text-sm sm:text-base leading-[1.75]">
                       Tell us more about your beloved and get an instant quote.
                     </p>
                   </div>
@@ -122,7 +122,7 @@ const HowItWorksSellingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       The good quote
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
+                    <p className="text-slate-700 font-body font-normal text-sm sm:text-base leading-[1.75]">
                       A prompt, accurate online quote with a final offer that does not go above or below 5 percent of this original quote. Perfect, we think.
                     </p>
                   </div>
@@ -162,7 +162,7 @@ const HowItWorksSellingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       What's your car's worth?
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
+                    <p className="text-slate-700 font-body font-normal text-sm sm:text-base leading-[1.75]">
                       Pick a day and we'll be there - at home or your workplace, for a free doorstep evaluation to validate your car's worth and make you a final offer. Easy.
                     </p>
                   </div>
@@ -196,7 +196,7 @@ const HowItWorksSellingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Credited, the same day.
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
+                    <p className="text-slate-700 font-body font-normal text-sm sm:text-base leading-[1.75]">
                       Accept the final offer and get paid for your car on the very same day. We'll also get working on the paperwork – our responsibility – right away. You're welcome.
                     </p>
                   </div>
@@ -236,7 +236,7 @@ const HowItWorksSellingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Sit back, relax. Car in transit.
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
+                    <p className="text-slate-700 font-body font-normal text-sm sm:text-base leading-[1.75]">
                       Your car is safe with us and you'll be informed as soon as the ownership papers get transferred to a new owner.
                     </p>
                   </div>
