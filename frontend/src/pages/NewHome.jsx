@@ -2753,10 +2753,10 @@ const NewHome = () => {
         <div className="max-w-6xl mx-auto">
 
           <div className="text-center max-w-xl mx-auto mb-10">
-            <span className="text-[#00D3B7] text-xs font-extrabold tracking-[0.2em] uppercase mb-2 block font-heading">
-              VS COMPETITION
+            <span className="text-[#00A38D] text-xs font-semibold tracking-wider uppercase mb-2 block font-heading">
+              Vs competition
             </span>
-            <h2 className="text-2xl md:text-4xl font-white font-heading text-black tracking-tight">
+            <h2 className="text-[28px] sm:text-[38px] md:text-[42px] font-heading font-semibold text-[#0F172A] leading-[1.2]">
               Why Selectt beats the rest
             </h2>
           </div>
@@ -2765,46 +2765,46 @@ const NewHome = () => {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-slate-800 text-xs text-slate-400 font-bold uppercase tracking-wider">
-                    <th className="py-5 px-6 min-w-[200px]">Feature</th>
-                    <th className="py-5 px-6 text-center text-white bg-[#060D1A] min-w-[140px] font-extrabold border-x border-teal-500/20 relative shadow-[0_4px_20px_rgba(0,196,175,0.08)]">
-                      <span className="inline-flex items-center gap-1.5 text-[#00C9AF] font-black text-sm"><span className="text-base">🏆</span> SELECTT</span>
+                  <tr className="border-b border-slate-800 text-[13px] sm:text-[14px] text-slate-400 font-semibold uppercase tracking-wider">
+                    <th className="py-5 px-6 sm:px-7 min-w-[220px]">Feature</th>
+                    <th className="py-5 px-6 sm:px-7 text-center text-white bg-[#060D1A] min-w-[150px] font-bold border-x border-teal-500/20 relative shadow-[0_4px_20px_rgba(0,196,175,0.08)]">
+                      <span className="inline-flex items-center gap-1.5 text-[#00C9AF] font-bold text-[14px] sm:text-[15px]"><span className="text-base">🏆</span> SELECTT</span>
                     </th>
-                    <th className="py-5 px-6 text-center min-w-[100px] text-slate-400 font-semibold">Spinny</th>
-                    <th className="py-5 px-6 text-center min-w-[100px] text-slate-400 font-semibold">Cars24</th>
-                    <th className="py-5 px-6 text-center min-w-[100px] text-slate-400 font-semibold">CarDekho</th>
+                    <th className="py-5 px-6 text-center min-w-[110px] text-slate-300 font-medium text-[13px] sm:text-[14px]">Spinny</th>
+                    <th className="py-5 px-6 text-center min-w-[110px] text-slate-300 font-medium text-[13px] sm:text-[14px]">Cars24</th>
+                    <th className="py-5 px-6 text-center min-w-[110px] text-slate-300 font-medium text-[13px] sm:text-[14px]">CarDekho</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/80 text-xs md:text-sm font-medium">
+                <tbody className="divide-y divide-slate-800/80">
                   {COMPARISON_FEATURES.map((feature, idx) => (
-                    <tr key={idx} className="hover:bg-slate-800/20 transition-colors duration-150">
-                      <td className="py-4 px-6 text-slate-200 font-semibold">{feature.name}</td>
-                      <td className="py-4 px-6 text-center bg-[#00D3B7]/[0.03] border-x border-[#00C9AF]/15">
+                    <tr key={idx} className="hover:bg-slate-800/30 transition-colors duration-150">
+                      <td className="py-4.5 px-6 sm:px-7 text-white text-[15px] sm:text-[16px] font-medium leading-snug">{feature.name}</td>
+                      <td className="py-4.5 px-6 text-center bg-[#00D3B7]/[0.03] border-x border-[#00C9AF]/15">
                         {feature.selectt ? (
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#00C9AF]/15 text-[#00C9AF] text-xs font-black border border-[#00C9AF]/30 shadow-[0_0_15px_rgba(0,196,175,0.15)]">✓</span>
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#00C9AF]/20 text-[#00C9AF] text-[13px] font-bold border border-[#00C9AF]/40 shadow-[0_0_15px_rgba(0,196,175,0.2)]">✓</span>
                         ) : (
-                          <span className="inline-flex items-center justify-center w-5.5 h-5.5 rounded-full bg-rose-500/10 text-rose-400 text-[10px] font-bold border border-rose-500/20">✕</span>
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-500/10 text-rose-400 text-xs font-semibold border border-rose-500/20">✕</span>
                         )}
                       </td>
-                      <td className="py-4 px-6 text-center">
+                      <td className="py-4.5 px-6 text-center">
                         {feature.spinny ? (
-                          <span className="inline-flex items-center justify-center w-5.5 h-5.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/20">✓</span>
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-semibold border border-emerald-500/25">✓</span>
                         ) : (
-                          <span className="inline-flex items-center justify-center w-5.5 h-5.5 rounded-full bg-rose-500/10 text-rose-400 text-[10px] font-bold border border-rose-500/20">✕</span>
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-500/10 text-rose-400 text-xs font-semibold border border-rose-500/20">✕</span>
                         )}
                       </td>
-                      <td className="py-4 px-6 text-center">
+                      <td className="py-4.5 px-6 text-center">
                         {feature.cars24 ? (
-                          <span className="inline-flex items-center justify-center w-5.5 h-5.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/20">✓</span>
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-semibold border border-emerald-500/25">✓</span>
                         ) : (
-                          <span className="inline-flex items-center justify-center w-5.5 h-5.5 rounded-full bg-rose-500/10 text-rose-400 text-[10px] font-bold border border-rose-500/20">✕</span>
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-500/10 text-rose-400 text-xs font-semibold border border-rose-500/20">✕</span>
                         )}
                       </td>
-                      <td className="py-4 px-6 text-center">
+                      <td className="py-4.5 px-6 text-center">
                         {feature.cardekho ? (
-                          <span className="inline-flex items-center justify-center w-5.5 h-5.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/20">✓</span>
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-semibold border border-emerald-500/25">✓</span>
                         ) : (
-                          <span className="inline-flex items-center justify-center w-5.5 h-5.5 rounded-full bg-rose-500/10 text-rose-400 text-[10px] font-bold border border-rose-500/20">✕</span>
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-500/10 text-rose-400 text-xs font-semibold border border-rose-500/20">✕</span>
                         )}
                       </td>
                     </tr>
