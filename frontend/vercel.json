@@ -53,6 +53,28 @@
       "destination": "/api/og-car?id=:id"
     },
     {
+      "source": "/blog/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "User-Agent",
+          "value": ".*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Pinterest|SkypeUriPreview).*"
+        }
+      ],
+      "destination": "/api/og-blog?slug=:slug"
+    },
+    {
+      "source": "/blog/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "User-Agent",
+          "value": ".*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Pinterest|SkypeUriPreview).*"
+        }
+      ],
+      "destination": "/api/og-blog?slug=:id"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

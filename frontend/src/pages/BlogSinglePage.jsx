@@ -49,12 +49,64 @@ const BlogSinglePage = () => {
     </div>;
   }
 
-  const shareUrl = window.location.href;
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : `https://selectt.in/blog/${post.slug || slug}`;
   const copyLink = () => { navigator.clipboard.writeText(shareUrl); alert('Link copied!'); };
+
+  // Sanitize Title (Strip invalid single characters or junk meta_title)
+  const cleanTitle = (post.meta_title && post.meta_title.trim().length > 3 && post.meta_title.trim().toLowerCase() !== 'g')
+    ? post.meta_title.trim()
+    : post.title;
+  const fullPageTitle = `${cleanTitle} | Selectt Blog`;
+
+  // Build Clean Description for SEO
+  const cleanDescription = (post.meta_description && post.meta_description.trim().length > 5 && !/^\d+$/.test(post.meta_description.trim()) && post.meta_description.trim().toLowerCase() !== 'g')
+    ? post.meta_description.trim()
+    : (post.excerpt && post.excerpt.trim().length > 10)
+      ? post.excerpt.trim()
+      : (post.content ? post.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160) : `Read ${post.title} on Selectt Cars Blog.`);
+
+  // Featured Image Absolute URL
+  const featuredImgUrl = post.featured_image
+    ? (post.featured_image.startsWith('http') ? post.featured_image : `${API}${post.featured_image.startsWith('/') ? '' : '/'}${post.featured_image}`)
+    : 'https://selectt.in/img/selectt-og.png';
+
+  const blogSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    'headline': post.title,
+    'description': cleanDescription,
+    'image': [featuredImgUrl],
+    'datePublished': post.published_at || post.created_at,
+    'dateModified': post.updated_at || post.published_at || post.created_at,
+    'author': {
+      '@type': 'Organization',
+      'name': 'Selectt Editorial',
+      'url': 'https://selectt.in'
+    },
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'Selectt',
+      'logo': {
+        '@type': 'ImageObject',
+        'url': 'https://selectt.in/img/selectt-logo.png'
+      }
+    },
+    'mainEntityOfPage': {
+      '@type': 'WebPage',
+      '@id': `https://selectt.in/blog/${post.slug || slug}`
+    },
+    'articleSection': (post.categories || 'Automotive').split(',')[0].trim()
+  };
 
   return (
     <>
-      <PageMeta title={`${post.meta_title || post.title} | Selectt`} description={post.meta_description || post.excerpt} />
+      <PageMeta
+        title={fullPageTitle}
+        description={cleanDescription}
+        canonical={`/blog/${post.slug || slug}`}
+        image={featuredImgUrl}
+        schema={blogSchema}
+      />
       <div className="bg-background-light dark:bg-background-dark min-h-screen pt-4 sm:pt-6 pb-16 px-4">
         {/* Breadcrumb */}
         <div className="max-w-7xl mx-auto mb-4 sm:mb-6 flex items-center gap-2 text-sm text-gray-500 font-medium">
