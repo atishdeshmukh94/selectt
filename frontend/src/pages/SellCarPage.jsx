@@ -740,7 +740,7 @@ const SellCarPage = () => {
                         className={`bg-white p-6 rounded-2xl border border-slate-200/90 ${item.borderColor} border-t-4 ${item.hoverBorder} shadow-xs hover:shadow-xl transition-all duration-300 relative overflow-hidden group flex flex-col justify-between`}
                       >
                         <div>
-                          <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center justify-between mb-4">
                             <span className={`text-3xl sm:text-4xl font-black bg-gradient-to-r ${item.numGradient} bg-clip-text text-transparent tracking-tight leading-none`}>
                               {item.num}
                             </span>
@@ -748,10 +748,7 @@ const SellCarPage = () => {
                               Step {item.num}
                             </span>
                           </div>
-                          <div className={`w-9 h-9 rounded-xl ${item.iconBg} flex items-center justify-center font-bold mb-3`}>
-                            {item.icon}
-                          </div>
-                          <h3 className="text-sm sm:text-[15px] font-heading font-bold text-slate-900 mb-1.5 leading-snug">
+                          <h3 className="text-sm sm:text-[15px] font-heading font-bold text-slate-900 mb-2 leading-snug">
                             {item.title}
                           </h3>
                           <p className="text-xs text-slate-600 leading-relaxed font-normal">
