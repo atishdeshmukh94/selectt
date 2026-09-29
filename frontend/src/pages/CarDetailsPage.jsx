@@ -217,11 +217,14 @@ const CarDetailsPage = () => {
     emiRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const images = car ? [
+  const rawImages = car ? [
     car.image,
     car.videoUrl,
     ...(car.moreImages || [])
   ].filter(Boolean) : [];
+
+  // Deduplicate items so video and photos never appear twice
+  const images = Array.from(new Set(rawImages));
 
   if (images.length === 0) {
     images.push("https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop");
@@ -525,16 +528,18 @@ const CarDetailsPage = () => {
                       )}
                     </div>
                   )}
-                  <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-between px-4">
+                  <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-between px-4 pointer-events-none z-10">
                     <button
+                      type="button"
                       onClick={() => setActiveImage(prev => (prev === 0 ? images.length - 1 : prev - 1))}
-                      className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white/25 text-white transition-all"
+                      className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white/25 text-white transition-all pointer-events-auto"
                     >
                       <ChevronLeft size={24} />
                     </button>
                     <button
+                      type="button"
                       onClick={() => setActiveImage(prev => (prev === images.length - 1 ? 0 : prev + 1))}
-                      className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white/25 text-white transition-all"
+                      className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white/25 text-white transition-all pointer-events-auto"
                     >
                       <ChevronRight size={24} />
                     </button>
@@ -1339,7 +1344,15 @@ const CarDetailsPage = () => {
 
               {/* Media Box */}
               <div className="flex-1 flex items-center justify-center max-w-[85vw] max-h-full h-full relative">
-                {getMediaType(images[lightboxIndex]) === 'video' ? (
+                {getMediaType(images[lightboxIndex]) === 'bunny_stream' ? (
+                  <iframe
+                    src={images[lightboxIndex]?.includes('?') ? images[lightboxIndex] : `${images[lightboxIndex]}?autoplay=true&loop=false&muted=false&preload=true&responsive=true`}
+                    loading="lazy"
+                    className="w-full aspect-video max-w-5xl max-h-full rounded-2xl shadow-2xl border-0"
+                    allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+                    allowFullScreen
+                  />
+                ) : getMediaType(images[lightboxIndex]) === 'video' ? (
                   <video
                     src={images[lightboxIndex]?.startsWith('/') ? `${API_URL}${images[lightboxIndex]}` : images[lightboxIndex]}
                     className="max-w-full max-h-full rounded-2xl shadow-2xl object-contain border border-white/5"

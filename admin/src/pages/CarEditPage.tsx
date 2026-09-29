@@ -66,26 +66,31 @@ const CarEditPage = () => {
 
   const getMediaType = (url: string) => {
     if (!url) return 'image';
-    const cleanUrl = url.split('?')[0];
-    if (cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.mov') || cleanUrl.endsWith('.MP4') || cleanUrl.endsWith('.MOV')) {
+    if (typeof url !== 'string') return 'image';
+    const trimmed = url.trim();
+    if (trimmed.includes('iframe.mediadelivery.net') || trimmed.includes('video.bunnycdn.com') || trimmed.includes('b-cdn.net') || trimmed.includes('bunnycdn.com') || /^[0-9a-fA-F-]{36}$/.test(trimmed)) {
+      return 'bunny_stream';
+    }
+    const cleanUrl = trimmed.split('?')[0];
+    if (cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.mov') || cleanUrl.endsWith('.MP4') || cleanUrl.endsWith('.MOV') || cleanUrl.endsWith('.webm')) {
       return 'video';
     }
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be')) {
       return 'youtube';
     }
     return 'image';
   };
 
   const updateVideoInGallery = (newUrl: string) => {
+    // Strip all video URLs from moreImages so photos gallery remains pure photos
     const cleanImages = formData.moreImages.filter((img: string) => {
       const t = getMediaType(img);
-      return t !== 'video' && t !== 'youtube';
+      return t === 'image';
     });
-    const newImages = newUrl ? [newUrl, ...cleanImages] : cleanImages;
     setFormData({
       ...formData,
-      videoUrl: newUrl,
-      moreImages: newImages
+      videoUrl: newUrl.trim(),
+      moreImages: cleanImages
     });
   };
 
@@ -1648,10 +1653,10 @@ const CarEditPage = () => {
                        </div>
                      )}
 
-                     {mediaType === 'video' ? (
+                     {mediaType === 'bunny_stream' || mediaType === 'video' ? (
                        <div className="w-full h-full bg-[#0C1B33] flex flex-col items-center justify-center text-white text-[10px] font-bold p-3">
                          <span className="text-lg">▶</span>
-                         <span className="text-[9px] uppercase tracking-wider font-extrabold text-indigo-400 mt-1">Walkaround Video</span>
+                         <span className="text-[9px] uppercase tracking-wider font-extrabold text-[#00C9AF] mt-1">Walkaround Video</span>
                          <span className="text-[7px] text-gray-400 mt-1 font-mono text-center truncate w-full">{img}</span>
                        </div>
                      ) : mediaType === 'youtube' ? (

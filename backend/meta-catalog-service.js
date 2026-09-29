@@ -78,32 +78,53 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
     // Main Image Link
     const imageLink = car.image ? buildFullUrl(car.image, siteUrl) : buildFullUrl('/img/suv.png', siteUrl);
 
-    // Additional Images & Video Link (Meta Catalog requires direct MP4/MOV files under limit, not iframe players)
-    let additionalImages = [];
-    let videoLink = '';
-    const isValidDirectVideo = (url) => {
-        if (!url || typeof url !== 'string') return false;
-        const lower = url.toLowerCase().trim();
-        if (lower.includes('iframe.mediadelivery.net') || lower.includes('/embed/') || lower.includes('youtube.com') || lower.includes('youtu.be')) {
-            return false;
+    // Helper to resolve direct playable/downloadable video URL for Meta Catalog (Meta rejects iframe player URLs)
+    const resolveDirectVideoForMeta = (url) => {
+        if (!url || typeof url !== 'string') return '';
+        const trimmed = url.trim();
+        if (!trimmed) return '';
+
+        // If YouTube, Meta does not support YouTube player embeds as catalog direct videos
+        if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be')) {
+            return '';
         }
-        return lower.endsWith('.mp4') || lower.endsWith('.mov') || lower.endsWith('.webm') || lower.endsWith('.m4v') || lower.includes('.mp4?') || lower.includes('.mov?');
+
+        // If Bunny Stream URL: e.g. https://iframe.mediadelivery.net/embed/762989/783c4059-153d-4a7b-b072-1f1c63b46950
+        // or https://iframe.mediadelivery.net/play/762989/783c4059-153d-4a7b-b072-1f1c63b46950
+        // or https://video.bunnycdn.com/play/762989/783c4059-153d-4a7b-b072-1f1c63b46950
+        const bunnyMatch = trimmed.match(/(?:iframe\.mediadelivery\.net\/(?:embed|play)|video\.bunnycdn\.com\/play)\/([0-9]+)\/([0-9a-fA-F\-]+)/);
+        if (bunnyMatch) {
+            const [, libraryId, videoId] = bunnyMatch;
+            return `https://video.bunnycdn.com/play/${libraryId}/${videoId}`;
+        }
+
+        // Direct video file (.mp4, .mov, .webm, etc.)
+        const lower = trimmed.toLowerCase();
+        if (lower.endsWith('.mp4') || lower.endsWith('.mov') || lower.endsWith('.webm') || lower.endsWith('.m4v') || lower.includes('.mp4?') || lower.includes('.mov?')) {
+            return buildFullUrl(trimmed, siteUrl);
+        }
+
+        return '';
     };
 
-    if (car.video_url && isValidDirectVideo(car.video_url)) {
-        videoLink = buildFullUrl(car.video_url.trim(), siteUrl);
+    // Additional Images & Video Link
+    let additionalImages = [];
+    let videoLink = '';
+
+    if (car.video_url) {
+        videoLink = resolveDirectVideoForMeta(car.video_url);
     }
     if (car.more_images) {
         try {
             const parsed = typeof car.more_images === 'string' ? JSON.parse(car.more_images) : car.more_images;
             if (Array.isArray(parsed)) {
                 additionalImages = parsed
-                    .filter(img => typeof img === 'string' && !img.endsWith('.mp4') && !img.endsWith('.mov') && !img.endsWith('.webm') && !img.includes('youtube.com') && !img.includes('youtu.be') && !img.includes('iframe.mediadelivery.net'))
+                    .filter(img => typeof img === 'string' && !img.endsWith('.mp4') && !img.endsWith('.mov') && !img.endsWith('.webm') && !img.includes('youtube.com') && !img.includes('youtu.be') && !img.includes('iframe.mediadelivery.net') && !img.includes('video.bunnycdn.com'))
                     .map(img => buildFullUrl(img, siteUrl))
                     .filter(Boolean);
                 if (!videoLink) {
-                    const vid = parsed.find(u => isValidDirectVideo(u));
-                    if (vid) videoLink = buildFullUrl(vid, siteUrl);
+                    const vid = parsed.find(u => resolveDirectVideoForMeta(u));
+                    if (vid) videoLink = resolveDirectVideoForMeta(vid);
                 }
             }
         } catch (_) {}
@@ -250,6 +271,8 @@ function generateMetaCatalogXml(cars, baseUrl, defaultBrand) {
             item.additional_images_array.slice(0, 10).forEach(addImg => {
                 xml += `      <g:additional_image_link>${escapeXml(addImg)}</g:additional_image_link>\n`;
             });
+        if (item.video_link) {
+            xml += `      <g:video_link>${escapeXml(item.video_link)}</g:video_link>\n`;
         }
         xml += `      <g:availability>${escapeXml(item.availability)}</g:availability>\n`;
         xml += `      <g:price>${escapeXml(item.price)}</g:price>\n`;
