@@ -2323,10 +2323,10 @@ const NewHome = () => {
               <span className="text-[#00CCB3] text-[11px] font-bold tracking-widest uppercase mb-2 block font-heading">
                 {featuredTab === 'selected' ? 'Selected For You' : 'Handpicked Stock'}
               </span>
-              <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-[#0C1B33]">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-heading text-[#0C1B33] mb-2 sm:mb-2.5 tracking-tight">
                 {featuredTab === 'selected' ? 'Handpicked For You' : 'Featured Cars'}
               </h2>
-              <p className="text-[#0C1B33] text-sm mt-1">
+              <p className="text-slate-600 text-sm sm:text-base font-normal leading-relaxed">
                 {featuredTab === 'selected'
                   ? 'Based on cars you recently viewed and searched'
                   : 'Hand-picked premium cars inspected by Selectt engineers.'
@@ -2407,9 +2407,9 @@ const NewHome = () => {
 
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
             <div>
-              <span className="text-[#00CCB3] text-[10px] font-bold tracking-widest uppercase mb-1.5 block font-heading">Choose Brand</span>
-              <h2 className="text-xl md:text-3xl font-extrabold font-heading text-black tracking-tight mb-2 sm:mb-2.5">Explore Popular Brands</h2>
-              <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">Directly view stock segments matching your favourite brand with live counts.</p>
+              <span className="text-[#00CCB3] text-[11px] font-bold tracking-widest uppercase mb-1.5 block font-heading">Choose Brand</span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-[#0C1B33] tracking-tight mb-2 sm:mb-2.5">Explore Popular Brands</h2>
+              <p className="text-slate-600 text-sm sm:text-base font-normal leading-relaxed">Directly view stock segments matching your favourite brand with live counts.</p>
             </div>
 
             {/* Carousel Buttons */}
@@ -2546,10 +2546,10 @@ const NewHome = () => {
             <span className="text-[#00CCB3] text-[11px] font-bold tracking-widest uppercase mb-2 block font-heading">
               HOW IT WORKS
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-white tracking-tight leading-none mb-4">
+            <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-white tracking-tight leading-none mb-3 sm:mb-3.5">
               How Selectt Works
             </h2>
-            <p className="text-slate-350 text-sm leading-relaxed">
+            <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed">
               We removed every friction point. From browse to keys done in days, not weeks.
             </p>
           </div>
