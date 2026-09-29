@@ -143,7 +143,7 @@ export default function SelecttBuybackPage() {
                   <Calendar size={22} />
                 </div>
                 <h3 className="font-bold text-slate-900 text-base mb-2.5">Flexible Tenures</h3>
-                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                <p className="text-slate-500 text-xs sm:text-sm font-normal leading-[1.75]">
                   Select between 12, 18, or 36 months tenure based on your career plans, family requirements, or relocation timelines.
                 </p>
               </div>
@@ -194,7 +194,7 @@ export default function SelecttBuybackPage() {
                         <div className="text-xs text-slate-400 font-medium mt-1">{t.subtitle}</div>
                       </div>
 
-                      <p className="text-xs text-slate-600 font-normal leading-relaxed mb-6">
+                      <p className="text-xs sm:text-sm text-slate-600 font-normal leading-[1.75] mb-6">
                         {t.desc}
                       </p>
 

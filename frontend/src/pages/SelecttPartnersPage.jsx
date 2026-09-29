@@ -278,7 +278,7 @@ export default function SelecttPartnersPage() {
                   <Car size={20} />
                 </div>
                 <h3 className="font-bold text-slate-900 text-base mb-2.5">Massive Inventory Inflow</h3>
-                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                <p className="text-slate-500 text-xs sm:text-sm font-normal leading-[1.75]">
                   Access 20,000+ certified vehicles every month directly sourced from genuine individual sellers across all major Indian metros.
                 </p>
               </div>
@@ -288,7 +288,7 @@ export default function SelecttPartnersPage() {
                   <FileCheck2 size={20} />
                 </div>
                 <h3 className="font-bold text-slate-900 text-base mb-2.5">200-Point Digital Inspection</h3>
-                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                <p className="text-slate-500 text-xs sm:text-sm font-normal leading-[1.75]">
                   High-definition photography, OBD-II scanner diagnostics, paint depth readings, and chassis verification sheets for every single listing.
                 </p>
               </div>
@@ -298,7 +298,7 @@ export default function SelecttPartnersPage() {
                   <BadgeCheck size={20} />
                 </div>
                 <h3 className="font-bold text-slate-900 text-base mb-2.5">Pay Post Physical Inspection</h3>
-                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                <p className="text-slate-500 text-xs sm:text-sm font-normal leading-[1.75]">
                   Gain peace of mind by physically validating vehicle condition and documentation at our regional hubs before transferring final payment.
                 </p>
               </div>
@@ -308,7 +308,7 @@ export default function SelecttPartnersPage() {
                   <Gavel size={20} />
                 </div>
                 <h3 className="font-bold text-slate-900 text-base mb-2.5">Transparent Live Bidding</h3>
-                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                <p className="text-slate-500 text-xs sm:text-sm font-normal leading-[1.75]">
                   Fair, algorithm-backed auction engine with real-time bidding alerts and instant deal closure without hidden distributor markups.
                 </p>
               </div>
@@ -318,7 +318,7 @@ export default function SelecttPartnersPage() {
                   <Users2 size={20} />
                 </div>
                 <h3 className="font-bold text-slate-900 text-base mb-2.5">Dedicated Account Manager</h3>
-                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                <p className="text-slate-500 text-xs sm:text-sm font-normal leading-[1.75]">
                   A dedicated Key Account Manager is assigned to your dealership to provide custom inventory alerts and priority customer support.
                 </p>
               </div>
@@ -328,7 +328,7 @@ export default function SelecttPartnersPage() {
                   <Truck size={20} />
                 </div>
                 <h3 className="font-bold text-slate-900 text-base mb-2.5">End-to-End Transport & RC</h3>
-                <p className="text-slate-500 text-xs font-normal leading-relaxed">
+                <p className="text-slate-500 text-xs sm:text-sm font-normal leading-[1.75]">
                   Hassle-free doorstep car delivery, automated VAHAN RTO ownership transfer, and clear NOC dispatch straight to your showroom.
                 </p>
               </div>

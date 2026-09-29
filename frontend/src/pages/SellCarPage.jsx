@@ -656,7 +656,7 @@ const SellCarPage = () => {
                             </h3>
 
                             {/* Description */}
-                            <p className="text-slate-300 text-[11px] md:text-xs font-semibold leading-relaxed line-clamp-3">
+                            <p className="text-slate-300 text-[11px] md:text-xs font-semibold leading-[1.75] line-clamp-3">
                               {step.description}
                             </p>
                           </div>
@@ -751,7 +751,7 @@ const SellCarPage = () => {
                           <h3 className="text-sm sm:text-[15px] font-heading font-bold text-slate-900 mb-3 sm:mb-3.5 leading-snug">
                             {item.title}
                           </h3>
-                          <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                          <p className="text-xs text-slate-600 leading-[1.75] font-normal">
                             {item.desc}
                           </p>
                         </div>

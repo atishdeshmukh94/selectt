@@ -88,7 +88,7 @@ const HowItWorksSellingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Let's talk about your car
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
+                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
                       Tell us more about your beloved and get an instant quote.
                     </p>
                   </div>
@@ -122,7 +122,7 @@ const HowItWorksSellingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       The good quote
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
+                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
                       A prompt, accurate online quote with a final offer that does not go above or below 5 percent of this original quote. Perfect, we think.
                     </p>
                   </div>
@@ -162,7 +162,7 @@ const HowItWorksSellingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       What's your car's worth?
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
+                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
                       Pick a day and we'll be there - at home or your workplace, for a free doorstep evaluation to validate your car's worth and make you a final offer. Easy.
                     </p>
                   </div>
@@ -196,7 +196,7 @@ const HowItWorksSellingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Credited, the same day.
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
+                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
                       Accept the final offer and get paid for your car on the very same day. We'll also get working on the paperwork – our responsibility – right away. You're welcome.
                     </p>
                   </div>

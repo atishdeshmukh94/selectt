@@ -155,7 +155,7 @@ export default function SelecttAssuredPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-sm mb-1">200-Point Inspection</h3>
-                  <p className="text-xs text-slate-500 font-normal leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-500 font-normal leading-[1.75]">
                     Evaluated across engine, diagnostics, suspension, and structural integrity.
                   </p>
                 </div>
@@ -167,7 +167,7 @@ export default function SelecttAssuredPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-sm mb-1">5-Day Moneyback Guarantee</h3>
-                  <p className="text-xs text-slate-500 font-normal leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-500 font-normal leading-[1.75]">
                     Don't love your car? Return it within 5 days for a 100% no-questions-asked refund.
                   </p>
                 </div>
@@ -179,7 +179,7 @@ export default function SelecttAssuredPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-sm mb-1">1-Year Warranty Included</h3>
-                  <p className="text-xs text-slate-500 font-normal leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-500 font-normal leading-[1.75]">
                     Comprehensive and powertrain protection covering engine and transmission.
                   </p>
                 </div>

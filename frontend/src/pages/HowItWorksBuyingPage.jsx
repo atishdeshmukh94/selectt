@@ -88,7 +88,7 @@ const HowItWorksBuyingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       God is in the details
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
+                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
                       A detailed 200-point inspection report for every single car - features, specs, price, financing and buyback options, you name it.
                     </p>
                   </div>
@@ -122,7 +122,7 @@ const HowItWorksBuyingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       A test drive to remember
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
+                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
                       Test drive any of our cars at your home or at a Selectt car hub and see if it's what you've always wanted.
                     </p>
                   </div>
@@ -162,7 +162,7 @@ const HowItWorksBuyingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Paperwork. Financing. Check.
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
+                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
                       Savour financing options for your Selectt Assured car with interest rates starting as low as 10.49%. And rest assured, all your information is confidential, 100%.
                     </p>
                   </div>
@@ -196,7 +196,7 @@ const HowItWorksBuyingPage = () => {
                     <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Pick the bill, online.
                     </h3>
-                    <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
+                    <p className="text-slate-500 font-body font-medium text-sm leading-[1.75]">
                       We support most national and international banking partners and accept payments through major credit cards, debit cards and net banking systems. We also enable part payment or fractional payments using UPI.
                     </p>
                   </div>

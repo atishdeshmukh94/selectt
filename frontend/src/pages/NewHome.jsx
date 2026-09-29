@@ -701,7 +701,7 @@ const HowItWorksCarousel = () => {
               <h3 className="font-extrabold text-[18px] sm:text-[19px] text-white mb-2 leading-snug">
                 {item.title}
               </h3>
-              <p className="text-slate-300 text-[12px] sm:text-[13px] leading-relaxed min-h-[80px]">
+              <p className="text-slate-300 text-[12px] sm:text-[13px] leading-[1.8] min-h-[80px]">
                 {item.desc}
               </p>
             </div>

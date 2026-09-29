@@ -60,7 +60,7 @@ const FeatureCard = ({ icon, emoji, title, description, index, isActive, onClick
         >
           {title}
         </h4>
-        <p className="text-slate-400 text-sm leading-relaxed">{description}</p>
+        <p className="text-slate-400 text-sm leading-[1.75]">{description}</p>
       </div>
     </motion.div>
   );
