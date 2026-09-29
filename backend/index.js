@@ -442,6 +442,9 @@ db.getConnection((err, connection) => {
                     });
                 }
             });
+        }
+    });
+
     // Ensure career_jobs and career_applications tables exist
     db.query(`
         CREATE TABLE IF NOT EXISTS career_jobs (
@@ -1011,6 +1014,73 @@ async function triggerMetaAutoSync(carIdOrIds, action = 'UPDATE') {
         console.error('[Meta Auto-Sync Error]:', e.message);
     }
 }
+
+// Direct Video Stream Proxy for Meta Catalog & External Crawlers (Bypasses Referer limitations & provides pure MP4 byte streams)
+app.get(['/api/videos/meta/:videoId', '/api/videos/meta/:videoId.mp4'], async (req, res) => {
+    try {
+        const rawId = req.params.videoId || '';
+        const videoId = rawId.replace(/\.mp4$/i, '').trim();
+        if (!videoId) return res.status(400).send('Missing video ID');
+
+        const cdnHostname = (process.env.BUNNY_STREAM_CDN_HOSTNAME || 'vz-0ed4d2e7-46d.b-cdn.net').trim();
+        
+        // Check resolutions in quality order (play_720p, play_480p, play_360p, play_240p)
+        const resolutions = ['play_720p.mp4', 'play_480p.mp4', 'play_360p.mp4', 'play_240p.mp4'];
+        let selectedUrl = null;
+        
+        for (const resName of resolutions) {
+            const testUrl = `https://${cdnHostname}/${videoId}/${resName}`;
+            try {
+                const headRes = await fetch(testUrl, {
+                    method: 'HEAD',
+                    headers: { 'Referer': 'https://selectt.in' }
+                });
+                if (headRes.ok && headRes.status === 200) {
+                    selectedUrl = testUrl;
+                    break;
+                }
+            } catch (_) {}
+        }
+        
+        if (!selectedUrl) {
+            selectedUrl = `https://${cdnHostname}/${videoId}/play_480p.mp4`;
+        }
+        
+        const fetchHeaders = {
+            'Referer': 'https://selectt.in',
+            'User-Agent': req.headers['user-agent'] || 'SelecttVideoProxy/1.0'
+        };
+        if (req.headers.range) {
+            fetchHeaders['Range'] = req.headers.range;
+        }
+        
+        const videoResponse = await fetch(selectedUrl, {
+            headers: fetchHeaders
+        });
+        
+        res.status(videoResponse.status);
+        res.setHeader('Content-Type', 'video/mp4');
+        res.setHeader('Accept-Ranges', 'bytes');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        
+        const contentLength = videoResponse.headers.get('content-length');
+        if (contentLength) res.setHeader('Content-Length', contentLength);
+        
+        const contentRange = videoResponse.headers.get('content-range');
+        if (contentRange) res.setHeader('Content-Range', contentRange);
+        
+        const { Readable } = require('stream');
+        if (videoResponse.body) {
+            Readable.fromWeb(videoResponse.body).pipe(res);
+        } else {
+            res.end();
+        }
+    } catch (err) {
+        console.error('Video proxy streaming error:', err.message);
+        res.status(500).send('Error streaming video');
+    }
+});
 
 // Meta Catalog CSV Scheduled Data Feed (For Facebook / Meta Commerce Manager Data Sources)
 app.get('/api/feeds/meta-catalog.csv', async (req, res) => {
@@ -3302,6 +3372,8 @@ app.get('/api/settings/public', (req, res) => {
             extra_card_is_active: settings.extra_card_is_active !== 'false'
         });
     });
+});
+
 // ============================================================
 // CAREERS MODULE (PUBLIC & ADMIN)
 // ============================================================

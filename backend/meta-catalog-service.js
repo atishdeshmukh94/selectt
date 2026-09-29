@@ -89,13 +89,11 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
             return '';
         }
 
-        // If Bunny Stream URL: e.g. https://iframe.mediadelivery.net/embed/762989/783c4059-153d-4a7b-b072-1f1c63b46950
-        // or https://iframe.mediadelivery.net/play/762989/783c4059-153d-4a7b-b072-1f1c63b46950
-        // or https://video.bunnycdn.com/play/762989/783c4059-153d-4a7b-b072-1f1c63b46950
-        const bunnyMatch = trimmed.match(/(?:iframe\.mediadelivery\.net\/(?:embed|play)|video\.bunnycdn\.com\/play)\/([0-9]+)\/([0-9a-fA-F\-]+)/);
+        // Match Bunny Stream GUID (e.g. 783c4059-153d-4a7b-b072-1f1c63bbfede)
+        const bunnyMatch = trimmed.match(/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/);
         if (bunnyMatch) {
-            const [, libraryId, videoId] = bunnyMatch;
-            return `https://video.bunnycdn.com/play/${libraryId}/${videoId}`;
+            const videoId = bunnyMatch[1];
+            return `https://api.selectt.in/api/videos/meta/${videoId}.mp4`;
         }
 
         // Direct video file (.mp4, .mov, .webm, etc.)
@@ -119,7 +117,7 @@ function formatCarForMeta(car, baseUrl, defaultBrand = 'Selectt Cars') {
             const parsed = typeof car.more_images === 'string' ? JSON.parse(car.more_images) : car.more_images;
             if (Array.isArray(parsed)) {
                 additionalImages = parsed
-                    .filter(img => typeof img === 'string' && !img.endsWith('.mp4') && !img.endsWith('.mov') && !img.endsWith('.webm') && !img.includes('youtube.com') && !img.includes('youtu.be') && !img.includes('iframe.mediadelivery.net') && !img.includes('video.bunnycdn.com'))
+                    .filter(img => typeof img === 'string' && !img.endsWith('.mp4') && !img.endsWith('.mov') && !img.endsWith('.webm') && !img.includes('youtube.com') && !img.includes('youtu.be') && !img.includes('iframe.mediadelivery.net') && !img.includes('video.bunnycdn.com') && !img.includes('/api/videos/meta/'))
                     .map(img => buildFullUrl(img, siteUrl))
                     .filter(Boolean);
                 if (!videoLink) {
@@ -187,6 +185,7 @@ function generateMetaCatalogCsv(cars, baseUrl, defaultBrand) {
         'link',
         'image_link',
         'additional_image_link',
+        'video[0].url',
         'video_link',
         'brand',
         'make',
@@ -221,6 +220,7 @@ function generateMetaCatalogCsv(cars, baseUrl, defaultBrand) {
             escapeCsv(item.link),
             escapeCsv(item.image_link),
             escapeCsv(item.additional_image_link),
+            escapeCsv(item.video_link || ''),
             escapeCsv(item.video_link || ''),
             escapeCsv(item.brand),
             escapeCsv(item.make),
