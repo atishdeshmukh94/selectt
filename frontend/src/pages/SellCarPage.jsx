@@ -744,14 +744,14 @@ const SellCarPage = () => {
                             <span className={`text-3xl sm:text-4xl font-black bg-gradient-to-r ${item.numGradient} bg-clip-text text-transparent tracking-tight leading-none`}>
                               {item.num}
                             </span>
-                            <span className={`text-[10px] sm:text-xs font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${item.badgeBg}`}>
+                            <span className={`text-xs sm:text-sm font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border ${item.badgeBg}`}>
                               Step {item.num}
                             </span>
                           </div>
-                          <h3 className="text-base sm:text-lg font-heading font-bold text-slate-900 mb-3 sm:mb-3.5 leading-snug">
+                          <h3 className="text-base sm:text-lg md:text-xl font-heading font-bold text-slate-900 mb-3 sm:mb-3.5 leading-snug">
                             {item.title}
                           </h3>
-                          <p className="text-slate-600 text-xs sm:text-sm leading-[1.8] font-normal">
+                          <p className="text-slate-700 text-sm sm:text-base leading-[1.75] font-normal">
                             {item.desc}
                           </p>
                         </div>
@@ -810,10 +810,10 @@ const SellCarPage = () => {
                       </div>
 
                       <div className="relative z-10">
-                        <h3 className="text-base sm:text-lg font-heading font-extrabold text-slate-900 mb-3 tracking-tight group-hover:text-[#00A38D] transition-colors">
+                        <h3 className="text-base sm:text-lg md:text-xl font-heading font-extrabold text-slate-900 mb-3 tracking-tight group-hover:text-[#00A38D] transition-colors">
                           {item.title}
                         </h3>
-                        <p className="text-slate-600 text-xs sm:text-sm font-normal leading-[1.8]">
+                        <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.75]">
                           {item.desc}
                         </p>
                       </div>

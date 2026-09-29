@@ -124,23 +124,23 @@ p {
 
 /* Enhanced typography & responsive scaling for small font readability across all pages */
 .text-xs {
-  font-size: 0.8125rem;
+  font-size: 0.875rem; /* 14px */
   line-height: 1.7;
 }
 
 .text-sm {
-  font-size: 0.90625rem;
+  font-size: 0.95rem; /* 15.2px */
   line-height: 1.72;
 }
 
 @media (max-width: 640px) {
   /* Increase mobile font size so small text and subtitles are crystal clear */
   .text-xs {
-    font-size: 0.84375rem !important; /* 13.5px on mobile */
+    font-size: 0.875rem !important; /* 14px on mobile */
     line-height: 1.7 !important;
   }
   .text-sm {
-    font-size: 0.9375rem !important; /* 15px on mobile */
+    font-size: 0.96875rem !important; /* 15.5px on mobile */
     line-height: 1.72 !important;
   }
 }
