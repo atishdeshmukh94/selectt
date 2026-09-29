@@ -219,9 +219,9 @@ const BodyTypeFilter = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-20 text-slate-500 font-bold bg-white/50 dark:bg-slate-800/50 rounded-3xl backdrop-blur-sm border border-slate-100 dark:border-slate-700">
-                            <p className="text-sm">No results found for {activeType}</p>
-                            <p className="text-xs opacity-60 font-medium">Try selecting another body type</p>
+                        <div className="flex flex-col items-center justify-center py-20 text-slate-600 dark:text-slate-300 font-bold bg-white/50 dark:bg-slate-800/50 rounded-3xl backdrop-blur-sm border border-slate-100 dark:border-slate-700 text-center px-4">
+                            <p className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">No results found for {activeType}</p>
+                            <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-medium mt-1.5">Try selecting another body type</p>
                         </div>
                     )}
                 </div>

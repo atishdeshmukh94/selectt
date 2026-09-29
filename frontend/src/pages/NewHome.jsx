@@ -2392,9 +2392,9 @@ const NewHome = () => {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400 font-bold bg-[#192B46] rounded-2xl border border-white/5 shadow-none w-full">
-              <p className="text-sm">No featured cars found in {city}</p>
-              <p className="text-xs opacity-60 font-medium mt-1">Try changing your location or check back later</p>
+            <div className="flex flex-col items-center justify-center py-16 text-slate-300 font-bold bg-[#192B46] rounded-2xl border border-white/5 shadow-none w-full text-center px-4">
+              <p className="text-base sm:text-lg font-extrabold text-white">No featured cars found in {city}</p>
+              <p className="text-sm sm:text-base text-slate-400 font-medium mt-1.5">Try changing your location or check back later</p>
             </div>
           )}
 
@@ -2734,9 +2734,9 @@ const NewHome = () => {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-slate-400 font-bold bg-[#0C1B33] border border-white/5 rounded-3xl shadow-none">
-                <p className="text-xs">No results found for {activeBodyType} in this hub</p>
-                <p className="text-[10px] opacity-60 font-medium mt-1">Try selecting another body type above</p>
+              <div className="flex flex-col items-center justify-center py-16 text-slate-300 font-bold bg-[#0C1B33] border border-white/5 rounded-3xl shadow-none text-center px-4">
+                <p className="text-base sm:text-lg font-extrabold text-white">No results found for {activeBodyType} in this hub</p>
+                <p className="text-sm sm:text-base text-slate-400 font-medium mt-1.5">Try selecting another body type above</p>
               </div>
             )}
           </div>
