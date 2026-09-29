@@ -710,7 +710,7 @@ const SellCarPage = () => {
           </section>
 
           {/* 3. THE SELECTT SELLER PROTECTION GUARANTEE */}
-          <section className="py-12 sm:py-16 bg-white border-b border-slate-200">
+          <section className="py-12 sm:py-16 bg-[#F8FAFC] border-b border-slate-200">
             <div className="max-w-6xl mx-auto px-4">
               <div className="bg-gradient-to-br from-[#061426] via-[#0C1B33] to-[#061426] rounded-3xl p-6 sm:p-10 md:p-12 border border-[#00C9AF]/30 shadow-2xl relative overflow-hidden text-white text-left">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-[#00C9AF]/10 rounded-full blur-3xl pointer-events-none" />

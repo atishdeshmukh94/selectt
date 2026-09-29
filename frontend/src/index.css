@@ -128,7 +128,7 @@
   }
 }
 
-/* Explicit text color utility guarantees */
+/* Explicit text color utility guarantees (Authoritative) */
 .text-white,
 h1.text-white,
 h2.text-white,
@@ -139,8 +139,18 @@ h6.text-white,
 p.text-white,
 span.text-white,
 a.text-white,
+[class~="text-white"],
 [class*="text-white"] {
   color: #ffffff !important;
+}
+
+.text-[#CBD5E1],
+[class*="text-[#CBD5E1]"],
+[class*="text-[#cbd5e1]"],
+.text-slate-300,
+.text-slate-200,
+.text-slate-100 {
+  color: #CBD5E1 !important;
 }
 
 .text-slate-900,
@@ -185,49 +195,12 @@ div[class*="bg-[#192B46]"] {
   color: #CBD5E1;
 }
 
-/* White and light cards (HIGHEST PRIORITY - even when nested inside dark containers) */
+/* White and light cards fallback */
 .bg-white,
-[class*="bg-white"],
 .bg-slate-50,
-[class*="bg-slate-50"],
 .bg-slate-100,
-[class*="bg-slate-100"],
-.bg-gray-50,
-[class*="bg-gray-50"] {
-  color: #475569 !important;
-}
-
-.bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6,
-[class*="bg-white"] h1, [class*="bg-white"] h2, [class*="bg-white"] h3, [class*="bg-white"] h4, [class*="bg-white"] h5, [class*="bg-white"] h6,
-.bg-slate-50 h1, .bg-slate-50 h2, .bg-slate-50 h3, .bg-slate-50 h4,
-[class*="bg-slate-50"] h1, [class*="bg-slate-50"] h2, [class*="bg-slate-50"] h3, [class*="bg-slate-50"] h4,
-.bg-slate-100 h1, .bg-slate-100 h2, .bg-slate-100 h3,
-[class*="bg-slate-100"] h1, [class*="bg-slate-100"] h2, [class*="bg-slate-100"] h3 {
-  color: #0F172A !important;
-}
-
-.bg-white p,
-[class*="bg-white"] p,
-.bg-slate-50 p,
-[class*="bg-slate-50"] p,
-.bg-slate-100 p,
-[class*="bg-slate-100"] p {
-  color: #475569 !important;
-}
-
-/* Exceptions: Dark blocks explicitly nested inside white cards */
-.bg-white [class*="bg-[#0C1B33]"],
-.bg-white [class*="bg-[#0c1b33]"],
-.bg-white [class*="bg-[#061426]"],
-.bg-white [class*="bg-slate-900"] {
-  color: #CBD5E1 !important;
-}
-
-.bg-white [class*="bg-[#0C1B33]"] p,
-.bg-white [class*="bg-[#0c1b33]"] p,
-.bg-white [class*="bg-[#061426]"] p,
-.bg-white [class*="bg-slate-900"] p {
-  color: #CBD5E1 !important;
+.bg-gray-50 {
+  color: #475569;
 }
 
 @media (max-width: 640px) {
