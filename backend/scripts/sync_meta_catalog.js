@@ -1,6 +1,10 @@
+const fs = require('fs');
 const mysql = require('mysql2/promise');
-require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
-const { pushBatchToMetaGraphApi, formatCarForMeta, testMetaCatalogConnection } = require('../meta-catalog-service');
+require('dotenv').config();
+const metaServicePath = fs.existsSync(require('path').resolve(__dirname, './meta-catalog-service.js'))
+  ? './meta-catalog-service'
+  : '../meta-catalog-service';
+const { pushBatchToMetaGraphApi, formatCarForMeta, testMetaCatalogConnection } = require(metaServicePath);
 
 async function syncMetaCatalog() {
   const token = 'EAIo8QpxjUvIBShFcXMZC7YlPGwBIuMlhJFObguvxS6yvipTWYjBSuY03all2R6qxybMyeyRuThOrXjB5Hl6lKhUc0o50ZA96okACvvdPZBa8rla3ukxqYwSXhKVjDfa5xFBpVeeSVlBpjZB3F1hobJMp6ONoN9HF0UVUO9SRyyRpJx8vlddbqPuWHoxluwZDZD';
@@ -17,9 +21,9 @@ async function syncMetaCatalog() {
 
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'selectt'
+    user: process.env.DB_USER || 'selectt-wepnex',
+    password: process.env.DB_PASS || process.env.DB_PASSWORD || '6EVSUZ7RNYA9bV0WUoxy',
+    database: process.env.DB_NAME || 'connect-db'
   });
 
   const [cars] = await connection.query(
