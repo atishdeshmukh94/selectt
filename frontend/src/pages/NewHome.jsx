@@ -698,10 +698,10 @@ const HowItWorksCarousel = () => {
             </div>
 
             <div className="text-left mt-auto">
-              <h3 className="font-extrabold text-[18px] sm:text-[19px] text-white mb-2 leading-snug">
+              <h3 className="font-extrabold text-[18px] sm:text-[19px] text-white mb-2.5 leading-snug">
                 {item.title}
               </h3>
-              <p className="text-slate-300 text-[12px] sm:text-[13px] leading-[1.8] min-h-[80px]">
+              <p className="text-slate-300 text-[13px] sm:text-[13.5px] leading-[1.85] min-h-[85px]">
                 {item.desc}
               </p>
             </div>

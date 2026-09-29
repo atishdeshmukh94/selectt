@@ -119,7 +119,24 @@ h4, h5, h6 {
 }
 
 p {
-  line-height: 1.55;
+  line-height: 1.72;
+}
+
+/* Enhanced line-height for small font readability across cards & components */
+.text-xs {
+  line-height: 1.7;
+}
+
+.text-sm {
+  line-height: 1.72;
+}
+
+.leading-relaxed {
+  line-height: 1.75 !important;
+}
+
+.leading-loose {
+  line-height: 1.85 !important;
 }
 
 button, input[type="button"], input[type="submit"] {
