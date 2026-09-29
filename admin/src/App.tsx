@@ -31,6 +31,7 @@ import MediaLibrary from "./pages/MediaLibrary";
 import CarHubs from "./pages/CarHubs";
 import VisitorReports from "./pages/VisitorReports";
 import MetaCatalogSettings from "./pages/MetaCatalogSettings";
+import CareerManagement from "./pages/CareerManagement";
 
 export default function App() {
   return (
@@ -77,6 +78,7 @@ export default function App() {
                   <Route path="/blog" element={<BlogPosts />} />
                   <Route path="/blog/new" element={<BlogEditor />} />
                   <Route path="/blog/edit/:id" element={<BlogEditor />} />
+                  <Route path="/careers" element={<CareerManagement />} />
                   <Route path="/media-library" element={<MediaLibrary />} />
 
                   {/* Site Settings */}

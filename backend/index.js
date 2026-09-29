@@ -114,15 +114,16 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
     const allowedMimes = [
         'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml', 'application/pdf',
+        'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'video/mp4', 'video/quicktime', 'video/webm', 'video/x-matroska', 'video/avi'
     ];
-    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.pdf', '.mp4', '.mov', '.webm', '.mkv', '.avi'];
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.pdf', '.doc', '.docx', '.mp4', '.mov', '.webm', '.mkv', '.avi'];
     const ext = path.extname(file.originalname).toLowerCase();
     
     if (allowedMimes.includes(file.mimetype) || allowedExts.includes(ext)) {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file format. Only JPEG, PNG, WEBP, GIF, SVG, PDF, MP4, MOV and WEBM files are allowed.'), false);
+        cb(new Error('Invalid file format. Only JPEG, PNG, WEBP, GIF, SVG, PDF, DOC, DOCX, MP4, MOV and WEBM files are allowed.'), false);
     }
 };
 
@@ -441,10 +442,53 @@ db.getConnection((err, connection) => {
                     });
                 }
             });
+    // Ensure career_jobs and career_applications tables exist
+    db.query(`
+        CREATE TABLE IF NOT EXISTS career_jobs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            location VARCHAR(255) DEFAULT 'Mumbai',
+            job_type VARCHAR(100) DEFAULT 'Full-time',
+            description TEXT,
+            is_active TINYINT(1) DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+    `, (err) => {
+        if (err) console.error('Error creating career_jobs table:', err);
+        else {
+            db.query('SELECT COUNT(*) as count FROM career_jobs', (cErr, cRes) => {
+                if (!cErr && cRes[0]?.count === 0) {
+                    const seedJobs = [
+                        ['Sales Executive', 'Mumbai', 'Full-time', 'Passionate car sales specialist to manage pre-owned vehicle sales and customer consultations.', 1],
+                        ['Car Evaluator', 'Remote / Field', 'Full-time', 'Experienced automobile technician/evaluator for 200-point vehicle inspections.', 1],
+                        ['Content Writer', 'Remote', 'Full-time', 'Creative content and automotive copywriter for website, blogs, and marketing.', 1]
+                    ];
+                    db.query('INSERT INTO career_jobs (title, location, job_type, description, is_active) VALUES ?', [seedJobs], (sErr) => {
+                        if (sErr) console.error('Error seeding career_jobs:', sErr);
+                        else console.log('Default career_jobs seeded successfully!');
+                    });
+                }
+            });
         }
     });
 
-    // Ensure document columns exist in sell_requests table
+    db.query(`
+        CREATE TABLE IF NOT EXISTS career_applications (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            full_name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            phone VARCHAR(50) NOT NULL,
+            position VARCHAR(255) NOT NULL,
+            message TEXT,
+            resume_url VARCHAR(500),
+            status ENUM('pending', 'shortlisted', 'interviewed', 'hired', 'rejected') DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+    `, (err) => {
+        if (err) console.error('Error creating career_applications table:', err);
+    });
     db.query("SHOW COLUMNS FROM sell_requests LIKE 'rc_document'", (err, rows) => {
         if (!err && rows.length === 0) {
             db.query("ALTER TABLE sell_requests ADD COLUMN rc_document VARCHAR(255) NULL");
@@ -3257,6 +3301,306 @@ app.get('/api/settings/public', (req, res) => {
             extra_card_bg_gradient: settings.extra_card_bg_gradient || "linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)",
             extra_card_is_active: settings.extra_card_is_active !== 'false'
         });
+    });
+// ============================================================
+// CAREERS MODULE (PUBLIC & ADMIN)
+// ============================================================
+
+// Helper to send email notification to admin via SMTP configured in site_settings
+const sendCareerNotificationEmail = async (application) => {
+    try {
+        const [smtpHostRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'smtp_host'");
+        const [smtpPortRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'smtp_port'");
+        const [smtpUserRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'smtp_user'");
+        const [smtpPassRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'smtp_pass'");
+        const [adminEmailRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key IN ('admin_career_email', 'admin_notification_email', 'contact_email', 'site_email') AND setting_value IS NOT NULL AND setting_value != '' LIMIT 1");
+
+        const host = smtpHostRow?.setting_value || process.env.SMTP_HOST;
+        const port = parseInt(smtpPortRow?.setting_value || process.env.SMTP_PORT || '587', 10);
+        const user = smtpUserRow?.setting_value || process.env.SMTP_USER;
+        const pass = smtpPassRow?.setting_value || process.env.SMTP_PASS;
+        const adminEmail = adminEmailRow?.setting_value || user || 'careers@selectt.in';
+
+        if (!host || !user || !pass) {
+            console.log('ℹ️ SMTP credentials not configured in site_settings. Skipping email alert.');
+            return;
+        }
+
+        const transporter = nodemailer.createTransport({
+            host: host,
+            port: port,
+            secure: port === 465,
+            auth: { user, pass }
+        });
+
+        const resumeLink = application.resume_url 
+            ? (application.resume_url.startsWith('http') ? application.resume_url : `https://api.selectt.in${application.resume_url}`)
+            : 'No resume attached';
+
+        const mailOptions = {
+            from: `"Selectt Careers" <${user}>`,
+            to: adminEmail,
+            subject: `🎯 New Job Application: ${application.full_name} for ${application.position}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8fafc; padding: 24px; border-radius: 16px;">
+                    <div style="background-color: #0C1B33; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #00C9AF; margin: 0; font-size: 22px;">Selectt Careers — New Candidate</h2>
+                    </div>
+                    <div style="background-color: #ffffff; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <p style="font-size: 15px; color: #1e293b; margin-top: 0;"><strong>A new candidate has submitted an application on <a href="https://selectt.in/careers" style="color:#00C9AF;text-decoration:none;">selectt.in/careers</a>:</strong></p>
+                        <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+                            <tr><td style="padding: 8px 0; color: #64748b; width: 140px;"><strong>Candidate Name:</strong></td><td style="color: #0f172a; font-weight: 600;">${application.full_name}</td></tr>
+                            <tr><td style="padding: 8px 0; color: #64748b;"><strong>Position:</strong></td><td style="color: #008f7d; font-weight: bold; font-size: 15px;">${application.position}</td></tr>
+                            <tr><td style="padding: 8px 0; color: #64748b;"><strong>Email:</strong></td><td><a href="mailto:${application.email}" style="color: #0284c7; text-decoration: none;">${application.email}</a></td></tr>
+                            <tr><td style="padding: 8px 0; color: #64748b;"><strong>Phone:</strong></td><td><a href="tel:${application.phone}" style="color: #0284c7; text-decoration: none;">${application.phone}</a></td></tr>
+                            <tr><td style="padding: 8px 0; color: #64748b;"><strong>Submitted At:</strong></td><td style="color: #334155;">${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</td></tr>
+                        </table>
+                        ${application.message ? `
+                        <div style="margin: 16px 0; padding: 14px; background-color: #f1f5f9; border-left: 4px solid #00C9AF; border-radius: 6px;">
+                            <strong style="color: #334155; display: block; margin-bottom: 4px;">Cover Letter / Message:</strong>
+                            <p style="color: #475569; margin: 0; line-height: 1.5; white-space: pre-line; font-size: 13px;">${application.message}</p>
+                        </div>
+                        ` : ''}
+                        ${application.resume_url ? `
+                        <div style="text-align: center; margin-top: 24px;">
+                            <a href="${resumeLink}" target="_blank" style="background-color: #00C9AF; color: #0C1B33; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block;">
+                                📄 View / Download Candidate Resume
+                            </a>
+                        </div>
+                        ` : ''}
+                        <div style="text-align: center; margin-top: 20px; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+                            <a href="https://admin.selectt.in/careers" target="_blank" style="color: #64748b; font-size: 13px; text-decoration: underline;">
+                                Open Selectt Admin Careers Management
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`✅ Career application notification email sent to ${adminEmail}`);
+    } catch (emailErr) {
+        console.error('⚠️ Failed to send career application email notification:', emailErr.message);
+    }
+};
+
+// 1. Public: Get Active Job Openings
+app.get('/api/careers/jobs', (req, res) => {
+    db.query('SELECT * FROM career_jobs WHERE is_active = 1 ORDER BY id ASC', (err, results) => {
+        if (err) return res.status(500).json({ success: false, error: err.message });
+        res.json({ success: true, data: results || [] });
+    });
+});
+
+// 2. Public: Apply for Job (with Resume Upload)
+app.post('/api/careers/apply', upload.single('resume'), async (req, res) => {
+    try {
+        const { fullName, email, phone, position, message } = req.body;
+        
+        if (!fullName || !email || !phone || !position) {
+            return res.status(400).json({ success: false, message: 'Please provide full name, email, phone number, and position.' });
+        }
+
+        let resumeUrl = null;
+        if (req.file) {
+            resumeUrl = `/uploads/${req.file.filename}`;
+        }
+
+        const sql = `
+            INSERT INTO career_applications (full_name, email, phone, position, message, resume_url, status)
+            VALUES (?, ?, ?, ?, ?, ?, 'pending')
+        `;
+
+        db.query(sql, [fullName, email, phone, position, message || '', resumeUrl], async (err, result) => {
+            if (err) {
+                console.error('Error saving career application:', err);
+                return res.status(500).json({ success: false, message: 'Database error saving application.' });
+            }
+
+            // Trigger notification
+            createNotification('career_application', `New job application from ${fullName} for ${position}`, null, result.insertId);
+
+            // Trigger SMTP email alert to admin
+            sendCareerNotificationEmail({
+                full_name: fullName,
+                email,
+                phone,
+                position,
+                message,
+                resume_url: resumeUrl
+            }).catch(e => console.error('SMTP Background Error:', e.message));
+
+            res.json({
+                success: true,
+                message: 'Thank you for your application! We have received your details and will review them shortly.',
+                id: result.insertId
+            });
+        });
+    } catch (error) {
+        console.error('Career Application Error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// 3. Admin: Get Applications List (with pagination, search, status filter)
+app.get('/api/admin/careers/applications', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page || '1', 10);
+        const limit = parseInt(req.query.limit || '20', 10);
+        const offset = (page - 1) * limit;
+        const search = req.query.search ? `%${req.query.search.trim()}%` : null;
+        const status = req.query.status || null;
+
+        let whereClauses = [];
+        let params = [];
+
+        if (status && status !== 'all') {
+            whereClauses.push('status = ?');
+            params.push(status);
+        }
+
+        if (search) {
+            whereClauses.push('(full_name LIKE ? OR email LIKE ? OR phone LIKE ? OR position LIKE ?)');
+            params.push(search, search, search, search);
+        }
+
+        const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        const countSql = `SELECT COUNT(*) as total FROM career_applications ${whereSql}`;
+        const [countRes] = await queryAsync(countSql, params);
+        const total = countRes ? countRes.total : 0;
+
+        const dataSql = `SELECT * FROM career_applications ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+        const applications = await queryAsync(dataSql, [...params, limit, offset]);
+
+        res.json({
+            success: true,
+            data: applications || [],
+            total,
+            page,
+            totalPages: Math.ceil(total / limit)
+        });
+    } catch (err) {
+        console.error('Admin fetch applications error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 4. Admin: Update Application Status
+app.put('/api/admin/careers/applications/:id/status', authMiddleware, isAdmin, (req, res) => {
+    const { status } = req.body;
+    const { id } = req.params;
+
+    const validStatuses = ['pending', 'shortlisted', 'interviewed', 'hired', 'rejected'];
+    if (!validStatuses.includes(status)) {
+        return res.status(400).json({ success: false, message: 'Invalid status' });
+    }
+
+    db.query('UPDATE career_applications SET status = ? WHERE id = ?', [status, id], (err, result) => {
+        if (err) return res.status(500).json({ success: false, error: err.message });
+        res.json({ success: true, message: 'Application status updated successfully' });
+    });
+});
+
+// 5. Admin: Delete Application
+app.delete('/api/admin/careers/applications/:id', authMiddleware, isAdmin, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [appRow] = await queryAsync('SELECT resume_url FROM career_applications WHERE id = ?', [id]);
+        if (appRow && appRow.resume_url && appRow.resume_url.startsWith('/uploads/')) {
+            deleteLocalUploadFile(appRow.resume_url);
+        }
+
+        await queryAsync('DELETE FROM career_applications WHERE id = ?', [id]);
+        res.json({ success: true, message: 'Application deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 6. Admin: Export Applications to CSV
+app.get('/api/admin/careers/applications/export', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const applications = await queryAsync('SELECT id, full_name, email, phone, position, message, resume_url, status, created_at FROM career_applications ORDER BY created_at DESC');
+        
+        const escapeCsv = (str) => {
+            if (str === null || str === undefined) return '""';
+            const s = String(str).replace(/"/g, '""');
+            return `"${s}"`;
+        };
+
+        const headers = ['ID', 'Candidate Name', 'Email', 'Phone', 'Position', 'Message', 'Resume URL', 'Status', 'Applied Date'];
+        const csvRows = [headers.join(',')];
+
+        applications.forEach(row => {
+            const resumeFull = row.resume_url ? `https://api.selectt.in${row.resume_url}` : '';
+            const rowData = [
+                row.id,
+                escapeCsv(row.full_name),
+                escapeCsv(row.email),
+                escapeCsv(row.phone),
+                escapeCsv(row.position),
+                escapeCsv(row.message),
+                escapeCsv(resumeFull),
+                escapeCsv(row.status),
+                escapeCsv(new Date(row.created_at).toLocaleString('en-IN'))
+            ];
+            csvRows.push(rowData.join(','));
+        });
+
+        const csvContent = csvRows.join('\r\n');
+        const filename = `career_applications_${new Date().toISOString().slice(0, 10)}.csv`;
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.status(200).send(csvContent);
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 7. Admin: Jobs List & CRUD
+app.get('/api/admin/careers/jobs', authMiddleware, isAdmin, (req, res) => {
+    db.query('SELECT * FROM career_jobs ORDER BY id ASC', (err, results) => {
+        if (err) return res.status(500).json({ success: false, error: err.message });
+        res.json({ success: true, data: results || [] });
+    });
+});
+
+app.post('/api/admin/careers/jobs', authMiddleware, isAdmin, (req, res) => {
+    const { title, location, job_type, description, is_active } = req.body;
+    if (!title) return res.status(400).json({ success: false, message: 'Job title is required' });
+
+    db.query(
+        'INSERT INTO career_jobs (title, location, job_type, description, is_active) VALUES (?, ?, ?, ?, ?)',
+        [title, location || 'Mumbai', job_type || 'Full-time', description || '', is_active === false ? 0 : 1],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, error: err.message });
+            res.json({ success: true, message: 'Job opening created successfully', id: result.insertId });
+        }
+    );
+});
+
+app.put('/api/admin/careers/jobs/:id', authMiddleware, isAdmin, (req, res) => {
+    const { title, location, job_type, description, is_active } = req.body;
+    const { id } = req.params;
+
+    db.query(
+        'UPDATE career_jobs SET title = ?, location = ?, job_type = ?, description = ?, is_active = ? WHERE id = ?',
+        [title, location, job_type, description, is_active ? 1 : 0, id],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, error: err.message });
+            res.json({ success: true, message: 'Job opening updated successfully' });
+        }
+    );
+});
+
+app.delete('/api/admin/careers/jobs/:id', authMiddleware, isAdmin, (req, res) => {
+    const { id } = req.params;
+    db.query('DELETE FROM career_jobs WHERE id = ?', [id], (err) => {
+        if (err) return res.status(500).json({ success: false, error: err.message });
+        res.json({ success: true, message: 'Job opening deleted successfully' });
     });
 });
 

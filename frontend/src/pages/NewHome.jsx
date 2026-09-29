@@ -300,31 +300,31 @@ const FINANCIAL_SERVICES_CAROUSEL = [
     id: 1,
     title: 'Selectt Insurance',
     tag: 'RIGHT COVER · ZERO HASSLE',
-    subtext: 'Instant digital policy issuance with up to 50% NCB savings.',
+    subtext: 'Instant digital policy • 50% NCB savings',
     ctaText: 'Get Quotes →',
     ctaLink: '/car-insurance',
     image: '/img/insurance_banner_1to1.png',
-    badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-white'
+    badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8]'
   },
   {
     id: 2,
     title: 'Used Car Loans',
     tag: 'LOW EMI · 24HR APPROVAL',
-    subtext: 'Pre-approved loans starting at 8.9% ROI with 100% paperless process.',
+    subtext: 'From 8.9% ROI • 100% paperless process',
     ctaText: 'Apply Now →',
     ctaLink: '/used-car-loan',
     image: '/img/car_loan_banner_1to1.png',
-    badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-white'
+    badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8]'
   },
   {
     id: 3,
     title: '1-Year Warranty',
     tag: 'SELECTT ASSURED COVER',
-    subtext: 'Comprehensive engine, gearbox & electricals protection.',
+    subtext: 'Engine, gearbox & electrical protection',
     ctaText: 'Explore Cover →',
     ctaLink: '/pricing',
     image: '/img/warranty_banner_1to1.png',
-    badgeColor: 'bg-amber-400 text-[#0C1B33] hover:bg-amber-300'
+    badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8]'
   }
 ];
 
@@ -370,23 +370,23 @@ const FinancialServicesCarousel = () => {
         onScroll={handleScroll}
         className="flex gap-3.5 overflow-x-auto pb-3 snap-x scrollbar-none -mx-6 px-6"
       >
-        {FINANCIAL_SERVICES_CAROUSEL.map((item, idx) => (
+        {FINANCIAL_SERVICES_CAROUSEL.map((item) => (
           <div
             key={item.id}
-            className="w-[220px] xs:w-[240px] aspect-square shrink-0 snap-center rounded-3xl relative overflow-hidden shadow-md group border border-slate-800/40 text-left cursor-pointer"
+            className="w-[220px] xs:w-[240px] aspect-square shrink-0 snap-center rounded-3xl relative overflow-hidden shadow-lg group border border-slate-700/50 text-left cursor-pointer"
           >
-            {/* Background 1:1 Image */}
+            {/* Background 1:1 Image with Darkening */}
             <img
               src={item.image}
               alt={item.title}
-              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 pointer-events-none"
+              className="absolute inset-0 w-full h-full object-cover object-center brightness-[0.65] contrast-[1.05] group-hover:scale-105 transition-transform duration-700 pointer-events-none"
             />
-            {/* Gradient Overlay for Crisp Text */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0C1B33] via-[#0C1B33]/60 to-transparent pointer-events-none"></div>
+            {/* Dark Gradient Overlay for Crisp Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#060e1a] via-[#081528]/85 to-black/45 pointer-events-none"></div>
 
             {/* Top Tag Badge */}
             <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10">
-              <span className="text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1 bg-black/50 backdrop-blur-md text-[#00C9AF] rounded-full border border-white/10">
+              <span className="text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1 bg-black/60 backdrop-blur-md text-[#00C9AF] rounded-full border border-white/10">
                 {item.tag}
               </span>
             </div>
@@ -396,12 +396,12 @@ const FinancialServicesCarousel = () => {
               <h3 className="text-white text-base font-black tracking-tight leading-tight mb-1">
                 {item.title}
               </h3>
-              <p className="text-slate-300 text-[10.5px] font-medium leading-snug mb-3 line-clamp-2">
+              <p className="text-slate-200 text-[10px] font-medium leading-snug mb-2.5 line-clamp-1">
                 {item.subtext}
               </p>
               <Link
                 to={item.ctaLink}
-                className={`w-full py-2 px-3 rounded-xl text-xs font-black text-center shadow-md transition-all active:scale-95 block ${item.badgeColor}`}
+                className={`w-full py-2.5 px-3 rounded-xl text-xs font-black text-center shadow-lg transition-all active:scale-95 block ${item.badgeColor}`}
               >
                 {item.ctaText}
               </Link>
@@ -441,9 +441,9 @@ const TRUST_NUMBERS_CAROUSEL = [
   {
     id: 1,
     title: '4.8 / 5',
-    subtext: 'Average review rating across Google & Social platforms',
+    subtext: 'Google & Social Media Verified Rating',
     image: '/img/trust_banner_1.png',
-    bgTheme: 'from-[#0C1B33] via-[#0C1B33]/80 to-[#0C1B33]/40',
+    bgTheme: 'from-[#0C1B33] via-[#0C1B33]/85 to-[#0C1B33]/45',
     titleColor: 'text-[#00C9AF]',
     subtextColor: 'text-slate-200',
     stars: true
@@ -451,20 +451,20 @@ const TRUST_NUMBERS_CAROUSEL = [
   {
     id: 2,
     title: '3.5L+',
-    subtext: 'Happy car buyers & sellers served across India',
+    subtext: 'Happy car buyers & sellers in India',
     image: '/img/trust_banner_2.png',
-    bgTheme: 'from-[#00C9AF] via-[#00C9AF]/85 to-[#009684]/50',
-    titleColor: 'text-[#0C1B33]',
-    subtextColor: 'text-[#0C1B33]/95',
+    bgTheme: 'from-[#0C1B33] via-[#0C1B33]/85 to-[#0C1B33]/45',
+    titleColor: 'text-[#00C9AF]',
+    subtextColor: 'text-slate-200',
     stars: false
   },
   {
     id: 3,
     title: '200-pt',
-    subtext: 'Rigorous technician inspection on every vehicle',
+    subtext: 'Technician inspection on every vehicle',
     image: '/img/trust_banner_3.png',
-    bgTheme: 'from-[#0C1B33] via-[#0C1B33]/80 to-[#0C1B33]/40',
-    titleColor: 'text-white',
+    bgTheme: 'from-[#0C1B33] via-[#0C1B33]/85 to-[#0C1B33]/45',
+    titleColor: 'text-[#00C9AF]',
     subtextColor: 'text-slate-200',
     stars: false
   }

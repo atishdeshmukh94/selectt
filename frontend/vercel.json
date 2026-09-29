@@ -9,6 +9,50 @@
       "destination": "https://api.selectt.in/api/sitemap.xml"
     },
     {
+      "source": "/car/:make/:model/:carName/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "User-Agent",
+          "value": ".*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Pinterest|SkypeUriPreview).*"
+        }
+      ],
+      "destination": "/api/og-car?id=:id"
+    },
+    {
+      "source": "/car/:make/:model/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "User-Agent",
+          "value": ".*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Pinterest|SkypeUriPreview).*"
+        }
+      ],
+      "destination": "/api/og-car?id=:id"
+    },
+    {
+      "source": "/car/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "User-Agent",
+          "value": ".*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Pinterest|SkypeUriPreview).*"
+        }
+      ],
+      "destination": "/api/og-car?id=:id"
+    },
+    {
+      "source": "/cars/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "User-Agent",
+          "value": ".*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Pinterest|SkypeUriPreview).*"
+        }
+      ],
+      "destination": "/api/og-car?id=:id"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
