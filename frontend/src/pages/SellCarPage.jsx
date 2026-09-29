@@ -577,16 +577,16 @@ const SellCarPage = () => {
       {widgetStep === 1 && (
         <>
           {/* 2. HOW IT WORKS */}
-          <section className="py-12 bg-slate-50 border-y border-slate-200 shadow-inner relative overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 relative z-10">
-              <div className="text-center mb-8">
-                <span className="text-[#00A38D] font-heading font-black text-xs uppercase tracking-widest block mb-1">
+          <section className="py-14 sm:py-16 bg-slate-50 border-y border-slate-200 shadow-inner relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+              <div className="text-center mb-10 sm:mb-12 max-w-3xl mx-auto">
+                <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#00C9AF]/15 text-[#008A79] font-heading font-extrabold text-xs sm:text-sm uppercase tracking-wider mb-3.5 shadow-xs">
                   Transparent 4-Step Process
                 </span>
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black text-[#0C1B33] mb-2 tracking-tight">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-extrabold text-[#0C1B33] mb-3 leading-snug sm:leading-tight tracking-normal">
                   How Selling Your Car Works in {displayCity}
                 </h2>
-                <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto font-normal leading-relaxed">
+                <p className="text-slate-700 text-sm sm:text-base md:text-lg font-normal leading-[1.8] tracking-wide px-2 sm:px-4">
                   Fast, transparent, and completely hassle-free from online valuation to doorstep pickup.
                 </p>
               </div>
@@ -647,16 +647,16 @@ const SellCarPage = () => {
 
                           {/* Content over image */}
                           <div className="absolute inset-x-0 bottom-0 p-5 md:p-7 z-20 flex flex-col text-left">
-                            <span className="inline-block bg-[#00C9AF] text-slate-950 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md mb-2 w-max">
+                            <span className="inline-block bg-[#00C9AF] text-slate-950 text-[11px] sm:text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md mb-2 w-max">
                               {step.badge || `Step ${idx + 1}`}
                             </span>
                             {/* Step Number + Title */}
-                            <h3 className="text-base md:text-lg font-black text-white leading-tight mb-1.5 tracking-wide drop-shadow-md">
+                            <h3 className="text-base md:text-lg font-bold text-white leading-snug mb-1.5 tracking-normal drop-shadow-md">
                               {step.title}
                             </h3>
 
                             {/* Description */}
-                            <p className="text-slate-300 text-xs sm:text-sm font-normal leading-[1.8] line-clamp-3">
+                            <p className="text-slate-200 text-xs sm:text-sm font-normal leading-[1.8] tracking-wide line-clamp-3">
                               {step.description}
                             </p>
                           </div>
