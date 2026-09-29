@@ -265,36 +265,36 @@ const FAQPage = () => {
           <div className="bg-white border border-[#E2E8F0] rounded-3xl p-7 sm:p-10 shadow-xs mb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 border border-[#00C9AF]/30 text-[#008f7d] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3.5">
-                  <HelpCircle size={14} className="text-[#00a892]" /> Selectt Knowledge & Help Hub
+                <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 border border-[#00C9AF]/30 text-[#008f7d] px-3.5 py-1.5 rounded-full text-[12px] font-semibold leading-[1.4] mb-3.5">
+                  <HelpCircle size={14} className="text-[#00a892]" /> Selectt knowledge & help hub
                 </div>
-                <h1 className="text-2xl sm:text-4xl font-black text-[#0C1B33] tracking-tight leading-tight mb-3.5">
-                  Frequently Asked Questions About Buying & Selling Used Cars
+                <h1 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] leading-[1.2] mb-3.5">
+                  Frequently asked questions about buying & selling used cars
                 </h1>
-                <p className="text-slate-600 font-medium text-sm sm:text-base leading-relaxed mb-6">
+                <p className="text-[#475569] text-[17px] sm:text-[18px] font-normal leading-[1.6] mb-6">
                   Everything you need to know about certified pre-owned cars, 200-point inspection guarantees, instant valuation, used car loans, and 100% free RC transfer.
                 </p>
 
                 {/* Quick Trust Highlights */}
-                <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-6 border-t border-slate-100 text-xs text-slate-700 font-semibold">
-                  <div className="flex items-center gap-2 text-slate-800">
-                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> 200-Point Inspected
+                <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-6 border-t border-slate-100 text-[14px] text-slate-700 font-medium">
+                  <div className="flex items-center gap-2 text-[#0F172A]">
+                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> 200-point inspected
                   </div>
-                  <div className="flex items-center gap-2 text-slate-800">
-                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> 5-Day Money-Back Guarantee
+                  <div className="flex items-center gap-2 text-[#0F172A]">
+                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> 5-day money-back guarantee
                   </div>
-                  <div className="flex items-center gap-2 text-slate-800">
-                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> Seller Protection Policy
+                  <div className="flex items-center gap-2 text-[#0F172A]">
+                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> Seller protection policy
                   </div>
-                  <div className="flex items-center gap-2 text-slate-800">
-                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> Free RC Transfer
+                  <div className="flex items-center gap-2 text-[#0F172A]">
+                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> Free RC transfer
                   </div>
                 </div>
               </div>
 
               {/* Instant Search Bar */}
               <div className="w-full lg:max-w-md bg-slate-50 border border-slate-200/80 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">Search Answers</span>
+                <span className="text-[12px] font-medium text-slate-500 mb-2.5">Search answers</span>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <Search className="h-4 w-4 text-slate-400" />
@@ -304,21 +304,21 @@ const FAQPage = () => {
                     placeholder="Search e.g. RC transfer, warranty, loan, inspection..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white border border-[#CBD5E1] rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00C9AF] focus:border-[#00C9AF] text-xs sm:text-sm shadow-xs transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-white border border-[#CBD5E1] rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00C9AF] focus:border-[#00C9AF] text-[15px] shadow-xs transition-all"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-bold text-slate-400 hover:text-slate-600"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-semibold text-slate-400 hover:text-slate-600"
                     >
                       Clear
                     </button>
                   )}
                 </div>
-                <div className="mt-3.5 flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                  <span>Popular: <button onClick={() => setSearchQuery('warranty')} className="text-[#00a892] hover:underline">Warranty</button>, <button onClick={() => setSearchQuery('RC transfer')} className="text-[#00a892] hover:underline">RC Transfer</button>, <button onClick={() => setSearchQuery('loan')} className="text-[#00a892] hover:underline">EMI</button></span>
+                <div className="mt-3.5 flex items-center justify-between text-[12px] text-slate-500 font-normal">
+                  <span>Popular: <button onClick={() => setSearchQuery('warranty')} className="text-[#00a892] hover:underline">Warranty</button>, <button onClick={() => setSearchQuery('RC transfer')} className="text-[#00a892] hover:underline">RC transfer</button>, <button onClick={() => setSearchQuery('loan')} className="text-[#00a892] hover:underline">EMI</button></span>
                   <div className="flex gap-2">
-                    <button onClick={() => toggleAll(true)} className="text-[#00a892] hover:underline">Expand All</button>
+                    <button onClick={() => toggleAll(true)} className="text-[#00a892] hover:underline">Expand all</button>
                     <span>•</span>
                     <button onClick={() => toggleAll(false)} className="text-slate-500 hover:underline">Collapse</button>
                   </div>
@@ -330,27 +330,27 @@ const FAQPage = () => {
           {/* Interactive Category Tabs */}
           <div className="flex flex-wrap items-center gap-2.5 mb-10 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
             {[
-              { id: 'ALL', label: 'All Topics', count: allFaqs.length },
-              { id: 'BUY', label: 'Buying Used Cars', count: allCategories[0].items.length },
-              { id: 'SELL', label: 'Selling Your Car', count: allCategories[1].items.length },
+              { id: 'ALL', label: 'All topics', count: allFaqs.length },
+              { id: 'BUY', label: 'Buying used cars', count: allCategories[0].items.length },
+              { id: 'SELL', label: 'Selling your car', count: allCategories[1].items.length },
               { id: 'LOAN', label: 'Financing & EMI', count: allCategories[2].items.length },
-              { id: 'DOCS', label: 'RC Transfer & Docs', count: allCategories[3].items.length },
-              { id: 'INSPECTION', label: '200-Point Inspection', count: allCategories[4].items.length }
+              { id: 'DOCS', label: 'RC transfer & docs', count: allCategories[3].items.length },
+              { id: 'INSPECTION', label: '200-point inspection', count: allCategories[4].items.length }
             ].map(tab => {
               const isSelected = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => { setActiveTab(tab.id); setSearchQuery(''); }}
-                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium leading-[1.4] transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-[#00C9AF] text-[#0C1B33] shadow-sm font-black'
-                      : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                      ? 'bg-[#00C9AF] text-slate-950 shadow-sm font-semibold'
+                      : 'bg-white text-[#475569] hover:bg-slate-100 border border-slate-200'
                   }`}
                 >
                   <span>{tab.label}</span>
-                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
-                    isSelected ? 'bg-[#0C1B33] text-white' : 'bg-slate-100 text-slate-500'
+                  <span className={`px-1.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                    isSelected ? 'bg-slate-950 text-white' : 'bg-slate-100 text-slate-500'
                   }`}>
                     {tab.count}
                   </span>
@@ -374,8 +374,8 @@ const FAQPage = () => {
                           <IconComponent size={20} />
                         </div>
                         <div>
-                          <h2 className="text-lg sm:text-xl font-black text-slate-900 mb-0.5">{cat.title}</h2>
-                          <span className="text-xs text-slate-400 font-medium">{cat.items.length} Questions Answered</span>
+                          <h2 className="text-[20px] sm:text-[21px] font-heading font-semibold text-[#0F172A] leading-[1.35] mb-0.5">{cat.title}</h2>
+                          <span className="text-[13px] text-slate-500 font-normal">{cat.items.length} questions answered</span>
                         </div>
                       </div>
                     </div>
@@ -401,10 +401,10 @@ const FAQPage = () => {
                               className="w-full text-left px-6 py-4.5 flex items-center justify-between gap-4 cursor-pointer"
                             >
                               <div className="flex items-start gap-3.5">
-                                <span className="w-5 h-5 rounded-full bg-[#00C9AF]/20 text-[#008f7d] text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                                <span className="w-5 h-5 rounded-full bg-[#00C9AF]/20 text-[#008f7d] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
                                   Q
                                 </span>
-                                <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                                <h3 className="text-[16px] sm:text-[17px] font-heading font-semibold text-[#0F172A] leading-snug">
                                   {item.q}
                                 </h3>
                               </div>
@@ -414,16 +414,16 @@ const FAQPage = () => {
                             </button>
 
                             {isOpen && (
-                              <div className="px-6 pb-6 pt-2 text-slate-600 text-xs sm:text-sm leading-relaxed font-normal border-t border-slate-100/80">
+                              <div className="px-6 pb-6 pt-2 text-[#475569] text-[15px] sm:text-[16px] leading-[1.6] font-normal border-t border-slate-100/80">
                                 <p className="pl-8.5">{item.a}</p>
 
                                 {item.link && (
                                   <div className="pt-3.5 mt-3 pl-8.5">
                                     <Link
                                       to={item.link}
-                                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00a892] hover:text-[#0C1B33] transition-colors"
+                                      className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#00a892] hover:text-[#0F172A] transition-colors"
                                     >
-                                      {item.linkText || 'Learn more'} <ArrowRight size={13} />
+                                      {item.linkText || 'Learn more'} <ArrowRight size={14} />
                                     </Link>
                                   </div>
                                 )}
@@ -441,13 +441,13 @@ const FAQPage = () => {
                 <div className="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3.5">
                   <Search size={22} />
                 </div>
-                <p className="text-slate-800 font-bold text-base mb-1">No questions found matching "{searchQuery}"</p>
+                <p className="text-slate-800 font-semibold text-base mb-1">No questions found matching "{searchQuery}"</p>
                 <p className="text-slate-500 text-xs mb-4">Try searching for other terms like 'loan', 'RC transfer', or 'inspection'</p>
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="bg-[#00C9AF] text-[#0C1B33] text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer hover:bg-[#00b29c] transition-colors"
+                  className="bg-[#00C9AF] text-slate-950 text-xs font-semibold px-5 py-2.5 rounded-xl cursor-pointer hover:bg-[#00b29c] transition-colors"
                 >
-                  Clear Search
+                  Clear search
                 </button>
               </div>
             )}
@@ -456,28 +456,28 @@ const FAQPage = () => {
           {/* Quick Help & Direct Support CTA */}
           <div className="mt-14 bg-gradient-to-r from-[#0C1B33] via-[#112444] to-[#0C1B33] rounded-3xl p-7 sm:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-md border border-slate-800">
             <div className="max-w-2xl">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#00C9AF] bg-[#00C9AF]/15 px-3 py-1 rounded-full mb-3.5">
-                <Clock size={12} /> Available 7 Days a Week
+              <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#00C9AF] bg-[#00C9AF]/15 px-3 py-1 rounded-full mb-3.5 leading-[1.4]">
+                <Clock size={12} /> Available 7 days a week
               </span>
-              <h3 className="text-xl sm:text-2xl font-black text-white mb-2.5">
+              <h3 className="text-[20px] sm:text-[24px] font-heading font-semibold text-white mb-2.5 leading-[1.2]">
                 Have a specific question not listed here?
               </h3>
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p className="text-[#CBD5E1] text-[15px] sm:text-[16px] leading-[1.6] font-normal">
                 Whether you want to sell your car, book a doorstep test drive, check used car loan eligibility, or verify RC status, our automotive specialists are ready to help.
               </p>
             </div>
             <div className="flex flex-wrap gap-3.5 shrink-0">
               <Link
                 to="/contact-us"
-                className="inline-flex items-center gap-2 bg-white text-[#0C1B33] hover:bg-slate-100 text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all"
+                className="inline-flex items-center gap-2 bg-white text-slate-950 hover:bg-slate-100 text-[15px] font-semibold leading-[1.45] px-6 py-3.5 rounded-xl transition-all"
               >
-                <PhoneCall size={14} /> Contact Support
+                <PhoneCall size={16} /> Contact support
               </Link>
               <Link
                 to="/sell-car-in-mumbai"
-                className="inline-flex items-center gap-2 bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00b29c] text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all"
+                className="inline-flex items-center gap-2 bg-[#00C9AF] text-slate-950 hover:bg-[#00b29c] text-[15px] font-semibold leading-[1.45] px-6 py-3.5 rounded-xl transition-all"
               >
-                <Sparkles size={14} /> Instant Car Valuation
+                <Sparkles size={16} /> Instant car valuation
               </Link>
             </div>
           </div>
