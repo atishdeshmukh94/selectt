@@ -438,8 +438,8 @@ const BuyCarsPage = () => {
     if (filters.certification && filters.certification !== 'all') {
       const certLower = filters.certification.toLowerCase();
       const isLuxury = (
-        car.listing_type === 'luxury' || 
-        car.listingType === 'luxury' || 
+        car.listing_type === 'luxury' ||
+        car.listingType === 'luxury' ||
         (car.tag && car.tag.toLowerCase().includes('luxury')) ||
         ['bmw', 'mercedes-benz', 'mercedes', 'audi', 'jaguar', 'land rover', 'porsche', 'volvo', 'lexus'].includes((car.make || '').toLowerCase())
       );
@@ -492,9 +492,9 @@ const BuyCarsPage = () => {
         if (!hasDiscount) return false;
       } else if (filterTag === 'selectt luxury' || filterTag === 'luxury') {
         const isLuxury = (
-          car.listing_type === 'luxury' || 
-          car.listingType === 'luxury' || 
-          carTag.includes('luxury') || 
+          car.listing_type === 'luxury' ||
+          car.listingType === 'luxury' ||
+          carTag.includes('luxury') ||
           carTag.includes('premium') ||
           ['bmw', 'mercedes-benz', 'mercedes', 'audi', 'jaguar', 'land rover', 'porsche', 'volvo', 'lexus'].includes((car.make || '').toLowerCase())
         );
@@ -723,12 +723,12 @@ const BuyCarsPage = () => {
                   <div className="relative shrink-0">
                     {/* Invisible click-away overlay when open */}
                     {isSortOpen && (
-                      <div 
-                        className="fixed inset-0 z-40 cursor-default" 
-                        onClick={() => setIsSortOpen(false)} 
+                      <div
+                        className="fixed inset-0 z-40 cursor-default"
+                        onClick={() => setIsSortOpen(false)}
                       />
                     )}
-                    
+
                     <button
                       onClick={() => setIsSortOpen(!isSortOpen)}
                       className={`relative flex items-center gap-1 bg-white border ${isSortOpen ? 'border-[#00C9AF] ring-2 ring-[#00C9AF]/10' : 'border-slate-200 hover:border-[#00C9AF]'} text-slate-800 pl-6 pr-6 sm:pl-8 sm:pr-7 py-2 rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-wider outline-none cursor-pointer transition-all shadow-sm z-50 whitespace-nowrap`}
@@ -758,11 +758,10 @@ const BuyCarsPage = () => {
                                 setSortOrder(option.value);
                                 setIsSortOpen(false);
                               }}
-                              className={`w-full text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${
-                                isSelected 
-                                  ? 'bg-[#00C9AF]/10 text-[#00C9AF]' 
-                                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                              }`}
+                              className={`w-full text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${isSelected
+                                ? 'bg-[#00C9AF]/10 text-[#00C9AF]'
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                }`}
                             >
                               {option.label}
                             </button>
@@ -844,7 +843,7 @@ const BuyCarsPage = () => {
 
                 {/* ── The Selectt Advantage for Buyers (SEO Module) ── */}
                 <section className="mt-16 pt-12 border-t border-slate-200">
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
@@ -857,7 +856,7 @@ const BuyCarsPage = () => {
                     <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-3.5">
                       The Selectt Advantage for Buyers
                     </h2>
-                    <p className="text-slate-600 text-sm leading-relaxed mb-12 sm:mb-14">
+                    <p className="text-slate-600 text-sm leading-[1.75] mb-12 sm:mb-14">
                       Every car at Selectt is certified to deliver true peace of mind, transparent pricing, and unmatched post-purchase security in {displayCity}.
                     </p>
                   </motion.div>
@@ -873,7 +872,7 @@ const BuyCarsPage = () => {
                           <FileCheck2 size={22} />
                         </div>
                         <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-3.5 tracking-tight">200-Point Inspected Cars</h3>
-                        <p className="text-slate-600 text-xs leading-relaxed mb-5">
+                        <p className="text-slate-600 text-xs sm:text-sm leading-[1.75] mb-5 font-normal">
                           Every vehicle undergoes a rigorous mechanical, electrical, and structural evaluation. Zero accident or flood-damaged cars.
                         </p>
                       </div>
@@ -892,7 +891,7 @@ const BuyCarsPage = () => {
                           <ShieldCheck size={22} />
                         </div>
                         <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-3.5 tracking-tight">1-Year Warranty</h3>
-                        <p className="text-slate-600 text-xs leading-relaxed mb-5">
+                        <p className="text-slate-600 text-xs sm:text-sm leading-[1.75] mb-5 font-normal">
                           Drive with total confidence with comprehensive and powertrain coverage covering engine and transmission.
                         </p>
                       </div>
@@ -911,7 +910,7 @@ const BuyCarsPage = () => {
                           <RefreshCw size={22} />
                         </div>
                         <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-3.5 tracking-tight">5-Day Money-Back Guarantee</h3>
-                        <p className="text-slate-600 text-xs leading-relaxed mb-5">
+                        <p className="text-slate-600 text-xs sm:text-sm leading-[1.75] mb-5 font-normal">
                           Not completely satisfied? Return the car within 5 days (up to 250 km) for a 100% no-questions-asked refund.
                         </p>
                       </div>
@@ -930,7 +929,7 @@ const BuyCarsPage = () => {
                           <BadgePercent size={22} />
                         </div>
                         <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-3.5 tracking-tight">Fixed Price Assurance</h3>
-                        <p className="text-slate-600 text-xs leading-relaxed mb-5">
+                        <p className="text-slate-600 text-xs sm:text-sm leading-[1.75] mb-5 font-normal">
                           No awkward negotiations or hidden dealer fees. You receive data-backed fair market pricing upfront.
                         </p>
                       </div>
@@ -943,7 +942,7 @@ const BuyCarsPage = () => {
 
                 {/* ── How Buying a Car Works (4 Steps) ── */}
                 <section className="mt-16 pt-12 border-t border-slate-200">
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
@@ -954,7 +953,7 @@ const BuyCarsPage = () => {
                     <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-3.5">
                       How Buying a Car Works with Selectt
                     </h2>
-                    <p className="text-slate-600 text-sm leading-relaxed">
+                    <p className="text-slate-600 text-sm leading-[1.75]">
                       Experience seamless car ownership with transparent online bookings, test drives, and doorstep delivery.
                     </p>
                   </motion.div>
@@ -1013,7 +1012,7 @@ const BuyCarsPage = () => {
                             </span>
                           </div>
                           <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-3.5 tracking-tight leading-snug">{step.title}</h3>
-                          <p className="text-slate-600 text-xs leading-relaxed">{step.desc}</p>
+                          <p className="text-slate-600 text-xs sm:text-sm leading-[1.75] font-normal">{step.desc}</p>
                         </div>
                       </motion.div>
                     ))}
@@ -1021,123 +1020,125 @@ const BuyCarsPage = () => {
                 </section>
 
                 {/* ── Buyer Frequently Asked Questions ── */}
-                <section className="mt-16 pt-12 border-t border-slate-200">
-                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-                    <div>
-                      <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 text-[#008f7d] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
-                        <HelpCircle size={14} /> Clear Answers
-                      </div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2.5">
-                        Frequently Asked Questions (Buyer FAQs)
-                      </h2>
-                      <p className="text-slate-600 text-xs sm:text-sm mt-1">
-                        Everything you need to know about buying a certified pre-owned car in {displayCity}.
-                      </p>
-                    </div>
-                    <Link
-                      to="/faq"
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00C9AF] hover:text-[#009b86] shrink-0"
-                    >
-                      Visit Full FAQ Hub <ArrowRight size={14} />
-                    </Link>
-                  </div>
-
-                  <div className="space-y-3">
-                    {buyerFaqs.map((faq, idx) => {
-                      const isOpen = openFaqIndex === idx;
-                      return (
-                        <div
-                          key={idx}
-                          className="bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all shadow-xs"
-                        >
-                          <button
-                            onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                            className="w-full text-left p-4 sm:p-5 flex items-center justify-between gap-4 font-bold text-slate-900 text-sm hover:text-[#00C9AF] transition-colors cursor-pointer"
-                          >
-                            <span>{faq.q}</span>
-                            <ChevronDown
-                              size={18}
-                              className={`text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-[#00C9AF]' : ''}`}
-                            />
-                          </button>
-                          {isOpen && (
-                            <div className="px-4 sm:px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3 bg-slate-50/50">
-                              {faq.a}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Internal Link CTA Strip */}
-                  <div className="mt-8 bg-gradient-to-r from-[#0C1B33] to-[#122647] rounded-2xl p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-                    <div className="w-full sm:w-auto">
-                      <h3 className="text-base font-black">Looking for Car Financing or Inspection Details?</h3>
-                      <p className="text-xs text-slate-300 mt-1 max-w-xl mx-auto sm:mx-0">
-                        Explore our 200-point inspection protocol or check pre-approved loan options with low EMI.
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2.5 shrink-0 w-full sm:w-auto">
-                      <Link
-                        to="/selectt-inspection-process"
-                        className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-white/20 transition-all"
-                      >
-                        Inspection Process
-                      </Link>
-                      <Link
-                        to="/used-car-loan"
-                        className="bg-[#00C9AF] hover:bg-[#00b29c] text-[#0C1B33] text-xs font-black px-4 py-2.5 rounded-xl transition-all"
-                      >
-                        Car Loan EMI
-                      </Link>
-                    </div>
-                  </div>
-                </section>
-              </main>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ── Mobile Filters Drawer ── */}
-      {showMobileFilters && (
-        <div className="fixed inset-0 z-[100] md:hidden flex">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-            onClick={() => setShowMobileFilters(false)}
-          />
-          {/* Drawer panel (Opens from Left) */}
-          <div className="relative mr-auto w-[85%] max-w-[340px] h-full bg-[#f9f9f9] border-r border-slate-200 flex flex-col shadow-2xl animate-[slideInLeft_0.3s_ease]">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal size={14} className="text-[#00C9AF]" />
-                <span className="text-xs font-black uppercase tracking-widest text-[#0C1B33]">Filters</span>
+        <section className="mt-16 pt-12 border-t border-slate-200">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 text-[#008f7d] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
+                <HelpCircle size={14} /> Clear Answers
               </div>
-              <button
-                onClick={() => setShowMobileFilters(false)}
-                className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-all"
-              >
-                <X size={16} className="text-slate-650" />
-              </button>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2.5">
+                Frequently Asked Questions (Buyer FAQs)
+              </h2>
+              <p className="text-slate-600 text-xs sm:text-sm mt-1">
+                Everything you need to know about buying a certified pre-owned car in {displayCity}.
+              </p>
             </div>
-            <div className="flex-1 overflow-y-auto p-4" style={{ scrollbarWidth: 'none' }}>
-              <SidebarFilters filters={filters} setFilters={setFilters} onClose={() => setShowMobileFilters(false)} lightBg={true} />
+            <Link
+              to="/faq"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00C9AF] hover:text-[#009b86] shrink-0"
+            >
+              Visit Full FAQ Hub <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="space-y-3">
+            {buyerFaqs.map((faq, idx) => {
+              const isOpen = openFaqIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  className="bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all shadow-xs"
+                >
+                  <button
+                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                    className="w-full text-left p-4 sm:p-5 flex items-center justify-between gap-4 font-bold text-slate-900 text-sm hover:text-[#00C9AF] transition-colors cursor-pointer"
+                  >
+                    <span>{faq.q}</span>
+                    <ChevronDown
+                      size={18}
+                      className={`text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-[#00C9AF]' : ''}`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="px-4 sm:px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3 bg-slate-50/50">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Internal Link CTA Strip */}
+          <div className="mt-8 bg-gradient-to-r from-[#0C1B33] to-[#122647] rounded-2xl p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div className="w-full sm:w-auto">
+              <h3 className="text-base font-black">Looking for Car Financing or Inspection Details?</h3>
+              <p className="text-xs text-slate-300 mt-1 max-w-xl mx-auto sm:mx-0">
+                Explore our 200-point inspection protocol or check pre-approved loan options with low EMI.
+              </p>
             </div>
-            <div className="p-4 border-t border-slate-200 bg-white">
-              <button
-                onClick={() => setShowMobileFilters(false)}
-                className="w-full bg-[#00C9AF] hover:bg-[#00B4A0] text-slate-950 font-heading font-black text-[13px] uppercase tracking-wider py-3.5 rounded-xl transition-all shadow-md cursor-pointer"
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2.5 shrink-0 w-full sm:w-auto">
+              <Link
+                to="/selectt-inspection-process"
+                className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-white/20 transition-all"
               >
-                Show {filteredCars.length} Results
-              </button>
+                Inspection Process
+              </Link>
+              <Link
+                to="/used-car-loan"
+                className="bg-[#00C9AF] hover:bg-[#00b29c] text-[#0C1B33] text-xs font-black px-4 py-2.5 rounded-xl transition-all"
+              >
+                Car Loan EMI
+              </Link>
             </div>
           </div>
-        </div>
-      )}
+        </section>
+      </main>
+    </div >
+          </div >
+        )}
+      </div >
 
-      <style>{`
+  {/* ── Mobile Filters Drawer ── */ }
+{
+  showMobileFilters && (
+    <div className="fixed inset-0 z-[100] md:hidden flex">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        onClick={() => setShowMobileFilters(false)}
+      />
+      {/* Drawer panel (Opens from Left) */}
+      <div className="relative mr-auto w-[85%] max-w-[340px] h-full bg-[#f9f9f9] border-r border-slate-200 flex flex-col shadow-2xl animate-[slideInLeft_0.3s_ease]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal size={14} className="text-[#00C9AF]" />
+            <span className="text-xs font-black uppercase tracking-widest text-[#0C1B33]">Filters</span>
+          </div>
+          <button
+            onClick={() => setShowMobileFilters(false)}
+            className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-all"
+          >
+            <X size={16} className="text-slate-650" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4" style={{ scrollbarWidth: 'none' }}>
+          <SidebarFilters filters={filters} setFilters={setFilters} onClose={() => setShowMobileFilters(false)} lightBg={true} />
+        </div>
+        <div className="p-4 border-t border-slate-200 bg-white">
+          <button
+            onClick={() => setShowMobileFilters(false)}
+            className="w-full bg-[#00C9AF] hover:bg-[#00B4A0] text-slate-950 font-heading font-black text-[13px] uppercase tracking-wider py-3.5 rounded-xl transition-all shadow-md cursor-pointer"
+          >
+            Show {filteredCars.length} Results
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<style>{`
         @keyframes slideInLeft {
           from { transform: translateX(-100%); }
           to   { transform: translateX(0); }
