@@ -222,10 +222,10 @@ const CheckoutPage = () => {
           {/* Main Title Area */}
           <div className="flex items-end justify-between mb-8">
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#0C1B33] mb-2 leading-tight">
-                Reserve this car for <span className="text-[#00C9AF]">₹5,000</span>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-[#0F172A] mb-2 leading-tight">
+                Reserve this car for <span className="text-[#00C9AF] font-bold font-price">₹5,000</span>
               </h1>
-              <p className="text-sm sm:text-base text-slate-600 font-semibold">and find out if it's your perfect match</p>
+              <p className="text-sm sm:text-base text-slate-600 font-normal">and find out if it's your perfect match</p>
             </div>
             <div className="hidden md:block">
               <img src="/img/illustration-relax.svg" alt="Relax" className="h-24 opacity-80 mix-blend-multiply" onError={(e) => e.target.style.display = 'none'} />
@@ -300,7 +300,7 @@ const CheckoutPage = () => {
                   <button
                     onClick={handleBooking}
                     disabled={isBooking}
-                    className={`relative overflow-hidden w-full sm:w-auto whitespace-nowrap bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-black py-4 px-7 rounded-xl transition-all duration-300 shadow-[0_0_22px_rgba(0,201,175,0.45)] hover:shadow-[0_0_32px_rgba(0,201,175,0.6)] flex items-center justify-center gap-2.5 uppercase tracking-wider cursor-pointer text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98] group ${isBooking ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    className={`relative overflow-hidden w-full sm:w-auto whitespace-nowrap bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-semibold py-3.5 sm:py-4 px-7 rounded-xl transition-all duration-300 shadow-[0_0_22px_rgba(0,201,175,0.45)] hover:shadow-[0_0_32px_rgba(0,201,175,0.6)] flex items-center justify-center gap-2.5 cursor-pointer text-[15px] leading-[1.45] transform hover:scale-[1.02] active:scale-[0.98] group ${isBooking ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
                     {/* Continuous Shimmer Light Wave Effect */}
                     <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -translate-x-full animate-[shimmer_2.4s_infinite] pointer-events-none" />
@@ -308,13 +308,13 @@ const CheckoutPage = () => {
                     {isBooking ? (
                       <span className="flex items-center gap-2 relative z-10">
                         <span className="w-4 h-4 border-2 border-[#0C1B33] border-t-transparent rounded-full animate-spin" />
-                        <span>PROCESSING...</span>
+                        <span>Processing...</span>
                       </span>
                     ) : (
                       <div className="flex items-center gap-2.5 relative z-10">
                         <ShieldCheck size={19} className="text-[#0C1B33] shrink-0 group-hover:rotate-12 transition-transform" />
-                        <span>PROCEED TO PAY</span>
-                        <span className="bg-[#0C1B33]/15 text-[#0C1B33] px-2.5 py-0.5 rounded-lg text-sm sm:text-base font-black shadow-inner">₹5,000</span>
+                        <span>Proceed to pay</span>
+                        <span className="bg-[#0C1B33]/15 text-[#0C1B33] px-2.5 py-0.5 rounded-lg text-sm sm:text-base font-bold font-price shadow-inner">₹5,000</span>
                         <ChevronRight size={20} className="text-[#0C1B33] shrink-0 group-hover:translate-x-1.5 transition-transform" />
                       </div>
                     )}
@@ -327,10 +327,10 @@ const CheckoutPage = () => {
                     <ShieldCheck size={22} />
                   </div>
                   <div className="text-center sm:text-left">
-                    <div className="text-sm font-black uppercase tracking-wider text-[#00C9AF] mb-1 flex items-center justify-center sm:justify-start gap-1">
-                      100% Refundable Deposit
+                    <div className="text-sm font-semibold text-[#00C9AF] mb-1 flex items-center justify-center sm:justify-start gap-1">
+                      100% refundable deposit
                     </div>
-                    <p className="text-[11px] text-slate-300 font-medium leading-relaxed">
+                    <p className="text-[12px] text-slate-300 font-normal leading-relaxed">
                       Your payment information is safe and secure. We use bank-grade security for all transactions. Cancel anytime for a full refund.
                     </p>
                   </div>
@@ -343,15 +343,15 @@ const CheckoutPage = () => {
             <div className="space-y-4">
 
               {/* Savings Banner */}
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3.5 flex items-center gap-2.5 text-emerald-800 text-sm sm:text-base font-extrabold shadow-sm">
-                <Gift size={18} className="text-emerald-600 shrink-0" /> Yay! You are saving ₹22,000
+              <div className="bg-emerald-50/90 border border-emerald-200/80 rounded-xl px-4 py-3 flex items-center gap-2.5 text-emerald-800 text-[14px] font-medium shadow-xs">
+                <Gift size={17} className="text-emerald-600 shrink-0" /> Yay! You are saving ₹22,000
               </div>
 
               {/* Car Snapshot & Breakdown */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 {/* Header Car Info */}
-                <div className="p-4 sm:p-6 flex items-center gap-3.5 sm:gap-4 border-b border-slate-100">
-                  <div className="w-24 h-20 sm:w-32 sm:h-24 bg-slate-100 rounded-xl overflow-hidden shrink-0 shadow-sm">
+                <div className="p-4 sm:p-5 flex items-center gap-3.5 sm:gap-4 border-b border-slate-100">
+                  <div className="w-24 h-20 sm:w-28 sm:h-22 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-100">
                     <img
                       src={getCarImageUrl(car?.image || car?.images?.[0])}
                       alt={car?.model || 'Car'}
@@ -362,17 +362,17 @@ const CheckoutPage = () => {
                     />
                   </div>
                   <div className="flex flex-col justify-center min-w-0 flex-1">
-                    <h3 className="font-black text-[#0C1B33] text-base sm:text-lg leading-tight mb-1 truncate">
+                    <h3 className="font-heading font-semibold text-[#0F172A] text-[16px] sm:text-[17px] leading-snug mb-1 truncate">
                       {car.year} {car.make} {car.model}
                     </h3>
-                    <div className="text-[11px] sm:text-xs text-slate-500 font-semibold flex items-center gap-1.5 mb-1.5 truncate">
+                    <div className="text-[12px] sm:text-[13px] text-slate-500 font-normal flex items-center gap-1.5 mb-1.5 truncate">
                       <span>{(car.km || 0).toLocaleString()} Km</span> • <span>{car.fuelType}</span> • <span>{car.transmission}</span>
                     </div>
                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                      <span className="font-black text-[#0C1B33] text-lg sm:text-2xl whitespace-nowrap leading-none">
+                      <span className="font-price font-bold text-[#0F172A] text-lg sm:text-xl whitespace-nowrap leading-none">
                         ₹{(car.price / 100000).toFixed(2)} Lakh
                       </span>
-                      <span className="text-xs sm:text-sm text-slate-400 line-through font-bold whitespace-nowrap">
+                      <span className="text-[12px] sm:text-[13px] text-slate-400 line-through font-normal font-price whitespace-nowrap">
                         ₹{((car.price + 22000) / 100000).toFixed(2)} Lakh
                       </span>
                     </div>
@@ -380,61 +380,62 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Booking Amount Highlight */}
-                <div className="p-4 sm:p-5 bg-emerald-50/60 flex justify-between items-center border-b border-slate-100">
-                  <div className="flex items-center gap-2 text-base sm:text-lg font-bold text-emerald-800">
-                    <CheckCircle2 size={18} className="text-emerald-600" /> Booking Amount
+                <div className="px-4 py-3.5 sm:px-5 bg-emerald-50/50 flex justify-between items-center border-b border-slate-100">
+                  <div className="flex items-center gap-2 text-[14px] sm:text-[15px] font-medium text-emerald-900">
+                    <CheckCircle2 size={17} className="text-emerald-600" /> Booking amount
                   </div>
-                  <div className="font-black text-[#0C1B33] text-lg sm:text-xl">₹5,000</div>
+                  <div className="font-price font-bold text-[#0F172A] text-[17px]">₹5,000</div>
                 </div>
-                <div className="bg-slate-50 px-4 py-2.5 border-b border-slate-100 flex items-center gap-1.5">
-                  <span className="text-slate-400 text-xs">ⓘ</span> <span className="text-xs text-slate-600 font-semibold tracking-wide">Discount valid only for deliveries within 3 days of booking.</span>
+                <div className="bg-slate-50/70 px-4 py-2 border-b border-slate-100 flex items-center gap-1.5">
+                  <span className="text-slate-400 text-xs">ⓘ</span> <span className="text-[12px] text-slate-500 font-normal">Discount valid only for deliveries within 3 days of booking.</span>
                 </div>
 
                 {/* Breakdown List */}
-                <div className="p-5 sm:p-6">
-                  <h4 className="font-black text-[#0C1B33] text-lg sm:text-xl mb-5">Price breakdown</h4>
+                <div className="p-4 sm:p-5">
+                  <h4 className="font-heading font-semibold text-[#0F172A] text-[16px] sm:text-[17px] mb-4">Price breakdown</h4>
 
-                  <div className="space-y-4 text-sm sm:text-base font-semibold">
+                  <div className="space-y-3 text-[14px] sm:text-[15px]">
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-700 font-bold">Car price</span>
-                      <span className="text-[#0C1B33] font-black text-sm sm:text-base">₹{originalPrice.toLocaleString()}</span>
+                      <span className="text-slate-600 font-normal">Car price</span>
+                      <span className="text-[#0F172A] font-semibold font-price">₹{originalPrice.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center text-emerald-600">
-                      <span className="flex items-center gap-1.5 font-bold"><Gift size={15} /> Sale Discount</span>
-                      <span className="font-black text-sm sm:text-base">- ₹22,000</span>
+                      <span className="flex items-center gap-1.5 text-emerald-700 font-medium"><Gift size={14} /> Sale discount</span>
+                      <span className="font-semibold font-price text-emerald-600">- ₹22,000</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-700 font-bold">RC transfer facilitation</span>
-                      <span className="text-[#0C1B33] font-black text-sm sm:text-base">+ ₹4,000</span>
+                      <span className="text-slate-600 font-normal">RC transfer facilitation</span>
+                      <span className="text-[#0F172A] font-semibold font-price">+ ₹4,000</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-700 font-bold flex items-center gap-1">Insurance <span className="text-[#0C1B33]/40 text-xs bg-slate-100 px-1.5 py-0.5 rounded-full cursor-help">i</span></span>
-                      <span className="text-[#0C1B33] font-black text-sm sm:text-base">+ ₹4,420</span>
+                      <span className="text-slate-600 font-normal flex items-center gap-1">Insurance <span className="text-slate-400 text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full cursor-help">i</span></span>
+                      <span className="text-[#0F172A] font-semibold font-price">+ ₹4,420</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-700 font-bold flex items-center gap-1">FASTag, fuel & more <span className="text-[#0C1B33]/40 text-xs bg-slate-100 px-1.5 py-0.5 rounded-full cursor-help">i</span></span>
+                      <span className="text-slate-600 font-normal flex items-center gap-1">FASTag, fuel & more <span className="text-slate-400 text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full cursor-help">i</span></span>
                       <div className="flex items-center gap-2">
-                        <span className="text-slate-400 line-through text-xs sm:text-sm font-bold">₹5,700</span>
-                        <span className="text-emerald-600 font-black text-sm sm:text-base">Included</span>
+                        <span className="text-slate-400 line-through text-[12px] font-normal font-price">₹5,700</span>
+                        <span className="text-emerald-700 font-medium text-[12px] sm:text-[13px] bg-emerald-50 border border-emerald-150 px-2 py-0.5 rounded-md">Included</span>
                       </div>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-700 font-bold flex items-center gap-1">Fixes & upgrades <span className="text-[#0C1B33]/40 text-xs bg-slate-100 px-1.5 py-0.5 rounded-full cursor-help">i</span></span>
-                      <span className="text-emerald-600 font-black text-sm sm:text-base">Included</span>
+                      <span className="text-slate-600 font-normal flex items-center gap-1">Fixes & upgrades <span className="text-slate-400 text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full cursor-help">i</span></span>
+                      <span className="text-emerald-700 font-medium text-[12px] sm:text-[13px] bg-emerald-50 border border-emerald-150 px-2 py-0.5 rounded-md">Included</span>
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-5 border-t border-dashed border-slate-200">
+                  <div className="mt-5 pt-4 border-t border-dashed border-slate-200">
                     <div className="flex justify-between items-center mb-1">
-                      <span className="font-black text-slate-900 text-base sm:text-lg">Final amount</span>
-                      <span className="font-black text-[#00C9AF] text-xl sm:text-2xl">₹{car.price.toLocaleString()}</span>
+                      <span className="font-heading font-semibold text-slate-800 text-[15px] sm:text-[16px]">Final amount</span>
+                      <span className="font-price font-bold text-[#00A38D] text-xl sm:text-[22px]">₹{car.price.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer of summary */}
-                <div className="bg-[#00C9AF] py-4 px-4 text-center border-t border-slate-100 rounded-b-2xl">
-                  <span className="text-base sm:text-lg text-[#0C1B33] font-black uppercase tracking-wider">Fully Secure Payment</span>
+                <div className="bg-slate-50/80 py-3 px-4 text-center border-t border-slate-100 rounded-b-2xl flex items-center justify-center gap-1.5 text-slate-600 text-[13px] font-medium">
+                  <ShieldCheck size={16} className="text-[#00A38D]" />
+                  <span>100% secure payment gateway</span>
                 </div>
               </div>
 
@@ -444,49 +445,49 @@ const CheckoutPage = () => {
 
         {/* What Happens Next - Expanded Full Width Section */}
         <div className="max-w-7xl mx-auto px-4 mt-16 sm:mt-20">
-          <h3 className="text-xl sm:text-2xl font-black text-[#0C1B33] text-center mb-8 flex items-center justify-center gap-4">
-            <div className="h-px bg-slate-300 flex-1 max-w-[150px]" />
-            <span>What Happens Next</span>
-            <div className="h-px bg-slate-300 flex-1 max-w-[150px]" />
+          <h3 className="text-xl sm:text-2xl font-heading font-semibold text-[#0F172A] text-center mb-8 flex items-center justify-center gap-4">
+            <div className="h-px bg-slate-200 flex-1 max-w-[150px]" />
+            <span>What happens next</span>
+            <div className="h-px bg-slate-200 flex-1 max-w-[150px]" />
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                icon: <Search size={26} className="text-[#00C9AF]" />,
+                icon: <Search size={24} className="text-[#00C9AF]" />,
                 title: '1. Discover your ride',
                 desc: 'Book and reserve any car exclusively for yourself for up to 3 days.',
                 bgClass: 'bg-gradient-to-br from-[#0C1B33] to-[#122A4F] border-[#00C9AF]/30',
                 glow: 'shadow-[#00C9AF]/10'
               },
               {
-                icon: <FileText size={26} className="text-cyan-400" />,
+                icon: <FileText size={24} className="text-cyan-400" />,
                 title: '2. Submit documents effortlessly',
                 desc: 'We\'ll handle all the paperwork to make the process simple and stress-free.',
                 bgClass: 'bg-gradient-to-br from-[#121E36] to-[#1A2D52] border-cyan-500/30',
                 glow: 'shadow-cyan-400/10'
               },
               {
-                icon: <CreditCard size={26} className="text-purple-400" />,
+                icon: <CreditCard size={24} className="text-purple-400" />,
                 title: '3. Pay the balance, your way',
                 desc: 'Choose from a range of payment options - pay in full or finance your purchase.',
                 bgClass: 'bg-gradient-to-br from-[#19192C] to-[#262642] border-purple-500/30',
                 glow: 'shadow-purple-400/10'
               },
               {
-                icon: <MapPin size={26} className="text-rose-400" />,
+                icon: <MapPin size={24} className="text-rose-400" />,
                 title: '4. Delivered to your doorstep',
                 desc: 'Sit back and relax while we bring your dream car to your doorstep - it\'s that easy!',
                 bgClass: 'bg-gradient-to-br from-[#1F1426] to-[#331E3D] border-rose-500/30',
                 glow: 'shadow-rose-400/10'
               }
             ].map((step, idx) => (
-              <div key={idx} className={`p-6 sm:p-8 rounded-2xl flex flex-col items-center text-center border hover:-translate-y-1.5 transition-all duration-300 shadow-xl ${step.bgClass} ${step.glow}`}>
-                <div className="w-13 h-13 p-3 border border-white/15 rounded-2xl flex items-center justify-center bg-white/10 mb-4 shadow-md shrink-0">
+              <div key={idx} className={`p-6 sm:p-7 rounded-2xl flex flex-col items-center text-center border hover:-translate-y-1.5 transition-all duration-300 shadow-xl ${step.bgClass} ${step.glow}`}>
+                <div className="w-12 h-12 p-2.5 border border-white/15 rounded-2xl flex items-center justify-center bg-white/10 mb-4 shadow-md shrink-0">
                   {step.icon}
                 </div>
-                <h4 className="font-black text-white text-base sm:text-lg mb-2.5 leading-snug max-w-[260px]">{step.title}</h4>
-                <p className="text-xs sm:text-sm text-slate-300 font-semibold leading-relaxed max-w-[260px]">{step.desc}</p>
+                <h4 className="font-heading font-semibold text-white text-[16px] sm:text-[17px] mb-2 leading-snug max-w-[260px]">{step.title}</h4>
+                <p className="text-[13px] text-slate-300 font-normal leading-relaxed max-w-[260px]">{step.desc}</p>
               </div>
             ))}
           </div>
