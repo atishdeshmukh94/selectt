@@ -43,11 +43,11 @@ const StepsSection = () => {
               </div>
 
               {/* Text */}
-              <div className="flex-1 md:text-center">
-                <h3 className="text-sm md:text-base font-bold text-[#0C1B33] mb-1 line-clamp-2">
+              <div className="flex-1 md:text-center mt-1">
+                <h3 className="text-sm md:text-base font-heading font-extrabold text-[#0C1B33] mb-2 leading-snug line-clamp-2">
                   {step.title}
                 </h3>
-                <p className="text-[10px] md:text-xs text-slate-500">
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">
                   {step.description}
                 </p>
               </div>

@@ -869,15 +869,15 @@ const BuyCarsPage = () => {
                       className="bg-gradient-to-br from-emerald-50/90 via-teal-50/60 to-white p-5 sm:p-6 rounded-2xl border border-emerald-200/80 shadow-xs hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 group flex flex-col justify-between"
                     >
                       <div>
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center mb-3.5 shadow-md shadow-emerald-500/25 group-hover:scale-105 transition-transform">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center mb-4 shadow-md shadow-emerald-500/25 group-hover:scale-105 transition-transform">
                           <FileCheck2 size={22} />
                         </div>
-                        <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-1.5 tracking-tight">200-Point Inspected Cars</h3>
-                        <p className="text-slate-600 text-xs leading-relaxed">
+                        <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-2.5 tracking-tight">200-Point Inspected Cars</h3>
+                        <p className="text-slate-600 text-xs leading-relaxed mb-4">
                           Every vehicle undergoes a rigorous mechanical, electrical, and structural evaluation. Zero accident or flood-damaged cars.
                         </p>
                       </div>
-                      <Link to="/how-it-works/buying" className="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700 mt-4 group-hover:text-emerald-800 uppercase tracking-wider">
+                      <Link to="/how-it-works/buying" className="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700 mt-auto pt-2 group-hover:text-emerald-800 uppercase tracking-wider">
                         View Inspection Details <ChevronRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     </motion.div>
@@ -888,15 +888,15 @@ const BuyCarsPage = () => {
                       className="bg-gradient-to-br from-sky-50/90 via-blue-50/60 to-white p-5 sm:p-6 rounded-2xl border border-sky-200/80 shadow-xs hover:border-sky-400 hover:shadow-lg hover:shadow-sky-500/10 transition-all duration-300 group flex flex-col justify-between"
                     >
                       <div>
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center mb-3.5 shadow-md shadow-sky-500/25 group-hover:scale-105 transition-transform">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center mb-4 shadow-md shadow-sky-500/25 group-hover:scale-105 transition-transform">
                           <ShieldCheck size={22} />
                         </div>
-                        <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-1.5 tracking-tight">1-Year Warranty</h3>
-                        <p className="text-slate-600 text-xs leading-relaxed">
+                        <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-2.5 tracking-tight">1-Year Warranty</h3>
+                        <p className="text-slate-600 text-xs leading-relaxed mb-4">
                           Drive with total confidence with comprehensive and powertrain coverage covering engine and transmission.
                         </p>
                       </div>
-                      <Link to="/how-it-works/buying" className="inline-flex items-center gap-1 text-[11px] font-extrabold text-sky-700 mt-4 group-hover:text-sky-800 uppercase tracking-wider">
+                      <Link to="/how-it-works/buying" className="inline-flex items-center gap-1 text-[11px] font-extrabold text-sky-700 mt-auto pt-2 group-hover:text-sky-800 uppercase tracking-wider">
                         Warranty Terms <ChevronRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     </motion.div>
@@ -907,15 +907,15 @@ const BuyCarsPage = () => {
                       className="bg-gradient-to-br from-purple-50/90 via-indigo-50/60 to-white p-5 sm:p-6 rounded-2xl border border-purple-200/80 shadow-xs hover:border-purple-400 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 group flex flex-col justify-between"
                     >
                       <div>
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-600 text-white flex items-center justify-center mb-3.5 shadow-md shadow-purple-500/25 group-hover:scale-105 transition-transform">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-600 text-white flex items-center justify-center mb-4 shadow-md shadow-purple-500/25 group-hover:scale-105 transition-transform">
                           <RefreshCw size={22} />
                         </div>
-                        <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-1.5 tracking-tight">5-Day Money-Back Guarantee</h3>
-                        <p className="text-slate-600 text-xs leading-relaxed">
+                        <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-2.5 tracking-tight">5-Day Money-Back Guarantee</h3>
+                        <p className="text-slate-600 text-xs leading-relaxed mb-4">
                           Not completely satisfied? Return the car within 5 days (up to 250 km) for a 100% no-questions-asked refund.
                         </p>
                       </div>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-purple-700 mt-4 uppercase tracking-wider">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-purple-700 mt-auto pt-2 uppercase tracking-wider">
                         100% Refundable
                       </span>
                     </motion.div>
@@ -926,15 +926,15 @@ const BuyCarsPage = () => {
                       className="bg-gradient-to-br from-amber-50/90 via-orange-50/60 to-white p-5 sm:p-6 rounded-2xl border border-amber-200/80 shadow-xs hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 group flex flex-col justify-between"
                     >
                       <div>
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center mb-3.5 shadow-md shadow-amber-500/25 group-hover:scale-105 transition-transform">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center mb-4 shadow-md shadow-amber-500/25 group-hover:scale-105 transition-transform">
                           <BadgePercent size={22} />
                         </div>
-                        <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-1.5 tracking-tight">Fixed Price Assurance</h3>
-                        <p className="text-slate-600 text-xs leading-relaxed">
+                        <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-2.5 tracking-tight">Fixed Price Assurance</h3>
+                        <p className="text-slate-600 text-xs leading-relaxed mb-4">
                           No awkward negotiations or hidden dealer fees. You receive data-backed fair market pricing upfront.
                         </p>
                       </div>
-                      <Link to="/used-car-loan" className="inline-flex items-center gap-1 text-[11px] font-extrabold text-amber-700 mt-4 group-hover:text-amber-800 uppercase tracking-wider">
+                      <Link to="/used-car-loan" className="inline-flex items-center gap-1 text-[11px] font-extrabold text-amber-700 mt-auto pt-2 group-hover:text-amber-800 uppercase tracking-wider">
                         Calculate Low EMIs <ChevronRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     </motion.div>
@@ -1001,10 +1001,10 @@ const BuyCarsPage = () => {
                       <motion.div
                         key={idx}
                         {...getAlternatingCardMotion(idx)}
-                        className={`bg-white p-6 rounded-2xl border border-slate-200/90 ${step.borderColor} border-t-4 ${step.hoverBorder} shadow-xs hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex flex-col justify-between`}
+                        className={`bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/90 ${step.borderColor} border-t-4 ${step.hoverBorder} shadow-xs hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex flex-col justify-between`}
                       >
                         <div>
-                          <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center justify-between mb-4">
                             <span className={`text-3xl sm:text-4xl font-black bg-gradient-to-r ${step.numGradient} bg-clip-text text-transparent tracking-tight leading-none`}>
                               {step.num}
                             </span>
@@ -1012,7 +1012,7 @@ const BuyCarsPage = () => {
                               Step {step.num}
                             </span>
                           </div>
-                          <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-1.5 tracking-tight">{step.title}</h3>
+                          <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-2.5 tracking-tight leading-snug">{step.title}</h3>
                           <p className="text-slate-600 text-xs leading-relaxed">{step.desc}</p>
                         </div>
                       </motion.div>
