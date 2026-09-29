@@ -17,6 +17,24 @@ const PWAInstallPrompt = () => {
     return Boolean(isStandalone);
   });
 
+  // Helper to check if PWA is already installed or dismissed within 30 mins
+  const isInstalledOrCooldown = () => {
+    if (typeof window === 'undefined') return true;
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true ||
+      localStorage.getItem('selectt_pwa_installed') === 'true';
+
+    if (isStandalone) return true;
+
+    const dismissedUntil = localStorage.getItem('selectt_pwa_dismissed_until');
+    if (dismissedUntil && Date.now() < Number(dismissedUntil)) {
+      return true;
+    }
+
+    return false;
+  };
+
   // Global listeners for beforeinstallprompt & appinstalled events
   useEffect(() => {
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -45,29 +63,17 @@ const PWAInstallPrompt = () => {
     };
   }, []);
 
-  // Trigger 15-second timer on every page route change until the user installs
+  // Trigger 15-second timer on page open (only once per session/page, respected by 30-min cooldown)
   useEffect(() => {
-    // 1. If already installed, never show popup
-    const isStandalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      window.navigator.standalone === true ||
-      localStorage.getItem('selectt_pwa_installed') === 'true';
-
-    if (isStandalone) {
-      setIsInstalled(true);
+    // 1. Check if already installed or in 30-minute cooldown
+    if (isInstalledOrCooldown()) {
       setShowPrompt(false);
       return;
     }
 
-    // 2. Reset prompt state on page change and wait 15 seconds
-    setShowPrompt(false);
+    // 2. Wait 15 seconds before showing popup
     const timer = setTimeout(() => {
-      const stillNotInstalled =
-        !window.matchMedia('(display-mode: standalone)').matches &&
-        window.navigator.standalone !== true &&
-        localStorage.getItem('selectt_pwa_installed') !== 'true';
-
-      if (stillNotInstalled) {
+      if (!isInstalledOrCooldown()) {
         setShowPrompt(true);
       }
     }, 15000); // 15 seconds
@@ -80,7 +86,7 @@ const PWAInstallPrompt = () => {
       if (isIOS) {
         return;
       }
-      setShowPrompt(false);
+      handleDismiss();
       return;
     }
     // Show browser native install prompt
@@ -92,36 +98,18 @@ const PWAInstallPrompt = () => {
       localStorage.setItem('selectt_pwa_installed', 'true');
       setShowPrompt(false);
     } else {
-      console.log('[PWA] User dismissed the native install prompt');
-      setShowPrompt(false);
-      // Retrigger after 20s if still not installed
-      setTimeout(() => {
-        const stillNotInstalled =
-          !window.matchMedia('(display-mode: standalone)').matches &&
-          window.navigator.standalone !== true &&
-          localStorage.getItem('selectt_pwa_installed') !== 'true';
-
-        if (stillNotInstalled) {
-          setShowPrompt(true);
-        }
-      }, 20000);
+      console.log('[PWA] User dismissed native install prompt');
+      // Set 30 minute cooldown if user dismisses prompt
+      handleDismiss();
     }
     setDeferredPrompt(null);
   };
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Retrigger after 20s on the same page until installed
-    setTimeout(() => {
-      const stillNotInstalled =
-        !window.matchMedia('(display-mode: standalone)').matches &&
-        window.navigator.standalone !== true &&
-        localStorage.getItem('selectt_pwa_installed') !== 'true';
-
-      if (stillNotInstalled) {
-        setShowPrompt(true);
-      }
-    }, 20000);
+    // 30 minute cooldown across all pages for this visitor
+    const thirtyMinutesLater = Date.now() + 30 * 60 * 1000;
+    localStorage.setItem('selectt_pwa_dismissed_until', String(thirtyMinutesLater));
   };
 
   if (isInstalled || !showPrompt) {
