@@ -1565,8 +1565,8 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
             </h1>
           )}
 
-          <p className="text-[#fff] text-sm sm:text-base font-bold drop-shadow-md flex items-center gap-2 text-left">
-            <Sparkles size={18} className="text-[#fff]" /> {heroSubheading || "India's no.1 selling platform"}
+          <p className="text-white text-base sm:text-lg md:text-xl font-bold tracking-wide sm:tracking-wider drop-shadow-md flex items-center gap-2.5 sm:gap-3 text-left mt-2 sm:mt-3">
+            <Sparkles size={22} className="text-white shrink-0 drop-shadow-sm" /> <span>{heroSubheading || "India's no.1 selling platform"}</span>
           </p>
         </div>
 
