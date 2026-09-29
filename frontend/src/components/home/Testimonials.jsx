@@ -181,9 +181,9 @@ const Testimonials = ({ bgClass = "bg-[#0A192F]", textClass = "text-slate-300", 
   }
 
   return (
-    <section className={`pt-1 pb-10 md:pb-16 px-4 ${bgClass}`}>
+    <section className={`pt-0 pb-10 md:pb-16 px-4 ${bgClass}`}>
       <div className="max-w-[1400px] mx-auto">
-        <div className="flex flex-row items-center justify-between mb-2 gap-3">
+        <div className="flex flex-row items-center justify-between mb-3 gap-3">
           <div className="text-left">
             <p className={`${textClass} text-xs md:text-sm font-medium`}>Real stories from 1M+ happy car buyers across India</p>
           </div>

@@ -884,7 +884,7 @@ const SellCarPage = () => {
           </section>
 
           {/* 6. SOCIAL PROOF */}
-          <SectionDivider title={`Trusted by Sellers Across ${displayCity}`} align="left" bgClass="bg-[#f9f9f9]" textClass="text-[#0C1B33]" />
+          <SectionDivider title={`Trusted by Sellers Across ${displayCity}`} align="left" bgClass="bg-[#f9f9f9]" textClass="text-[#0C1B33]" pyClass="pt-6 pb-1 md:pt-8 md:pb-1" />
           <Testimonials
             bgClass="bg-transparent md:bg-transparent"
             textClass="text-slate-600"
