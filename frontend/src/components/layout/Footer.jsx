@@ -100,16 +100,37 @@ const Footer = () => {
                 India's most trusted online marketplace for buying and selling pre-owned cars. Fair prices. Zero drama. Powered by technology.
               </p>
 
-              {/* Square social icon buttons with #00DCBB color */}
+              {/* Social Icon Buttons */}
               <div className="flex gap-3 pt-1">
-                <a href="https://www.facebook.com/selectt.cars" target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="Facebook">
-                  <Facebook size={18} />
+                <a
+                  href="https://www.facebook.com/selectt.cars"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 border border-white/20 bg-white/10 hover:bg-[#00C9AF] hover:border-[#00C9AF] text-white hover:text-[#0C1B33] rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm"
+                  title="Facebook"
+                  aria-label="Facebook"
+                >
+                  <Facebook size={18} className="stroke-[2.2]" />
                 </a>
-                <a href="https://www.instagram.com/selectt.cars/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="Instagram">
-                  <Instagram size={18} />
+                <a
+                  href="https://www.instagram.com/selectt.cars/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 border border-white/20 bg-white/10 hover:bg-[#00C9AF] hover:border-[#00C9AF] text-white hover:text-[#0C1B33] rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm"
+                  title="Instagram"
+                  aria-label="Instagram"
+                >
+                  <Instagram size={18} className="stroke-[2.2]" />
                 </a>
-                <a href="https://www.youtube.com/@selecttcars" target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-[#00DCBB]/40 bg-[#00DCBB]/10 hover:border-[#00DCBB] rounded-xl flex items-center justify-center text-[#00DCBB] hover:bg-[#00DCBB] hover:text-[#0C1B33] transition-all duration-300 shadow-sm" title="YouTube">
-                  <Youtube size={18} />
+                <a
+                  href="https://www.youtube.com/@selecttcars"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 border border-white/20 bg-white/10 hover:bg-[#00C9AF] hover:border-[#00C9AF] text-white hover:text-[#0C1B33] rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm"
+                  title="YouTube"
+                  aria-label="YouTube"
+                >
+                  <Youtube size={18} className="stroke-[2.2]" />
                 </a>
               </div>
             </div>
