@@ -586,7 +586,7 @@ const SellCarPage = () => {
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black text-[#0C1B33] mb-2 tracking-tight">
                   How Selling Your Car Works in {displayCity}
                 </h2>
-                <p className="text-slate-500 text-sm sm:text-base max-w-2xl mx-auto font-medium">
+                <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto font-normal leading-relaxed">
                   Fast, transparent, and completely hassle-free from online valuation to doorstep pickup.
                 </p>
               </div>
@@ -656,7 +656,7 @@ const SellCarPage = () => {
                             </h3>
 
                             {/* Description */}
-                            <p className="text-slate-300 text-[11px] md:text-xs font-semibold leading-[1.75] line-clamp-3">
+                            <p className="text-slate-300 text-xs sm:text-sm font-normal leading-[1.8] line-clamp-3">
                               {step.description}
                             </p>
                           </div>
@@ -744,14 +744,14 @@ const SellCarPage = () => {
                             <span className={`text-3xl sm:text-4xl font-black bg-gradient-to-r ${item.numGradient} bg-clip-text text-transparent tracking-tight leading-none`}>
                               {item.num}
                             </span>
-                            <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${item.badgeBg}`}>
+                            <span className={`text-[10px] sm:text-xs font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${item.badgeBg}`}>
                               Step {item.num}
                             </span>
                           </div>
-                          <h3 className="text-sm sm:text-[15px] font-heading font-bold text-slate-900 mb-3 sm:mb-3.5 leading-snug">
+                          <h3 className="text-base sm:text-lg font-heading font-bold text-slate-900 mb-3 sm:mb-3.5 leading-snug">
                             {item.title}
                           </h3>
-                          <p className="text-xs text-slate-600 leading-[1.75] font-normal">
+                          <p className="text-slate-600 text-xs sm:text-sm leading-[1.8] font-normal">
                             {item.desc}
                           </p>
                         </div>
@@ -789,7 +789,7 @@ const SellCarPage = () => {
                 transition={{ duration: 0.5 }}
                 className="mb-12 sm:mb-14 text-center md:text-left"
               >
-                <span className="text-[#00A38D] font-heading font-black text-xs tracking-wider uppercase mb-3.5 block">The Selectt Advantage</span>
+                <span className="text-[#00A38D] font-heading font-black text-xs sm:text-sm tracking-wider uppercase mb-3.5 block">The Selectt Advantage</span>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black text-[#0C1B33]">
                   Why Sell Your Car to Selectt in {displayCity}?
                 </h2>
@@ -810,10 +810,10 @@ const SellCarPage = () => {
                       </div>
 
                       <div className="relative z-10">
-                        <h3 className="text-[15px] sm:text-base font-heading font-extrabold text-slate-900 mb-3 tracking-tight group-hover:text-[#00A38D] transition-colors">
+                        <h3 className="text-base sm:text-lg font-heading font-extrabold text-slate-900 mb-3 tracking-tight group-hover:text-[#00A38D] transition-colors">
                           {item.title}
                         </h3>
-                        <p className="text-slate-600 text-xs font-normal leading-relaxed">
+                        <p className="text-slate-600 text-xs sm:text-sm font-normal leading-[1.8]">
                           {item.desc}
                         </p>
                       </div>
@@ -860,12 +860,12 @@ const SellCarPage = () => {
 
                   <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8 lg:gap-16 p-8 lg:p-12 text-center lg:text-left">
                     <div className="flex-1">
-                      <p className="text-[#00C9AF] font-heading font-black text-xs tracking-[0.25em] uppercase mb-2">Looking to upgrade instead?</p>
+                      <p className="text-[#00C9AF] font-heading font-black text-xs sm:text-sm tracking-[0.25em] uppercase mb-2">Looking to upgrade instead?</p>
                       <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black text-white leading-tight mb-3">
                         Change Your Mind? <br />
                         <span className="text-[#00C9AF]">Explore Certified Pre-Owned Cars</span>
                       </h2>
-                      <p className="text-slate-300 text-sm font-normal leading-relaxed max-w-lg">
+                      <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed max-w-lg">
                         Browse 500+ verified cars with 200-point inspection and 1-year warranty in {displayCity}.
                       </p>
                     </div>
@@ -903,13 +903,13 @@ const SellCarPage = () => {
           <section className="py-16 bg-white border-t border-slate-200">
             <div className="max-w-4xl mx-auto px-4 text-left">
               <div className="text-center mb-10">
-                <span className="text-[#00A38D] font-heading font-black text-xs uppercase tracking-widest block mb-1">
+                <span className="text-[#00A38D] font-heading font-black text-xs sm:text-sm uppercase tracking-widest block mb-1">
                   Got Questions?
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-heading font-black text-[#0C1B33]">
                   Frequently Asked Questions About Selling Your Car
                 </h2>
-                <p className="text-slate-500 text-sm mt-1">
+                <p className="text-slate-600 text-sm sm:text-base mt-2 font-normal leading-relaxed">
                   Everything you need to know about pricing, inspection, and payment.
                 </p>
               </div>
@@ -939,7 +939,7 @@ const SellCarPage = () => {
                         />
                       </button>
                       {isOpen && (
-                        <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 font-normal leading-relaxed border-t border-slate-200/50 bg-white">
+                        <div className="px-5 pb-5 pt-3 text-xs sm:text-sm text-slate-700 font-normal leading-[1.8] border-t border-slate-200/50 bg-white">
                           {faq.a}
                         </div>
                       )}
