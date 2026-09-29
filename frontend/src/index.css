@@ -139,13 +139,7 @@ h6.text-white,
 p.text-white,
 span.text-white,
 a.text-white,
-div.text-white > h1,
-div.text-white > h2,
-div.text-white > h3,
-div.text-white > h4,
-section.text-white > h1,
-section.text-white > h2,
-section.text-white > h3 {
+[class*="text-white"] {
   color: #ffffff !important;
 }
 
@@ -191,21 +185,7 @@ div[class*="bg-[#192B46]"] {
   color: #CBD5E1;
 }
 
-/* Any paragraph or description inside dark containers must be light */
-[class*="bg-[#0C1B33]"] p,
-[class*="bg-[#0c1b33]"] p,
-[class*="bg-[#061426]"] p,
-[class*="bg-[#162947]"] p,
-[class*="bg-[#192B46]"] p,
-[class*="bg-slate-900"] p,
-[class*="bg-slate-950"] p,
-[class*="from-[#0C1B33]"] p,
-[class*="from-[#0c1b33]"] p,
-[class*="from-[#061426]"] p {
-  color: #CBD5E1 !important;
-}
-
-/* White and light cards (even when placed inside dark background containers) MUST have dark headings and body text */
+/* White and light cards (HIGHEST PRIORITY - even when nested inside dark containers) */
 .bg-white,
 [class*="bg-white"],
 .bg-slate-50,
@@ -214,7 +194,7 @@ div[class*="bg-[#192B46]"] {
 [class*="bg-slate-100"],
 .bg-gray-50,
 [class*="bg-gray-50"] {
-  color: #475569;
+  color: #475569 !important;
 }
 
 .bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6,
@@ -227,9 +207,27 @@ div[class*="bg-[#192B46]"] {
 }
 
 .bg-white p,
+[class*="bg-white"] p,
 .bg-slate-50 p,
-.bg-slate-100 p {
-  color: #475569;
+[class*="bg-slate-50"] p,
+.bg-slate-100 p,
+[class*="bg-slate-100"] p {
+  color: #475569 !important;
+}
+
+/* Exceptions: Dark blocks explicitly nested inside white cards */
+.bg-white [class*="bg-[#0C1B33]"],
+.bg-white [class*="bg-[#0c1b33]"],
+.bg-white [class*="bg-[#061426]"],
+.bg-white [class*="bg-slate-900"] {
+  color: #CBD5E1 !important;
+}
+
+.bg-white [class*="bg-[#0C1B33]"] p,
+.bg-white [class*="bg-[#0c1b33]"] p,
+.bg-white [class*="bg-[#061426]"] p,
+.bg-white [class*="bg-slate-900"] p {
+  color: #CBD5E1 !important;
 }
 
 @media (max-width: 640px) {
