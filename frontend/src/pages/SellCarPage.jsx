@@ -721,13 +721,13 @@ const SellCarPage = () => {
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <div className="inline-flex items-center gap-2 bg-[#00C9AF]/20 border border-[#00C9AF]/40 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-heading font-black text-xs uppercase tracking-wider mb-4">
+                    <div className="inline-flex items-center gap-2 bg-[#00C9AF]/20 border border-[#00C9AF]/40 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-heading font-black text-xs uppercase tracking-wider mb-3.5">
                       <ShieldCheck size={16} /> 100% Peace of Mind
                     </div>
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black tracking-tight text-white mb-4">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black tracking-tight text-white mb-3.5">
                       The Selectt Seller Protection Guarantee
                     </h2>
-                    <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed mb-8 max-w-4xl">
+                    <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed mb-10 sm:mb-12 max-w-4xl">
                       Selling your car shouldn't come with post-handover anxiety. We protect you from all legal and financial liabilities from the exact minute of car handover until the RC transfer is officially registered in RTO records.
                     </p>
                   </motion.div>
@@ -787,9 +787,9 @@ const SellCarPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5 }}
-                className="mb-12 text-center md:text-left"
+                className="mb-12 sm:mb-14 text-center md:text-left"
               >
-                <span className="text-[#00A38D] font-heading font-black text-xs tracking-wider uppercase mb-1 block">The Selectt Advantage</span>
+                <span className="text-[#00A38D] font-heading font-black text-xs tracking-wider uppercase mb-3.5 block">The Selectt Advantage</span>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-black text-[#0C1B33]">
                   Why Sell Your Car to Selectt in {displayCity}?
                 </h2>
@@ -803,14 +803,14 @@ const SellCarPage = () => {
                     className={`relative p-6 sm:p-7 rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group cursor-default border text-left flex flex-col justify-between ${item.gradient} ${item.border}`}
                   >
                     <div>
-                      <div className="flex justify-between items-start mb-5 relative z-10">
+                      <div className="flex justify-between items-start mb-6 relative z-10">
                         <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform ${item.iconBg}`}>
                           {item.icon}
                         </div>
                       </div>
 
                       <div className="relative z-10">
-                        <h3 className="text-[15px] sm:text-base font-heading font-extrabold text-slate-900 mb-2 tracking-tight group-hover:text-[#00A38D] transition-colors">
+                        <h3 className="text-[15px] sm:text-base font-heading font-extrabold text-slate-900 mb-3 tracking-tight group-hover:text-[#00A38D] transition-colors">
                           {item.title}
                         </h3>
                         <p className="text-slate-600 text-xs font-normal leading-relaxed">
