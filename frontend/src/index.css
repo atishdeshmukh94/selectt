@@ -191,6 +191,20 @@ div[class*="bg-[#192B46]"] {
   color: #CBD5E1;
 }
 
+/* Any paragraph or description inside dark containers must be light */
+[class*="bg-[#0C1B33]"] p,
+[class*="bg-[#0c1b33]"] p,
+[class*="bg-[#061426]"] p,
+[class*="bg-[#162947]"] p,
+[class*="bg-[#192B46]"] p,
+[class*="bg-slate-900"] p,
+[class*="bg-slate-950"] p,
+[class*="from-[#0C1B33]"] p,
+[class*="from-[#0c1b33]"] p,
+[class*="from-[#061426]"] p {
+  color: #CBD5E1 !important;
+}
+
 /* White and light cards (even when placed inside dark background containers) MUST have dark headings and body text */
 .bg-white,
 [class*="bg-white"],
@@ -212,9 +226,9 @@ div[class*="bg-[#192B46]"] {
   color: #0F172A !important;
 }
 
-.bg-white p, [class*="bg-white"] p,
-.bg-slate-50 p, [class*="bg-slate-50"] p,
-.bg-slate-100 p, [class*="bg-slate-100"] p {
+.bg-white p,
+.bg-slate-50 p,
+.bg-slate-100 p {
   color: #475569;
 }
 
