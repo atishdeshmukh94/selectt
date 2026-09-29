@@ -271,10 +271,12 @@ const LoginModal = () => {
           {/* Form Content Steps */}
           {step === 1 && (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300 pt-1 sm:pt-0">
-              <h2 className="text-xl sm:text-2xl font-black text-[#0C1B33] tracking-tight mb-3 md:mb-6 pr-6">Login or sign up</h2>
+              <h2 className="text-[22px] sm:text-[24px] font-heading font-semibold text-[#0F172A] mb-3 md:mb-6 pr-6 leading-[1.2]">
+                Login or sign up
+              </h2>
 
               {error && (
-                <div className="mb-4 p-3 text-xs font-semibold text-red-650 bg-red-50 border border-red-150 rounded-xl flex items-start gap-2">
+                <div className="mb-4 p-3 text-xs font-medium text-red-650 bg-red-50 border border-red-150 rounded-xl flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5" />
                   <span>{error}</span>
                 </div>
@@ -282,14 +284,14 @@ const LoginModal = () => {
 
               <form onSubmit={handlePhoneSubmit}>
                 <div className="mb-3 sm:mb-4">
-                  <label className="block text-[11px] sm:text-xs font-bold text-slate-400 mb-1.5 sm:mb-2 uppercase tracking-wider">
+                  <label className="block text-[12px] sm:text-[13px] font-medium text-slate-600 mb-1.5 sm:mb-2">
                     Enter phone number
                   </label>
                   <div className="flex gap-2 sm:gap-2.5 w-full">
                     {/* Country Code Selector Box */}
-                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-3 sm:py-3.5 border border-slate-200 rounded-xl bg-slate-50/80 font-bold text-slate-800 text-sm shrink-0 select-none">
+                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-3 sm:py-3.5 border border-slate-200 rounded-xl bg-slate-50/80 font-medium text-slate-800 text-sm shrink-0 select-none">
                       <img src="https://flagcdn.com/w20/in.png" alt="India Flag" className="w-4.5 sm:w-5 h-3 sm:h-3.5 object-cover rounded-sm" />
-                      <span className="leading-none text-xs sm:text-sm">91</span>
+                      <span className="leading-none text-xs sm:text-sm font-semibold">91</span>
                     </div>
                     {/* Phone Number Input */}
                     <input
@@ -299,7 +301,7 @@ const LoginModal = () => {
                       onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                       onFocus={handleInputFocus}
                       onBlur={handleInputBlur}
-                      className="flex-1 min-w-0 px-3.5 sm:px-4 py-3 sm:py-3.5 bg-slate-50/30 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 text-sm sm:text-base font-bold tracking-wide text-slate-800 placeholder:text-slate-300 transition-all w-full"
+                      className="flex-1 min-w-0 px-3.5 sm:px-4 py-3 sm:py-3.5 bg-slate-50/30 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 text-sm sm:text-base font-medium text-slate-800 placeholder:text-slate-400 transition-all w-full"
                       maxLength="10"
                       autoComplete="off"
                       required
@@ -316,7 +318,7 @@ const LoginModal = () => {
                     defaultChecked
                     className="w-4 h-4 rounded border-slate-300 text-[#00C9AF] focus:ring-[#00C9AF]/30 cursor-pointer"
                   />
-                  <label htmlFor="whatsapp-updates" className="text-xs font-bold text-slate-500 cursor-pointer select-none">
+                  <label htmlFor="whatsapp-updates" className="text-[13px] font-medium text-slate-600 cursor-pointer select-none">
                     Get updates on WhatsApp
                   </label>
                 </div>
@@ -325,34 +327,36 @@ const LoginModal = () => {
                 <button
                   type="submit"
                   disabled={phoneNumber.length < 10 || loading}
-                  className="w-full bg-[#0c1b33] hover:bg-[#162a4d] text-white font-black uppercase tracking-widest py-3.5 sm:py-4 rounded-xl shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer text-xs md:text-sm"
+                  className="w-full bg-[#0c1b33] hover:bg-[#162a4d] text-white font-semibold text-[15px] leading-[1.45] py-3.5 sm:py-4 rounded-xl shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {loading ? 'Sending OTP...' : 'Get OTP'}
                 </button>
               </form>
 
               {/* Legal disclaimer */}
-              <div className="text-[9px] md:text-[10px] text-slate-400 font-semibold leading-relaxed mt-3 sm:mt-6">
-                By continuing, you agree to Selectt's <a href="/terms-conditions" className="text-[#00C9AF] hover:underline font-bold">Terms of service</a> &amp; <a href="/privacy-policy" className="text-[#00C9AF] hover:underline font-bold">Privacy policy</a>, and Selectt NBFC's <a href="/terms-conditions" className="text-[#00C9AF] hover:underline font-bold">Terms of Use</a> &amp; <a href="/terms-conditions" className="text-[#00C9AF] hover:underline font-bold">TU CIBIL terms of use</a>.
+              <div className="text-[11px] sm:text-[12px] text-slate-500 font-normal leading-relaxed mt-3 sm:mt-6">
+                By continuing, you agree to Selectt's <a href="/terms-conditions" className="text-[#00C9AF] hover:underline font-semibold">Terms of service</a> &amp; <a href="/privacy-policy" className="text-[#00C9AF] hover:underline font-semibold">Privacy policy</a>, and Selectt NBFC's <a href="/terms-conditions" className="text-[#00C9AF] hover:underline font-semibold">Terms of Use</a> &amp; <a href="/terms-conditions" className="text-[#00C9AF] hover:underline font-semibold">TU CIBIL terms of use</a>.
               </div>
             </div>
           )}
 
           {step === 2 && (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300 pt-1 sm:pt-0">
-              <h2 className="text-xl sm:text-2xl font-black text-[#0C1B33] tracking-tight mb-1 sm:mb-2 pr-6">Verify OTP</h2>
-              <p className="text-xs text-slate-500 font-semibold leading-relaxed mb-3 sm:mb-6">
-                Enter the 6-digit code sent to your WhatsApp number <strong className="text-[#0c1b33] whitespace-nowrap">+91 {phoneNumber}</strong>
+              <h2 className="text-[22px] sm:text-[24px] font-heading font-semibold text-[#0F172A] mb-1 sm:mb-2 pr-6 leading-[1.2]">
+                Verify OTP
+              </h2>
+              <p className="text-[14px] text-slate-600 font-normal leading-relaxed mb-3 sm:mb-6">
+                Enter the 6-digit code sent to your WhatsApp number <strong className="text-[#0c1b33] font-semibold whitespace-nowrap">+91 {phoneNumber}</strong>
               </p>
 
               {otpHint && (
                 <div className="mb-3 sm:mb-5 p-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl leading-relaxed">
-                  <span className="font-bold text-amber-800">Demo/Fallback Code:</span> Enter <strong className="bg-amber-100 px-1.5 py-0.5 rounded text-amber-900 border border-amber-200">{otpHint}</strong> to continue.
+                  <span className="font-semibold text-amber-800">Demo/Fallback code:</span> Enter <strong className="bg-amber-100 px-1.5 py-0.5 rounded text-amber-900 border border-amber-200 font-bold">{otpHint}</strong> to continue.
                 </div>
               )}
 
               {error && (
-                <div className="mb-3 sm:mb-5 p-3 text-xs font-semibold text-red-650 bg-red-50 border border-red-150 rounded-xl flex items-start gap-2">
+                <div className="mb-3 sm:mb-5 p-3 text-xs font-medium text-red-650 bg-red-50 border border-red-150 rounded-xl flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5" />
                   <span>{error}</span>
                 </div>
@@ -373,7 +377,7 @@ const LoginModal = () => {
                       onFocus={handleInputFocus}
                       onBlur={handleInputBlur}
                       autoFocus={index === 0}
-                      className="w-10 sm:w-11 h-11 sm:h-13 text-center text-lg sm:text-xl font-bold border-2 border-slate-200 rounded-xl focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 focus:outline-none bg-slate-50/30 transition-all text-slate-800 shrink-0"
+                      className="w-10 sm:w-11 h-11 sm:h-13 text-center text-lg sm:text-xl font-semibold border-2 border-slate-200 rounded-xl focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 focus:outline-none bg-slate-50/30 transition-all text-slate-800 shrink-0"
                       required
                     />
                   ))}
@@ -382,13 +386,13 @@ const LoginModal = () => {
                 <button
                   type="submit"
                   disabled={otp.length < 6 || loading}
-                  className="w-full bg-[#0c1b33] hover:bg-[#162a4d] text-white font-black uppercase tracking-widest py-3.5 sm:py-4 rounded-xl shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer text-xs md:text-sm"
+                  className="w-full bg-[#0c1b33] hover:bg-[#162a4d] text-white font-semibold text-[15px] leading-[1.45] py-3.5 sm:py-4 rounded-xl shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  {loading ? 'Verifying...' : 'Verify & Continue'}
+                  {loading ? 'Verifying...' : 'Verify & continue'}
                 </button>
 
-                <div className="mt-4 sm:mt-6 text-xs text-slate-500 font-medium">
-                  Didn't receive code? <button type="button" onClick={handlePhoneSubmit} className="text-[#00C9AF] font-bold hover:underline cursor-pointer">Resend on WhatsApp</button>
+                <div className="mt-4 sm:mt-6 text-xs sm:text-[13px] text-slate-500 font-medium">
+                  Didn't receive code? <button type="button" onClick={handlePhoneSubmit} className="text-[#00C9AF] font-semibold hover:underline cursor-pointer">Resend on WhatsApp</button>
                 </div>
               </form>
             </div>
@@ -396,11 +400,15 @@ const LoginModal = () => {
 
           {step === 3 && (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300 pt-2 sm:pt-0">
-              <h2 className="text-xl sm:text-2xl font-black text-[#0C1B33] tracking-tight mb-2 pr-6">Complete Profile</h2>
-              <p className="text-xs text-slate-500 font-semibold leading-relaxed mb-6">Almost there! Please tell us your name to finish setting up your account.</p>
+              <h2 className="text-[22px] sm:text-[24px] font-heading font-semibold text-[#0F172A] mb-2 pr-6 leading-[1.2]">
+                Complete profile
+              </h2>
+              <p className="text-[14px] text-slate-600 font-normal leading-relaxed mb-6">
+                Almost there! Please tell us your name to finish setting up your account.
+              </p>
 
               {error && (
-                <div className="mb-5 p-3.5 text-xs font-semibold text-red-650 bg-red-50 border border-red-150 rounded-xl flex items-start gap-2">
+                <div className="mb-5 p-3.5 text-xs font-medium text-red-650 bg-red-50 border border-red-150 rounded-xl flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5" />
                   <span>{error}</span>
                 </div>
@@ -409,7 +417,7 @@ const LoginModal = () => {
               <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-[11px] sm:text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wider">First Name</label>
+                    <label className="block text-[12px] sm:text-[13px] font-medium text-slate-600 mb-1.5">First name</label>
                     <input
                       type="text"
                       value={firstName}
@@ -417,54 +425,54 @@ const LoginModal = () => {
                       onFocus={handleInputFocus}
                       onBlur={handleInputBlur}
                       required
-                      className="w-full px-3.5 sm:px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 text-sm font-bold text-slate-800 placeholder:text-slate-300 transition-all"
-                      placeholder="First Name"
+                      className="w-full px-3.5 sm:px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 text-sm font-medium text-slate-800 placeholder:text-slate-400 transition-all"
+                      placeholder="First name"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] sm:text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wider">Last Name</label>
+                    <label className="block text-[12px] sm:text-[13px] font-medium text-slate-600 mb-1.5">Last name</label>
                     <input
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       onFocus={handleInputFocus}
                       onBlur={handleInputBlur}
-                      className="w-full px-3.5 sm:px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 text-sm font-bold text-slate-800 placeholder:text-slate-300 transition-all"
-                      placeholder="Last Name"
+                      className="w-full px-3.5 sm:px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 text-sm font-medium text-slate-800 placeholder:text-slate-400 transition-all"
+                      placeholder="Last name"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[11px] sm:text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wider">Email Address (Optional)</label>
+                  <label className="block text-[12px] sm:text-[13px] font-medium text-slate-600 mb-1.5">Email address (optional)</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={handleInputFocus}
                     onBlur={handleInputBlur}
-                    className="w-full px-3.5 sm:px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 text-sm font-bold text-slate-800 placeholder:text-slate-300 transition-all"
+                    className="w-full px-3.5 sm:px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 text-sm font-medium text-slate-800 placeholder:text-slate-400 transition-all"
                     placeholder="yourname@example.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] sm:text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wider">City (Optional)</label>
+                  <label className="block text-[12px] sm:text-[13px] font-medium text-slate-600 mb-1.5">City (optional)</label>
                   <input
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     onFocus={handleInputFocus}
                     onBlur={handleInputBlur}
-                    className="w-full px-3.5 sm:px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 text-sm font-bold text-slate-800 placeholder:text-slate-300 transition-all"
-                    placeholder="Your City"
+                    className="w-full px-3.5 sm:px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/15 text-sm font-medium text-slate-800 placeholder:text-slate-400 transition-all"
+                    placeholder="Your city"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={!firstName || loading}
-                  className="w-full bg-[#0c1b33] hover:bg-[#162a4d] text-white font-black uppercase tracking-widest py-3.5 sm:py-4 rounded-xl shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer text-xs md:text-sm mt-4 block"
+                  className="w-full bg-[#0c1b33] hover:bg-[#162a4d] text-white font-semibold text-[15px] leading-[1.45] py-3.5 sm:py-4 rounded-xl shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer mt-4 block"
                 >
-                  {loading ? 'Setting up account...' : 'Create Account & Continue'}
+                  {loading ? 'Setting up account...' : 'Create account & continue'}
                 </button>
               </form>
             </div>
@@ -477,7 +485,7 @@ const LoginModal = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-[#0C1B33] tracking-tight mb-2">OTP Verified!</h2>
+              <h2 className="text-[22px] sm:text-[24px] font-heading font-semibold text-[#0F172A] mb-2 leading-[1.2]">OTP verified!</h2>
               <p className="text-xs sm:text-sm text-slate-500 font-medium">You're now logged in. Welcome back! 🎉</p>
             </div>
           )}

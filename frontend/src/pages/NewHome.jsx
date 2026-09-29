@@ -1982,11 +1982,11 @@ const NewHome = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Text Column */}
             <div className="space-y-6 text-left  mt-10">
-              <div className="inline-flex items-center gap-2 bg-[#E6FAF7] border border-[#00C9AF]/30 text-[#0A524A] px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase">
+              <div className="inline-flex items-center gap-2 bg-[#E6FAF7] border border-[#00C9AF]/30 text-[#0A524A] px-3.5 py-1.5 rounded-full text-[12px] font-semibold tracking-wide">
                 India's most trusted car marketplace
               </div>
 
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-black font-heading leading-[1.08] tracking-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-black font-heading text-white leading-[1.08] tracking-tight">
                 Find the perfect car. <br />
                 At a <span className="text-[#00C9AF] bg-gradient-to-r from-[#00C9AF] to-[#00F2C8] bg-clip-text text-transparent">fair price</span>. <br />
                 Always.
@@ -2543,13 +2543,13 @@ const NewHome = () => {
         <div className="w-full max-w-[1440px] mx-auto relative z-10">
 
           <div className="text-center max-w-xl mx-auto mb-8">
-            <span className="text-[#00CCB3] text-[11px] font-bold tracking-widest uppercase mb-2 block font-heading">
-              HOW IT WORKS
+            <span className="text-[#00CCB3] text-[12px] font-semibold tracking-wider block font-heading mb-2">
+              How it works
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-white tracking-tight leading-none mb-3 sm:mb-3.5">
-              How Selectt Works
+            <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-white tracking-tight leading-[1.2] mb-3.5">
+              How Selectt works
             </h2>
-            <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed">
+            <p className="text-[#CBD5E1] text-[17px] sm:text-[18px] font-normal leading-[1.6]">
               We removed every friction point. From browse to keys done in days, not weeks.
             </p>
           </div>

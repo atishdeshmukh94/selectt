@@ -1063,25 +1063,25 @@ const BuyCarsPage = () => {
           </div>
 
           {/* Internal Link CTA Strip */}
-          <div className="mt-8 bg-gradient-to-r from-[#0C1B33] to-[#122647] rounded-2xl p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+          <div className="mt-8 bg-gradient-to-r from-[#0C1B33] to-[#122647] rounded-2xl p-6 sm:p-7 text-white flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
             <div className="w-full sm:w-auto">
-              <h3 className="text-base font-black">Looking for Car Financing or Inspection Details?</h3>
-              <p className="text-xs text-slate-300 mt-1 max-w-xl mx-auto sm:mx-0">
+              <h3 className="text-[18px] sm:text-[20px] font-heading font-semibold text-white leading-[1.35]">Looking for car financing or inspection details?</h3>
+              <p className="text-[15px] sm:text-[16px] text-[#CBD5E1] mt-1 max-w-xl mx-auto sm:mx-0 font-normal leading-[1.6]">
                 Explore our 200-point inspection protocol or check pre-approved loan options with low EMI.
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2.5 shrink-0 w-full sm:w-auto">
               <Link
                 to="/selectt-inspection-process"
-                className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-white/20 transition-all"
+                className="bg-white/10 hover:bg-white/20 text-white text-[14px] font-semibold px-4 py-2.5 rounded-xl border border-white/20 transition-all leading-[1.4]"
               >
-                Inspection Process
+                Inspection process
               </Link>
               <Link
                 to="/used-car-loan"
-                className="bg-[#00C9AF] hover:bg-[#00b29c] text-[#0C1B33] text-xs font-black px-4 py-2.5 rounded-xl transition-all"
+                className="bg-[#00C9AF] hover:bg-[#00b29c] text-slate-950 text-[14px] font-semibold px-4 py-2.5 rounded-xl transition-all leading-[1.4]"
               >
-                Car Loan EMI
+                Car loan EMI
               </Link>
             </div>
           </div>
