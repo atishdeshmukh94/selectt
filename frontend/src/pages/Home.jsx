@@ -59,7 +59,7 @@ const Home = () => {
         </Reveal>
         
         <Reveal>
-          <SectionDivider title="What Motivates Us" align="left" />
+          <SectionDivider title="What Motivates Us" align="left" maxWidthClass="max-w-[1400px]" />
           <Testimonials />
         </Reveal>
         

@@ -1176,7 +1176,7 @@ const CarDetailsPage = () => {
           <RecentlyViewed title="Still Can’t Decide?" lightBg={true} currentCar={car} allCars={allCars} />
         </div>
 
-        <SectionDivider title="What Motivates Us" align="left" bgClass="bg-[#f9f9f9]" textClass="text-[#0C1B33]" pyClass="pt-6 pb-0 md:pt-8 md:pb-0" />
+        <SectionDivider title="What Motivates Us" align="left" bgClass="bg-[#f9f9f9]" textClass="text-[#0C1B33]" pyClass="pt-6 pb-0 md:pt-8 md:pb-0" maxWidthClass="max-w-[1400px]" />
         <Testimonials
           bgClass="bg-transparent md:bg-transparent"
           textClass="text-slate-650"

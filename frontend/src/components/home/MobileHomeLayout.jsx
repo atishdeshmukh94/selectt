@@ -263,8 +263,8 @@ const MobileHomeLayout = () => {
       </div>
 
       {/* What Motivates Us */}
-      <Reveal className="px-4 py-2 pb-10">
-         <SectionDivider title="What Motivates Us" align="left" />
+      <Reveal className="py-2 pb-10">
+         <SectionDivider title="What Motivates Us" align="left" maxWidthClass="max-w-[1400px]" />
          <Testimonials />
       </Reveal>
 
