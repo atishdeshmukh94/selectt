@@ -2405,11 +2405,11 @@ const NewHome = () => {
       <section className="py-4 px-4 sm:px-6 md:px-12 bg-[#fff] relative z-10">
         <div className="w-full max-w-[1440px] mx-auto bg-slate-50/80 border border-slate-200/90 rounded-3xl p-5 sm:p-7 shadow-xs">
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-4 gap-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
             <div>
-              <span className="text-[#00CCB3] text-[10px] font-bold tracking-widest uppercase mb-0.5 block">Choose Brand</span>
-              <h2 className="text-xl md:text-3xl font-extrabold font-heading text-black">Explore Popular Brands</h2>
-              <p className="text-slate-500 text-xs mt-0.5">Directly view stock segments matching your favourite brand with live counts.</p>
+              <span className="text-[#00CCB3] text-[10px] font-bold tracking-widest uppercase mb-1.5 block font-heading">Choose Brand</span>
+              <h2 className="text-xl md:text-3xl font-extrabold font-heading text-black tracking-tight mb-2 sm:mb-2.5">Explore Popular Brands</h2>
+              <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">Directly view stock segments matching your favourite brand with live counts.</p>
             </div>
 
             {/* Carousel Buttons */}
