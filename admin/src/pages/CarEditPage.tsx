@@ -19,7 +19,12 @@ import {
   Search,
   IndianRupee,
   Tag,
-  Star
+  Star,
+  Video,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  UploadCloud
 } from "lucide-react";
 
 import { API_URL } from "../config/api";
@@ -36,6 +41,13 @@ const CarEditPage = () => {
   const [activeTab, setActiveTab] = useState("basic");
   const [videoSource, setVideoSource] = useState<"upload" | "youtube" | "url">("upload");
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [videoUploadProgress, setVideoUploadProgress] = useState(0);
+  const [videoUploadSpeed, setVideoUploadSpeed] = useState("");
+  const [videoUploadEta, setVideoUploadEta] = useState("");
+  const [videoUploadSizeInfo, setVideoUploadSizeInfo] = useState("");
+  const [videoUploadStatus, setVideoUploadStatus] = useState<'idle' | 'uploading' | 'processing' | 'success' | 'error'>('idle');
+  const [videoUploadFileName, setVideoUploadFileName] = useState("");
+  const [videoUploadError, setVideoUploadError] = useState("");
   const [brandsList, setBrandsList] = useState<any[]>([]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -255,32 +267,92 @@ const CarEditPage = () => {
     setIsLibraryOpen(false);
   };
 
-  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Reset input value so same file can be re-selected if needed
+    e.target.value = '';
+
     setIsUploadingVideo(true);
+    setVideoUploadProgress(0);
+    setVideoUploadStatus('uploading');
+    setVideoUploadFileName(file.name);
+    setVideoUploadError('');
+    setVideoUploadSpeed('0 KB/s');
+    setVideoUploadEta('Calculating...');
+
     const uFormData = new FormData();
     uFormData.append("file", file);
 
-    try {
-      const response = await fetch(`${API}/api/upload`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("adminToken")}`
-        },
-        body: uFormData
-      });
+    const xhr = new XMLHttpRequest();
+    const startTime = Date.now();
 
-      if (!response.ok) throw new Error("Upload failed");
-      const resData = await response.json();
-      updateVideoInGallery(resData.url);
-      toast.success("Video uploaded successfully!");
-    } catch (err) {
-      toast.error("Failed to upload video file.");
-    } finally {
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((event.loaded / event.total) * 100);
+        setVideoUploadProgress(percent);
+
+        const elapsedSeconds = (Date.now() - startTime) / 1000;
+        if (elapsedSeconds > 0.3) {
+          const bytesPerSec = event.loaded / elapsedSeconds;
+          const speedMb = (bytesPerSec / (1024 * 1024)).toFixed(1);
+          setVideoUploadSpeed(`${speedMb} MB/s`);
+
+          const remainingBytes = event.total - event.loaded;
+          const etaSec = Math.round(remainingBytes / bytesPerSec);
+          setVideoUploadEta(etaSec > 0 ? `~${etaSec}s remaining` : 'Finalizing...');
+
+          const loadedMb = (event.loaded / (1024 * 1024)).toFixed(1);
+          const totalMb = (event.total / (1024 * 1024)).toFixed(1);
+          setVideoUploadSizeInfo(`${loadedMb} MB / ${totalMb} MB`);
+        }
+
+        if (percent >= 100) {
+          setVideoUploadStatus('processing');
+        }
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const resData = JSON.parse(xhr.responseText);
+          const uploadedUrl = resData.url || resData.videoUrl || resData.path;
+          updateVideoInGallery(uploadedUrl);
+          setVideoUploadStatus('success');
+          setVideoUploadProgress(100);
+          toast.success("Video uploaded successfully!");
+          setTimeout(() => {
+            setIsUploadingVideo(false);
+          }, 3500);
+        } catch (err) {
+          setVideoUploadStatus('error');
+          setVideoUploadError('Invalid response from server');
+          toast.error("Failed to process uploaded video.");
+          setIsUploadingVideo(false);
+        }
+      } else {
+        setVideoUploadStatus('error');
+        setVideoUploadError(`Upload failed with status ${xhr.status}`);
+        toast.error("Failed to upload video file.");
+        setIsUploadingVideo(false);
+      }
+    };
+
+    xhr.onerror = () => {
+      setVideoUploadStatus('error');
+      setVideoUploadError('Network connection error during upload');
+      toast.error("Network error during video upload.");
       setIsUploadingVideo(false);
+    };
+
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+    xhr.open("POST", `${API}/api/upload`);
+    if (token) {
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     }
+    xhr.send(uFormData);
   };
   const [formData, setFormData] = useState<any>({
     title: "",
@@ -1668,100 +1740,196 @@ const CarEditPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                 <div className="md:col-span-2 space-y-4">
                   {videoSource === "upload" && (
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                       <label className={labelClass}>Upload Local MP4/MOV File</label>
-                      <div className="flex items-center gap-4">
-                        <label className="flex items-center justify-center gap-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 px-6 py-3 rounded-xl border border-indigo-200 cursor-pointer font-bold transition-all text-sm">
-                          <Plus size={18} />
-                          {isUploadingVideo ? "Uploading..." : "Choose Video File"}
+                      
+                      {/* Choose File Button */}
+                      <div className="flex flex-wrap items-center gap-3">
+                        <label className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl border font-bold transition-all text-sm cursor-pointer shadow-sm ${
+                          isUploadingVideo
+                            ? "bg-gray-100 dark:bg-gray-800 text-gray-400 border-gray-300 dark:border-gray-700 cursor-not-allowed opacity-70"
+                            : "bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/60 hover:shadow"
+                        }`}>
+                          <UploadCloud size={18} />
+                          {isUploadingVideo ? "Uploading Video..." : "Choose Video File"}
                           <input 
                             type="file" 
-                            accept="video/mp4,video/quicktime" 
+                            accept="video/mp4,video/quicktime,video/webm" 
                             className="hidden" 
                             onChange={handleVideoUpload}
                             disabled={isUploadingVideo}
                           />
                         </label>
-                        {formData.videoUrl && formData.videoUrl.startsWith('/uploads') && (
-                          <span className="text-xs text-green-600 font-medium">✓ Video ready</span>
+                        
+                        {formData.videoUrl && !isUploadingVideo && (
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-200/60 dark:border-emerald-800/40">
+                            <CheckCircle size={14} className="text-emerald-600" />
+                            <span>Video Ready</span>
+                          </div>
                         )}
                       </div>
+
+                      {/* Video Upload Progress Bar & Metrics UI */}
+                      {isUploadingVideo && (
+                        <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 space-y-3 animate-fade-in shadow-inner">
+                          <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <Loader2 size={16} className="animate-spin text-indigo-600 dark:text-indigo-400" />
+                              <span className="font-bold text-gray-800 dark:text-white truncate max-w-[200px]">
+                                {videoUploadFileName || "Uploading video..."}
+                              </span>
+                            </div>
+                            <span className="font-black text-indigo-600 dark:text-indigo-400 text-sm">
+                              {videoUploadProgress}%
+                            </span>
+                          </div>
+
+                          {/* Animated Progress Bar */}
+                          <div className="w-full h-3 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden p-0.5 border border-indigo-100 dark:border-indigo-900/40">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-[#00C9AF] to-emerald-400 transition-all duration-200 shadow-sm relative overflow-hidden"
+                              style={{ width: `${Math.max(videoUploadProgress, 3)}%` }}
+                            >
+                              <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                            </div>
+                          </div>
+
+                          {/* Upload Stats: Speed, ETA, Size */}
+                          <div className="flex flex-wrap items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 pt-0.5">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-medium text-indigo-700 dark:text-indigo-300">
+                                {videoUploadStatus === 'processing' ? 'Processing on server...' : (videoUploadSizeInfo || 'Preparing...')}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {videoUploadSpeed && videoUploadStatus === 'uploading' && (
+                                <span className="font-mono">{videoUploadSpeed}</span>
+                              )}
+                              {videoUploadEta && videoUploadStatus === 'uploading' && (
+                                <span className="flex items-center gap-1 font-semibold text-gray-700 dark:text-gray-300">
+                                  <Clock size={12} /> {videoUploadEta}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Success Feedback Box */}
+                      {videoUploadStatus === 'success' && !isUploadingVideo && (
+                        <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between animate-fade-in text-xs">
+                          <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold">
+                            <CheckCircle size={16} className="text-emerald-600 dark:text-emerald-400" />
+                            <span>Video uploaded successfully!</span>
+                            {videoUploadFileName && (
+                              <span className="font-normal text-emerald-700 dark:text-emerald-400">({videoUploadFileName})</span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase font-extrabold tracking-wider">Ready to Save</span>
+                        </div>
+                      )}
+
+                      {/* Error Feedback Box */}
+                      {videoUploadStatus === 'error' && (
+                        <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 flex items-center gap-2 text-xs text-rose-800 dark:text-rose-300">
+                          <AlertCircle size={16} className="text-rose-600 dark:text-rose-400 shrink-0" />
+                          <span>{videoUploadError || 'Upload failed. Please try again.'}</span>
+                        </div>
+                      )}
+
                       <p className="text-[11px] text-gray-400">
-                        Supports standard MP4 and MOV files. Max file size depends on your local configuration.
+                        Supports standard MP4, MOV, and WEBM video files. Max file size depends on server limits.
                       </p>
                     </div>
                   )}
 
-                    {videoSource === "youtube" && (
-                      <div className="space-y-2">
-                        <label className={labelClass}>YouTube Video URL</label>
-                        <input 
-                          type="text" 
-                          className={inpClass} 
-                          value={formData.videoUrl || ""} 
-                          onChange={e => updateVideoInGallery(e.target.value)} 
-                          placeholder="https://www.youtube.com/watch?v=..." 
-                        />
-                        <p className="text-[11px] text-gray-400">
-                          Paste a full YouTube link or mobile short link.
-                        </p>
-                      </div>
-                    )}
+                  {videoSource === "youtube" && (
+                    <div className="space-y-2">
+                      <label className={labelClass}>YouTube Video URL</label>
+                      <input 
+                        type="text" 
+                        className={inpClass} 
+                        value={formData.videoUrl || ""} 
+                        onChange={e => updateVideoInGallery(e.target.value)} 
+                        placeholder="https://www.youtube.com/watch?v=..." 
+                      />
+                      <p className="text-[11px] text-gray-400">
+                        Paste a full YouTube link or mobile short link.
+                      </p>
+                    </div>
+                  )}
 
-                    {videoSource === "url" && (
-                      <div className="space-y-2">
-                        <label className={labelClass}>Direct Video Link URL</label>
-                        <input 
-                          type="text" 
-                          className={inpClass} 
-                          value={formData.videoUrl || ""} 
-                          onChange={e => updateVideoInGallery(e.target.value)} 
-                          placeholder="https://example.com/videos/car_video.mp4" 
-                        />
-                        <p className="text-[11px] text-gray-400">
-                          Paste any online direct video file path (.mp4, .mov, etc).
-                        </p>
-                      </div>
-                    )}
+                  {videoSource === "url" && (
+                    <div className="space-y-2">
+                      <label className={labelClass}>Direct Video / Bunny Stream URL</label>
+                      <input 
+                        type="text" 
+                        className={inpClass} 
+                        value={formData.videoUrl || ""} 
+                        onChange={e => updateVideoInGallery(e.target.value)} 
+                        placeholder="https://iframe.mediadelivery.net/embed/... or https://example.com/video.mp4" 
+                      />
+                      <p className="text-[11px] text-gray-400">
+                        Paste a Bunny Stream iframe embed URL or direct video file URL (.mp4, .mov).
+                      </p>
+                    </div>
+                  )}
 
-                    {formData.videoUrl && (
-                      <div className="mt-4 p-4 bg-slate-50 dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700/50 flex items-center justify-between">
-                        <div className="truncate pr-4 flex-1">
-                          <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block mb-0.5">Active Video Path</span>
-                          <span className="text-xs text-slate-700 dark:text-slate-300 font-mono truncate block">{formData.videoUrl}</span>
-                        </div>
-                        <button 
-                          type="button" 
-                          onClick={() => updateVideoInGallery("")}
-                          className="text-red-500 hover:text-red-700 p-2 font-bold text-xs uppercase shrink-0"
-                        >
-                          Remove
-                        </button>
+                  {formData.videoUrl && (
+                    <div className="mt-4 p-4 bg-slate-50 dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700/50 flex items-center justify-between">
+                      <div className="truncate pr-4 flex-1">
+                        <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block mb-0.5">Active Video Path</span>
+                        <span className="text-xs text-slate-700 dark:text-slate-300 font-mono truncate block">{formData.videoUrl}</span>
                       </div>
-                    )}
-                  </div>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          updateVideoInGallery("");
+                          setVideoUploadStatus('idle');
+                        }}
+                        className="text-red-500 hover:text-red-700 p-2 font-bold text-xs uppercase shrink-0 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
 
-                  <div className="md:col-span-1">
+                {/* Right Side Video Preview Player */}
+                <div className="md:col-span-1">
                   <label className={labelClass}>Video Preview</label>
-                  <div className="aspect-video bg-gray-50 dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 overflow-hidden relative flex items-center justify-center">
+                  <div className="aspect-video bg-gray-950 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 overflow-hidden relative flex items-center justify-center shadow-md">
                     {formData.videoUrl ? (
-                      videoSource === "youtube" && getYouTubeId(formData.videoUrl) ? (
+                      (formData.videoUrl.includes("youtube.com") || formData.videoUrl.includes("youtu.be")) && getYouTubeId(formData.videoUrl) ? (
                         <iframe 
                           src={`https://www.youtube.com/embed/${getYouTubeId(formData.videoUrl)}`}
-                          className="w-full h-full"
+                          className="w-full h-full border-0"
                           allowFullScreen
-                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        />
+                      ) : (formData.videoUrl.includes("mediadelivery.net") || formData.videoUrl.includes("bunnycdn.com") || formData.videoUrl.includes("/embed/")) ? (
+                        <iframe 
+                          src={formData.videoUrl}
+                          className="w-full h-full border-0"
+                          allowFullScreen
+                          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
                         />
                       ) : (
                         <video 
                           src={formData.videoUrl.startsWith('/') ? `${API}${formData.videoUrl}` : formData.videoUrl} 
-                          className="w-full h-full object-cover" 
+                          className="w-full h-full object-contain bg-black" 
                           controls 
+                          playsInline
+                          preload="metadata"
                           key={formData.videoUrl}
                         />
                       )
                     ) : (
-                      <span className="text-xs text-gray-400 font-bold">No Video Configured</span>
+                      <div className="flex flex-col items-center justify-center p-4 text-center">
+                        <Video className="w-8 h-8 text-gray-500 dark:text-gray-600 mb-1.5" />
+                        <span className="text-xs text-gray-400 font-bold">No Video Configured</span>
+                        <span className="text-[10px] text-gray-500 mt-0.5">Upload a video to preview here</span>
+                      </div>
                     )}
                   </div>
                 </div>
