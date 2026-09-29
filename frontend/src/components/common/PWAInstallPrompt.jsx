@@ -1,77 +1,82 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X, Smartphone, Sparkles, Share, PlusSquare, ShieldCheck, Zap, Bell } from 'lucide-react';
 
 const PWAInstallPrompt = () => {
+  const location = useLocation();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
-
-  useEffect(() => {
-    // 1. Check if app is already running in standalone (installed) mode
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window === 'undefined') return false;
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
-      window.navigator.standalone === true;
+      window.navigator.standalone === true ||
+      localStorage.getItem('selectt_pwa_installed') === 'true';
+    return Boolean(isStandalone);
+  });
 
-    if (isStandalone) {
-      setIsInstalled(true);
-      return;
-    }
-
-    // 2. Check if user dismissed recently (wait 2 days before showing again)
-    const dismissedAt = localStorage.getItem('selectt_pwa_dismissed_at');
-    if (dismissedAt) {
-      const daysSinceDismiss = (Date.now() - parseInt(dismissedAt, 10)) / (1000 * 60 * 60 * 24);
-      if (daysSinceDismiss < 2) {
-        return;
-      }
-    }
-
-    // 3. Detect iOS devices
+  // Global listeners for beforeinstallprompt & appinstalled events
+  useEffect(() => {
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
     setIsIOS(isIosDevice);
 
-    let popupTimer = null;
-
-    // 4. Handle Chromium `beforeinstallprompt`
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // Wait 18 seconds (15-20s window) after page load before showing the centered popup modal
-      popupTimer = setTimeout(() => {
-        setShowPrompt(true);
-      }, 18000);
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    // 5. Detect if installed via browser event
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setShowPrompt(false);
       setDeferredPrompt(null);
+      localStorage.setItem('selectt_pwa_installed', 'true');
       console.log('[PWA] App successfully installed');
     };
 
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // 6. For iOS or other browsers, show after 18s if not already standalone
-    popupTimer = setTimeout(() => {
-      setShowPrompt(true);
-    }, 18000);
-
     return () => {
-      if (popupTimer) clearTimeout(popupTimer);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
+  // Trigger 15-second timer on every page route change until the user installs
+  useEffect(() => {
+    // 1. If already installed, never show popup
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true ||
+      localStorage.getItem('selectt_pwa_installed') === 'true';
+
+    if (isStandalone) {
+      setIsInstalled(true);
+      setShowPrompt(false);
+      return;
+    }
+
+    // 2. Reset prompt state on page change and wait 15 seconds
+    setShowPrompt(false);
+    const timer = setTimeout(() => {
+      const stillNotInstalled =
+        !window.matchMedia('(display-mode: standalone)').matches &&
+        window.navigator.standalone !== true &&
+        localStorage.getItem('selectt_pwa_installed') !== 'true';
+
+      if (stillNotInstalled) {
+        setShowPrompt(true);
+      }
+    }, 15000); // 15 seconds
+
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      // If browser doesn't support deferred prompt (e.g. iOS or manual install), show alert instructions
       if (isIOS) {
         return;
       }
@@ -83,17 +88,18 @@ const PWAInstallPrompt = () => {
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
       console.log('[PWA] User accepted the install prompt');
+      setIsInstalled(true);
+      localStorage.setItem('selectt_pwa_installed', 'true');
       setShowPrompt(false);
     } else {
-      console.log('[PWA] User dismissed the install prompt');
-      handleDismiss();
+      console.log('[PWA] User dismissed the native install prompt');
+      setShowPrompt(false);
     }
     setDeferredPrompt(null);
   };
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('selectt_pwa_dismissed_at', Date.now().toString());
   };
 
   if (isInstalled || !showPrompt) {

@@ -737,10 +737,10 @@ const SellCarPage = () => {
                       <motion.div
                         key={idx}
                         {...getAlternatingCardMotion(idx)}
-                        className={`bg-white p-6 rounded-2xl border border-slate-200/90 ${item.borderColor} border-t-4 ${item.hoverBorder} shadow-xs hover:shadow-xl transition-all duration-300 relative overflow-hidden group flex flex-col justify-between`}
+                        className={`bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/90 ${item.borderColor} border-t-4 ${item.hoverBorder} shadow-xs hover:shadow-xl transition-all duration-300 relative overflow-hidden group flex flex-col justify-between`}
                       >
                         <div>
-                          <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center justify-between mb-6 sm:mb-7">
                             <span className={`text-3xl sm:text-4xl font-black bg-gradient-to-r ${item.numGradient} bg-clip-text text-transparent tracking-tight leading-none`}>
                               {item.num}
                             </span>
@@ -748,7 +748,7 @@ const SellCarPage = () => {
                               Step {item.num}
                             </span>
                           </div>
-                          <h3 className="text-sm sm:text-[15px] font-heading font-bold text-slate-900 mb-2 leading-snug">
+                          <h3 className="text-sm sm:text-[15px] font-heading font-bold text-slate-900 mb-3 sm:mb-3.5 leading-snug">
                             {item.title}
                           </h3>
                           <p className="text-xs text-slate-600 leading-relaxed font-normal">

@@ -665,7 +665,7 @@ const BuyCarsPage = () => {
               <main className="flex-1 min-w-0">
 
                 {/* Page label & SEO H1 Heading */}
-                <div className="flex flex-col gap-1.5 mb-4 text-left">
+                <div className="flex flex-col gap-2 mb-8 text-left">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <Sparkles size={13} className="text-[#00C9AF]" />
                     <span className="text-xs font-extrabold text-slate-500 uppercase tracking-widest">Selectt Certified Pre-Owned</span>
@@ -1004,7 +1004,7 @@ const BuyCarsPage = () => {
                         className={`bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/90 ${step.borderColor} border-t-4 ${step.hoverBorder} shadow-xs hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex flex-col justify-between`}
                       >
                         <div>
-                          <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center justify-between mb-6 sm:mb-7">
                             <span className={`text-3xl sm:text-4xl font-black bg-gradient-to-r ${step.numGradient} bg-clip-text text-transparent tracking-tight leading-none`}>
                               {step.num}
                             </span>
@@ -1012,7 +1012,7 @@ const BuyCarsPage = () => {
                               Step {step.num}
                             </span>
                           </div>
-                          <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-2.5 tracking-tight leading-snug">{step.title}</h3>
+                          <h3 className="font-extrabold text-slate-900 text-sm sm:text-[15px] mb-3 sm:mb-3.5 tracking-tight leading-snug">{step.title}</h3>
                           <p className="text-slate-600 text-xs leading-relaxed">{step.desc}</p>
                         </div>
                       </motion.div>
