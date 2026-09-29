@@ -28,22 +28,22 @@ const HowItWorksSellingPage = () => {
 
           <SectionReveal className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="text-center max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full mb-3.5 text-[#00C9AF] font-bold shadow-sm backdrop-blur-md">
-                <ShieldCheck size={18} className="text-[#00C9AF]" />
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-3.5 py-1.5 rounded-full mb-3.5 text-[#00C9AF] font-semibold text-[12px] shadow-sm backdrop-blur-md">
+                <ShieldCheck size={16} className="text-[#00C9AF]" />
                 Selectt SellRight
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-white leading-tight mb-3.5 tracking-tight">
+              <h1 className="text-[32px] sm:text-[44px] lg:text-[56px] font-heading font-semibold text-white leading-[1.15] mb-3.5">
                 The best price, simplest selling experience
               </h1>
-              <p className="text-slate-300 font-body text-base md:text-lg font-medium max-w-xl mx-auto mb-8 leading-relaxed">
+              <p className="text-[#CBD5E1] text-[17px] sm:text-[18px] font-normal max-w-xl mx-auto mb-8 leading-[1.6]">
                 Sell your car from the comfort of your home with instant payout and free RC transfer.
               </p>
               <div className="flex items-center justify-center gap-6">
-                <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base font-body">
-                  <CheckCircle2 size={18} className="text-[#00C9AF]" /> Instant Bank Payout
+                <div className="flex items-center gap-2 font-medium text-white text-[15px] leading-[1.45]">
+                  <CheckCircle2 size={18} className="text-[#00C9AF]" /> Instant bank payout
                 </div>
-                <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base font-body">
-                  <CheckCircle2 size={18} className="text-[#00C9AF]" /> Free Doorstep Inspection
+                <div className="flex items-center gap-2 font-medium text-white text-[15px] leading-[1.45]">
+                  <CheckCircle2 size={18} className="text-[#00C9AF]" /> Free doorstep inspection
                 </div>
               </div>
             </div>
@@ -53,15 +53,15 @@ const HowItWorksSellingPage = () => {
         {/* Sub-header banner */}
         <SectionReveal amount={0.3} className="py-14 bg-white text-center border-b border-slate-100 relative z-20">
           <div className="max-w-2xl mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-heading font-black text-[#0C1B33] mb-3.5">Selling never felt this good</h2>
-            <p className="text-slate-700 font-body text-sm md:text-base font-normal leading-[1.8] mb-8">
+            <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] mb-3.5 leading-[1.2]">Selling never felt this good</h2>
+            <p className="text-[#475569] text-[17px] sm:text-[18px] font-normal leading-[1.6] mb-8">
               Selectt SellRight gets you more value for your car. The process is far simpler and safer, as we directly communicate with registered sellers and buyers, an integral part of our end-to-end experience.
             </p>
             <Link
               to="/sell-car"
-              className="inline-flex items-center gap-2 border-2 border-[#00C9AF] text-[#00C9AF] hover:bg-[#00C9AF] hover:text-white font-button font-extrabold py-3 px-8 rounded-full transition-all duration-300 text-xs sm:text-sm tracking-wider uppercase active:scale-95 shadow-sm hover:shadow-md hover:shadow-purple-500/20"
+              className="inline-flex items-center gap-2 border-2 border-[#00C9AF] text-[#00A38D] hover:bg-[#00C9AF] hover:text-[#0F172A] font-semibold py-3 px-8 rounded-full transition-all duration-300 text-[15px] leading-[1.45] active:scale-95 shadow-xs hover:shadow-md hover:shadow-teal-500/20"
             >
-              Sell your car <ChevronRight size={14} />
+              Sell your car <ChevronRight size={16} />
             </Link>
           </div>
         </SectionReveal>

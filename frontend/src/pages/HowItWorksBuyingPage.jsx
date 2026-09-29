@@ -28,22 +28,22 @@ const HowItWorksBuyingPage = () => {
 
           <SectionReveal className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="text-center max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full mb-3.5 text-[#00C9AF] font-bold shadow-sm backdrop-blur-md">
-                <Sparkles size={18} className="text-[#00C9AF]" />
-                Selectt Buying Process
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-3.5 py-1.5 rounded-full mb-3.5 text-[#00C9AF] font-semibold text-[12px] shadow-sm backdrop-blur-md">
+                <Sparkles size={16} className="text-[#00C9AF]" />
+                Selectt buying process
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-white leading-tight mb-3.5 tracking-tight">
+              <h1 className="text-[32px] sm:text-[44px] lg:text-[56px] font-heading font-semibold text-white leading-[1.15] mb-3.5">
                 You'll love our cars and the way you buy them
               </h1>
-              <p className="text-slate-300 font-body text-base md:text-lg font-medium max-w-xl mx-auto mb-8 leading-relaxed">
+              <p className="text-[#CBD5E1] text-[17px] sm:text-[18px] font-normal max-w-xl mx-auto mb-8 leading-[1.6]">
                 Absolute transparency, zero hassle, and a premium digital experience from search to delivery.
               </p>
               <div className="flex items-center justify-center gap-6">
-                <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base font-body">
-                  <CheckCircle2 size={18} className="text-[#00C9AF]" /> 200-Point Inspection
+                <div className="flex items-center gap-2 font-medium text-white text-[15px] leading-[1.45]">
+                  <CheckCircle2 size={18} className="text-[#00C9AF]" /> 200-point inspection
                 </div>
-                <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base font-body">
-                  <CheckCircle2 size={18} className="text-[#00C9AF]" /> 5-Day Money Back
+                <div className="flex items-center gap-2 font-medium text-white text-[15px] leading-[1.45]">
+                  <CheckCircle2 size={18} className="text-[#00C9AF]" /> 5-day money back
                 </div>
               </div>
             </div>
@@ -53,15 +53,15 @@ const HowItWorksBuyingPage = () => {
         {/* Sub-header banner */}
         <SectionReveal amount={0.3} className="py-14 bg-white text-center border-b border-slate-100 relative z-20">
           <div className="max-w-3xl mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-heading font-black text-[#0C1B33] mb-3.5">Car joy, assured.</h2>
-            <p className="text-slate-700 font-body text-sm md:text-base font-normal leading-[1.8] mb-8">
+            <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] mb-3.5 leading-[1.2]">Car joy, assured.</h2>
+            <p className="text-[#475569] text-[17px] sm:text-[18px] font-normal leading-[1.6] mb-8">
               Whether it's a first set of wheels you're after, or something bigger for everybody in the family or that big upgrade, with us you'll be a happy car owner, confident about your purchase.
             </p>
             <Link
               to="/buy-cars"
-              className="inline-flex items-center gap-2 border-2 border-[#00C9AF] text-[#00C9AF] hover:bg-[#00C9AF] hover:text-[#0C1B33] font-button font-extrabold py-3 px-8 rounded-full transition-all duration-300 text-xs sm:text-sm tracking-wider uppercase active:scale-95 shadow-sm hover:shadow-md hover:shadow-[#00C9AF]/20"
+              className="inline-flex items-center gap-2 border-2 border-[#00C9AF] text-[#00A38D] hover:bg-[#00C9AF] hover:text-[#0F172A] font-semibold py-3 px-8 rounded-full transition-all duration-300 text-[15px] leading-[1.45] active:scale-95 shadow-xs hover:shadow-md hover:shadow-[#00C9AF]/20"
             >
-              Buy Car <ChevronRight size={14} />
+              Buy car <ChevronRight size={16} />
             </Link>
           </div>
         </SectionReveal>

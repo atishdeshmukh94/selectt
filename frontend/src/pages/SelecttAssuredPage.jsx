@@ -114,31 +114,31 @@ export default function SelecttAssuredPage() {
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-bold text-xs uppercase tracking-wider backdrop-blur-md mb-3.5">
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-semibold text-[12px] leading-[1.4] backdrop-blur-md mb-3.5">
                 <ShieldCheck size={14} className="text-[#00C9AF]" />
-                Selectt Assured® Quality Standard
+                Selectt Assured® quality standard
               </div>
               
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-3.5">
-                The Selectt Advantage: Our 200-Point Inspection Guarantee
+              <h1 className="text-[28px] sm:text-[40px] lg:text-[48px] font-heading font-semibold text-white leading-[1.2] mb-3.5">
+                The Selectt advantage: our 200-point inspection guarantee
               </h1>
               
-              <p className="text-slate-300 text-base sm:text-lg font-normal leading-relaxed max-w-2xl mx-auto mb-8">
+              <p className="text-[#CBD5E1] text-[17px] sm:text-[18px] font-normal leading-[1.6] max-w-2xl mx-auto mb-8">
                 We reject 85% of cars so you only drive home the best. Learn what goes into every Selectt Certified vehicle.
               </p>
 
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
                 <Link
                   to="/buy-cars"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#00C9AF] hover:bg-[#00b29c] text-[#0C1B33] font-bold py-3.5 px-8 rounded-xl shadow-xs transition-all text-xs uppercase tracking-wider cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#00C9AF] hover:bg-[#00b29c] text-slate-950 font-semibold py-3.5 px-8 rounded-xl shadow-xs transition-all text-[15px] leading-[1.45] cursor-pointer"
                 >
-                  Browse Assured Cars <ArrowRight size={15} />
+                  Browse assured cars <ArrowRight size={16} />
                 </Link>
                 <a
                   href="#inspection-details"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 text-white border border-white/15 font-bold py-3.5 px-6 rounded-xl transition-all text-xs tracking-wider"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 text-white border border-white/15 font-semibold py-3.5 px-6 rounded-xl transition-all text-[15px] leading-[1.45]"
                 >
-                  Explore 200-Point Inspection
+                  Explore 200-point inspection
                 </a>
               </div>
             </div>
@@ -154,8 +154,8 @@ export default function SelecttAssuredPage() {
                   <FileCheck2 size={20} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm mb-1">200-Point Inspection</h3>
-                  <p className="text-xs sm:text-sm text-slate-500 font-normal leading-[1.75]">
+                  <h3 className="font-heading font-semibold text-[#0F172A] text-[16px] sm:text-[17px] mb-1">200-point inspection</h3>
+                  <p className="text-[14px] sm:text-[15px] text-[#475569] font-normal leading-[1.6]">
                     Evaluated across engine, diagnostics, suspension, and structural integrity.
                   </p>
                 </div>
@@ -166,8 +166,8 @@ export default function SelecttAssuredPage() {
                   <BadgeCheck size={20} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm mb-1">5-Day Moneyback Guarantee</h3>
-                  <p className="text-xs sm:text-sm text-slate-500 font-normal leading-[1.75]">
+                  <h3 className="font-heading font-semibold text-[#0F172A] text-[16px] sm:text-[17px] mb-1">5-day moneyback guarantee</h3>
+                  <p className="text-[14px] sm:text-[15px] text-[#475569] font-normal leading-[1.6]">
                     Don't love your car? Return it within 5 days for a 100% no-questions-asked refund.
                   </p>
                 </div>
@@ -178,8 +178,8 @@ export default function SelecttAssuredPage() {
                   <Shield size={20} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm mb-1">1-Year Warranty Included</h3>
-                  <p className="text-xs sm:text-sm text-slate-500 font-normal leading-[1.75]">
+                  <h3 className="font-heading font-semibold text-[#0F172A] text-[16px] sm:text-[17px] mb-1">1-year warranty included</h3>
+                  <p className="text-[14px] sm:text-[15px] text-[#475569] font-normal leading-[1.6]">
                     Comprehensive and powertrain protection covering engine and transmission.
                   </p>
                 </div>
@@ -192,18 +192,18 @@ export default function SelecttAssuredPage() {
         <section id="inspection-details" className="py-20 bg-[#F8FAFC] border-b border-slate-200/80">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20 inline-block mb-3.5">
-                Scientific Diagnostics
+              <span className="text-[12px] font-medium text-[#008A79] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20 inline-block mb-3.5 leading-[1.4]">
+                Scientific diagnostics
               </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3.5">
-                Inside our rigorous 200-Point Evaluation
+              <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] leading-[1.2] mb-3.5">
+                Inside our rigorous 200-point evaluation
               </h2>
-              <p className="text-slate-500 text-sm font-normal mt-3 leading-relaxed">
+              <p className="text-[#475569] text-[17px] sm:text-[18px] font-normal mt-3 leading-[1.6]">
                 Every vehicle undergoes multi-stage digital diagnostic scans, paint thickness measurements, and road test evaluations before listing.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
               {inspectionCategories.map((cat, idx) => {
                 const Icon = cat.icon;
                 const isSelected = selectedInspectionCategory === idx;
@@ -222,10 +222,10 @@ export default function SelecttAssuredPage() {
                     }`}>
                       <Icon size={18} />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#00a892] block mb-1">
+                    <span className="text-[12px] font-semibold text-[#008A79] block mb-1 leading-[1.4]">
                       {cat.points}
                     </span>
-                    <h3 className="font-bold text-slate-900 text-xs leading-snug">
+                    <h3 className="font-heading font-semibold text-[#0F172A] text-[15px] sm:text-[16px] leading-snug">
                       {cat.title}
                     </h3>
                   </button>
@@ -236,17 +236,17 @@ export default function SelecttAssuredPage() {
             {/* Selected Category Details Card */}
             <div className="bg-white border border-slate-200/80 rounded-2xl p-7 sm:p-9 shadow-xs text-left">
               <div className="max-w-3xl space-y-3.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                  Category Focus • {inspectionCategories[selectedInspectionCategory].points}
+                <span className="text-[12px] font-medium text-slate-500 block mb-1">
+                  Category focus • {inspectionCategories[selectedInspectionCategory].points}
                 </span>
-                <h3 className="text-xl font-bold text-slate-900">
-                  {inspectionCategories[selectedInspectionCategory].title} Checkpoint Protocol
+                <h3 className="text-[20px] sm:text-[21px] font-heading font-semibold text-[#0F172A] leading-[1.35]">
+                  {inspectionCategories[selectedInspectionCategory].title} checkpoint protocol
                 </h3>
-                <p className="text-slate-600 text-sm font-normal leading-relaxed">
+                <p className="text-[#475569] text-[16px] sm:text-[17px] font-normal leading-[1.6]">
                   {inspectionCategories[selectedInspectionCategory].desc}
                 </p>
-                <div className="pt-3 flex items-center gap-2 text-xs font-semibold text-emerald-700">
-                  <CheckCircle2 size={15} />
+                <div className="pt-3 flex items-center gap-2 text-[14px] font-medium text-emerald-700">
+                  <CheckCircle2 size={16} />
                   <span>Full digital inspection report accessible for every vehicle on its details page</span>
                 </div>
               </div>
@@ -258,13 +258,13 @@ export default function SelecttAssuredPage() {
         <section className="py-20 bg-white border-b border-slate-200/80">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20 inline-block mb-3.5">
-                1-Year Protection
+              <span className="text-[12px] font-medium text-[#008A79] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20 inline-block mb-3.5 leading-[1.4]">
+                1-year protection
               </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3.5">
-                Comprehensive vs Powertrain Warranty
+              <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] leading-[1.2] mb-3.5">
+                Comprehensive vs powertrain warranty
               </h2>
-              <p className="text-slate-500 text-sm font-normal mt-3 leading-relaxed">
+              <p className="text-[#475569] text-[17px] sm:text-[18px] font-normal mt-3 leading-[1.6]">
                 Enjoy hassle-free drives with zero unexpected repair expenses.
               </p>
             </div>
@@ -274,46 +274,46 @@ export default function SelecttAssuredPage() {
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-50/90 border-b border-slate-200/80">
-                    <th className="p-4 sm:p-5 font-bold text-slate-900 w-1/3 text-sm">Feature & Component</th>
-                    <th className="p-4 sm:p-5 font-bold text-slate-900 w-1/3 text-sm">Comprehensive (90 Days)</th>
-                    <th className="p-4 sm:p-5 font-bold text-slate-900 w-1/3 text-sm">Powertrain (365 Days)</th>
+                    <th className="p-4 sm:p-5 font-heading font-semibold text-[#0F172A] w-1/3 text-[15px]">Feature & component</th>
+                    <th className="p-4 sm:p-5 font-heading font-semibold text-[#0F172A] w-1/3 text-[15px]">Comprehensive (90 days)</th>
+                    <th className="p-4 sm:p-5 font-heading font-semibold text-[#0F172A] w-1/3 text-[15px]">Powertrain (365 days)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody className="divide-y divide-slate-100 font-normal text-[#475569] text-[14px] sm:text-[15px]">
                   <tr>
-                    <td className="p-4 sm:p-5 font-semibold text-slate-900">Duration & Kilometers</td>
-                    <td className="p-4 sm:p-5 text-slate-600">90 Days / 3,000 kms</td>
-                    <td className="p-4 sm:p-5 text-slate-600">365 Days / 12,000 kms</td>
+                    <td className="p-4 sm:p-5 font-medium text-[#0F172A]">Duration & kilometers</td>
+                    <td className="p-4 sm:p-5 text-[#475569]">90 days / 3,000 kms</td>
+                    <td className="p-4 sm:p-5 text-[#475569]">365 days / 12,000 kms</td>
                   </tr>
                   <tr className="hover:bg-slate-50/50">
-                    <td className="p-4 sm:p-5 font-semibold text-slate-900">Engine Block & Head Assemblies</td>
-                    <td className="p-4 sm:p-5"><Check className="text-emerald-600" size={18} /></td>
-                    <td className="p-4 sm:p-5"><Check className="text-emerald-600" size={18} /></td>
-                  </tr>
-                  <tr className="hover:bg-slate-50/50">
-                    <td className="p-4 sm:p-5 font-semibold text-slate-900">Manual / Automatic Transmission</td>
+                    <td className="p-4 sm:p-5 font-medium text-[#0F172A]">Engine block & head assemblies</td>
                     <td className="p-4 sm:p-5"><Check className="text-emerald-600" size={18} /></td>
                     <td className="p-4 sm:p-5"><Check className="text-emerald-600" size={18} /></td>
                   </tr>
                   <tr className="hover:bg-slate-50/50">
-                    <td className="p-4 sm:p-5 font-semibold text-slate-900">Steering Rack & Power Pump</td>
+                    <td className="p-4 sm:p-5 font-medium text-[#0F172A]">Manual / automatic transmission</td>
+                    <td className="p-4 sm:p-5"><Check className="text-emerald-600" size={18} /></td>
+                    <td className="p-4 sm:p-5"><Check className="text-emerald-600" size={18} /></td>
+                  </tr>
+                  <tr className="hover:bg-slate-50/50">
+                    <td className="p-4 sm:p-5 font-medium text-[#0F172A]">Steering rack & power pump</td>
                     <td className="p-4 sm:p-5"><Check className="text-emerald-600" size={18} /></td>
                     <td className="p-4 sm:p-5 text-slate-300">-</td>
                   </tr>
                   <tr className="hover:bg-slate-50/50">
-                    <td className="p-4 sm:p-5 font-semibold text-slate-900">ABS & Master Brake Cylinder</td>
+                    <td className="p-4 sm:p-5 font-medium text-[#0F172A]">ABS & master brake cylinder</td>
                     <td className="p-4 sm:p-5"><Check className="text-emerald-600" size={18} /></td>
                     <td className="p-4 sm:p-5 text-slate-300">-</td>
                   </tr>
                   <tr className="hover:bg-slate-50/50">
-                    <td className="p-4 sm:p-5 font-semibold text-slate-900">Air Conditioning Compressor & Condenser</td>
+                    <td className="p-4 sm:p-5 font-medium text-[#0F172A]">Air conditioning compressor & condenser</td>
                     <td className="p-4 sm:p-5"><Check className="text-emerald-600" size={18} /></td>
                     <td className="p-4 sm:p-5 text-slate-300">-</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <p className="text-center text-[11px] text-slate-400 font-medium">*Standard terms and conditions apply</p>
+            <p className="text-center text-[12px] text-slate-400 font-normal">*Standard terms and conditions apply</p>
           </div>
         </section>
 
@@ -321,11 +321,11 @@ export default function SelecttAssuredPage() {
         <section className="py-20 bg-[#F8FAFC] border-b border-slate-200/80">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3.5 py-1.5 rounded-full border border-[#00C9AF]/20 inline-block mb-3.5">
-                Buyer Protection
+              <span className="text-[12px] font-medium text-[#008A79] bg-[#00C9AF]/10 px-3.5 py-1.5 rounded-full border border-[#00C9AF]/20 inline-block mb-3.5 leading-[1.4]">
+                Buyer protection
               </span>
-              <h2 className="text-2xl sm:text-3xl font-heading font-extrabold text-slate-900 tracking-normal mb-3.5">
-                Our Triple Guarantee For Every Certified Car
+              <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] leading-[1.2] mb-3.5">
+                Our triple guarantee for every certified car
               </h2>
             </div>
 
@@ -335,9 +335,9 @@ export default function SelecttAssuredPage() {
                   <ShieldCheck size={24} />
                 </div>
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#00a892]">Zero Risk Test Period</span>
-                  <h3 className="text-base sm:text-lg font-heading font-bold text-slate-900 mt-1 mb-2">5-Day Money-Back Guarantee</h3>
-                  <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.75]">
+                  <span className="text-[12px] font-semibold text-[#008A79]">Zero risk test period</span>
+                  <h3 className="text-[20px] sm:text-[21px] font-heading font-semibold text-[#0F172A] mt-1 mb-2 leading-[1.35]">5-day money-back guarantee</h3>
+                  <p className="text-[#475569] text-[16px] sm:text-[17px] font-normal leading-[1.6]">
                     Test your car on your daily commute and with your family. If it doesn't fit your life, return it within 5 days (up to 250 km) for a 100% full refund with no questions asked.
                   </p>
                 </div>
@@ -348,9 +348,9 @@ export default function SelecttAssuredPage() {
                   <Shield size={24} />
                 </div>
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-sky-600">Complete Protection</span>
-                  <h3 className="text-base sm:text-lg font-heading font-bold text-slate-900 mt-1 mb-2">1-Year Warranty Included</h3>
-                  <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.75]">
+                  <span className="text-[12px] font-semibold text-sky-600">Complete protection</span>
+                  <h3 className="text-[20px] sm:text-[21px] font-heading font-semibold text-[#0F172A] mt-1 mb-2 leading-[1.35]">1-year warranty included</h3>
+                  <p className="text-[#475569] text-[16px] sm:text-[17px] font-normal leading-[1.6]">
                     Comprehensive and powertrain protection covering engine block, transmission, steering rack, and air conditioning for up to 12,000 kilometers.
                   </p>
                 </div>
@@ -361,9 +361,9 @@ export default function SelecttAssuredPage() {
                   <Award size={24} />
                 </div>
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-amber-600">Inspection Assurance</span>
-                  <h3 className="text-base sm:text-lg font-heading font-bold text-slate-900 mt-1 mb-2">₹50,000 Zero Hidden Damages Promise</h3>
-                  <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.75]">
+                  <span className="text-[12px] font-semibold text-amber-600">Inspection assurance</span>
+                  <h3 className="text-[20px] sm:text-[21px] font-heading font-semibold text-[#0F172A] mt-1 mb-2 leading-[1.35]">₹50,000 zero hidden damages promise</h3>
+                  <p className="text-[#475569] text-[16px] sm:text-[17px] font-normal leading-[1.6]">
                     If an undisclosed mechanical issue arises during your warranty period that was missed during inspection, Selectt fixes it for free or offers up to ₹50,000 assurance cover.
                   </p>
                 </div>

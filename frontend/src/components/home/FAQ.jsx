@@ -43,11 +43,11 @@ const FAQ = ({ dark = true }) => {
       }`}>
       <div className="max-w-3xl mx-auto">
 
-        <h2 className={`text-2xl sm:text-3xl font-black mb-8 flex items-center justify-center gap-5 w-full ${dark ? 'text-white' : 'text-[#0C1B33]'
+        <h2 className={`text-[28px] sm:text-[40px] font-heading font-semibold mb-8 flex items-center justify-center gap-5 w-full leading-[1.2] ${dark ? 'text-white' : 'text-[#0F172A]'
           }`}>
-          <div className={`h-px flex-1 max-w-[80px] md:max-w-none ${dark ? 'bg-white/10' : 'bg-[#0c1b33]/10'}`} />
-          <span className="shrink-0 text-center font-heading">Frequently Asked Questions</span>
-          <div className={`h-px flex-1 max-w-[80px] md:max-w-none ${dark ? 'bg-white/10' : 'bg-[#0c1b33]/10'}`} />
+          <div className={`h-px flex-1 max-w-[80px] md:max-w-none ${dark ? 'bg-white/10' : 'bg-[#0F172A]/10'}`} />
+          <span className="shrink-0 text-center font-heading">Frequently asked questions</span>
+          <div className={`h-px flex-1 max-w-[80px] md:max-w-none ${dark ? 'bg-white/10' : 'bg-[#0F172A]/10'}`} />
         </h2>
 
         <div className="space-y-4">
@@ -67,14 +67,14 @@ const FAQ = ({ dark = true }) => {
               >
                 <button
                   onClick={() => handleToggle(index)}
-                  className={`w-full cursor-pointer flex items-center justify-between p-5 md:p-6 text-left font-bold select-none transition-colors duration-200 outline-none ${isOpen
+                  className={`w-full cursor-pointer flex items-center justify-between p-5 md:p-6 text-left font-heading font-semibold select-none transition-colors duration-200 outline-none ${isOpen
                     ? 'text-[#00C9AF]'
                     : dark
                       ? 'text-white hover:text-[#00C9AF]'
-                      : 'text-slate-700 hover:text-[#0A1C3A]'
+                      : 'text-[#0F172A] hover:text-[#00A38D]'
                     }`}
                 >
-                  <span className="text-sm md:text-base pr-4 font-heading">{faq.question}</span>
+                  <span className="text-[16px] sm:text-[17px] pr-4 leading-[1.45]">{faq.question}</span>
                   <ChevronDown className={`transition-transform duration-300 text-[#00C9AF] shrink-0 ${isOpen ? 'rotate-180' : ''}`} size={18} />
                 </button>
 
@@ -84,7 +84,7 @@ const FAQ = ({ dark = true }) => {
                     : 'max-h-0 opacity-0'
                     }`}
                 >
-                  <div className={`px-5 md:px-6 pb-5 md:pb-6 pt-4 text-sm sm:text-base leading-[1.75] font-normal ${dark ? 'text-slate-300' : 'text-slate-700'
+                  <div className={`px-5 md:px-6 pb-5 md:pb-6 pt-4 text-[15px] sm:text-[16px] leading-[1.6] font-normal ${dark ? 'text-[#CBD5E1]' : 'text-[#475569]'
                     }`}>
                     {faq.answer}
                   </div>
@@ -98,9 +98,9 @@ const FAQ = ({ dark = true }) => {
         <div className="text-center mt-8">
           <Link
             to="/faq"
-            className="inline-flex items-center gap-2 text-xs md:text-sm font-bold text-[#00C9AF] hover:text-[#00b29c] transition-colors"
+            className="inline-flex items-center gap-2 text-[15px] font-semibold text-[#00C9AF] hover:text-[#00b29c] transition-colors leading-[1.45]"
           >
-            <Sparkles size={14} /> View All Frequently Asked Questions & Knowledge Hub →
+            <Sparkles size={14} /> View all frequently asked questions & knowledge hub <ChevronRight size={16} />
           </Link>
         </div>
 

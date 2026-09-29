@@ -850,91 +850,91 @@ const BuyCarsPage = () => {
                     transition={{ duration: 0.5 }}
                     className="text-center max-w-2xl mx-auto mb-10"
                   >
-                    <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 border border-[#00C9AF]/30 text-[#008f7d] px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider mb-3.5 shadow-xs">
-                      <ShieldCheck size={14} /> Buyer Guarantee
+                    <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 border border-[#00C9AF]/30 text-[#008f7d] px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-3.5 shadow-xs">
+                      <ShieldCheck size={14} /> Buyer guarantee
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-heading font-extrabold text-slate-900 mb-3.5 tracking-normal">
-                      The Selectt Advantage for Buyers
+                    <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] leading-[1.2] mb-3.5">
+                      The Selectt advantage for buyers
                     </h2>
-                    <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.8] tracking-wide mb-12 sm:mb-14">
+                    <p className="text-[#475569] text-[17px] sm:text-[18px] font-normal leading-[1.6] max-w-2xl mx-auto mb-10">
                       Every car at Selectt is certified to deliver true peace of mind, transparent pricing, and unmatched post-purchase security in {displayCity}.
                     </p>
                   </motion.div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {/* Card 1: Emerald/Teal Gradient */}
                     <motion.div
                       {...getAlternatingCardMotion(0)}
-                      className="bg-gradient-to-br from-emerald-50/90 via-teal-50/60 to-white p-6 sm:p-7 rounded-2xl border border-emerald-200/80 shadow-xs hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 group flex flex-col justify-between"
+                      className="bg-gradient-to-br from-emerald-50/90 via-teal-50/60 to-white p-6 sm:p-7 md:p-8 rounded-2xl border border-emerald-200/80 shadow-xs hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 group flex flex-col justify-between"
                     >
                       <div>
                         <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center mb-5 shadow-md shadow-emerald-500/25 group-hover:scale-105 transition-transform">
                           <FileCheck2 size={22} />
                         </div>
-                        <h3 className="font-heading font-extrabold text-slate-900 text-base sm:text-lg mb-3.5 leading-snug">200-Point Inspected Cars</h3>
-                        <p className="text-slate-700 text-sm sm:text-base leading-[1.75] mb-5 font-normal">
+                        <h3 className="font-heading font-semibold text-[#0F172A] text-[20px] sm:text-[21px] leading-[1.35] mb-3.5">200-point inspected cars</h3>
+                        <p className="text-[#475569] text-[16px] sm:text-[17px] leading-[1.6] font-normal mb-6">
                           Every vehicle undergoes a rigorous mechanical, electrical, and structural evaluation. Zero accident or flood-damaged cars.
                         </p>
                       </div>
-                      <Link to="/how-it-works/buying" className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-emerald-700 mt-auto pt-3 group-hover:text-emerald-800 uppercase tracking-wider">
-                        View Inspection Details <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                      <Link to="/how-it-works/buying" className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-emerald-700 mt-auto pt-2 group-hover:text-emerald-800">
+                        View inspection details <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     </motion.div>
 
                     {/* Card 2: Sky/Blue Gradient */}
                     <motion.div
                       {...getAlternatingCardMotion(1)}
-                      className="bg-gradient-to-br from-sky-50/90 via-blue-50/60 to-white p-6 sm:p-7 rounded-2xl border border-sky-200/80 shadow-xs hover:border-sky-400 hover:shadow-lg hover:shadow-sky-500/10 transition-all duration-300 group flex flex-col justify-between"
+                      className="bg-gradient-to-br from-sky-50/90 via-blue-50/60 to-white p-6 sm:p-7 md:p-8 rounded-2xl border border-sky-200/80 shadow-xs hover:border-sky-400 hover:shadow-lg hover:shadow-sky-500/10 transition-all duration-300 group flex flex-col justify-between"
                     >
                       <div>
                         <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center mb-5 shadow-md shadow-sky-500/25 group-hover:scale-105 transition-transform">
                           <ShieldCheck size={22} />
                         </div>
-                        <h3 className="font-heading font-extrabold text-slate-900 text-base sm:text-lg mb-3.5 leading-snug">1-Year Warranty</h3>
-                        <p className="text-slate-700 text-sm sm:text-base leading-[1.75] mb-5 font-normal">
+                        <h3 className="font-heading font-semibold text-[#0F172A] text-[20px] sm:text-[21px] leading-[1.35] mb-3.5">1-year warranty</h3>
+                        <p className="text-[#475569] text-[16px] sm:text-[17px] leading-[1.6] font-normal mb-6">
                           Drive with total confidence with comprehensive and powertrain coverage covering engine and transmission.
                         </p>
                       </div>
-                      <Link to="/how-it-works/buying" className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-sky-700 mt-auto pt-3 group-hover:text-sky-800 uppercase tracking-wider">
-                        Warranty Terms <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                      <Link to="/how-it-works/buying" className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-sky-700 mt-auto pt-2 group-hover:text-sky-800">
+                        Warranty terms <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     </motion.div>
 
                     {/* Card 3: Purple/Indigo Gradient */}
                     <motion.div
                       {...getAlternatingCardMotion(2)}
-                      className="bg-gradient-to-br from-purple-50/90 via-indigo-50/60 to-white p-6 sm:p-7 rounded-2xl border border-purple-200/80 shadow-xs hover:border-purple-400 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 group flex flex-col justify-between"
+                      className="bg-gradient-to-br from-purple-50/90 via-indigo-50/60 to-white p-6 sm:p-7 md:p-8 rounded-2xl border border-purple-200/80 shadow-xs hover:border-purple-400 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 group flex flex-col justify-between"
                     >
                       <div>
                         <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-600 text-white flex items-center justify-center mb-5 shadow-md shadow-purple-500/25 group-hover:scale-105 transition-transform">
                           <RefreshCw size={22} />
                         </div>
-                        <h3 className="font-heading font-extrabold text-slate-900 text-base sm:text-lg mb-3.5 leading-snug">5-Day Money-Back Guarantee</h3>
-                        <p className="text-slate-700 text-sm sm:text-base leading-[1.75] mb-5 font-normal">
+                        <h3 className="font-heading font-semibold text-[#0F172A] text-[20px] sm:text-[21px] leading-[1.35] mb-3.5">5-day money-back guarantee</h3>
+                        <p className="text-[#475569] text-[16px] sm:text-[17px] leading-[1.6] font-normal mb-6">
                           Not completely satisfied? Return the car within 5 days (up to 250 km) for a 100% no-questions-asked refund.
                         </p>
                       </div>
-                      <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-purple-700 mt-auto pt-3 uppercase tracking-wider">
-                        100% Refundable
+                      <span className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-purple-700 mt-auto pt-2">
+                        100% refundable
                       </span>
                     </motion.div>
 
                     {/* Card 4: Amber/Orange Gradient */}
                     <motion.div
                       {...getAlternatingCardMotion(3)}
-                      className="bg-gradient-to-br from-amber-50/90 via-orange-50/60 to-white p-6 sm:p-7 rounded-2xl border border-amber-200/80 shadow-xs hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 group flex flex-col justify-between"
+                      className="bg-gradient-to-br from-amber-50/90 via-orange-50/60 to-white p-6 sm:p-7 md:p-8 rounded-2xl border border-amber-200/80 shadow-xs hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 group flex flex-col justify-between"
                     >
                       <div>
                         <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center mb-5 shadow-md shadow-amber-500/25 group-hover:scale-105 transition-transform">
                           <BadgePercent size={22} />
                         </div>
-                        <h3 className="font-heading font-extrabold text-slate-900 text-base sm:text-lg mb-3.5 leading-snug">Fixed Price Assurance</h3>
-                        <p className="text-slate-700 text-sm sm:text-base leading-[1.75] mb-5 font-normal">
+                        <h3 className="font-heading font-semibold text-[#0F172A] text-[20px] sm:text-[21px] leading-[1.35] mb-3.5">Fixed price assurance</h3>
+                        <p className="text-[#475569] text-[16px] sm:text-[17px] leading-[1.6] font-normal mb-6">
                           No awkward negotiations or hidden dealer fees. You receive data-backed fair market pricing upfront.
                         </p>
                       </div>
-                      <Link to="/used-car-loan" className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-amber-700 mt-auto pt-3 group-hover:text-amber-800 uppercase tracking-wider">
-                        Calculate Low EMIs <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                      <Link to="/used-car-loan" className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-amber-700 mt-auto pt-2 group-hover:text-amber-800">
+                        Calculate low EMIs <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     </motion.div>
                   </div>
@@ -947,72 +947,65 @@ const BuyCarsPage = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ duration: 0.5 }}
-                    className="text-center max-w-2xl mx-auto mb-12 sm:mb-14"
+                    className="text-center max-w-2xl mx-auto mb-10"
                   >
-                    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#00C9AF]/15 text-[#008A79] text-xs sm:text-sm font-extrabold uppercase tracking-wider mb-3.5">Simple 4-Step Journey</span>
-                    <h2 className="text-2xl sm:text-3xl font-heading font-extrabold text-slate-900 mb-3.5 tracking-normal">
-                      How Buying a Car Works with Selectt
+                    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#00C9AF]/15 text-[#008A79] text-xs font-semibold uppercase tracking-wider mb-3.5">Simple 4-step journey</span>
+                    <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] leading-[1.2] mb-3.5">
+                      How buying a car works with Selectt
                     </h2>
-                    <p className="text-slate-700 text-sm sm:text-base font-normal leading-[1.8] tracking-wide">
+                    <p className="text-[#475569] text-[17px] sm:text-[18px] font-normal leading-[1.6]">
                       Experience seamless car ownership with transparent online bookings, test drives, and doorstep delivery.
                     </p>
                   </motion.div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
                       {
                         num: "01",
-                        title: "Choose Your Car Online",
+                        title: "Choose your car online",
                         desc: `Browse 500+ certified cars with high-definition photos, 360° views, and digital inspection reports in ${displayCity}.`,
                         numGradient: "from-teal-600 to-[#00C9AF]",
                         borderColor: "border-t-[#00C9AF]",
-                        hoverBorder: "hover:border-[#00C9AF]",
-                        badgeBg: "bg-teal-50 text-teal-700 border-teal-200/60"
+                        hoverBorder: "hover:border-[#00C9AF]"
                       },
                       {
                         num: "02",
-                        title: "Book a Free Test Drive",
+                        title: "Book a free test drive",
                         desc: "Test drive at your nearest Selectt Hub or schedule a convenient doorstep test drive at your home.",
                         numGradient: "from-blue-600 to-sky-400",
                         borderColor: "border-t-sky-500",
-                        hoverBorder: "hover:border-sky-500",
-                        badgeBg: "bg-sky-50 text-sky-700 border-sky-200/60"
+                        hoverBorder: "hover:border-sky-500"
                       },
                       {
                         num: "03",
-                        title: "Secure Online Payment",
+                        title: "Secure online payment",
                         desc: "Choose flexible car loan finance options with low EMI or complete full payment via secure digital methods.",
                         numGradient: "from-purple-600 to-indigo-400",
                         borderColor: "border-t-purple-500",
-                        hoverBorder: "hover:border-purple-500",
-                        badgeBg: "bg-purple-50 text-purple-700 border-purple-200/60"
+                        hoverBorder: "hover:border-purple-500"
                       },
                       {
                         num: "04",
-                        title: "Doorstep Delivery",
+                        title: "Doorstep delivery",
                         desc: "Get your car delivered straight to your home along with complete paperwork, warranty kit, and RC transfer support.",
                         numGradient: "from-amber-500 to-rose-400",
                         borderColor: "border-t-amber-500",
-                        hoverBorder: "hover:border-amber-500",
-                        badgeBg: "bg-amber-50 text-amber-700 border-amber-200/60"
+                        hoverBorder: "hover:border-amber-500"
                       }
                     ].map((step, idx) => (
                       <motion.div
                         key={idx}
                         {...getAlternatingCardMotion(idx)}
-                        className={`bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/90 ${step.borderColor} border-t-4 ${step.hoverBorder} shadow-xs hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex flex-col justify-between`}
+                        className={`bg-white p-6 sm:p-7 md:p-8 rounded-2xl border border-slate-200/90 ${step.borderColor} border-t-4 ${step.hoverBorder} shadow-xs hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex flex-col justify-between`}
                       >
                         <div>
-                          <div className="flex items-center justify-between mb-7 sm:mb-8">
-                            <span className={`text-3xl sm:text-4xl font-black bg-gradient-to-r ${step.numGradient} bg-clip-text text-transparent tracking-tight leading-none`}>
+                          <div className="flex items-center justify-between mb-6">
+                            <span className={`text-3xl sm:text-4xl font-black bg-gradient-to-r ${step.numGradient} bg-clip-text text-transparent leading-none`}>
                               {step.num}
                             </span>
-                            <span className={`text-xs sm:text-sm font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border ${step.badgeBg}`}>
-                              Step {step.num}
-                            </span>
                           </div>
-                          <h3 className="font-heading font-extrabold text-slate-900 text-base sm:text-lg mb-3.5 leading-snug">{step.title}</h3>
-                          <p className="text-slate-700 text-sm sm:text-base leading-[1.75] font-normal">{step.desc}</p>
+                          <h3 className="font-heading font-semibold text-[#0F172A] text-[20px] sm:text-[21px] leading-[1.35] mb-3.5">{step.title}</h3>
+                          <p className="text-[#475569] text-[16px] sm:text-[17px] leading-[1.6] font-normal">{step.desc}</p>
                         </div>
                       </motion.div>
                     ))}
