@@ -120,8 +120,8 @@ const BlogSinglePage = () => {
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12">
           {/* Main Article */}
           <article className="flex-1 max-w-4xl">
-            <div className="mb-8">
-              <div className="flex flex-wrap gap-2 mb-4">
+            <div className="mb-10">
+              <div className="flex flex-wrap gap-2 mb-3.5">
                 {post.categories?.split(',').map((c, i) => (
                   <span
                     key={i}
@@ -131,7 +131,7 @@ const BlogSinglePage = () => {
                   </span>
                 ))}
               </div>
-              <h1 className="text-3xl md:text-5xl font-black text-navy dark:text-white mb-6 leading-tight">{post.title}</h1>
+              <h1 className="text-3xl md:text-5xl font-black text-navy dark:text-white mb-3.5 leading-tight">{post.title}</h1>
               <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 font-medium">
                 <div className="flex items-center gap-2"><User size={16} /> By Selectt Editorial</div>
                 <div className="flex items-center gap-2"><Calendar size={16} /> {new Date(post.published_at).toLocaleDateString('en-IN', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
@@ -139,7 +139,7 @@ const BlogSinglePage = () => {
             </div>
 
             {/* Featured Media */}
-            <div className="mb-10 rounded-3xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <div className="mb-12 rounded-3xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
               {post.video_url ? (
                 post.video_type === 'youtube' ? (
                   <div className="relative w-full pt-[56.25%]"><iframe src={`https://www.youtube.com/embed/${post.video_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1]}`} className="absolute top-0 left-0 w-full h-full" allowFullScreen frameBorder="0" /></div>
@@ -152,7 +152,7 @@ const BlogSinglePage = () => {
             </div>
 
             {/* Content */}
-            <div className="prose prose-lg dark:prose-invert prose-rose max-w-none mb-12" dangerouslySetInnerHTML={{ __html: post.content }} />
+            <div className="prose prose-lg dark:prose-invert prose-rose max-w-none mb-14" dangerouslySetInnerHTML={{ __html: post.content }} />
 
             {/* Post Tags */}
             {post.tags && (
@@ -296,7 +296,7 @@ const BlogSinglePage = () => {
           <div className="max-w-7xl mx-auto mt-16 pt-12 border-t border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <span className="text-xs font-black uppercase tracking-widest text-[#00C9AF] mb-1 block">Related Reads</span>
+                <span className="text-xs font-black uppercase tracking-widest text-[#00C9AF] mb-1.5 block">Related Reads</span>
                 <h2 className="text-2xl sm:text-3xl font-black text-navy dark:text-white">Related & Latest Posts</h2>
               </div>
               <Link
@@ -312,9 +312,9 @@ const BlogSinglePage = () => {
                 <Link
                   to={`/blog/${r.slug}`}
                   key={r.id}
-                  className="group flex flex-col bg-white dark:bg-gray-900 border-2 border-slate-300/90 dark:border-slate-700 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:border-[#00C9AF] dark:hover:border-[#00C9AF] transition-all duration-300"
+                  className="group flex flex-col bg-white dark:bg-gray-900 border-2 border-slate-300/90 dark:border-slate-700 rounded-3xl p-7 sm:p-8 shadow-sm hover:shadow-xl hover:border-[#00C9AF] dark:hover:border-[#00C9AF] transition-all duration-300"
                 >
-                  <div className="w-full rounded-2xl overflow-hidden mb-5 bg-slate-100 dark:bg-gray-800 relative shadow-xs flex items-center justify-center min-h-[190px]">
+                  <div className="w-full rounded-2xl overflow-hidden mb-6 bg-slate-100 dark:bg-gray-800 relative shadow-xs flex items-center justify-center min-h-[190px]">
                     {r.featured_image ? (
                       <img
                         src={r.featured_image.startsWith('/') ? `${API}${r.featured_image}` : r.featured_image}
@@ -329,28 +329,28 @@ const BlogSinglePage = () => {
                   </div>
                   <div className="flex-1 flex flex-col">
                     {r.categories && (
-                      <div className="flex flex-wrap gap-1.5 mb-3">
+                      <div className="flex flex-wrap gap-2 mb-3.5">
                         {r.categories.split(',').slice(0, 2).map((c, idx) => (
                           <span
                             key={idx}
-                            className="text-[10px] font-black uppercase tracking-widest text-white bg-slate-950 dark:bg-black px-2.5 py-1 rounded-full"
+                            className="text-[10px] font-black uppercase tracking-widest text-white bg-slate-950 dark:bg-black px-3 py-1 rounded-full"
                           >
                             {c.trim()}
                           </span>
                         ))}
                       </div>
                     )}
-                    <h3 className="text-lg font-black text-navy dark:text-white mb-2 line-clamp-2 group-hover:text-[#00C9AF] transition-colors">
+                    <h3 className="text-lg font-black text-navy dark:text-white mb-2.5 line-clamp-2 group-hover:text-[#00C9AF] transition-colors">
                       {r.title}
                     </h3>
                     {r.excerpt && (
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 flex-1">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 line-clamp-2 leading-relaxed flex-1">
                         {r.excerpt}
                       </p>
                     )}
-                    <div className="flex items-center justify-between text-xs font-bold text-gray-400 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center justify-between text-xs font-bold text-gray-400 mt-auto pt-5 border-t border-slate-100 dark:border-slate-800">
                       <span>{new Date(r.published_at).toLocaleDateString('en-IN', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                      <span className="flex items-center gap-1 group-hover:text-[#00C9AF] transition-colors">Read Post <ChevronRight size={14} /></span>
+                      <span className="flex items-center gap-1.5 group-hover:text-[#00C9AF] transition-colors">Read Post <ChevronRight size={14} /></span>
                     </div>
                   </div>
                 </Link>

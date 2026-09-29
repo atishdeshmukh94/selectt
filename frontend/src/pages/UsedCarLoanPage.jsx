@@ -155,21 +155,21 @@ const CityServicesSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
 
           {/* Left Column: Heading, Subtext, Trust Highlights */}
-          <div className="lg:col-span-5 space-y-6 text-center lg:text-left">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#00C9AF]/10 text-[#00a892] border border-[#00C9AF]/20">
+          <div className="lg:col-span-5 text-center lg:text-left">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#00C9AF]/10 text-[#00a892] border border-[#00C9AF]/20 mb-3.5">
               <Building2 size={13} /> Selectt Financial Suite
             </span>
 
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0C1B33] leading-tight tracking-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0C1B33] leading-tight tracking-tight mb-3.5">
               Tailored car financing <br className="hidden sm:block" />
               <span className="text-slate-500 font-normal">for every need.</span>
             </h2>
 
-            <p className="text-slate-600 font-normal text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0">
+            <p className="text-slate-600 font-normal text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0 mb-6">
               Whether you are purchasing your next vehicle, refinancing an existing loan, or unlocking liquidity, our network of 12+ partner banks provides the lowest rate guarantees.
             </p>
 
-            <div className="space-y-3 pt-1 text-left max-w-sm mx-auto lg:mx-0">
+            <div className="space-y-3 pt-1 text-left max-w-sm mx-auto lg:mx-0 mb-8">
               <div className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-700">
                 <div className="w-5 h-5 rounded-full bg-teal-50 text-[#00a892] flex items-center justify-center shrink-0 border border-teal-100">
                   <Check size={12} strokeWidth={3} />
@@ -195,7 +195,7 @@ const CityServicesSection = () => {
                 onClick={() => {
                   window.scrollTo({ top: 400, behavior: 'smooth' });
                 }}
-                className="bg-[#0C1B33] hover:bg-[#081324] text-white px-7 py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm transition-all duration-200 cursor-pointer inline-flex items-center gap-2"
+                className="bg-[#0C1B33] hover:bg-[#081324] text-white px-7 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm transition-all duration-200 cursor-pointer inline-flex items-center gap-2"
               >
                 <span>Calculate EMI & Eligibility</span>
                 <ArrowRight size={14} className="text-[#00C9AF]" />
@@ -412,21 +412,21 @@ const UsedCarLoanPage = () => {
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#00C9AF] rounded-full mix-blend-screen filter blur-[140px] opacity-20 animate-pulse z-0"></div>
         <div className="absolute bottom-0 left-10 w-80 h-80 bg-purple-600 rounded-full mix-blend-screen filter blur-[120px] opacity-15 z-0"></div>
 
-        <SectionReveal className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10 space-y-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#00C9AF]/15 text-[#00C9AF] border border-[#00C9AF]/20 w-fit mx-auto">
+        <SectionReveal className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#00C9AF]/15 text-[#00C9AF] border border-[#00C9AF]/20 w-fit mx-auto mb-3.5">
             <ShieldCheck size={14} /> Instant Pre-Approved Financing
           </span>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight mb-3.5">
             Financing made effortless <br className="hidden sm:block" />
             <span className="text-[#00C9AF]">for every car buyer.</span>
           </h1>
 
-          <p className="text-slate-300 text-sm sm:text-base font-normal max-w-xl mx-auto leading-relaxed">
+          <p className="text-slate-300 text-sm sm:text-base font-normal max-w-xl mx-auto leading-relaxed mt-3">
             Experience 100% paperless digital verification, lowest industry interest rates, and same-day disbursal with 12+ leading banking partners.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 pt-3 text-xs sm:text-sm font-medium text-slate-200">
+          <div className="flex flex-wrap items-center justify-center gap-6 pt-6 text-xs sm:text-sm font-medium text-slate-200">
             <div className="flex items-center gap-2">
               <CheckCircle2 size={16} className="text-[#00C9AF]" /> Zero hidden processing charges
             </div>
@@ -449,13 +449,13 @@ const UsedCarLoanPage = () => {
       <section className="py-16 sm:py-24 bg-white relative overflow-hidden border-t border-slate-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 relative">
           <SectionReveal className="text-center max-w-2xl mx-auto mb-16 lg:mb-20">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#00a892] mb-2 block">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#00a892] mb-3.5 block">
               Transparent Workflow
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-[#0C1B33] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0C1B33] tracking-tight mb-3.5">
               Get approved in 4 simple steps
             </h2>
-            <p className="text-slate-500 text-sm sm:text-base font-normal mt-2 leading-relaxed">
+            <p className="text-slate-500 text-sm sm:text-base font-normal mt-3 leading-relaxed">
               Fast, paperless digital verification designed to put you behind the wheel on the same day.
             </p>
           </SectionReveal>
@@ -474,7 +474,7 @@ const UsedCarLoanPage = () => {
                   <path d="M16.5259 112.361V112.861H17.0259H45.7439H46.2439V112.361V1.63867V1.13867H45.7439H1.25586H0.755859V1.63867V26.0407V26.5407H1.25586H16.5259V112.361Z" fill="none" stroke="#ADADAD" strokeWidth="1.5"></path>
                 </svg>
                 <div className="flex-1">
-                  <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                  <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                     Check Eligibility
                   </h3>
                   <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -508,7 +508,7 @@ const UsedCarLoanPage = () => {
             >
               <div className="w-full lg:w-[55%] flex items-center gap-6 lg:pr-[117px]">
                 <div className="flex-1">
-                  <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                  <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                     Digital KYC
                   </h3>
                   <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -548,7 +548,7 @@ const UsedCarLoanPage = () => {
                   <path d="M1.25586 76.0124H0.707189L0.758009 76.5588C2.09934 90.9781 8.97624 100.549 14.6952 105.764C24.4454 114.841 36.0383 117.35 46.7399 117.35C63.2995 117.35 74.0528 111.493 80.1274 105.418C84.8458 100.7 90.0679 92.7769 90.0679 80.8284C90.0679 74.4353 88.5517 69.0221 85.3336 64.2797L85.3295 64.2737C83.0857 61.0683 79.3126 56.941 73.0039 54.3621C76.5384 52.3538 78.8467 49.625 80.7099 46.2095C83.2487 41.639 84.0919 37.2359 84.0919 32.3564C84.0919 23.7477 80.5458 16.1532 74.9814 10.5889L74.9778 10.5853C66.5399 2.31613 55.4233 0.648438 47.0719 0.648438C36.3796 0.648438 25.7643 2.98795 17.4988 11.5884C12.4407 16.6482 7.23811 25.5577 6.56667 37.3079L6.53647 37.8364H7.06586H33.7919H34.2919V37.3364C34.2919 33.9486 35.5885 30.113 37.951 27.9021L37.9573 27.9021L37.9634 27.896C39.5107 26.3487 42.195 25.2204 45.5779 25.2204C48.6298 25.2204 51.6457 26.3494 53.3583 28.062C54.911 29.6147 56.1999 32.8006 56.1999 35.6764C56.1999 38.0361 55.2562 40.8808 52.7204 43.1006C50.506 44.9978 46.9989 46.6149 41.3326 45.8055L40.7619 45.7239V46.3004V65.7224V66.4162L41.42 66.1968C42.8455 65.7216 44.2814 65.5584 46.0759 65.5584C49.5116 65.5584 53.6887 66.3812 56.3808 68.5974C58.2765 70.1776 60.5159 73.3635 60.5159 78.0064C60.5159 81.2261 59.717 84.0878 57.3251 86.8009C55.2364 89.0486 51.8761 91.4504 46.4079 91.4504C41.705 91.4504 37.863 89.8294 35.4846 87.2925L35.4791 87.2866L35.4734 87.2809C32.9228 84.7302 31.2995 80.5423 31.1375 76.4925L31.1183 76.0124H30.6379H1.25586Z" fill="none" stroke="#ADADAD" strokeWidth="1.5"></path>
                 </svg>
                 <div className="flex-1">
-                  <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                  <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                     Instant Sanction
                   </h3>
                   <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -582,7 +582,7 @@ const UsedCarLoanPage = () => {
             >
               <div className="w-full lg:w-[55%] flex items-center gap-6 lg:pr-[117px]">
                 <div className="flex-1">
-                  <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                  <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                     Drive Home
                   </h3>
                   <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -637,10 +637,10 @@ const UsedCarLoanPage = () => {
       {/* ───────────── Finance Banking Partners ───────────── */}
       <SectionReveal amount={0.25} className="py-16 bg-white border-t border-slate-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-3.5">
             Banking Network
           </span>
-          <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight mb-8">
+          <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight mb-10">
             Trusted Lending Partners
           </h3>
           <StaggerGroup className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">

@@ -206,14 +206,14 @@ export default function EChallanPage() {
         
         <div className="max-w-6xl mx-auto relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
           {/* Left Column: Slogan */}
-          <div className="space-y-4 max-w-xl text-center lg:text-left">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase bg-[#00C9AF]/15 text-[#00C9AF] border border-[#00C9AF]/20 w-fit">
+          <div className="max-w-xl text-center lg:text-left">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase bg-[#00C9AF]/15 text-[#00C9AF] border border-[#00C9AF]/20 w-fit mb-3.5">
               <ShieldCheck size={12} /> Government Approved Partner
             </span>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight mb-3.5">
               Settle challans with zero service charge!
             </h1>
-            <p className="text-sm sm:text-base text-slate-300 font-semibold leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-300 font-semibold leading-relaxed mb-6">
               No hidden fees, just hassle-free challan payments. Directly integrated with Parivahan VAHAN database.
             </p>
 
@@ -439,13 +439,13 @@ export default function EChallanPage() {
         {/* Why Clear Early Section */}
         <div className="space-y-6">
           <div className="text-center sm:text-left max-w-2xl">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20 inline-block mb-3.5">
               Why It Matters
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-2.5">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3.5">
               Why settle your e-challans early?
             </h2>
-            <p className="text-slate-500 text-sm font-normal mt-1.5 leading-relaxed">
+            <p className="text-slate-500 text-sm font-normal mt-3 leading-relaxed">
               Unresolved traffic penalties stay logged against your vehicle's registration certificate (RC) and impact critical ownership workflows.
             </p>
           </div>
@@ -455,8 +455,8 @@ export default function EChallanPage() {
               <div className="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100 mb-4">
                 <Landmark size={20} />
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Instant Loan Approvals</h3>
-              <p className="text-slate-500 text-xs font-normal mt-2 leading-relaxed">
+              <h3 className="font-bold text-slate-900 text-base mb-2">Instant Loan Approvals</h3>
+              <p className="text-slate-500 text-xs font-normal leading-relaxed">
                 Banks and NBFCs run automated VAHAN background checks. Unpaid challans can delay loan disbursements and hypothecation approvals.
               </p>
             </div>
@@ -465,8 +465,8 @@ export default function EChallanPage() {
               <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 mb-4">
                 <ShieldCheck size={20} />
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Smooth Insurance Renewal</h3>
-              <p className="text-slate-500 text-xs font-normal mt-2 leading-relaxed">
+              <h3 className="font-bold text-slate-900 text-base mb-2">Smooth Insurance Renewal</h3>
+              <p className="text-slate-500 text-xs font-normal leading-relaxed">
                 Avoid penalty surcharge loadings or policy issuance holds during your annual comprehensive motor insurance renewal cycle.
               </p>
             </div>
@@ -475,8 +475,8 @@ export default function EChallanPage() {
               <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100 mb-4">
                 <Repeat size={20} />
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Seamless Vehicle Resale</h3>
-              <p className="text-slate-500 text-xs font-normal mt-2 leading-relaxed">
+              <h3 className="font-bold text-slate-900 text-base mb-2">Seamless Vehicle Resale</h3>
+              <p className="text-slate-500 text-xs font-normal leading-relaxed">
                 RTO ownership transfer (Form 29/30) strictly requires an unconditional clean record with zero pending notices or court summons.
               </p>
             </div>
@@ -487,8 +487,8 @@ export default function EChallanPage() {
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Step-by-Step Guide</span>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-3.5">Step-by-Step Guide</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                 How to Check & Pay e-Challan
               </h2>
             </div>
@@ -519,31 +519,31 @@ export default function EChallanPage() {
           <div>
             {activeInfoTab === 'selectt' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="border border-slate-200/80 rounded-xl p-5 bg-slate-50/50 space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+                <div className="border border-slate-200/80 rounded-xl p-6 bg-slate-50/50 space-y-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-3">
                     01
                   </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Enter Vehicle Number</h4>
+                  <h4 className="font-bold text-slate-900 text-sm mb-1">Enter Vehicle Number</h4>
                   <p className="text-slate-500 text-xs font-normal leading-relaxed">
                     Type your car or bike registration number in the search bar above to trigger instant VAHAN 4.0 sync.
                   </p>
                 </div>
 
-                <div className="border border-slate-200/80 rounded-xl p-5 bg-slate-50/50 space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+                <div className="border border-slate-200/80 rounded-xl p-6 bg-slate-50/50 space-y-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-3">
                     02
                   </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Review Violations</h4>
+                  <h4 className="font-bold text-slate-900 text-sm mb-1">Review Violations</h4>
                   <p className="text-slate-500 text-xs font-normal leading-relaxed">
                     Examine camera proof, violation location, time, fine amount, and select the specific dues you want to clear.
                   </p>
                 </div>
 
-                <div className="border border-slate-200/80 rounded-xl p-5 bg-slate-50/50 space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-bold text-xs">
+                <div className="border border-slate-200/80 rounded-xl p-6 bg-slate-50/50 space-y-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-bold text-xs mb-3">
                     03
                   </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Zero Fee Settlement</h4>
+                  <h4 className="font-bold text-slate-900 text-sm mb-1">Zero Fee Settlement</h4>
                   <p className="text-slate-500 text-xs font-normal leading-relaxed">
                     Complete payment with 0% extra fee via UPI, Cards, or Net Banking. Instant digital clearance receipt generated.
                   </p>
@@ -553,31 +553,31 @@ export default function EChallanPage() {
 
             {activeInfoTab === 'parivahan' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="border border-slate-200/80 rounded-xl p-5 bg-slate-50/50 space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+                <div className="border border-slate-200/80 rounded-xl p-6 bg-slate-50/50 space-y-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-3">
                     01
                   </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Visit MoRTH Portal</h4>
+                  <h4 className="font-bold text-slate-900 text-sm mb-1">Visit MoRTH Portal</h4>
                   <p className="text-slate-500 text-xs font-normal leading-relaxed">
                     Open <code className="text-slate-700 bg-slate-200/70 px-1 py-0.5 rounded text-[11px]">echallan.parivahan.gov.in</code> on your web browser.
                   </p>
                 </div>
 
-                <div className="border border-slate-200/80 rounded-xl p-5 bg-slate-50/50 space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+                <div className="border border-slate-200/80 rounded-xl p-6 bg-slate-50/50 space-y-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-3">
                     02
                   </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Enter Captcha & Details</h4>
+                  <h4 className="font-bold text-slate-900 text-sm mb-1">Enter Captcha & Details</h4>
                   <p className="text-slate-500 text-xs font-normal leading-relaxed">
                     Input your vehicle number, engine/chassis number digits, and complete the visual captcha challenge.
                   </p>
                 </div>
 
-                <div className="border border-slate-200/80 rounded-xl p-5 bg-slate-50/50 space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-slate-700 text-white flex items-center justify-center font-bold text-xs">
+                <div className="border border-slate-200/80 rounded-xl p-6 bg-slate-50/50 space-y-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-slate-700 text-white flex items-center justify-center font-bold text-xs mb-3">
                     03
                   </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Government Gateway</h4>
+                  <h4 className="font-bold text-slate-900 text-sm mb-1">Government Gateway</h4>
                   <p className="text-slate-500 text-xs font-normal leading-relaxed">
                     Authenticate via the state Treasury payment gateway and download the formal MoRTH transaction PDF.
                   </p>
@@ -587,31 +587,31 @@ export default function EChallanPage() {
 
             {activeInfoTab === 'offline' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="border border-slate-200/80 rounded-xl p-5 bg-slate-50/50 space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+                <div className="border border-slate-200/80 rounded-xl p-6 bg-slate-50/50 space-y-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-3">
                     01
                   </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Visit Traffic Headquarters</h4>
+                  <h4 className="font-bold text-slate-900 text-sm mb-1">Visit Traffic Headquarters</h4>
                   <p className="text-slate-500 text-xs font-normal leading-relaxed">
                     Visit your regional Traffic Police headquarters or local RTO dispute redressal helpdesk in person.
                   </p>
                 </div>
 
-                <div className="border border-slate-200/80 rounded-xl p-5 bg-slate-50/50 space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+                <div className="border border-slate-200/80 rounded-xl p-6 bg-slate-50/50 space-y-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-3">
                     02
                   </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Present Vehicle RC</h4>
+                  <h4 className="font-bold text-slate-900 text-sm mb-1">Present Vehicle RC</h4>
                   <p className="text-slate-500 text-xs font-normal leading-relaxed">
                     Provide your physical RC smart card, driving license, and request the billing counter to print pending fines.
                   </p>
                 </div>
 
-                <div className="border border-slate-200/80 rounded-xl p-5 bg-slate-50/50 space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-slate-700 text-white flex items-center justify-center font-bold text-xs">
+                <div className="border border-slate-200/80 rounded-xl p-6 bg-slate-50/50 space-y-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-slate-700 text-white flex items-center justify-center font-bold text-xs mb-3">
                     03
                   </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Counter Settlement</h4>
+                  <h4 className="font-bold text-slate-900 text-sm mb-1">Counter Settlement</h4>
                   <p className="text-slate-500 text-xs font-normal leading-relaxed">
                     Pay the fine over the physical counter via POS card machine or cash, and collect an official stamped paper receipt.
                   </p>
@@ -625,8 +625,8 @@ export default function EChallanPage() {
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Motor Vehicles Act Reference</span>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-3.5">Motor Vehicles Act Reference</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                 Standard Traffic Violations & Fine Schedule
               </h2>
             </div>
@@ -673,8 +673,8 @@ export default function EChallanPage() {
         {/* Safety Tips Cards */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#00a892]">Best Practices</span>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-0.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#00a892] block mb-3.5">Best Practices</span>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Proactive Tips to Avoid Traffic Penalties
             </h2>
           </div>
@@ -722,8 +722,8 @@ export default function EChallanPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">User Experiences</span>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-3.5">User Experiences</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                 Trusted by vehicle owners across India
               </h2>
             </div>

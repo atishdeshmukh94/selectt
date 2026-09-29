@@ -52,7 +52,7 @@ const BlogPage = () => {
           <div className="absolute bottom-0 left-10 w-72 h-72 bg-purple-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20 z-0"></div>
 
           <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-tight mb-3">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-tight mb-3.5">
               Selectt Blog
             </h1>
             <p className="text-slate-300 text-sm sm:text-base font-semibold max-w-2xl mx-auto leading-relaxed mb-8">
@@ -85,7 +85,7 @@ const BlogPage = () => {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 md:px-6 mt-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 mt-14">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3, 4, 5, 6].map(i => (
@@ -111,8 +111,8 @@ const BlogPage = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map(post => (
-                <Link to={`/blog/${post.slug}`} key={post.id} className="group flex flex-col bg-white dark:bg-gray-900 border-2 border-slate-300/90 dark:border-slate-700 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:border-[#00C9AF] dark:hover:border-[#00C9AF] transition-all duration-300">
-                  <div className="w-full rounded-2xl overflow-hidden mb-5 bg-slate-100 dark:bg-gray-800 relative shadow-xs flex items-center justify-center min-h-[190px]">
+                <Link to={`/blog/${post.slug}`} key={post.id} className="group flex flex-col bg-white dark:bg-gray-900 border-2 border-slate-300/90 dark:border-slate-700 rounded-3xl p-7 sm:p-8 shadow-sm hover:shadow-xl hover:border-[#00C9AF] dark:hover:border-[#00C9AF] transition-all duration-300">
+                  <div className="w-full rounded-2xl overflow-hidden mb-6 bg-slate-100 dark:bg-gray-800 relative shadow-xs flex items-center justify-center min-h-[190px]">
                     {post.featured_image ? (
                       <img src={post.featured_image.startsWith('/') ? `${API}${post.featured_image}` : post.featured_image} alt={`${post.title} - Selectt Car Guide & Insights`} className="w-full h-auto max-h-[260px] object-contain group-hover:scale-105 transition-transform duration-500" />
                     ) : (
@@ -120,16 +120,16 @@ const BlogPage = () => {
                     )}
                   </div>
                   <div className="flex-1 flex flex-col">
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="flex flex-wrap gap-2 mb-3.5">
                       {post.category_slugs?.split(',').map((c, i) => (
-                        <span key={i} className="text-[10px] font-black uppercase tracking-widest text-white bg-slate-950 dark:bg-black px-2.5 py-1 rounded-full">{c.replace(/-/g, ' ')}</span>
+                        <span key={i} className="text-[10px] font-black uppercase tracking-widest text-white bg-slate-950 dark:bg-black px-3 py-1 rounded-full">{c.replace(/-/g, ' ')}</span>
                       ))}
                     </div>
-                    <h2 className="text-xl font-black text-navy dark:text-white mb-2 line-clamp-2 group-hover:text-[#00C9AF] transition-colors">{post.title}</h2>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 flex-1">{post.excerpt}</p>
-                    <div className="flex items-center justify-between text-xs font-bold text-gray-400 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h2 className="text-xl font-black text-navy dark:text-white mb-2.5 line-clamp-2 group-hover:text-[#00C9AF] transition-colors">{post.title}</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 line-clamp-2 leading-relaxed flex-1">{post.excerpt}</p>
+                    <div className="flex items-center justify-between text-xs font-bold text-gray-400 mt-auto pt-5 border-t border-slate-100 dark:border-slate-800">
                       <span>{new Date(post.published_at).toLocaleDateString('en-IN', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                      <span className="flex items-center gap-1 group-hover:text-[#00C9AF] transition-colors">Read Post <ChevronRight size={14} /></span>
+                      <span className="flex items-center gap-1.5 group-hover:text-[#00C9AF] transition-colors">Read Post <ChevronRight size={14} /></span>
                     </div>
                   </div>
                 </Link>

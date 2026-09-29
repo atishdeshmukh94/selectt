@@ -262,39 +262,39 @@ const FAQPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Hero Knowledge Hub Header */}
-          <div className="bg-white border border-[#E2E8F0] rounded-3xl p-6 sm:p-10 shadow-xs mb-8">
+          <div className="bg-white border border-[#E2E8F0] rounded-3xl p-7 sm:p-10 shadow-xs mb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 border border-[#00C9AF]/30 text-[#008f7d] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
+                <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 border border-[#00C9AF]/30 text-[#008f7d] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3.5">
                   <HelpCircle size={14} className="text-[#00a892]" /> Selectt Knowledge & Help Hub
                 </div>
-                <h1 className="text-2xl sm:text-4xl font-black text-[#0C1B33] tracking-tight leading-tight">
+                <h1 className="text-2xl sm:text-4xl font-black text-[#0C1B33] tracking-tight leading-tight mb-3.5">
                   Frequently Asked Questions About Buying & Selling Used Cars
                 </h1>
-                <p className="text-slate-600 font-medium text-sm sm:text-base mt-3 leading-relaxed">
+                <p className="text-slate-600 font-medium text-sm sm:text-base leading-relaxed mb-6">
                   Everything you need to know about certified pre-owned cars, 200-point inspection guarantees, instant valuation, used car loans, and 100% free RC transfer.
                 </p>
 
                 {/* Quick Trust Highlights */}
-                <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-5 pt-5 border-t border-slate-100 text-xs text-slate-700 font-semibold">
-                  <div className="flex items-center gap-1.5 text-slate-800">
+                <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-6 border-t border-slate-100 text-xs text-slate-700 font-semibold">
+                  <div className="flex items-center gap-2 text-slate-800">
                     <CheckCircle2 size={16} className="text-[#00C9AF]" /> 200-Point Inspected
                   </div>
-                  <div className="flex items-center gap-1.5 text-slate-800">
+                  <div className="flex items-center gap-2 text-slate-800">
                     <CheckCircle2 size={16} className="text-[#00C9AF]" /> 5-Day Money-Back Guarantee
                   </div>
-                  <div className="flex items-center gap-1.5 text-slate-800">
+                  <div className="flex items-center gap-2 text-slate-800">
                     <CheckCircle2 size={16} className="text-[#00C9AF]" /> Seller Protection Policy
                   </div>
-                  <div className="flex items-center gap-1.5 text-slate-800">
+                  <div className="flex items-center gap-2 text-slate-800">
                     <CheckCircle2 size={16} className="text-[#00C9AF]" /> Free RC Transfer
                   </div>
                 </div>
               </div>
 
               {/* Instant Search Bar */}
-              <div className="w-full lg:max-w-md bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search Answers</span>
+              <div className="w-full lg:max-w-md bg-slate-50 border border-slate-200/80 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">Search Answers</span>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <Search className="h-4 w-4 text-slate-400" />
@@ -304,7 +304,7 @@ const FAQPage = () => {
                     placeholder="Search e.g. RC transfer, warranty, loan, inspection..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#CBD5E1] rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00C9AF] focus:border-[#00C9AF] text-xs sm:text-sm shadow-xs transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-white border border-[#CBD5E1] rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00C9AF] focus:border-[#00C9AF] text-xs sm:text-sm shadow-xs transition-all"
                   />
                   {searchQuery && (
                     <button
@@ -315,7 +315,7 @@ const FAQPage = () => {
                     </button>
                   )}
                 </div>
-                <div className="mt-3 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <div className="mt-3.5 flex items-center justify-between text-[11px] text-slate-500 font-medium">
                   <span>Popular: <button onClick={() => setSearchQuery('warranty')} className="text-[#00a892] hover:underline">Warranty</button>, <button onClick={() => setSearchQuery('RC transfer')} className="text-[#00a892] hover:underline">RC Transfer</button>, <button onClick={() => setSearchQuery('loan')} className="text-[#00a892] hover:underline">EMI</button></span>
                   <div className="flex gap-2">
                     <button onClick={() => toggleAll(true)} className="text-[#00a892] hover:underline">Expand All</button>
@@ -328,7 +328,7 @@ const FAQPage = () => {
           </div>
 
           {/* Interactive Category Tabs */}
-          <div className="flex flex-wrap items-center gap-2.5 mb-8 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex flex-wrap items-center gap-2.5 mb-10 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
             {[
               { id: 'ALL', label: 'All Topics', count: allFaqs.length },
               { id: 'BUY', label: 'Buying Used Cars', count: allCategories[0].items.length },
@@ -365,16 +365,16 @@ const FAQPage = () => {
               displayedCategories.map(cat => {
                 const IconComponent = cat.icon || Sparkles;
                 return (
-                  <div key={cat.id} className="bg-white border border-[#E2E8F0] rounded-3xl p-6 sm:p-8 shadow-xs">
+                  <div key={cat.id} className="bg-white border border-[#E2E8F0] rounded-3xl p-7 sm:p-9 shadow-xs">
                     
                     {/* Category Title Bar */}
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-[#00C9AF]/15 text-[#008f7d] flex items-center justify-center font-bold">
-                          <IconComponent size={18} />
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-7">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/15 text-[#008f7d] flex items-center justify-center font-bold">
+                          <IconComponent size={20} />
                         </div>
                         <div>
-                          <h2 className="text-lg sm:text-xl font-black text-slate-900">{cat.title}</h2>
+                          <h2 className="text-lg sm:text-xl font-black text-slate-900 mb-0.5">{cat.title}</h2>
                           <span className="text-xs text-slate-400 font-medium">{cat.items.length} Questions Answered</span>
                         </div>
                       </div>
@@ -398,9 +398,9 @@ const FAQPage = () => {
                             <button
                               type="button"
                               onClick={() => toggleAccordion(itemKey)}
-                              className="w-full text-left px-5 py-4 flex items-center justify-between gap-4 cursor-pointer"
+                              className="w-full text-left px-6 py-4.5 flex items-center justify-between gap-4 cursor-pointer"
                             >
-                              <div className="flex items-start gap-3">
+                              <div className="flex items-start gap-3.5">
                                 <span className="w-5 h-5 rounded-full bg-[#00C9AF]/20 text-[#008f7d] text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
                                   Q
                                 </span>
@@ -414,11 +414,11 @@ const FAQPage = () => {
                             </button>
 
                             {isOpen && (
-                              <div className="px-5 pb-5 pt-1 text-slate-600 text-xs sm:text-sm leading-relaxed font-normal border-t border-slate-100/80">
-                                <p className="pl-8">{item.a}</p>
+                              <div className="px-6 pb-6 pt-2 text-slate-600 text-xs sm:text-sm leading-relaxed font-normal border-t border-slate-100/80">
+                                <p className="pl-8.5">{item.a}</p>
 
                                 {item.link && (
-                                  <div className="pt-3 mt-3 pl-8">
+                                  <div className="pt-3.5 mt-3 pl-8.5">
                                     <Link
                                       to={item.link}
                                       className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00a892] hover:text-[#0C1B33] transition-colors"
@@ -438,14 +438,14 @@ const FAQPage = () => {
               })
             ) : (
               <div className="bg-white rounded-3xl p-16 text-center border border-slate-200">
-                <div className="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3.5">
                   <Search size={22} />
                 </div>
-                <p className="text-slate-800 font-bold text-base">No questions found matching "{searchQuery}"</p>
-                <p className="text-slate-500 text-xs mt-1">Try searching for other terms like 'loan', 'RC transfer', or 'inspection'</p>
+                <p className="text-slate-800 font-bold text-base mb-1">No questions found matching "{searchQuery}"</p>
+                <p className="text-slate-500 text-xs mb-4">Try searching for other terms like 'loan', 'RC transfer', or 'inspection'</p>
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="mt-4 bg-[#00C9AF] text-[#0C1B33] text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer hover:bg-[#00b29c] transition-colors"
+                  className="bg-[#00C9AF] text-[#0C1B33] text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer hover:bg-[#00b29c] transition-colors"
                 >
                   Clear Search
                 </button>
@@ -454,28 +454,28 @@ const FAQPage = () => {
           </div>
 
           {/* Quick Help & Direct Support CTA */}
-          <div className="mt-12 bg-gradient-to-r from-[#0C1B33] via-[#112444] to-[#0C1B33] rounded-3xl p-6 sm:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-md border border-slate-800">
+          <div className="mt-14 bg-gradient-to-r from-[#0C1B33] via-[#112444] to-[#0C1B33] rounded-3xl p-7 sm:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-md border border-slate-800">
             <div className="max-w-2xl">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#00C9AF] bg-[#00C9AF]/15 px-3 py-1 rounded-full mb-2">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#00C9AF] bg-[#00C9AF]/15 px-3 py-1 rounded-full mb-3.5">
                 <Clock size={12} /> Available 7 Days a Week
               </span>
-              <h3 className="text-xl sm:text-2xl font-black mt-1 text-white">
+              <h3 className="text-xl sm:text-2xl font-black text-white mb-2.5">
                 Have a specific question not listed here?
               </h3>
-              <p className="text-slate-300 text-xs sm:text-sm mt-2 leading-relaxed">
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                 Whether you want to sell your car, book a doorstep test drive, check used car loan eligibility, or verify RC status, our automotive specialists are ready to help.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3 shrink-0">
+            <div className="flex flex-wrap gap-3.5 shrink-0">
               <Link
                 to="/contact-us"
-                className="inline-flex items-center gap-2 bg-white text-[#0C1B33] hover:bg-slate-100 text-xs font-black uppercase tracking-wider px-5 py-3 rounded-xl transition-all"
+                className="inline-flex items-center gap-2 bg-white text-[#0C1B33] hover:bg-slate-100 text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all"
               >
                 <PhoneCall size={14} /> Contact Support
               </Link>
               <Link
                 to="/sell-car-in-mumbai"
-                className="inline-flex items-center gap-2 bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00b29c] text-xs font-black uppercase tracking-wider px-5 py-3 rounded-xl transition-all"
+                className="inline-flex items-center gap-2 bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00b29c] text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all"
               >
                 <Sparkles size={14} /> Instant Car Valuation
               </Link>

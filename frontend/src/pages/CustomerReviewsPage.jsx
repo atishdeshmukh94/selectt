@@ -69,20 +69,20 @@ export default function CustomerReviewsPage() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#00C9AF] rounded-full mix-blend-screen filter blur-[120px] opacity-25 animate-pulse z-0"></div>
 
           <div className="max-w-5xl mx-auto px-6 relative z-10">
-            <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-[#00C9AF] text-xs font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 backdrop-blur-md">
+            <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-[#00C9AF] text-xs font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-3.5 backdrop-blur-md">
               <ShieldCheck size={16} /> Verified Video Reviews
             </span>
-            <h1 className="text-3xl md:text-5xl font-black text-white mb-4">
+            <h1 className="text-3xl md:text-5xl font-black text-white mb-3.5">
               Loved by Thousands of Car Joy Owners
             </h1>
-            <p className="text-slate-300 text-sm md:text-base font-semibold max-w-2xl mx-auto leading-relaxed">
+            <p className="text-slate-300 text-sm md:text-base font-semibold max-w-2xl mx-auto leading-relaxed mt-3">
               Watch real stories from customers who bought and sold their cars through Selectt. 100% verified experiences.
             </p>
           </div>
         </div>
 
         {/* 5 Cards in 1 Row Layout */}
-        <div className="max-w-[1400px] mx-auto px-4 md:px-6 mt-12">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-6 mt-14">
           {loading ? (
             <div className="py-24 text-center">
               <div className="w-10 h-10 border-4 border-[#00C9AF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />

@@ -120,10 +120,10 @@ const AboutUsPage = () => {
         {/* Values Section */}
         <SectionReveal amount={0.25} className="bg-white border-t border-b border-slate-200/40 py-20 text-slate-800">
           <div className="max-w-5xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <span className="text-[10px] font-black uppercase text-[#00C9AF] tracking-widest block mb-2">Our Foundation</span>
-              <h2 className="text-2xl md:text-4xl font-heading font-black text-[#0C1B33]">What Drives Us</h2>
-              <p className="text-slate-500 font-body font-semibold text-xs md:text-sm mt-2 max-w-xl mx-auto">Core values that dictate every decision we make at Selectt.</p>
+            <div className="text-center mb-14">
+              <span className="text-[10px] font-black uppercase text-[#00C9AF] tracking-widest block mb-3.5">Our Foundation</span>
+              <h2 className="text-2xl md:text-4xl font-heading font-black text-[#0C1B33] mb-3.5">What Drives Us</h2>
+              <p className="text-slate-500 font-body font-semibold text-xs md:text-sm mt-3 max-w-xl mx-auto">Core values that dictate every decision we make at Selectt.</p>
             </div>
 
             <StaggerGroup className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -131,14 +131,14 @@ const AboutUsPage = () => {
                 <motion.div 
                   whileHover={{ y: -6, scale: 1.02 }}
                   transition={{ duration: 0.25, ease: 'easeOut' }}
-                  className="bg-slate-50 border border-slate-200/60 p-7 rounded-2xl hover:border-[#00C9AF]/50 hover:shadow-xl transition-all relative overflow-hidden group text-left h-full flex flex-col justify-between"
+                  className="bg-slate-50 border border-slate-200/60 p-7 sm:p-8 rounded-2xl hover:border-[#00C9AF]/50 hover:shadow-xl transition-all relative overflow-hidden group text-left h-full flex flex-col justify-between"
                 >
                   <div className="absolute top-0 left-0 w-1 h-full bg-[#00C9AF] opacity-0 group-hover:opacity-100 transition-all" />
                   <div>
-                    <div className="w-12 h-12 bg-[#00C9AF]/10 text-[#00C9AF] rounded-xl flex items-center justify-center mb-5 border border-[#00C9AF]/15 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-[#00C9AF]/10 text-[#00C9AF] rounded-xl flex items-center justify-center mb-6 border border-[#00C9AF]/15 group-hover:scale-110 transition-transform">
                       <ShieldCheck size={24} />
                     </div>
-                    <h3 className="text-base font-subheading font-extrabold text-[#0C1B33] mb-2">Absolute Transparency</h3>
+                    <h3 className="text-base font-subheading font-extrabold text-[#0C1B33] mb-3.5">Absolute Transparency</h3>
                     <p className="text-slate-500 font-body font-normal text-xs leading-relaxed">We share every detail about our cars, good or bad. No hidden flaws, no hidden charges.</p>
                   </div>
                 </motion.div>
@@ -148,14 +148,14 @@ const AboutUsPage = () => {
                 <motion.div 
                   whileHover={{ y: -6, scale: 1.02 }}
                   transition={{ duration: 0.25, ease: 'easeOut' }}
-                  className="bg-slate-50 border border-slate-200/60 p-7 rounded-2xl hover:border-[#00C9AF]/50 hover:shadow-xl transition-all relative overflow-hidden group text-left h-full flex flex-col justify-between"
+                  className="bg-slate-50 border border-slate-200/60 p-7 sm:p-8 rounded-2xl hover:border-[#00C9AF]/50 hover:shadow-xl transition-all relative overflow-hidden group text-left h-full flex flex-col justify-between"
                 >
                   <div className="absolute top-0 left-0 w-1 h-full bg-[#00C9AF] opacity-0 group-hover:opacity-100 transition-all" />
                   <div>
-                    <div className="w-12 h-12 bg-[#00C9AF]/10 text-[#00C9AF] rounded-xl flex items-center justify-center mb-5 border border-[#00C9AF]/15 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-[#00C9AF]/10 text-[#00C9AF] rounded-xl flex items-center justify-center mb-6 border border-[#00C9AF]/15 group-hover:scale-110 transition-transform">
                       <Users size={24} />
                     </div>
-                    <h3 className="text-base font-subheading font-extrabold text-[#0C1B33] mb-2">Customer First</h3>
+                    <h3 className="text-base font-subheading font-extrabold text-[#0C1B33] mb-3.5">Customer First</h3>
                     <p className="text-slate-500 font-body font-normal text-xs leading-relaxed">From home test drives to hassle-free returns, we design our processes around your convenience.</p>
                   </div>
                 </motion.div>
@@ -165,14 +165,14 @@ const AboutUsPage = () => {
                 <motion.div 
                   whileHover={{ y: -6, scale: 1.02 }}
                   transition={{ duration: 0.25, ease: 'easeOut' }}
-                  className="bg-slate-50 border border-slate-200/60 p-7 rounded-2xl hover:border-[#00C9AF]/50 hover:shadow-xl transition-all relative overflow-hidden group text-left h-full flex flex-col justify-between"
+                  className="bg-slate-50 border border-slate-200/60 p-7 sm:p-8 rounded-2xl hover:border-[#00C9AF]/50 hover:shadow-xl transition-all relative overflow-hidden group text-left h-full flex flex-col justify-between"
                 >
                   <div className="absolute top-0 left-0 w-1 h-full bg-[#00C9AF] opacity-0 group-hover:opacity-100 transition-all" />
                   <div>
-                    <div className="w-12 h-12 bg-[#00C9AF]/10 text-[#00C9AF] rounded-xl flex items-center justify-center mb-5 border border-[#00C9AF]/15 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-[#00C9AF]/10 text-[#00C9AF] rounded-xl flex items-center justify-center mb-6 border border-[#00C9AF]/15 group-hover:scale-110 transition-transform">
                       <Award size={24} />
                     </div>
-                    <h3 className="text-base font-subheading font-extrabold text-[#0C1B33] mb-2">Uncompromising Quality</h3>
+                    <h3 className="text-base font-subheading font-extrabold text-[#0C1B33] mb-3.5">Uncompromising Quality</h3>
                     <p className="text-slate-500 font-body font-normal text-xs leading-relaxed">We reject more cars than we buy. Only the top tier make it through our rigorous inspection.</p>
                   </div>
                 </motion.div>

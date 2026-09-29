@@ -227,17 +227,17 @@ const CarInsurancePage = () => {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             
             {/* Left Column */}
-            <div className="lg:col-span-7 text-left text-white space-y-5">
-              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-bold text-xs uppercase tracking-wider backdrop-blur-md">
+            <div className="lg:col-span-7 text-left text-white">
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-bold text-xs uppercase tracking-wider backdrop-blur-md mb-3.5">
                 <ShieldCheck size={14} className="text-[#00C9AF]" />
                 Selectt Motor Insurance Protection
               </div>
               
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-3.5">
                 Hassle-free Car Insurance with Instant Cashless Claims
               </h1>
               
-              <p className="text-slate-300 text-base sm:text-lg font-normal leading-relaxed max-w-xl">
+              <p className="text-slate-300 text-base sm:text-lg font-normal leading-relaxed max-w-xl mb-6">
                 Compare and buy comprehensive insurance with zero inspection delays, up to 50% No Claim Bonus discount, and cashless settlements across India.
               </p>
 
@@ -467,13 +467,13 @@ const CarInsurancePage = () => {
         <section className="py-20 bg-[#F8FAFC] border-b border-slate-200/80">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20 inline-block mb-3.5">
                 Tailored Coverages
               </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-2.5">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3.5">
                 Choose the right protection plan for your car
               </h2>
-              <p className="text-slate-500 text-sm font-normal mt-1.5 leading-relaxed">
+              <p className="text-slate-500 text-sm font-normal mt-3 leading-relaxed">
                 From basic mandatory legal liabilities to 100% bumper-to-bumper zero depreciation covers.
               </p>
             </div>
@@ -482,7 +482,7 @@ const CarInsurancePage = () => {
               {insurancePlans.map((plan, idx) => (
                 <div
                   key={idx}
-                  className={`bg-white rounded-2xl p-6 border flex flex-col justify-between text-left shadow-xs relative transition-all ${
+                  className={`bg-white rounded-2xl p-7 sm:p-8 border flex flex-col justify-between text-left shadow-xs relative transition-all ${
                     plan.popular
                       ? 'border-[#00C9AF] ring-2 ring-[#00C9AF]/15'
                       : 'border-slate-200/80 hover:border-slate-300'
@@ -495,11 +495,11 @@ const CarInsurancePage = () => {
                   )}
 
                   <div>
-                    <div className="mb-4">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
+                    <div className="mb-5">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md mb-2 inline-block">
                         {plan.tag}
                       </span>
-                      <h3 className="text-xl font-bold text-slate-900 mt-2">{plan.name}</h3>
+                      <h3 className="text-xl font-bold text-slate-900 mt-2 mb-1">{plan.name}</h3>
                       <div className="text-sm font-extrabold text-[#00a892] mt-1">{plan.price}</div>
                     </div>
 
@@ -507,7 +507,7 @@ const CarInsurancePage = () => {
                       {plan.desc}
                     </p>
 
-                    <div className="space-y-2.5 border-t border-slate-100 pt-4">
+                    <div className="space-y-3 border-t border-slate-100 pt-5">
                       {plan.features.map((feat, fIdx) => (
                         <div key={fIdx} className="flex items-start gap-2 text-xs text-slate-600 font-medium">
                           <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
@@ -521,7 +521,7 @@ const CarInsurancePage = () => {
                     <button
                       type="button"
                       onClick={() => handleSelectPlan(plan.name)}
-                      className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                      className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
                         plan.popular
                           ? 'bg-[#0C1B33] text-white hover:bg-[#162a4d]'
                           : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
@@ -540,51 +540,51 @@ const CarInsurancePage = () => {
         <section className="py-20 bg-white border-b border-slate-200/80">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Claims Made Simple</span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-3.5">Claims Made Simple</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3.5">
                 4-Step Cashless Claim Process
               </h2>
-              <p className="text-slate-500 text-sm font-normal mt-1.5 leading-relaxed">
+              <p className="text-slate-500 text-sm font-normal mt-3 leading-relaxed">
                 Zero headache, zero out-of-pocket stress. We handle everything from surveyor check to workshop payment.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="border border-slate-200/80 rounded-2xl p-5 bg-slate-50/50 text-left space-y-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+              <div className="border border-slate-200/80 rounded-2xl p-6 sm:p-7 bg-slate-50/50 text-left space-y-3">
+                <div className="w-8 h-8 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-3">
                   01
                 </div>
-                <h4 className="font-bold text-slate-900 text-sm">Notify & Register Claim</h4>
+                <h4 className="font-bold text-slate-900 text-sm mb-2">Notify & Register Claim</h4>
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Call our 24x7 claims helpline or register online in under 2 minutes with accident photos.
                 </p>
               </div>
 
-              <div className="border border-slate-200/80 rounded-2xl p-5 bg-slate-50/50 text-left space-y-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+              <div className="border border-slate-200/80 rounded-2xl p-6 sm:p-7 bg-slate-50/50 text-left space-y-3">
+                <div className="w-8 h-8 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-3">
                   02
                 </div>
-                <h4 className="font-bold text-slate-900 text-sm">Network Garage Towing</h4>
+                <h4 className="font-bold text-slate-900 text-sm mb-2">Network Garage Towing</h4>
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Free towing directly to your nearest authorized cashless workshop or Selectt Car Hub.
                 </p>
               </div>
 
-              <div className="border border-slate-200/80 rounded-2xl p-5 bg-slate-50/50 text-left space-y-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+              <div className="border border-slate-200/80 rounded-2xl p-6 sm:p-7 bg-slate-50/50 text-left space-y-3">
+                <div className="w-8 h-8 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-3">
                   03
                 </div>
-                <h4 className="font-bold text-slate-900 text-sm">Digital Self-Survey</h4>
+                <h4 className="font-bold text-slate-900 text-sm mb-2">Digital Self-Survey</h4>
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Instant AI video surveyor assessment ensures repair approvals within 2 hours.
                 </p>
               </div>
 
-              <div className="border border-slate-200/80 rounded-2xl p-5 bg-slate-50/50 text-left space-y-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-bold text-xs">
+              <div className="border border-slate-200/80 rounded-2xl p-6 sm:p-7 bg-slate-50/50 text-left space-y-3">
+                <div className="w-8 h-8 rounded-lg bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-bold text-xs mb-3">
                   04
                 </div>
-                <h4 className="font-bold text-slate-900 text-sm">Cashless Delivery</h4>
+                <h4 className="font-bold text-slate-900 text-sm mb-2">Cashless Delivery</h4>
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Insurer pays workshop directly. Pick up your restored vehicle with zero out-of-pocket hassle.
                 </p>

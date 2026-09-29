@@ -115,12 +115,12 @@ const CareersPage = () => {
       />
       <div className="min-h-screen bg-slate-50 font-sans pb-20 w-full overflow-x-hidden pt-24">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <span className="inline-block px-3 py-1 bg-[#00C9AF]/15 text-[#0A524A] rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+          <div className="text-center mb-14">
+            <span className="inline-block px-3 py-1 bg-[#00C9AF]/15 text-[#0A524A] rounded-full text-xs font-bold uppercase tracking-wider mb-3.5">
               Work With Us
             </span>
-            <h1 className="text-4xl sm:text-5xl font-black text-[#0C1B33]">Careers at Selectt</h1>
-            <p className="text-slate-600 mt-2 max-w-xl mx-auto text-sm sm:text-base">
+            <h1 className="text-4xl sm:text-5xl font-black text-[#0C1B33] mb-3.5">Careers at Selectt</h1>
+            <p className="text-slate-600 mt-3 max-w-xl mx-auto text-sm sm:text-base">
               Be a part of a fast-growing team shaping the future of transparent and fair automobile buying & selling.
             </p>
           </div>
@@ -128,12 +128,12 @@ const CareersPage = () => {
           <div className="grid md:grid-cols-2 gap-8 items-start">
             {/* Left Info Section */}
             <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100 text-slate-600">
-              <h2 className="text-2xl font-bold mb-3 text-[#0C1B33]">Join the Revolution</h2>
-              <p className="mb-6 leading-relaxed text-sm sm:text-base text-slate-600">
+              <h2 className="text-2xl font-bold mb-3.5 text-[#0C1B33]">Join the Revolution</h2>
+              <p className="mb-8 leading-relaxed text-sm sm:text-base text-slate-600">
                 We are always looking for passionate, driven individuals to join our team and help us build the most trusted and transparent platform for used cars in India.
               </p>
 
-              <div className="flex items-center justify-between mt-8 mb-4">
+              <div className="flex items-center justify-between mt-8 mb-5">
                 <h3 className="font-bold text-[#0C1B33] text-lg flex items-center gap-2">
                   <Briefcase size={18} className="text-[#00C9AF]" /> Current Openings:
                 </h3>
@@ -146,11 +146,11 @@ const CareersPage = () => {
                 {jobs.map((job) => (
                   <li
                     key={job.id}
-                    className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50/80 hover:bg-[#E6FAF7]/50 border border-slate-100/80 transition-colors"
+                    className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-50/80 hover:bg-[#E6FAF7]/50 border border-slate-100/80 transition-colors"
                   >
                     <div className="w-2.5 h-2.5 rounded-full bg-[#00C9AF] mt-2 shrink-0"></div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-[#0C1B33] text-base">{job.title}</h4>
+                      <h4 className="font-bold text-[#0C1B33] text-base mb-1.5">{job.title}</h4>
                       <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
                         <span className="flex items-center gap-1">
                           <MapPin size={12} className="text-slate-400" /> {job.location || 'Mumbai'}
@@ -161,7 +161,7 @@ const CareersPage = () => {
                         </span>
                       </div>
                       {job.description && (
-                        <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{job.description}</p>
+                        <p className="text-xs text-slate-500 mt-2 line-clamp-2">{job.description}</p>
                       )}
                     </div>
                   </li>
@@ -179,8 +179,8 @@ const CareersPage = () => {
             <div className="bg-[#0C1B33] rounded-[2rem] p-8 md:p-10 shadow-2xl text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#00C9AF] rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
 
-              <h2 className="text-2xl font-bold mb-2 text-white relative z-10">Apply Online</h2>
-              <p className="text-xs text-slate-300 mb-6 relative z-10">
+              <h2 className="text-2xl font-bold mb-3.5 text-white relative z-10">Apply Online</h2>
+              <p className="text-xs text-slate-300 mb-8 relative z-10">
                 Fill in the details below and upload your CV. Our recruitment team will review your application.
               </p>
 

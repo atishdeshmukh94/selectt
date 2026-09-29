@@ -70,21 +70,21 @@ export default function SelecttBuybackPage() {
           <div className="absolute bottom-0 left-10 w-80 h-80 bg-purple-600 rounded-full mix-blend-screen filter blur-[120px] opacity-20 z-0"></div>
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center max-w-3xl mx-auto space-y-5">
-              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-bold text-xs uppercase tracking-wider backdrop-blur-md">
+            <div className="text-center max-w-3xl mx-auto">
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 px-3.5 py-1.5 rounded-full text-[#00C9AF] font-bold text-xs uppercase tracking-wider backdrop-blur-md mb-3.5">
                 <RefreshCcw size={14} className="text-[#00C9AF]" />
                 Selectt Buyback Guarantee
               </div>
               
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-3.5">
                 Assured future resale value & effortless upgrades
               </h1>
               
-              <p className="text-slate-300 text-base sm:text-lg font-normal leading-relaxed max-w-2xl mx-auto">
+              <p className="text-slate-300 text-base sm:text-lg font-normal leading-relaxed max-w-2xl mx-auto mb-8">
                 Know your car's exact buyback value upfront before you purchase. Enjoy driving with zero depreciation anxiety for 12, 18, or 36 months.
               </p>
 
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   to="/buy-cars"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#00C9AF] hover:bg-[#00b29c] text-[#0C1B33] font-bold py-3.5 px-8 rounded-xl shadow-xs transition-all text-xs uppercase tracking-wider cursor-pointer"
@@ -103,43 +103,46 @@ export default function SelecttBuybackPage() {
         </section>
 
         {/* ───────────── Core Pillar Highlights ───────────── */}
-        <section className="py-16 bg-white border-b border-slate-200/80">
+        <section className="py-20 bg-white border-b border-slate-200/80">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20">
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <span className="inline-block text-xs font-bold uppercase tracking-wider text-[#00a892] bg-[#00C9AF]/10 px-3 py-1 rounded-full border border-[#00C9AF]/20 mb-3.5">
                 Core Advantages
               </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-2.5">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3.5">
                 Why smart buyers choose Selectt Buyback
               </h2>
+              <p className="text-slate-500 text-sm font-normal leading-relaxed">
+                Enjoy transparent terms and predictable resale valuation right from day one.
+              </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 rounded-2xl bg-slate-50/60 border border-slate-200/80 text-left hover:border-slate-300 transition-all">
-                <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 border border-emerald-100">
+              <div className="p-7 sm:p-8 rounded-2xl bg-slate-50/60 border border-slate-200/80 text-left hover:border-slate-300 transition-all">
+                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5 border border-emerald-100">
                   <ShieldCheck size={22} />
                 </div>
-                <h3 className="font-bold text-slate-900 text-base mb-1.5">Guaranteed Locked-in Price</h3>
+                <h3 className="font-bold text-slate-900 text-base mb-2.5">Guaranteed Locked-in Price</h3>
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Your car's future resale value is calculated and printed on your purchase invoice on Day 1. No surprises or market swings.
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-slate-50/60 border border-slate-200/80 text-left hover:border-slate-300 transition-all">
-                <div className="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-4 border border-sky-100">
+              <div className="p-7 sm:p-8 rounded-2xl bg-slate-50/60 border border-slate-200/80 text-left hover:border-slate-300 transition-all">
+                <div className="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-5 border border-sky-100">
                   <TrendingUp size={22} />
                 </div>
-                <h3 className="font-bold text-slate-900 text-base mb-1.5">Seamless Model Upgrades</h3>
+                <h3 className="font-bold text-slate-900 text-base mb-2.5">Seamless Model Upgrades</h3>
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Switch from a hatchback to a compact SUV or sedan whenever your family needs grow by rolling your buyback equity directly into the next car.
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-slate-50/60 border border-slate-200/80 text-left hover:border-slate-300 transition-all">
-                <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4 border border-purple-100">
+              <div className="p-7 sm:p-8 rounded-2xl bg-slate-50/60 border border-slate-200/80 text-left hover:border-slate-300 transition-all">
+                <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-5 border border-purple-100">
                   <Calendar size={22} />
                 </div>
-                <h3 className="font-bold text-slate-900 text-base mb-1.5">Flexible Tenures</h3>
+                <h3 className="font-bold text-slate-900 text-base mb-2.5">Flexible Tenures</h3>
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Select between 12, 18, or 36 months tenure based on your career plans, family requirements, or relocation timelines.
                 </p>
@@ -151,12 +154,12 @@ export default function SelecttBuybackPage() {
         {/* ───────────── Interactive Tenure Plans ───────────── */}
         <section className="py-20 bg-[#F8FAFC] border-b border-slate-200/80">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Choose Your Plan</span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0.5">
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3.5">Choose Your Plan</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3.5">
                 Guaranteed Buyback Tenures
               </h2>
-              <p className="text-slate-500 text-sm font-normal mt-1.5 leading-relaxed">
+              <p className="text-slate-500 text-sm font-normal leading-relaxed">
                 Clear percentages locked into your purchase agreement.
               </p>
             </div>
@@ -168,14 +171,14 @@ export default function SelecttBuybackPage() {
                   <div
                     key={t.months}
                     onClick={() => setActiveTenure(t.months)}
-                    className={`bg-white rounded-2xl p-6 border transition-all cursor-pointer flex flex-col justify-between text-left shadow-xs ${
+                    className={`bg-white rounded-2xl p-7 sm:p-8 border transition-all cursor-pointer flex flex-col justify-between text-left shadow-xs ${
                       isSelected
                         ? 'border-[#00C9AF] ring-2 ring-[#00C9AF]/15'
                         : 'border-slate-200/80 hover:border-slate-300'
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-between mb-5">
                         <span className="text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
                           {t.title}
                         </span>
@@ -186,18 +189,18 @@ export default function SelecttBuybackPage() {
                         )}
                       </div>
 
-                      <div className="mb-4">
+                      <div className="mb-5">
                         <div className="text-3xl font-extrabold text-[#0C1B33] tracking-tight">{t.value}</div>
-                        <div className="text-xs text-slate-400 font-medium">{t.subtitle}</div>
+                        <div className="text-xs text-slate-400 font-medium mt-1">{t.subtitle}</div>
                       </div>
 
                       <p className="text-xs text-slate-600 font-normal leading-relaxed mb-6">
                         {t.desc}
                       </p>
 
-                      <div className="space-y-2 border-t border-slate-100 pt-4">
+                      <div className="space-y-3 border-t border-slate-100 pt-5">
                         {t.benefits.map((b, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                          <div key={idx} className="flex items-center gap-2.5 text-xs text-slate-600 font-medium">
                             <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                             <span>{b}</span>
                           </div>
@@ -205,10 +208,10 @@ export default function SelecttBuybackPage() {
                       </div>
                     </div>
 
-                    <div className="pt-6 mt-4">
+                    <div className="pt-6 mt-5">
                       <Link
                         to={`/buy-cars?buyback=${t.months}`}
-                        className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all block text-center ${
+                        className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all block text-center ${
                           isSelected
                             ? 'bg-[#0C1B33] text-white hover:bg-[#162a4d]'
                             : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
@@ -228,41 +231,41 @@ export default function SelecttBuybackPage() {
         <section id="how-it-works" className="py-20 bg-white border-b border-slate-200/80">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Simple Process</span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0.5">
+              <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3.5">Simple Process</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3.5">
                 How Selectt Buyback Works
               </h2>
-              <p className="text-slate-500 text-sm font-normal mt-1.5 leading-relaxed">
+              <p className="text-slate-500 text-sm font-normal leading-relaxed">
                 Enjoy your car today with a guaranteed exit strategy tomorrow.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="border border-slate-200/80 rounded-2xl p-6 bg-slate-50/50 text-left space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+              <div className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left">
+                <div className="w-9 h-9 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-5">
                   01
                 </div>
-                <h3 className="font-bold text-slate-900 text-base">Choose & Lock Buyback</h3>
+                <h3 className="font-bold text-slate-900 text-base mb-2.5">Choose & Lock Buyback</h3>
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Pick any certified car on Selectt and opt for your preferred buyback tenure (12, 18, or 36 months) during checkout.
                 </p>
               </div>
 
-              <div className="border border-slate-200/80 rounded-2xl p-6 bg-slate-50/50 text-left space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs">
+              <div className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left">
+                <div className="w-9 h-9 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-5">
                   02
                 </div>
-                <h3 className="font-bold text-slate-900 text-base">Drive with Complete Freedom</h3>
+                <h3 className="font-bold text-slate-900 text-base mb-2.5">Drive with Complete Freedom</h3>
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Enjoy your vehicle with full self-ownership, comprehensive warranty coverage, and zero per-kilometer restrictions.
                 </p>
               </div>
 
-              <div className="border border-slate-200/80 rounded-2xl p-6 bg-slate-50/50 text-left space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-bold text-xs">
+              <div className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left">
+                <div className="w-9 h-9 rounded-lg bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-bold text-xs mb-5">
                   03
                 </div>
-                <h3 className="font-bold text-slate-900 text-base">Return, Upgrade, or Keep</h3>
+                <h3 className="font-bold text-slate-900 text-base mb-2.5">Return, Upgrade, or Keep</h3>
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   At the end of tenure, either return the car for instant pre-agreed bank payout, upgrade to a newer model, or retain ownership.
                 </p>

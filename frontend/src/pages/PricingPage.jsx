@@ -28,14 +28,14 @@ const PricingPage = () => {
 
           <SectionReveal className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="text-center max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full mb-6 text-[#00C9AF] font-bold shadow-sm backdrop-blur-md">
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full mb-3.5 text-[#00C9AF] font-bold shadow-sm backdrop-blur-md">
                 <ShieldCheck size={18} className="text-[#00C9AF]" />
                 Selectt Guaranteed Pricing
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-white leading-tight mb-4 tracking-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-white leading-tight mb-3.5 tracking-tight">
                 Pricing you can trust
               </h1>
-              <p className="text-slate-300 font-body text-base md:text-lg font-medium max-w-xl mx-auto mb-8">
+              <p className="text-slate-300 font-body text-base md:text-lg font-medium max-w-xl mx-auto mb-8 leading-relaxed">
                 Whether you're buying or selling, enjoy complete transparency with zero hidden fees.
               </p>
               <div className="flex items-center justify-center gap-6">
@@ -51,9 +51,9 @@ const PricingPage = () => {
         </section>
 
         {/* Sub-header banner */}
-        <SectionReveal amount={0.3} className="py-12 bg-white text-center border-b border-slate-100 relative z-20">
+        <SectionReveal amount={0.3} className="py-16 bg-white text-center border-b border-slate-100 relative z-20">
           <div className="max-w-2xl mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-heading font-black text-[#0C1B33] mb-3">Our price, a prized possession</h2>
+            <h2 className="text-2xl md:text-3xl font-heading font-black text-[#0C1B33] mb-3.5">Our price, a prized possession</h2>
             <p className="text-slate-500 font-body text-sm md:text-base font-medium leading-relaxed">
               It's true. Our sellers source cars directly from individuals. We facilitate the sale of the cars directly to individuals. This simple elimination of middlemen assures top quality whereas market data helps us to arrive at a fair and fixed valuation, meaning the best price for your car, buy or sell.
             </p>
@@ -64,7 +64,7 @@ const PricingPage = () => {
         <section className="py-20 bg-white relative overflow-hidden border-b border-slate-100">
           <div className="max-w-5xl mx-auto px-6 relative">
 
-            <div className="space-y-12 relative">
+            <div className="space-y-16 relative">
 
               {/* ── Step 1 (Scroll Reveal) ── */}
 
@@ -81,7 +81,7 @@ const PricingPage = () => {
                     <path d="M16.5259 112.361V112.861H17.0259H45.7439H46.2439V112.361V1.63867V1.13867H45.7439H1.25586H0.755859V1.63867V26.0407V26.5407H1.25586H16.5259V112.361Z" fill="none" stroke="#ADADAD" strokeWidth="1.5"></path>
                   </svg>
                   <div className="flex-1">
-                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       The fairest of them all. And data driven.
                     </h3>
                     <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -115,7 +115,7 @@ const PricingPage = () => {
               >
                 <div className="w-full lg:w-[55%] flex items-center gap-6 lg:pr-[117px]">
                   <div className="flex-1">
-                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Fixed price's a sweet thing
                     </h3>
                     <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -155,7 +155,7 @@ const PricingPage = () => {
                     <path d="M1.25586 76.0124H0.707189L0.758009 76.5588C2.09934 90.9781 8.97624 100.549 14.6952 105.764C24.4454 114.841 36.0383 117.35 46.7399 117.35C63.2995 117.35 74.0528 111.493 80.1274 105.418C84.8458 100.7 90.0679 92.7769 90.0679 80.8284C90.0679 74.4353 88.5517 69.0221 85.3336 64.2797L85.3295 64.2737C83.0857 61.0683 79.3126 56.941 73.0039 54.3621C76.5384 52.3538 78.8467 49.625 80.7099 46.2095C83.2487 41.639 84.0919 37.2359 84.0919 32.3564C84.0919 23.7477 80.5458 16.1532 74.9814 10.5889L74.9778 10.5853C66.5399 2.31613 55.4233 0.648438 47.0719 0.648438C36.3796 0.648438 25.7643 2.98795 17.4988 11.5884C12.4407 16.6482 7.23811 25.5577 6.56667 37.3079L6.53647 37.8364H7.06586H33.7919H34.2919V37.3364C34.2919 33.9486 35.5885 30.113 37.951 27.9021L37.9573 27.9021L37.9634 27.896C39.5107 26.3487 42.195 25.2204 45.5779 25.2204C48.6298 25.2204 51.6457 26.3494 53.3583 28.062C54.911 29.6147 56.1999 32.8006 56.1999 35.6764C56.1999 38.0361 55.2562 40.8808 52.7204 43.1006C50.506 44.9978 46.9989 46.6149 41.3326 45.8055L40.7619 45.7239V46.3004V65.7224V66.4162L41.42 66.1968C42.8455 65.7216 44.2814 65.5584 46.0759 65.5584C49.5116 65.5584 53.6887 66.3812 56.3808 68.5974C58.2765 70.1776 60.5159 73.3635 60.5159 78.0064C60.5159 81.2261 59.717 84.0878 57.3251 86.8009C55.2364 89.0486 51.8761 91.4504 46.4079 91.4504C41.705 91.4504 37.863 89.8294 35.4846 87.2925L35.4791 87.2866L35.4734 87.2809C32.9228 84.7302 31.2995 80.5423 31.1375 76.4925L31.1183 76.0124H30.6379H1.25586Z" fill="none" stroke="#ADADAD" strokeWidth="1.5"></path>
                   </svg>
                   <div className="flex-1">
-                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Market day
                     </h3>
                     <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -189,7 +189,7 @@ const PricingPage = () => {
               >
                 <div className="w-full lg:w-[55%] flex items-center gap-6 lg:pr-[117px]">
                   <div className="flex-1">
-                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Credited, the same day.
                     </h3>
                     <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">

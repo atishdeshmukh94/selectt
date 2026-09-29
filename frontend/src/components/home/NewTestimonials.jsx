@@ -233,15 +233,15 @@ const NewTestimonials = () => {
       <div className="max-w-[1400px] mx-auto">
 
         {/* Header row */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-4 gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div className="text-left">
-            <span className="text-[#00CCB3] text-[11px] font-bold tracking-widest uppercase mb-1 block font-heading">
+            <span className="text-[#00CCB3] text-[11px] font-bold tracking-widest uppercase mb-3.5 block font-heading">
               TESTIMONIALS
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-white">
+            <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-white mb-3.5">
               What Motivates Us
             </h2>
-            <p className="text-slate-400 text-sm mt-0.5">
+            <p className="text-slate-400 text-sm leading-relaxed">
               Real stories from 1M+ happy car buyers across India
             </p>
           </div>

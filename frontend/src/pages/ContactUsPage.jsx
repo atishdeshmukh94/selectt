@@ -51,14 +51,14 @@ const ContactUsPage = () => {
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#00C9AF] rounded-full mix-blend-screen filter blur-[140px] opacity-25 animate-pulse z-0"></div>
           <div className="absolute bottom-0 left-10 w-80 h-80 bg-purple-600 rounded-full mix-blend-screen filter blur-[120px] opacity-20 z-0"></div>
 
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#00C9AF]/15 text-[#00C9AF] border border-[#00C9AF]/20 w-fit mx-auto">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#00C9AF]/15 text-[#00C9AF] border border-[#00C9AF]/20 w-fit mx-auto mb-3.5">
               <Headphones size={13} /> We're Here to Help
             </span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight mb-3.5">
               Get in touch with our team
             </h1>
-            <p className="text-slate-300 text-sm sm:text-base font-normal max-w-xl mx-auto leading-relaxed">
+            <p className="text-slate-300 text-sm sm:text-base font-normal max-w-xl mx-auto leading-relaxed mt-3">
               Have questions about vehicle verification, test drives, financing, or selling your car? Our dedicated advisors are available 7 days a week.
             </p>
           </div>
@@ -66,50 +66,50 @@ const ContactUsPage = () => {
 
         {/* ───────────── 3 Quick Contact Channel Cards ───────────── */}
         <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             {/* Phone Card */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs text-left space-y-3 hover:border-slate-300 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#00a892] flex items-center justify-center border border-teal-100">
-                <Phone size={18} />
+            <div className="bg-white p-7 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs text-left space-y-3.5 hover:border-slate-300 transition-all">
+              <div className="w-11 h-11 rounded-xl bg-teal-50 text-[#00a892] flex items-center justify-center border border-teal-100 mb-4">
+                <Phone size={20} />
               </div>
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Direct Helpline</span>
-                <h3 className="text-lg font-bold text-slate-900 mt-0.5">+91 85746 67466</h3>
+                <h3 className="text-lg font-bold text-slate-900 mt-1">+91 85746 67466</h3>
               </div>
-              <p className="text-slate-500 text-xs font-normal">
+              <p className="text-slate-500 text-xs font-normal leading-relaxed pt-1">
                 Available Monday to Sunday, 9:00 AM to 8:00 PM for instant call support.
               </p>
             </div>
 
             {/* Email Card */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs text-left space-y-3 hover:border-slate-300 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100">
-                <Mail size={18} />
+            <div className="bg-white p-7 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs text-left space-y-3.5 hover:border-slate-300 transition-all">
+              <div className="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100 mb-4">
+                <Mail size={20} />
               </div>
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Email Inquiries</span>
-                <h3 className="text-lg font-bold text-slate-900 mt-0.5">
+                <h3 className="text-lg font-bold text-slate-900 mt-1">
                   <a href="mailto:hello@selectt.in" className="hover:text-[#00C9AF] transition-colors">
                     hello@selectt.in
                   </a>
                 </h3>
               </div>
-              <p className="text-slate-500 text-xs font-normal">
+              <p className="text-slate-500 text-xs font-normal leading-relaxed pt-1">
                 Our support desk typically responds to all inquiries within 2 business hours.
               </p>
             </div>
 
             {/* Location Card */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs text-left space-y-3 hover:border-slate-300 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
-                <Building2 size={18} />
+            <div className="bg-white p-7 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs text-left space-y-3.5 hover:border-slate-300 transition-all">
+              <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100 mb-4">
+                <Building2 size={20} />
               </div>
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Corporate HQ</span>
-                <h3 className="text-base font-bold text-slate-900 mt-0.5">Techno IT Park, Borivali West</h3>
+                <h3 className="text-base font-bold text-slate-900 mt-1">Techno IT Park, Borivali West</h3>
               </div>
-              <p className="text-slate-500 text-xs font-normal">
+              <p className="text-slate-500 text-xs font-normal leading-relaxed pt-1">
                 Eksar Village, Borivali West, Mumbai, Maharashtra 400091
               </p>
             </div>
@@ -118,17 +118,17 @@ const ContactUsPage = () => {
         </section>
 
         {/* ───────────── Main Form & Location Embed ───────────── */}
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-14">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
             {/* Left Column: Interactive Contact Form */}
-            <div className="lg:col-span-6 bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs text-left">
-              <div className="mb-6">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#00a892]">Send a Message</span>
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-0.5">
+            <div className="lg:col-span-6 bg-white p-7 sm:p-9 rounded-2xl border border-slate-200/80 shadow-xs text-left">
+              <div className="mb-8">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#00a892] block mb-2">Send a Message</span>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-2">
                   How can we help you today?
                 </h2>
-                <p className="text-slate-500 text-xs font-normal mt-1">
+                <p className="text-slate-500 text-xs font-normal">
                   Leave your details and our team will get in touch directly.
                 </p>
               </div>

@@ -28,14 +28,14 @@ const HowItWorksSellingPage = () => {
 
           <SectionReveal className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="text-center max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full mb-6 text-[#00C9AF] font-bold shadow-sm backdrop-blur-md">
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full mb-3.5 text-[#00C9AF] font-bold shadow-sm backdrop-blur-md">
                 <ShieldCheck size={18} className="text-[#00C9AF]" />
                 Selectt SellRight
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-white leading-tight mb-4 tracking-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-white leading-tight mb-3.5 tracking-tight">
                 The best price, simplest selling experience
               </h1>
-              <p className="text-slate-300 font-body text-base md:text-lg font-medium max-w-xl mx-auto mb-8">
+              <p className="text-slate-300 font-body text-base md:text-lg font-medium max-w-xl mx-auto mb-8 leading-relaxed">
                 Sell your car from the comfort of your home with instant payout and free RC transfer.
               </p>
               <div className="flex items-center justify-center gap-6">
@@ -51,15 +51,15 @@ const HowItWorksSellingPage = () => {
         </section>
 
         {/* Sub-header banner */}
-        <SectionReveal amount={0.3} className="py-12 bg-white text-center border-b border-slate-100 relative z-20">
+        <SectionReveal amount={0.3} className="py-14 bg-white text-center border-b border-slate-100 relative z-20">
           <div className="max-w-2xl mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-heading font-black text-[#0C1B33] mb-3">Selling never felt this good</h2>
-            <p className="text-slate-500 font-body text-sm md:text-base font-medium leading-relaxed mb-6">
+            <h2 className="text-2xl md:text-3xl font-heading font-black text-[#0C1B33] mb-3.5">Selling never felt this good</h2>
+            <p className="text-slate-500 font-body text-sm md:text-base font-medium leading-relaxed mb-8">
               Selectt SellRight gets you more value for your car. The process is far simpler and safer, as we directly communicate with registered sellers and buyers, an integral part of our end-to-end experience.
             </p>
             <Link
               to="/sell-car"
-              className="inline-flex items-center gap-2 border-2 border-[#00C9AF] text-[#00C9AF] hover:bg-[#00C9AF] hover:text-white font-button font-extrabold py-2.5 px-8 rounded-full transition-all duration-300 text-xs tracking-wider uppercase active:scale-95 shadow-sm hover:shadow-md hover:shadow-purple-500/20"
+              className="inline-flex items-center gap-2 border-2 border-[#00C9AF] text-[#00C9AF] hover:bg-[#00C9AF] hover:text-white font-button font-extrabold py-3 px-8 rounded-full transition-all duration-300 text-xs tracking-wider uppercase active:scale-95 shadow-sm hover:shadow-md hover:shadow-purple-500/20"
             >
               Sell your car <ChevronRight size={14} />
             </Link>
@@ -70,7 +70,7 @@ const HowItWorksSellingPage = () => {
         <section className="py-20 bg-white relative overflow-hidden border-b border-slate-100">
           <div className="max-w-5xl mx-auto px-6 relative">
 
-            <div className="space-y-12 relative">
+            <div className="space-y-16 relative">
 
               {/* ── Step 1 (Scroll Reveal from Right) ── */}
               <motion.div
@@ -85,7 +85,7 @@ const HowItWorksSellingPage = () => {
                     <path d="M16.5259 112.361V112.861H17.0259H45.7439H46.2439V112.361V1.63867V1.13867H45.7439H1.25586H0.755859V1.63867V26.0407V26.5407H1.25586H16.5259V112.361Z" fill="none" stroke="#ADADAD" strokeWidth="1.5"></path>
                   </svg>
                   <div className="flex-1">
-                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Let's talk about your car
                     </h3>
                     <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -119,7 +119,7 @@ const HowItWorksSellingPage = () => {
               >
                 <div className="w-full lg:w-[55%] flex items-center gap-6 lg:pr-[117px]">
                   <div className="flex-1">
-                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       The good quote
                     </h3>
                     <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -159,7 +159,7 @@ const HowItWorksSellingPage = () => {
                     <path d="M1.25586 76.0124H0.707189L0.758009 76.5588C2.09934 90.9781 8.97624 100.549 14.6952 105.764C24.4454 114.841 36.0383 117.35 46.7399 117.35C63.2995 117.35 74.0528 111.493 80.1274 105.418C84.8458 100.7 90.0679 92.7769 90.0679 80.8284C90.0679 74.4353 88.5517 69.0221 85.3336 64.2797L85.3295 64.2737C83.0857 61.0683 79.3126 56.941 73.0039 54.3621C76.5384 52.3538 78.8467 49.625 80.7099 46.2095C83.2487 41.639 84.0919 37.2359 84.0919 32.3564C84.0919 23.7477 80.5458 16.1532 74.9814 10.5889L74.9778 10.5853C66.5399 2.31613 55.4233 0.648438 47.0719 0.648438C36.3796 0.648438 25.7643 2.98795 17.4988 11.5884C12.4407 16.6482 7.23811 25.5577 6.56667 37.3079L6.53647 37.8364H7.06586H33.7919H34.2919V37.3364C34.2919 33.9486 35.5885 30.113 37.951 27.9021L37.9573 27.9021L37.9634 27.896C39.5107 26.3487 42.195 25.2204 45.5779 25.2204C48.6298 25.2204 51.6457 26.3494 53.3583 28.062C54.911 29.6147 56.1999 32.8006 56.1999 35.6764C56.1999 38.0361 55.2562 40.8808 52.7204 43.1006C50.506 44.9978 46.9989 46.6149 41.3326 45.8055L40.7619 45.7239V46.3004V65.7224V66.4162L41.42 66.1968C42.8455 65.7216 44.2814 65.5584 46.0759 65.5584C49.5116 65.5584 53.6887 66.3812 56.3808 68.5974C58.2765 70.1776 60.5159 73.3635 60.5159 78.0064C60.5159 81.2261 59.717 84.0878 57.3251 86.8009C55.2364 89.0486 51.8761 91.4504 46.4079 91.4504C41.705 91.4504 37.863 89.8294 35.4846 87.2925L35.4791 87.2866L35.4734 87.2809C32.9228 84.7302 31.2995 80.5423 31.1375 76.4925L31.1183 76.0124H30.6379H1.25586Z" fill="none" stroke="#ADADAD" strokeWidth="1.5"></path>
                   </svg>
                   <div className="flex-1">
-                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       What's your car's worth?
                     </h3>
                     <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -193,7 +193,7 @@ const HowItWorksSellingPage = () => {
               >
                 <div className="w-full lg:w-[55%] flex items-center gap-6 lg:pr-[117px]">
                   <div className="flex-1">
-                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Credited, the same day.
                     </h3>
                     <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
@@ -233,7 +233,7 @@ const HowItWorksSellingPage = () => {
                     <path d="M76.2899 1.39453V0.894531H75.7899H18.1879H17.7622L17.6943 1.31479L8.06626 60.9088L7.91062 61.8722L8.78347 61.4357C14.6883 58.4833 21.2516 56.8405 28.9779 56.8405C30.7961 56.8405 34.2447 56.8823 37.9745 57.579C41.7127 58.2774 45.6761 59.6237 48.5657 62.1922L48.5657 62.1923L48.5704 62.1964C50.9761 64.2813 53.7099 68.136 53.7099 73.7705C53.7099 78.2867 51.9356 82.149 49.5302 84.7154C46.325 88.0797 41.1571 90.0365 35.4519 90.0365C30.0543 90.0365 23.9842 88.5618 19.0633 86.2654L19.0588 86.2634C17.2628 85.447 11.6684 82.651 5.90924 77.3855L5.22508 76.76L5.07818 77.6753L0.762177 104.567L0.709811 104.894L0.989453 105.07C10.0316 110.763 21.7437 115.107 38.6059 115.107C49.2733 115.107 63.0578 113.276 73.493 102.504C78.8826 96.9463 84.2579 87.8616 84.2579 74.4345C84.2579 61.5069 79.0496 52.9185 73.9883 47.8558C68.7507 42.4508 59.3272 36.7505 44.4159 36.7505C42.9782 36.7505 39.9114 36.9008 36.0556 37.4808L37.8693 26.2965H75.7899H76.2899V25.7965V1.39453Z" fill="none" stroke="#ADADAD" strokeWidth="1.5"></path>
                   </svg>
                   <div className="flex-1">
-                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-2">
+                    <h3 className="text-lg md:text-xl font-heading font-black text-[#0C1B33] mb-3.5">
                       Sit back, relax. Car in transit.
                     </h3>
                     <p className="text-slate-500 font-body font-medium text-sm leading-relaxed">
