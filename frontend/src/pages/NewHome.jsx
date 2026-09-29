@@ -3008,12 +3008,14 @@ const NewHome = () => {
         <div className="absolute top-[-80px] left-1/2 -translate-x-1/2 w-[900px] h-[700px] bg-[radial-gradient(ellipse,rgba(0,242,200,0.08)_0%,transparent_62%)] pointer-events-none z-0"></div>
         <div className="absolute bottom-[-60px] left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(0,90,255,0.05)_0%,transparent_62%)] pointer-events-none z-0"></div>
 
-        <div className="max-w-4xl mx-auto relative z-10 space-y-6">
-          <h2 className=" uppercase text-4xl md:text-5xl font-black font-heading text-white tracking-tight leading-tight">
+        <div className="max-w-4xl mx-auto relative z-10 space-y-5">
+          <h2 className="text-[32px] sm:text-[40px] md:text-[46px] font-heading font-semibold text-white leading-[1.2]">
             Your car deserves a <span className="text-[#00C9AF]">fair price.</span>
           </h2>
-          <p className="text-slate-300 text-sm md:text-base max-w-lg mx-auto leading-relaxed font-medium">
-            Enter your registration number. Get a real offer in 60 seconds. Sell in as little as 24 hours.
+          <p className="text-[#CBD5E1] text-[16px] sm:text-[17px] max-w-xl mx-auto leading-[1.6] font-normal">
+            Enter your registration number. Get a real offer in 60 seconds.
+            <br />
+            Sell in as little as 24 hours.
           </p>
 
           {/* Integrated Luxury Indian Number Plate Valuation Widget */}
@@ -3027,14 +3029,14 @@ const NewHome = () => {
                   <div className="w-3.5 h-3.5 rounded-full border border-white/60 flex items-center justify-center">
                     <div className="w-1.5 h-1.5 rounded-full bg-white/90"></div>
                   </div>
-                  <span className="text-[10px] font-black tracking-widest leading-none">IND</span>
+                  <span className="text-[10px] font-bold tracking-wider leading-none">IND</span>
                 </div>
 
                 {/* Number Plate Input */}
                 <input
                   type="text"
                   placeholder="MH 04 AB 1234"
-                  className="flex-1 bg-transparent px-3 sm:px-4 py-3 text-slate-900 text-lg sm:text-xl font-black text-center sm:text-left focus:outline-none placeholder:text-slate-400 placeholder:font-bold font-heading tracking-[0.2em] uppercase"
+                  className="flex-1 bg-transparent px-3 sm:px-4 py-3 text-slate-900 text-lg sm:text-xl font-bold text-center sm:text-left focus:outline-none placeholder:text-slate-400 placeholder:font-medium font-heading tracking-[0.2em] uppercase"
                   id="hero-reg-input"
                   maxLength={13}
                   onInput={(e) => {
@@ -3064,10 +3066,10 @@ const NewHome = () => {
                   const reg = input?.value?.trim();
                   navigate(reg ? `/sell-car?reg=${encodeURIComponent(reg)}` : '/sell-car');
                 }}
-                className="bg-gradient-to-r from-[#00C9AF] via-[#14FFEC] to-[#00C9AF] text-[#0C1B33] font-button font-black text-xs sm:text-sm uppercase tracking-wider py-3.5 px-6 sm:px-7 rounded-xl sm:rounded-full shadow-lg shadow-[#00C9AF]/25 hover:shadow-[#00C9AF]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer shrink-0"
+                className="bg-gradient-to-r from-[#00C9AF] via-[#14FFEC] to-[#00C9AF] text-[#0C1B33] font-button font-semibold text-[15px] leading-[1.45] py-3.5 px-6 sm:px-7 rounded-xl sm:rounded-full shadow-lg shadow-[#00C9AF]/25 hover:shadow-[#00C9AF]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer shrink-0"
               >
-                <span>GET INSTANT OFFER</span>
-                <span className="text-base font-black">→</span>
+                <span>Get instant offer</span>
+                <span className="text-base font-bold">→</span>
               </button>
 
             </div>
