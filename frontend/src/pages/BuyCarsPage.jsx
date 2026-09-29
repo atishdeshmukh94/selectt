@@ -1071,14 +1071,14 @@ const BuyCarsPage = () => {
                   </div>
 
                   {/* Internal Link CTA Strip */}
-                  <div className="mt-8 bg-gradient-to-r from-[#0C1B33] to-[#122647] rounded-2xl p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div>
+                  <div className="mt-8 bg-gradient-to-r from-[#0C1B33] to-[#122647] rounded-2xl p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                    <div className="w-full sm:w-auto">
                       <h3 className="text-base font-black">Looking for Car Financing or Inspection Details?</h3>
-                      <p className="text-xs text-slate-300 mt-1">
+                      <p className="text-xs text-slate-300 mt-1 max-w-xl mx-auto sm:mx-0">
                         Explore our 200-point inspection protocol or check pre-approved loan options with low EMI.
                       </p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2.5 shrink-0 w-full sm:w-auto">
                       <Link
                         to="/selectt-inspection-process"
                         className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-white/20 transition-all"
