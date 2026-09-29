@@ -271,6 +271,7 @@ function generateMetaCatalogXml(cars, baseUrl, defaultBrand) {
             item.additional_images_array.slice(0, 10).forEach(addImg => {
                 xml += `      <g:additional_image_link>${escapeXml(addImg)}</g:additional_image_link>\n`;
             });
+        }
         if (item.video_link) {
             xml += `      <g:video_link>${escapeXml(item.video_link)}</g:video_link>\n`;
         }
