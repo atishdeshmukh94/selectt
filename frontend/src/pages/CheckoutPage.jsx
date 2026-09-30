@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
-import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil } from 'lucide-react';
+import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil, Building2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
@@ -356,18 +356,6 @@ const CheckoutPage = () => {
               <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-slate-300">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    {/* Red diamond Capital badge */}
-                    <div className="flex items-center gap-1.5 mb-2.5">
-                      <div className="w-5 h-5 rounded-md bg-[#E11D48] flex items-center justify-center text-white shadow-xs">
-                        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current" stroke="currentColor" strokeWidth="1">
-                          <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5" />
-                        </svg>
-                      </div>
-                      <span className="font-black text-xs sm:text-sm tracking-widest text-[#0F172A] uppercase">
-                        CAPITAL
-                      </span>
-                    </div>
-
                     <h3 className="font-extrabold text-[#0F172A] text-base mb-1">
                       Interested in car loan?
                     </h3>
@@ -507,15 +495,17 @@ const CheckoutPage = () => {
                     <button
                       type="button"
                       onClick={() => openTestDrive('doorstep')}
-                      className="py-3.5 px-3 rounded-xl bg-[#4B0082] hover:bg-[#3B0068] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#4B0082]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+                      className="py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#00A38D] to-[#00BFA5] hover:from-[#008f7b] hover:to-[#00aa93] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#00A38D]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 group"
                     >
+                      <MapPin size={15} className="text-white shrink-0 group-hover:scale-110 transition-transform" />
                       <span>YOUR LOCATION</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => openTestDrive('hub')}
-                      className="py-3.5 px-3 rounded-xl bg-[#4B0082] hover:bg-[#3B0068] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#4B0082]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+                      className="py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#008975] to-[#00A38D] hover:from-[#007362] hover:to-[#008f7b] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#008975]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 group"
                     >
+                      <Building2 size={15} className="text-white shrink-0 group-hover:scale-110 transition-transform" />
                       <span>AT SELECTT HUB</span>
                     </button>
                   </div>
