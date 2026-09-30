@@ -530,10 +530,20 @@ db.getConnection((err, connection) => {
         }
     });
 
-    // Ensure cars table has rto_code column
+    // Ensure cars table has registration_no and rto_code columns
+    db.query("SHOW COLUMNS FROM cars LIKE 'registration_no'", (err, rows) => {
+        if (!err && (!rows || rows.length === 0)) {
+            db.query("ALTER TABLE cars ADD COLUMN registration_no VARCHAR(50) NULL", () => {});
+        }
+    });
     db.query("SHOW COLUMNS FROM cars LIKE 'rto_code'", (err, rows) => {
-        if (!err && rows.length === 0) {
-            db.query("ALTER TABLE cars ADD COLUMN rto_code VARCHAR(20) NULL");
+        if (!err && (!rows || rows.length === 0)) {
+            db.query("ALTER TABLE cars ADD COLUMN rto_code VARCHAR(50) NULL", () => {});
+        }
+    });
+    db.query("SHOW COLUMNS FROM cars LIKE 'rto'", (err, rows) => {
+        if (!err && (!rows || rows.length === 0)) {
+            db.query("ALTER TABLE cars ADD COLUMN rto VARCHAR(50) NULL", () => {});
         }
     });
     db.query("SHOW COLUMNS FROM users LIKE 'totp_secret'", (err, rows) => {
@@ -1580,7 +1590,30 @@ app.get('/api/cars/:id', (req, res) => {
         }
         res.json(mapCar(car));
     });
-});
+function executeSafeCarMutation(queryTemplate, data, extraParams, callback) {
+    const fullParams = extraParams && extraParams.length > 0 ? [data, ...extraParams] : [data];
+    db.query(queryTemplate, fullParams, (err, result) => {
+        if (err && (err.code === 'ER_BAD_FIELD_ERROR' || (err.message && err.message.includes('Unknown column')))) {
+            const match = err.message.match(/Unknown column '([^']+)'/);
+            if (match && match[1]) {
+                const missingCol = match[1];
+                console.log(`Auto-adding missing column '${missingCol}' to cars table...`);
+                db.query(`ALTER TABLE cars ADD COLUMN \`${missingCol}\` VARCHAR(255) NULL`, (alterErr) => {
+                    if (!alterErr) {
+                        return db.query(queryTemplate, fullParams, callback);
+                    } else {
+                        const sanitizedData = { ...data };
+                        delete sanitizedData[missingCol];
+                        const retryParams = extraParams && extraParams.length > 0 ? [sanitizedData, ...extraParams] : [sanitizedData];
+                        return db.query(queryTemplate, retryParams, callback);
+                    }
+                });
+                return;
+            }
+        }
+        callback(err, result);
+    });
+}
 
 app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
     const { title, make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
@@ -1661,7 +1694,7 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
         status: status || 'active'
     };
 
-    db.query('INSERT INTO cars SET ?', data, (err, result) => {
+    executeSafeCarMutation('INSERT INTO cars SET ?', data, [], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         try { triggerMetaAutoSync(result.insertId, 'CREATE'); } catch (_) {}
         res.status(201).json({ id: result.insertId, ...mapCar({ ...data, id: result.insertId }) });
@@ -1796,7 +1829,7 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             status: status || 'active'
         };
 
-        db.query('UPDATE cars SET ? WHERE id = ?', [data, req.params.id], (err) => {
+        executeSafeCarMutation('UPDATE cars SET ? WHERE id = ?', data, [req.params.id], (err) => {
             if (err) return res.status(500).json({ error: err.message });
 
             // Storage cleanup: If main image replaced, delete old main image from ImageKit / disk
