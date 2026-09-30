@@ -66,6 +66,139 @@ const DEFAULT_BUY_STEPS = [
   }
 ];
 
+export const ConfettiSavingsBanner = ({ savingAmount = 5000, className = "" }) => {
+  const containerRef = React.useRef(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const confettiColors = ['#EF2964', '#00C09D', '#2D87B0', '#48485E', '#EFFF1D', '#F59E0B', '#8B5CF6', '#EC4899'];
+    const confettiAnimations = ['slow', 'medium', 'fast'];
+    
+    // Create confetti container
+    let confettiContainer = el.querySelector('.confetti-container');
+    if (!confettiContainer) {
+      confettiContainer = document.createElement('div');
+      confettiContainer.className = 'confetti-container';
+      el.appendChild(confettiContainer);
+    }
+
+    const interval = setInterval(() => {
+      if (!confettiContainer || !el) return;
+      
+      const confettiEl = document.createElement('div');
+      const confettiSize = Math.floor(Math.random() * 4) + 6 + 'px'; // 6px to 9px
+      const confettiBg = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+      const confettiLeft = Math.floor(Math.random() * (el.offsetWidth || 300)) + 'px';
+      const confettiAnimation = confettiAnimations[Math.floor(Math.random() * confettiAnimations.length)];
+
+      confettiEl.classList.add('confetti', `confetti-banner--${confettiAnimation}`);
+      confettiEl.style.left = confettiLeft;
+      confettiEl.style.width = confettiSize;
+      confettiEl.style.height = confettiSize;
+      confettiEl.style.backgroundColor = confettiBg;
+      confettiEl.style.borderRadius = Math.random() > 0.5 ? '50%' : '1px';
+
+      setTimeout(() => {
+        if (confettiEl && confettiEl.parentNode) {
+          confettiEl.parentNode.removeChild(confettiEl);
+        }
+      }, 2500);
+
+      confettiContainer.appendChild(confettiEl);
+    }, 90);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <div 
+      ref={containerRef}
+      className={`js-container container relative overflow-hidden bg-gradient-to-r from-emerald-50 via-teal-50/90 to-emerald-50 border border-emerald-300/90 rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs select-none min-h-[46px] ${className}`}
+      style={{ top: '0px' }}
+    >
+      {/* Static / Floating celebration elements */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        <span className="absolute top-0.5 right-20 text-[15px] animate-balloon opacity-85">🎈</span>
+        <span className="absolute -bottom-1 right-36 text-[12px] animate-balloon [animation-delay:1.3s] opacity-75">🎈</span>
+        <span className="absolute top-1 right-12 text-[14px] animate-ribbon opacity-90">🎊</span>
+        <span className="absolute -top-1 right-28 text-[13px] animate-ribbon [animation-delay:0.7s] opacity-85">🎉</span>
+        <span className="absolute top-1.5 left-48 text-[10px] animate-confetti text-amber-500">✨</span>
+        <span className="absolute bottom-1.5 left-60 text-[9px] animate-confetti [animation-delay:1.5s] text-purple-500">✨</span>
+      </div>
+
+      {/* Banner Text with Rupee Icon */}
+      <div className="flex items-center gap-2.5 relative z-10">
+        <span className="w-5 h-5 rounded-full bg-[#00C09D] text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs">
+          ₹
+        </span>
+        <span className="font-extrabold text-emerald-900 text-[14px] sm:text-[15px] tracking-tight">
+          Yay! You are saving ₹{Number(savingAmount).toLocaleString()}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export const CelebrationConfettiShower = () => {
+  const containerRef = React.useRef(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const confettiColors = ['#EF2964', '#00C09D', '#2D87B0', '#48485E', '#EFFF1D', '#F59E0B', '#8B5CF6', '#EC4899'];
+    const confettiAnimations = ['slow', 'medium', 'fast'];
+    
+    let confettiContainer = el.querySelector('.confetti-container');
+    if (!confettiContainer) {
+      confettiContainer = document.createElement('div');
+      confettiContainer.className = 'confetti-container';
+      el.appendChild(confettiContainer);
+    }
+
+    const interval = setInterval(() => {
+      if (!confettiContainer || !el) return;
+      
+      const confettiEl = document.createElement('div');
+      const confettiSize = Math.floor(Math.random() * 4) + 7 + 'px';
+      const confettiBg = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+      const confettiLeft = Math.floor(Math.random() * (window.innerWidth || 1200)) + 'px';
+      const confettiAnimation = confettiAnimations[Math.floor(Math.random() * confettiAnimations.length)];
+
+      confettiEl.classList.add('confetti', `confetti--animation-${confettiAnimation}`);
+      confettiEl.style.left = confettiLeft;
+      confettiEl.style.width = confettiSize;
+      confettiEl.style.height = confettiSize;
+      confettiEl.style.backgroundColor = confettiBg;
+      confettiEl.style.borderRadius = Math.random() > 0.5 ? '50%' : '1px';
+
+      setTimeout(() => {
+        if (confettiEl && confettiEl.parentNode) {
+          confettiEl.parentNode.removeChild(confettiEl);
+        }
+      }, 3000);
+
+      confettiContainer.appendChild(confettiEl);
+    }, 25);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <div 
+      ref={containerRef}
+      className="js-container fixed inset-0 pointer-events-none z-[9999999] overflow-hidden"
+      style={{ top: '0px' }}
+    />
+  );
+};
+
 const CheckoutPage = () => {
   const { carId } = useParams();
   const navigate = useNavigate();
@@ -119,6 +252,7 @@ const CheckoutPage = () => {
   const [showCelebrationToast, setShowCelebrationToast] = useState(false);
   const [expandedFeature, setExpandedFeature] = useState(null); // 'warranty' | 'periodic' | 'rsa' | null (collapsed by default)
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  const [activeBreakdownModal, setActiveBreakdownModal] = useState(null); // 'servicing' | 'fixes' | 'gst' | null
 
   const openTestDrive = (location = 'hub') => {
     setTestDriveLocation(location);
@@ -131,7 +265,7 @@ const CheckoutPage = () => {
     setShowCelebrationToast(true);
     setTimeout(() => {
       setShowCelebrationToast(false);
-    }, 2800);
+    }, 3500);
   };
 
   useEffect(() => {
@@ -360,7 +494,7 @@ const CheckoutPage = () => {
                       Interested in car loan?
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
-                      Get your car financed at attractive interest rates. <a href="/privacy-policy" className="text-[#5B0888] font-bold hover:underline">Learn more</a>
+                      Get your car financed at attractive interest rates. <a href="/privacy-policy" className="text-[#00A38D] font-bold hover:underline">Learn more</a>
                     </p>
                   </div>
 
@@ -370,7 +504,7 @@ const CheckoutPage = () => {
                     onClick={() => setInterestedInLoan(!interestedInLoan)}
                     className={`w-6 h-6 rounded-md flex items-center justify-center transition-all cursor-pointer shrink-0 mt-1 ${
                       interestedInLoan
-                        ? 'bg-[#4B0082] text-white shadow-xs'
+                        ? 'bg-[#00C9AF] text-[#0C1B33] shadow-xs'
                         : 'border-2 border-slate-300 bg-white hover:border-slate-400'
                     }`}
                     aria-label="Toggle car loan interest"
@@ -427,7 +561,7 @@ const CheckoutPage = () => {
                       <button
                         type="button"
                         onClick={() => setIsMaintenanceModalOpen(true)}
-                        className="py-1.5 px-4 rounded-xl border-2 border-[#5B0888] bg-[#5B0888]/10 text-[#5B0888] font-black text-xs flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+                        className="py-1.5 px-4 rounded-xl border-2 border-[#00A38D] bg-[#00A38D]/10 text-[#00A38D] font-black text-xs flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
                       >
                         <Check size={14} strokeWidth={3} />
                         <span>Added</span>
@@ -451,23 +585,23 @@ const CheckoutPage = () => {
                 <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center text-[#5B0888]">
+                      <div className="w-7 h-7 rounded-lg bg-teal-100 flex items-center justify-center text-[#00A38D]">
                         <Calendar size={16} />
                       </div>
-                      <span className="font-black text-[#2b0a3d] text-sm sm:text-base">
+                      <span className="font-black text-[#0F172A] text-sm sm:text-base">
                         {scheduledTestDrive.date_day || 'Wed, 30 Sep'} • {scheduledTestDrive.slot || '4pm - 5pm'}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => openTestDrive(scheduledTestDrive.location || 'hub')}
-                      className="text-[#5B0888] font-bold text-xs hover:underline cursor-pointer"
+                      className="text-[#00A38D] font-bold text-xs hover:underline cursor-pointer"
                     >
                       View Details
                     </button>
                   </div>
                   <div className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold pl-1">
-                    <MapPin size={14} className="text-[#5B0888] shrink-0" />
+                    <MapPin size={14} className="text-[#00A38D] shrink-0" />
                     <span>{scheduledTestDrive.location === 'hub' ? (scheduledTestDrive.hub_name || 'Selectt Car Hub, Pune') : 'Your Location (Doorstep)'}</span>
                   </div>
                   <p className="text-[11px] text-slate-400 font-medium leading-relaxed border-t border-slate-100 pt-2">
@@ -536,12 +670,37 @@ const CheckoutPage = () => {
             {/* Right Column: Order Summary & Price Breakdown (5 cols on desktop) */}
             <div className="lg:col-span-5 space-y-4">
 
-              {/* Savings Banner */}
-              <div className="bg-emerald-50/90 border border-emerald-300/90 rounded-2xl px-4 py-3 flex items-center gap-2.5 text-emerald-800 text-[14px] font-bold shadow-xs">
-                <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-black shrink-0">
-                  ₹
-                </span>
-                <span>Yay! You are saving ₹5,000</span>
+              {/* Savings Banner with Confetti, Ribbon & Balloon Celebration Animations */}
+              <div className="relative overflow-hidden bg-gradient-to-r from-emerald-50 via-teal-50/90 to-emerald-50 border border-emerald-300/90 rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs">
+                {/* Floating Animated Balloons, Ribbons & Confetti Particles (Matching Screenshot 5) */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+                  {/* Floating Balloons */}
+                  <span className="absolute top-0.5 right-20 text-[15px] animate-balloon opacity-80">🎈</span>
+                  <span className="absolute -bottom-1 right-36 text-[12px] animate-balloon [animation-delay:1.3s] opacity-70">🎈</span>
+                  
+                  {/* Floating Ribbons / Streamers */}
+                  <span className="absolute top-1 right-12 text-[14px] animate-ribbon opacity-85">🎊</span>
+                  <span className="absolute -top-1 right-28 text-[13px] animate-ribbon [animation-delay:0.7s] opacity-80">🎉</span>
+                  
+                  {/* Confetti Dots & Sparkles */}
+                  <span className="absolute top-1.5 left-48 text-[10px] animate-confetti text-amber-500">✨</span>
+                  <span className="absolute bottom-1.5 left-60 text-[9px] animate-confetti [animation-delay:1.5s] text-purple-500">✨</span>
+                  <span className="absolute top-2 right-4 w-1.5 h-1.5 rounded-full bg-amber-400 animate-confetti" />
+                  <span className="absolute bottom-2 right-8 w-1.5 h-1.5 rounded-full bg-rose-400 animate-confetti [animation-delay:0.5s]" />
+                  <span className="absolute top-2.5 right-16 w-1 h-2 rounded-xs bg-purple-500 animate-confetti [animation-delay:1.1s] rotate-45" />
+                  <span className="absolute bottom-1.5 right-24 w-1.5 h-1.5 rounded-full bg-teal-500 animate-confetti [animation-delay:0.8s]" />
+                  <span className="absolute top-1 right-44 w-1.5 h-1.5 rounded-full bg-blue-500 animate-confetti [animation-delay:1.7s]" />
+                  <span className="absolute bottom-2 right-48 w-1 h-2 rounded-xs bg-emerald-500 animate-confetti [animation-delay:0.3s] -rotate-12" />
+                  <span className="absolute top-2 left-44 w-1.5 h-1.5 rounded-full bg-pink-400 animate-confetti [animation-delay:1.4s]" />
+                </div>
+
+                {/* Banner Text */}
+                <div className="flex items-center gap-2.5 relative z-10">
+                  <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs">
+                    ₹
+                  </span>
+                  <span className="font-extrabold text-emerald-900 tracking-tight">Yay! You are saving ₹5,000</span>
+                </div>
               </div>
 
               {/* Order Summary & Breakdown Card */}
@@ -585,9 +744,9 @@ const CheckoutPage = () => {
                       </div>
                       <span>Booking Amount</span>
                     </div>
-                    <div className="flex items-center gap-1.5 font-extrabold text-sm sm:text-base text-[#4B0082] font-price">
+                    <div className="flex items-center gap-1.5 font-extrabold text-sm sm:text-base text-[#0C1B33] font-price">
                       <span>₹{getBookingAmount(car?.price).toLocaleString('en-IN')}</span>
-                      <Pencil size={13} className="text-[#4B0082] cursor-pointer hover:scale-110 transition-transform" />
+                      <Pencil size={13} className="text-[#00A38D] cursor-pointer hover:scale-110 transition-transform" />
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium pt-2 pb-1 px-1">
@@ -617,16 +776,23 @@ const CheckoutPage = () => {
                       <span className="text-slate-600 font-normal">RC transfer facilitation</span>
                       <span className="text-[#0F172A] font-bold font-price">+ ₹4,000</span>
                     </div>
+                    
+                    {/* Servicing, cleaning, fuel & more (Interactive Info Trigger) */}
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-normal flex items-center gap-1">
-                        Servicing, cleaning, fuel & more
-                        <Info size={12} className="text-slate-400" />
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setActiveBreakdownModal('servicing')}
+                        className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
+                      >
+                        <span>Servicing, cleaning, fuel & more</span>
+                        <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
+                      </button>
                       <div className="flex items-center gap-2">
                         <span className="text-slate-400 line-through text-[11px] font-semibold font-price">₹8,700</span>
                         <span className="text-emerald-600 font-bold">Included</span>
                       </div>
                     </div>
+
                     <div className="flex justify-between items-center">
                       <span className="text-slate-600 font-normal">Warranty (Protect)</span>
                       <div className="flex items-center gap-2">
@@ -634,18 +800,30 @@ const CheckoutPage = () => {
                         <span className="text-emerald-600 font-bold">Included</span>
                       </div>
                     </div>
+
+                    {/* Fixes & upgrades (Interactive Info Trigger) */}
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-normal flex items-center gap-1">
-                        Fixes & upgrades
-                        <Info size={12} className="text-slate-400" />
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setActiveBreakdownModal('fixes')}
+                        className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
+                      >
+                        <span>Fixes & upgrades</span>
+                        <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
+                      </button>
                       <span className="text-emerald-600 font-bold">Included</span>
                     </div>
+
+                    {/* GST govt taxes (Interactive Info Trigger) */}
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-normal flex items-center gap-1">
-                        GST (govt. taxes)
-                        <Info size={12} className="text-slate-400" />
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setActiveBreakdownModal('gst')}
+                        className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
+                      >
+                        <span>GST (govt. taxes)</span>
+                        <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
+                      </button>
                       <span className="text-[#0F172A] font-bold font-price">₹2,430</span>
                     </div>
 
@@ -943,7 +1121,9 @@ const CheckoutPage = () => {
 
       {/* Celebration / Confetti Modal (Screenshot 3) */}
       {showCelebrationToast && (
-        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+        <>
+          <CelebrationConfettiShower />
+          <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-250 text-center border border-slate-100">
             {/* Green Top Wave Banner */}
             <div className="bg-[#00C9AF] text-[#0C1B33] px-4 py-2.5 text-xs font-black flex items-center justify-center gap-1.5 shadow-xs">
@@ -979,6 +1159,7 @@ const CheckoutPage = () => {
             </div>
           </div>
         </div>
+      </>
       )}
 
       {/* Full-Fidelity Complete Maintenance Package Details Modal / Drawer (Matching Screenshots 1, 2, 3, 4, 5) */}
@@ -1741,6 +1922,229 @@ const CheckoutPage = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 3 Price Breakdown Info Modals (Servicing, Fixes, GST) */}
+      {activeBreakdownModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
+          <div 
+            className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-slate-200 animate-slideUp flex flex-col max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 via-white to-slate-50">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-[#00C9AF]/15 text-[#008975] flex items-center justify-center font-black">
+                  <Info size={20} />
+                </div>
+                <div>
+                  <h3 className="font-heading font-extrabold text-[#0C1B33] text-base sm:text-lg capitalize">
+                    {activeBreakdownModal === 'servicing' && 'Servicing, cleaning, fuel & more'}
+                    {activeBreakdownModal === 'fixes' && 'Fixes & upgrades'}
+                    {activeBreakdownModal === 'gst' && 'GST (govt. taxes)'}
+                  </h3>
+                  <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
+                    {activeBreakdownModal === 'servicing' && 'Selectt Assured Pre-Delivery Care • ₹8,700 Value'}
+                    {activeBreakdownModal === 'fixes' && 'Complete Quality Restoration & Refurbishment'}
+                    {activeBreakdownModal === 'gst' && '18% Statutory Tax on Facilitation Services'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveBreakdownModal(null)}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body (Scrollable) */}
+            <div className="p-5 overflow-y-auto space-y-4">
+              
+              {/* 1. Servicing Details */}
+              {activeBreakdownModal === 'servicing' && (
+                <>
+                  <div className="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-3.5 text-xs text-emerald-900 font-semibold flex items-center gap-2.5">
+                    <Sparkles size={18} className="text-emerald-600 shrink-0" />
+                    <span>Every Selectt vehicle undergoes premium servicing, multi-stage detailing, and fuel top-up at zero extra cost to you!</span>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-[#0C1B33]">Comprehensive Periodic Servicing</h4>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                          Engine oil flush & replacement, synthetic filter change, spark plugs cleaning, brake fluid & coolant top-up.
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-slate-400 line-through text-[11px] font-semibold block font-price">₹4,200</span>
+                        <span className="text-xs font-extrabold text-emerald-600 uppercase">FREE</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-[#0C1B33]">Deep Interior & Exterior Detailing</h4>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                          Full interior upholstery shampooing, seat dry clean, dashboard UV dressing, and 3-step high-gloss exterior buffing.
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-slate-400 line-through text-[11px] font-semibold block font-price">₹2,800</span>
+                        <span className="text-xs font-extrabold text-emerald-600 uppercase">FREE</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-[#0C1B33]">Complimentary Fuel & Fluids</h4>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                          5 Litres pre-delivery fuel in the tank so you can drive home smoothly from delivery hub, plus windshield wiper fluid.
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-slate-400 line-through text-[11px] font-semibold block font-price">₹1,200</span>
+                        <span className="text-xs font-extrabold text-emerald-600 uppercase">FREE</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-[#0C1B33]">Anti-Bacterial Ozone Cabin Treatment</h4>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                          Complete AC duct disinfectant & 99.9% germ elimination treatment for healthy cabin air.
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-slate-400 line-through text-[11px] font-semibold block font-price">₹500</span>
+                        <span className="text-xs font-extrabold text-emerald-600 uppercase">FREE</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-100/90 rounded-2xl p-3.5 flex items-center justify-between font-bold text-xs sm:text-sm">
+                    <span className="text-slate-700">Total Pre-Delivery Value</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400 line-through text-xs font-price">₹8,700</span>
+                      <span className="text-emerald-700 font-extrabold text-sm">₹0 (100% Included)</span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* 2. Fixes & Upgrades Details */}
+              {activeBreakdownModal === 'fixes' && (
+                <>
+                  <div className="bg-indigo-50/90 border border-indigo-200 rounded-2xl p-3.5 text-xs text-indigo-950 font-semibold flex items-center gap-2.5">
+                    <ShieldCheck size={18} className="text-indigo-600 shrink-0" />
+                    <span>Every car is thoroughly tested across 200 checkpoints. All mechanical wear and minor cosmetic blemishes are fixed before delivery.</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-[#0C1B33]">Mechanical Tuning</span>
+                        <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-sm">COMPLETED</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-snug">
+                        Brake pad tuning, suspension alignment, clutch calibration & smooth gear shifting.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-[#0C1B33]">Electrical & AC Diagnostics</span>
+                        <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-sm">TESTED</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-snug">
+                        AC cooling efficiency verified, sensor check, infotainment & speakers functional check.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-[#0C1B33]">Paint & Dent Restoration</span>
+                        <span className="text-[9px] bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded-sm">RESTORED</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-snug">
+                        Minor paint scratch touch-up, high-grade paint sealant, and headlight lens buffing.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-[#0C1B33]">Tires & Wheel Balancing</span>
+                        <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-sm">BALANCED</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-snug">
+                        Tire tread life &gt;70% assured, laser wheel alignment, and accurate pressure balancing.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-100 flex items-center justify-between text-xs font-bold">
+                    <span className="text-slate-700">Refurbishment Cost to Customer</span>
+                    <span className="text-emerald-700 font-extrabold text-sm font-price">₹0 (Included in Price)</span>
+                  </div>
+                </>
+              )}
+
+              {/* 3. GST Details */}
+              {activeBreakdownModal === 'gst' && (
+                <>
+                  <div className="bg-amber-50/90 border border-amber-200 rounded-2xl p-3.5 text-xs text-amber-950 font-semibold flex items-center gap-2.5">
+                    <Info size={18} className="text-amber-600 shrink-0" />
+                    <span>GST (Goods & Services Tax) is charged strictly at 18% on facilitation and documentation service charges in compliance with Govt of India regulations.</span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+                      <div>
+                        <h4 className="font-bold text-[#0C1B33]">18% GST on RC Facilitation</h4>
+                        <p className="text-[11px] text-slate-500">18% tax on ₹4,000 RC transfer service</p>
+                      </div>
+                      <span className="font-extrabold text-[#0C1B33] font-price">₹720</span>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+                      <div>
+                        <h4 className="font-bold text-[#0C1B33]">18% GST on Documentation & Inspection</h4>
+                        <p className="text-[11px] text-slate-500">Processing, background check & legal paperwork</p>
+                      </div>
+                      <span className="font-extrabold text-[#0C1B33] font-price">₹1,710</span>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+                      <div>
+                        <h4 className="font-bold text-[#0C1B33]">GST on Pre-Owned Car Margin</h4>
+                        <p className="text-[11px] text-slate-500">Pre-owned vehicle tax under margin scheme</p>
+                      </div>
+                      <span className="font-bold text-emerald-600 uppercase text-[11px]">Covered by Selectt</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-100/90 rounded-2xl p-3.5 flex items-center justify-between font-bold text-xs sm:text-sm">
+                    <span className="text-slate-700">Total Statutory Govt. Taxes</span>
+                    <span className="text-[#0C1B33] font-extrabold text-sm font-price">₹2,430</span>
+                  </div>
+                </>
+              )}
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/80 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setActiveBreakdownModal(null)}
+                className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#0C1B33] to-[#00A38D] hover:from-[#0a1628] hover:to-[#008975] text-white rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all cursor-pointer"
+              >
+                Got It
+              </button>
             </div>
           </div>
         </div>
