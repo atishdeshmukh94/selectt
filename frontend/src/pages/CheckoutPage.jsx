@@ -69,80 +69,24 @@ const DEFAULT_BUY_STEPS = [
 export const ConfettiSavingsBanner = ({ savingAmount = 5000, className = "" }) => {
   const containerRef = React.useRef(null);
 
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const confettiColors = ['#EF2964', '#00C09D', '#2D87B0', '#48485E', '#EFFF1D', '#F59E0B', '#8B5CF6', '#EC4899'];
-    const confettiAnimations = ['slow', 'medium', 'fast'];
-    
-    // Create confetti container
-    let confettiContainer = el.querySelector('.confetti-container');
-    if (!confettiContainer) {
-      confettiContainer = document.createElement('div');
-      confettiContainer.className = 'confetti-container';
-      el.appendChild(confettiContainer);
-    }
-
-    const interval = setInterval(() => {
-      if (!confettiContainer || !el) return;
-      
-      const confettiEl = document.createElement('div');
-      const confettiSize = Math.floor(Math.random() * 4) + 6 + 'px'; // 6px to 9px
-      const confettiBg = confettiColors[Math.floor(Math.random() * confettiColors.length)];
-      const confettiLeft = Math.floor(Math.random() * (el.offsetWidth || 300)) + 'px';
-      const confettiAnimation = confettiAnimations[Math.floor(Math.random() * confettiAnimations.length)];
-
-      confettiEl.classList.add('confetti', `confetti-banner--${confettiAnimation}`);
-      confettiEl.style.left = confettiLeft;
-      confettiEl.style.width = confettiSize;
-      confettiEl.style.height = confettiSize;
-      confettiEl.style.backgroundColor = confettiBg;
-      confettiEl.style.borderRadius = Math.random() > 0.5 ? '50%' : '1px';
-
-      setTimeout(() => {
-        if (confettiEl && confettiEl.parentNode) {
-          confettiEl.parentNode.removeChild(confettiEl);
-        }
-      }, 2500);
-
-      confettiContainer.appendChild(confettiEl);
-    }, 90);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
-
   return (
     <div 
-      ref={containerRef}
-      className={`js-container container relative overflow-hidden bg-gradient-to-r from-emerald-50 via-teal-50/90 to-emerald-50 border border-emerald-300/90 rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs select-none min-h-[46px] ${className}`}
-      style={{ top: '0px' }}
+      className={`relative overflow-hidden bg-gradient-to-r from-emerald-50 via-teal-50/90 to-emerald-50 border border-emerald-300/90 rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs select-none min-h-[46px] ${className}`}
     >
-      {/* Floating Colorful Party Particle Elements (No Balloons / Emojis) */}
+      {/* Subtle celebratory shimmer & minimal particles strictly on the far right */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-        <span className="absolute top-2 right-6 w-2 h-2 rounded-full bg-[#FF4757] animate-particle-1 shadow-xs" />
-        <span className="absolute bottom-2 right-12 w-2 h-2 rounded-full bg-[#00C9AF] animate-particle-2 [animation-delay:0.3s] shadow-xs" />
-        <span className="absolute top-1.5 right-20 w-1.5 h-1.5 rounded-full bg-[#FFA502] animate-particle-1 [animation-delay:0.7s]" />
-        <span className="absolute bottom-1.5 right-28 w-2 h-2 rounded-full bg-[#8B5CF6] animate-particle-2 [animation-delay:1.1s]" />
-        <span className="absolute top-2.5 right-36 w-2 h-2 rounded-full bg-[#00D2FF] animate-particle-1 [animation-delay:0.5s]" />
-        <span className="absolute bottom-2 right-44 w-1.5 h-1.5 rounded-full bg-[#FF3385] animate-particle-2 [animation-delay:1.4s]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent saving-banner-shimmer pointer-events-none" />
 
-        {/* Confetti Strips */}
-        <span className="absolute top-2 right-16 w-3 h-1.5 rounded-xs bg-[#FF4757] animate-particle-sway rotate-12 [animation-delay:0.2s]" />
-        <span className="absolute bottom-2 right-24 w-1.5 h-3 rounded-xs bg-[#FFA502] animate-particle-sway -rotate-45 [animation-delay:0.8s]" />
-        <span className="absolute top-1 right-32 w-2.5 h-1.5 rounded-xs bg-[#00C9AF] animate-particle-sway rotate-45 [animation-delay:1.2s]" />
-        <span className="absolute bottom-2.5 right-40 w-3 h-1.5 rounded-xs bg-[#9B59B6] animate-particle-sway -rotate-12 [animation-delay:0.6s]" />
+        {/* Clean, subtle party dots on far right */}
+        <span className="absolute top-2.5 right-4 w-2 h-2 rounded-full bg-[#00C9AF] animate-particle-1" />
+        <span className="absolute bottom-2.5 right-8 w-1.5 h-1.5 rounded-full bg-[#FF4757] animate-particle-2 [animation-delay:0.4s]" />
+        <span className="absolute top-2 right-12 w-2 h-2 rounded-full bg-[#FFA502] animate-particle-1 [animation-delay:0.8s]" />
 
-        {/* Vector Stars */}
-        <svg className="absolute top-1 right-10 w-3.5 h-3.5 text-[#FFA502] animate-particle-twinkle" viewBox="0 0 24 24" fill="currentColor">
+        {/* 2 crisp twinkling vector stars */}
+        <svg className="absolute top-1.5 right-6 w-3.5 h-3.5 text-[#FFA502] animate-particle-twinkle" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
         </svg>
-        <svg className="absolute bottom-1 right-18 w-3 h-3 text-[#00C9AF] animate-particle-twinkle [animation-delay:0.6s]" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-        </svg>
-        <svg className="absolute top-1.5 left-48 w-3 h-3 text-[#FFA502] animate-particle-twinkle [animation-delay:0.4s]" viewBox="0 0 24 24" fill="currentColor">
+        <svg className="absolute bottom-1.5 right-14 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:0.6s]" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
         </svg>
       </div>
@@ -775,52 +719,22 @@ const CheckoutPage = () => {
             {/* Right Column: Order Summary & Price Breakdown (5 cols on desktop) */}
             <div className="lg:col-span-5 space-y-4">
 
-              {/* Savings Banner with Colorful Party Particle Celebration Effect */}
+              {/* Savings Banner with Subtle Celebration Accent */}
               <div className="relative overflow-hidden bg-gradient-to-r from-emerald-50 via-teal-50/90 to-emerald-50 border border-emerald-300/90 rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs">
-                {/* Floating Colorful Party Particle Effects (No Balloons / Emojis) */}
+                {/* Subtle celebratory shimmer & minimal particles strictly on the far right */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-                  {/* Subtle celebratory shimmer sheen */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent saving-banner-shimmer pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent saving-banner-shimmer pointer-events-none" />
 
-                  {/* Colorful Confetti Dots (Party Circles) */}
-                  <span className="absolute top-2 right-6 w-2.5 h-2.5 rounded-full bg-[#FF4757] animate-particle-1 shadow-xs" />
-                  <span className="absolute bottom-2 right-12 w-2 h-2 rounded-full bg-[#00C9AF] animate-particle-2 [animation-delay:0.3s] shadow-xs" />
-                  <span className="absolute top-1.5 right-20 w-1.5 h-1.5 rounded-full bg-[#FFA502] animate-particle-1 [animation-delay:0.7s]" />
-                  <span className="absolute bottom-1.5 right-28 w-2 h-2 rounded-full bg-[#8B5CF6] animate-particle-2 [animation-delay:1.1s]" />
-                  <span className="absolute top-2.5 right-36 w-2 h-2 rounded-full bg-[#00D2FF] animate-particle-1 [animation-delay:0.5s]" />
-                  <span className="absolute bottom-2 right-44 w-1.5 h-1.5 rounded-full bg-[#FF3385] animate-particle-2 [animation-delay:1.4s]" />
-                  <span className="absolute top-1.5 right-52 w-2 h-2 rounded-full bg-[#10B981] animate-particle-1 [animation-delay:0.9s]" />
-                  <span className="absolute bottom-2.5 right-60 w-1.5 h-1.5 rounded-full bg-[#ECCC68] animate-particle-2 [animation-delay:0.4s]" />
-                  <span className="absolute top-2 right-68 w-2 h-2 rounded-full bg-[#70A1FF] animate-particle-1 [animation-delay:1.6s]" />
+                  {/* Clean, subtle party dots on far right */}
+                  <span className="absolute top-2.5 right-4 w-2 h-2 rounded-full bg-[#00C9AF] animate-particle-1" />
+                  <span className="absolute bottom-2.5 right-8 w-1.5 h-1.5 rounded-full bg-[#FF4757] animate-particle-2 [animation-delay:0.4s]" />
+                  <span className="absolute top-2 right-12 w-2 h-2 rounded-full bg-[#FFA502] animate-particle-1 [animation-delay:0.8s]" />
 
-                  {/* Confetti Strips / Streamer Flakes (Tilted & Swaying) */}
-                  <span className="absolute top-2 right-16 w-3 h-1.5 rounded-xs bg-[#FF4757] animate-particle-sway rotate-12 [animation-delay:0.2s] shadow-xs" />
-                  <span className="absolute bottom-2 right-24 w-1.5 h-3 rounded-xs bg-[#FFA502] animate-particle-sway -rotate-45 [animation-delay:0.8s]" />
-                  <span className="absolute top-1 right-32 w-2.5 h-1.5 rounded-xs bg-[#00C9AF] animate-particle-sway rotate-45 [animation-delay:1.2s]" />
-                  <span className="absolute bottom-2.5 right-40 w-3 h-1.5 rounded-xs bg-[#9B59B6] animate-particle-sway -rotate-12 [animation-delay:0.6s]" />
-                  <span className="absolute top-2 right-48 w-1.5 h-3 rounded-xs bg-[#00D2FF] animate-particle-sway rotate-30 [animation-delay:1.5s]" />
-                  <span className="absolute bottom-1.5 right-56 w-2.5 h-1.5 rounded-xs bg-[#FF3385] animate-particle-sway -rotate-30 [animation-delay:0.4s]" />
-
-                  {/* Twinkling Star Sparkles (Crisp Vector Stars) */}
-                  <svg className="absolute top-1 right-10 w-3.5 h-3.5 text-[#FFA502] animate-particle-twinkle" viewBox="0 0 24 24" fill="currentColor">
+                  {/* 2 crisp twinkling vector stars */}
+                  <svg className="absolute top-1.5 right-6 w-3.5 h-3.5 text-[#FFA502] animate-particle-twinkle" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
                   </svg>
-                  <svg className="absolute bottom-1 right-18 w-3 h-3 text-[#00C9AF] animate-particle-twinkle [animation-delay:0.6s]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                  </svg>
-                  <svg className="absolute top-1.5 right-26 w-2.5 h-2.5 text-[#FF3385] animate-particle-twinkle [animation-delay:1.2s]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                  </svg>
-                  <svg className="absolute bottom-1.5 right-34 w-3.5 h-3.5 text-[#1E90FF] animate-particle-twinkle [animation-delay:0.9s]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                  </svg>
-                  <svg className="absolute top-2 right-42 w-2.5 h-2.5 text-[#8B5CF6] animate-particle-twinkle [animation-delay:1.6s]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                  </svg>
-                  <svg className="absolute top-1.5 left-48 w-3 h-3 text-[#FFA502] animate-particle-twinkle [animation-delay:0.4s]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                  </svg>
-                  <svg className="absolute bottom-1.5 left-64 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:1.4s]" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="absolute bottom-1.5 right-14 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:0.6s]" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
                   </svg>
                 </div>
@@ -1936,26 +1850,6 @@ const CheckoutPage = () => {
                 </div>
               </div>
             )}
-
-            {/* Slider Dots Indicator */}
-            <div className="flex justify-center items-center gap-1.5 mt-3">
-              <button
-                type="button"
-                onClick={() => setMobilePromptStep(1)}
-                className={`h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
-                  mobilePromptStep === 1 ? 'w-5 bg-[#00A38D]' : 'w-2 bg-slate-200 hover:bg-slate-300'
-                }`}
-                aria-label="Step 1: Car loan prompt"
-              />
-              <button
-                type="button"
-                onClick={() => setMobilePromptStep(2)}
-                className={`h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
-                  mobilePromptStep === 2 ? 'w-5 bg-[#00A38D]' : 'w-2 bg-slate-200 hover:bg-slate-300'
-                }`}
-                aria-label="Step 2: Test drive prompt"
-              />
-            </div>
           </div>
         </div>
       )}
