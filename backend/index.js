@@ -2531,7 +2531,7 @@ app.delete('/api/sell-requests/:id', authMiddleware, isAdmin, (req, res) => {
 // ============================================================
 // CENTRALIZED SMTP ADMIN EMAIL NOTIFICATION SERVICE
 // ============================================================
-async function sendAdminEmailNotification({ subject, title, leadType, fields = {}, message = '', directLink = 'https://admin.selectt.in/leads' }) {
+async function sendAdminEmailNotification({ subject, title, leadType, fields = {}, message = '', directLink = 'https://admin.selectt.in/leads', targetRecipient = null }) {
     try {
         const settingsRows = await queryAsync("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from_email', 'admin_notification_email', 'smtp_admin_email', 'contact_email', 'site_email', 'smtp_from_name')");
         const settings = {};
@@ -2546,7 +2546,7 @@ async function sendAdminEmailNotification({ subject, title, leadType, fields = {
         const pass = rawPass ? rawPass.replace(/\s+/g, '') : '';
         const fromName = settings.smtp_from_name || 'Selectt.';
         const fromEmail = settings.smtp_from_email || user || 'donotreply@selectt.in';
-        const adminEmail = settings.admin_notification_email || settings.smtp_admin_email || settings.contact_email || settings.site_email || user || 'donotreply@selectt.in';
+        const recipient = targetRecipient || settings.admin_notification_email || settings.smtp_admin_email || settings.contact_email || settings.site_email || user || 'donotreply@selectt.in';
 
         if (!host || !user || !pass) {
             console.log('ℹ️ [SMTP Service] SMTP credentials not fully configured in site_settings. Skipping email alert.');
@@ -2562,7 +2562,7 @@ async function sendAdminEmailNotification({ subject, title, leadType, fields = {
 
         // Generate table rows for key-value fields
         const fieldRows = Object.entries(fields)
-            .filter(([_, val]) => val !== undefined && val !== null && val !== '')
+            .filter(([k, val]) => val !== undefined && val !== null && val !== '' && !['message', 'directLink'].includes(k))
             .map(([key, val]) => `
                 <tr>
                     <td style="padding: 10px 14px; color: #64748b; font-weight: 600; width: 160px; border-bottom: 1px solid #f1f5f9; text-transform: capitalize; font-size: 13px;">
@@ -2574,6 +2574,8 @@ async function sendAdminEmailNotification({ subject, title, leadType, fields = {
                 </tr>
             `).join('');
 
+        const formattedMessage = message ? message.replace(/\n/g, '<br/>') : '';
+
         const htmlContent = `
             <!DOCTYPE html>
             <html>
@@ -2583,45 +2585,44 @@ async function sendAdminEmailNotification({ subject, title, leadType, fields = {
                     <!-- Header -->
                     <div style="background-color: #0C1B33; padding: 28px 24px; text-align: center; border-bottom: 3px solid #00C9AF;">
                         <h1 style="color: #00C9AF; margin: 0 0 8px 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">
-                            ${title || 'New Website Lead Submission'}
+                            ${title || 'Notification from Selectt'}
                         </h1>
                         <span style="background: rgba(0,201,175,0.15); color: #00C9AF; border: 1px solid rgba(0,201,175,0.35); padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; display: inline-block;">
-                            ${leadType || 'Inbound Lead'}
+                            ${leadType || 'Selectt Notification'}
                         </span>
                     </div>
 
                     <!-- Body -->
                     <div style="padding: 28px 24px;">
-                        <p style="font-size: 14px; color: #475569; margin: 0 0 16px 0; line-height: 1.5;">
-                            A new customer lead/inquiry form has been submitted on <strong>Selectt</strong>:
-                        </p>
-
-                        <table style="width: 100%; border-collapse: collapse; background-color: #f8fafc; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 20px;">
-                            ${fieldRows}
-                            <tr>
-                                <td style="padding: 10px 14px; color: #64748b; font-weight: 600; font-size: 13px;">Submitted At:</td>
-                                <td style="padding: 10px 14px; color: #334155; font-size: 13.5px;">${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</td>
-                            </tr>
-                        </table>
-
-                        ${message ? `
-                        <div style="margin: 20px 0; padding: 16px; background-color: #f8fafc; border-left: 4px solid #00C9AF; border-radius: 8px;">
-                            <strong style="color: #0C1B33; display: block; margin-bottom: 6px; font-size: 13px;">Customer Message / Notes:</strong>
-                            <p style="color: #334155; margin: 0; line-height: 1.6; white-space: pre-line; font-size: 13px;">${message}</p>
+                        ${formattedMessage ? `
+                        <div style="margin: 0 0 20px 0; padding: 18px; background-color: #f8fafc; border-left: 4px solid #00C9AF; border-radius: 10px; font-size: 14px; color: #334155; line-height: 1.6;">
+                            ${formattedMessage}
                         </div>
                         ` : ''}
 
+                        ${fieldRows ? `
+                        <table style="width: 100%; border-collapse: collapse; background-color: #f8fafc; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                            ${fieldRows}
+                            <tr>
+                                <td style="padding: 10px 14px; color: #64748b; font-weight: 600; font-size: 13px;">Timestamp:</td>
+                                <td style="padding: 10px 14px; color: #334155; font-size: 13.5px;">${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</td>
+                            </tr>
+                        </table>
+                        ` : ''}
+
+                        ${directLink ? `
                         <div style="text-align: center; margin: 30px 0 10px 0;">
                             <a href="${directLink}" target="_blank" style="background-color: #00C9AF; color: #0C1B33; font-weight: 800; font-size: 14px; padding: 14px 32px; border-radius: 12px; text-decoration: none; display: inline-block; box-shadow: 0 4px 14px rgba(0, 201, 175, 0.4);">
-                                ⚡ View & Manage Lead in Admin Panel
+                                ⚡ View Details on Selectt
                             </a>
                         </div>
+                        ` : ''}
                     </div>
 
                     <!-- Footer -->
                     <div style="background-color: #f8fafc; padding: 16px 24px; text-align: center; border-top: 1px solid #f1f5f9;">
                         <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-                            Selectt Automated Notification • Delivered via SMTP Server (${host})
+                            Selectt India • 100% Certified Pre-Owned Cars • Automated Dispatch via SMTP
                         </p>
                     </div>
                 </div>
@@ -2631,17 +2632,289 @@ async function sendAdminEmailNotification({ subject, title, leadType, fields = {
 
         const mailOptions = {
             from: `"${fromName}" <${fromEmail || user}>`,
-            to: adminEmail,
-            subject: subject || `⚡ New Lead Alert: ${title || 'Website Form Submission'}`,
+            to: recipient,
+            subject: subject || `⚡ Notification from Selectt`,
             html: htmlContent
         };
 
         const result = await transporter.sendMail(mailOptions);
-        console.log(`✅ [SMTP Service] Notification email delivered to ${adminEmail} (MsgID: ${result.messageId})`);
+        console.log(`✅ [SMTP Service] Notification email delivered to ${recipient} (MsgID: ${result.messageId})`);
         return { success: true, messageId: result.messageId };
     } catch (err) {
         console.error('⚠️ [SMTP Service Error]:', err.message);
         return { success: false, error: err.message };
+    }
+}
+
+// 29 TRANSACTIONAL & WORKFLOW EMAIL TEMPLATES DEFINITIONS
+const DEFAULT_EMAIL_TEMPLATES = {
+    sell_request: {
+        subject: "🚗 Your Sell Car Request for {{car_name}} is Under Review (ID: {{request_id}})",
+        heading: "Sell Car Valuation Request Received",
+        leadType: "Sell Car Workflow",
+        body: "Hello {{customer_name}},\n\nThank you for choosing Selectt! We have received your car selling request for {{car_name}} (Request ID: {{request_id}}).\n\nOur certified automobile valuation team is reviewing your vehicle details and will generate a fair, AI-backed market price offer within 2 hours.",
+        recipient: "Customer"
+    },
+    sell_inspection_booked: {
+        subject: "📅 Doorstep Inspection Confirmed for {{car_name}}",
+        heading: "Inspection Appointment Confirmed",
+        leadType: "Sell Car Workflow",
+        body: "Hello {{customer_name}},\n\nYour doorstep 200-point inspection appointment for {{car_name}} has been scheduled.\n\nDate & Time: {{date_slot}}\nLocation: {{location}}\nRequest ID: {{request_id}}\n\nOur certified inspector will arrive on time with complete diagnostic equipment.",
+        recipient: "Customer"
+    },
+    sell_request_approved: {
+        subject: "🎉 Congratulations! Your {{car_name}} is Live on Selectt",
+        heading: "Vehicle Approved & Live in Catalog",
+        leadType: "Sell Car Workflow",
+        body: "Hello {{customer_name}},\n\nGreat news! Your vehicle {{car_name}} (ID: {{request_id}}) has passed quality inspection and is now actively listed in Selectt's inventory with verified inspection badges.",
+        recipient: "Customer"
+    },
+    sell_car_sold: {
+        subject: "💰 Your {{car_name}} Has Been Sold! (₹{{sold_price}})",
+        heading: "Vehicle Sold Successfully",
+        leadType: "Sell Car Workflow",
+        body: "Congratulations {{customer_name}},\n\nYour car {{car_name}} has been sold for ₹{{sold_price}}! Our operations executive will contact you to complete instantaneous bank settlement and hassle-free RC transfer.",
+        recipient: "Customer"
+    },
+    sell_request_rejected: {
+        subject: "Update Regarding Your Sell Car Request for {{car_name}}",
+        heading: "Sell Request Status Update",
+        leadType: "Sell Car Workflow",
+        body: "Hello {{customer_name}},\n\nWe reviewed your submission for {{car_name}} (Request ID: {{request_id}}). Unfortunately, we could not approve the listing due to: {{reason}}.\n\nPlease contact our dedicated seller support if you have any questions.",
+        recipient: "Customer"
+    },
+    car_booking: {
+        subject: "🎉 Booking Confirmed: ₹{{amount}} Token Received for {{car_name}}",
+        heading: "Car Booking Token Confirmed",
+        leadType: "Buy & Bookings",
+        body: "Congratulations {{customer_name}}!\n\nYour booking deposit of ₹{{amount}} for {{car_name}} (Booking ID: {{booking_id}}) has been successfully received.\n\nThe vehicle is reserved exclusively for you. Our relationship manager will coordinate final delivery and paperwork.",
+        recipient: "Customer"
+    },
+    booking_confirmed: {
+        subject: "✅ Car Reservation Confirmed by Selectt Hub (ID: {{booking_id}})",
+        heading: "Hub Reservation Cleared",
+        leadType: "Buy & Bookings",
+        body: "Hello {{customer_name}},\n\nYour car booking for {{car_name}} has been verified and confirmed by our Hub Team.\n\nDelivery Hub: {{hub_location}}\nBooking ID: {{booking_id}}\n\nYour car is being prepped with our 200-point detailing checklist.",
+        recipient: "Customer"
+    },
+    car_delivered: {
+        subject: "🚗 Congratulations on Your New {{car_name}}!",
+        heading: "Delivery & Handover Complete",
+        leadType: "Buy & Bookings",
+        body: "Dear {{customer_name}},\n\nCongratulations on driving home your certified {{car_name}} (Reg: {{reg_no}})!\n\nYour 1-Year Selectt Assured Warranty and 7-day return guarantee are now active. Thank you for choosing Selectt!",
+        recipient: "Customer"
+    },
+    booking_cancelled: {
+        subject: "Booking Cancellation & Refund Status (ID: {{booking_id}})",
+        heading: "Booking Cancelled & Refund Update",
+        leadType: "Buy & Bookings",
+        body: "Hello {{customer_name}},\n\nYour booking for {{car_name}} (ID: {{booking_id}}) has been cancelled.\n\nRefund Status: {{refund_status}}\n\nAny refundable deposit will be credited back to your original payment source within 3-5 business days.",
+        recipient: "Customer"
+    },
+    test_drive: {
+        subject: "🏎️ Your Test Drive for {{car_name}} is Scheduled",
+        heading: "Test Drive Appointment Scheduled",
+        leadType: "Test Drives",
+        body: "Hello {{customer_name}},\n\nYour test drive appointment for {{car_name}} is scheduled.\n\nDate & Time: {{date_slot}}\nLocation: {{location}}\n\nOur representative will meet you at the scheduled time.",
+        recipient: "Customer"
+    },
+    test_drive_confirmed: {
+        subject: "✅ Test Drive Confirmed for {{car_name}}",
+        heading: "Executive Assigned for Test Drive",
+        leadType: "Test Drives",
+        body: "Hello {{customer_name}},\n\nYour test drive on {{date_slot}} for {{car_name}} has been confirmed. Your assigned hub executive is {{executive_name}}, who will assist you during your drive.",
+        recipient: "Customer"
+    },
+    test_drive_completed: {
+        subject: "How Was Your Test Drive with {{car_name}}?",
+        heading: "Test Drive Completed",
+        leadType: "Test Drives",
+        body: "Hello {{customer_name}},\n\nThank you for test driving the {{car_name}} with Selectt! We would love to hear your feedback or assist you if you are ready to reserve this vehicle.",
+        recipient: "Customer"
+    },
+    emi_query: {
+        subject: "💳 Used Car Loan Application Received for {{car_name}}",
+        heading: "Car Finance Application Received",
+        leadType: "Loans & Finance",
+        body: "Hello {{customer_name}},\n\nWe have received your used car loan inquiry for {{car_name}}.\n\nRequested Loan Amount: ₹{{loan_amount}}\nEstimated Monthly EMI: ₹{{monthly_emi}}\n\nOur finance partners will process your pre-approval shortly.",
+        recipient: "Customer"
+    },
+    loan_approved: {
+        subject: "🎉 Congratulations! Your Car Loan of ₹{{loan_amount}} is Approved",
+        heading: "Car Loan In-Principle Approval",
+        leadType: "Loans & Finance",
+        body: "Great news {{customer_name}}!\n\nYour used car loan application for ₹{{loan_amount}} has been approved in-principle at {{interest_rate}} interest rate. Please submit your KYC documents to finalize disbursement.",
+        recipient: "Customer"
+    },
+    loan_rejected: {
+        subject: "Update on Your Car Loan Application (No: {{application_no}})",
+        heading: "Loan Application Update",
+        leadType: "Loans & Finance",
+        body: "Hello {{customer_name}},\n\nThere is an update on your loan application (No: {{application_no}}). Additional documentation required: {{remarks}}.\n\nPlease contact our finance team to proceed.",
+        recipient: "Customer"
+    },
+    insurance_query: {
+        subject: "🛡️ Car Insurance Quote Request for {{car_name}} ({{reg_no}})",
+        heading: "Insurance Quote Inquiry Received",
+        leadType: "Services & Insurance",
+        body: "Hello {{customer_name}},\n\nWe have received your insurance quote request for {{car_name}} (Registration: {{reg_no}}). Our insurance desk will send customized quotes with up to 50% NCB savings shortly.",
+        recipient: "Customer"
+    },
+    warranty_inquiry: {
+        subject: "🛡️ Selectt Assured 1-Year Comprehensive Warranty Info for {{car_name}}",
+        heading: "Extended Warranty Inquiry Received",
+        leadType: "Services & Insurance",
+        body: "Hello {{customer_name}},\n\nThank you for inquiring about Selectt Assured Extended Warranty for {{car_name}}. Our warranty advisor will share comprehensive coverage details covering 500+ mechanical and electrical components.",
+        recipient: "Customer"
+    },
+    buyback_inquiry: {
+        subject: "🔄 Assured Buyback Guarantee Valuation for {{car_name}}",
+        heading: "Buyback Guarantee Inquiry Received",
+        leadType: "Services & Insurance",
+        body: "Hello {{customer_name}},\n\nWe have received your inquiry regarding our Assured Buyback Guarantee for {{car_name}}. Our team will provide your guaranteed 1-year resale value breakdown.",
+        recipient: "Customer"
+    },
+    challan_paid: {
+        subject: "Receipt: Traffic e-Challan {{challan_no}} Paid Successfully",
+        heading: "e-Challan Payment Receipt",
+        leadType: "Services & Insurance",
+        body: "Payment Confirmation:\n\nHello {{customer_name}}, your traffic e-challan (No: {{challan_no}}) of ₹{{amount}} has been successfully settled with the traffic authority. Please keep this email for your records.",
+        recipient: "Customer"
+    },
+    wishlist: {
+        subject: "⚡ Price Drop Alert: {{car_name}} is Now ₹{{new_price}}!",
+        heading: "Price Drop Alert on Saved Car",
+        leadType: "Leads & Retention",
+        body: "Great news {{customer_name}}!\n\nA car you saved in your wishlist ({{car_name}}) has just had a price reduction. New Price: ₹{{new_price}}.\n\nBook before it sells out!",
+        recipient: "Customer"
+    },
+    lead_inquiry: {
+        subject: "We Received Your Inquiry Regarding {{subject}}",
+        heading: "Customer Assistance Request",
+        leadType: "Leads & Retention",
+        body: "Hello {{customer_name}},\n\nThank you for reaching out to Selectt regarding {{subject}}. A senior automotive specialist will contact you on {{phone}} shortly.",
+        recipient: "Customer"
+    },
+    auth_otp: {
+        subject: "🔐 {{otp}} is Your Selectt Verification Code",
+        heading: "Selectt Verification OTP",
+        leadType: "Auth & Onboarding",
+        body: "Hello,\n\nYour one-time verification code is {{otp}}. This code is valid for 10 minutes. For your security, do not share this code with anyone.",
+        recipient: "Customer"
+    },
+    welcome_customer: {
+        subject: "👋 Welcome to Selectt, {{customer_name}}!",
+        heading: "Welcome to India's Trusted Pre-Owned Car Platform",
+        leadType: "Auth & Onboarding",
+        body: "Welcome to Selectt, {{customer_name}}!\n\nYour account has been successfully created. You can now browse 100% certified pre-owned cars, save favorites, book doorstep test drives, and get transparent pricing.",
+        recipient: "Customer"
+    },
+    admin_sell_request: {
+        subject: "🚨 [NEW SELL CAR] {{customer_name}} Submitted {{car_name}} (ID: {{request_id}})",
+        heading: "Admin Notification: New Sell Car Submission",
+        leadType: "Admin Staff Alert",
+        body: "A new car valuation request has been submitted on the website:\n\nCustomer: {{customer_name}}\nPhone: {{customer_phone}}\nCar: {{car_name}}\nRequest ID: {{request_id}}\n\nPlease review on the admin portal.",
+        recipient: "Admin Staff"
+    },
+    admin_booking: {
+        subject: "🚨 [TOKEN PAID] ₹{{amount}} Received for {{car_name}} (ID: {{booking_id}})",
+        heading: "Admin Notification: New Token Advance Paid",
+        leadType: "Admin Staff Alert",
+        body: "A customer has paid a booking token advance:\n\nCustomer: {{customer_name}}\nCar: {{car_name}}\nToken Amount: ₹{{amount}}\nBooking ID: {{booking_id}}\n\nPlease reserve inventory and assign relationship manager.",
+        recipient: "Admin Staff"
+    },
+    admin_test_drive: {
+        subject: "🚨 [TEST DRIVE] {{customer_name}} Booked Test Drive for {{car_name}}",
+        heading: "Admin Notification: New Test Drive Booking",
+        leadType: "Admin Staff Alert",
+        body: "A test drive has been booked:\n\nCustomer: {{customer_name}}\nPhone: {{customer_phone}}\nCar: {{car_name}}\nTime Slot: {{date_slot}}\n\nPlease assign an executive.",
+        recipient: "Admin Staff"
+    },
+    admin_loan: {
+        subject: "🚨 [LOAN APP] {{customer_name}} Applied for ₹{{loan_amount}} Loan",
+        heading: "Admin Notification: New Car Loan Inquiry",
+        leadType: "Admin Staff Alert",
+        body: "New used car loan application received:\n\nApplicant: {{customer_name}}\nPhone: {{phone}}\nLoan Amount: ₹{{loan_amount}}\n\nReview in Admin Portal.",
+        recipient: "Admin Staff"
+    },
+    admin_insurance: {
+        subject: "🚨 [INSURANCE] New Quote Request for Reg {{reg_no}}",
+        heading: "Admin Notification: New Insurance Quote Lead",
+        leadType: "Admin Staff Alert",
+        body: "A customer requested an insurance quote:\n\nCustomer: {{customer_name}}\nPhone: {{phone}}\nCar Reg No: {{reg_no}}\n\nFollow up with insurance quotes.",
+        recipient: "Admin Staff"
+    },
+    admin_contact: {
+        subject: "🚨 [CALLBACK LEAD] {{customer_name}} - {{subject}}",
+        heading: "Admin Notification: Customer Callback Request",
+        leadType: "Admin Staff Alert",
+        body: "New customer inquiry received:\n\nName: {{customer_name}}\nPhone: {{phone}}\nQuery / Topic: {{subject}}\n\nFollow up promptly.",
+        recipient: "Admin Staff"
+    }
+};
+
+async function sendTransactionalEmail(eventId, recipientEmail, data = {}) {
+    try {
+        const settingsRows = await queryAsync("SELECT setting_key, setting_value FROM site_settings");
+        const settings = {};
+        if (Array.isArray(settingsRows)) {
+            settingsRows.forEach(row => { settings[row.setting_key] = row.setting_value; });
+        }
+
+        if (settings.email_auto_notifications_enabled === 'false') {
+            console.log(`ℹ️ [Email Dispatcher] Master email notifications disabled. Skipping event ${eventId}.`);
+            return { success: false, message: 'Master email notifications disabled' };
+        }
+
+        if (settings[`email_event_${eventId}_enabled`] === 'false') {
+            console.log(`ℹ️ [Email Dispatcher] Event ${eventId} is disabled in site_settings. Skipping.`);
+            return { success: false, message: `Event ${eventId} disabled` };
+        }
+
+        const def = DEFAULT_EMAIL_TEMPLATES[eventId] || {
+            subject: `Update from Selectt`,
+            heading: `Notification from Selectt`,
+            leadType: 'Selectt Notification',
+            body: `Hello,\n\nYou have a new notification from Selectt.`,
+            recipient: 'Customer'
+        };
+
+        let rawSubject = settings[`email_tpl_${eventId}_subject`] || def.subject;
+        let rawHeading = settings[`email_tpl_${eventId}_heading`] || def.heading;
+        let rawBody = settings[`email_tpl_${eventId}_body`] || def.body;
+
+        const replacePlaceholders = (text) => {
+            if (!text) return '';
+            let result = text;
+            Object.entries(data).forEach(([k, v]) => {
+                const val = v !== undefined && v !== null ? String(v) : '';
+                result = result.replace(new RegExp(`{{${k}}}`, 'gi'), val);
+            });
+            return result;
+        };
+
+        const compiledSubject = replacePlaceholders(rawSubject);
+        const compiledHeading = replacePlaceholders(rawHeading);
+        const compiledBody = replacePlaceholders(rawBody);
+
+        const targetEmail = recipientEmail || (def.recipient === 'Admin Staff' ? (settings.admin_notification_email || 'donotreply@selectt.in') : null);
+        if (!targetEmail) {
+            console.log(`ℹ️ [Email Dispatcher] No recipient email provided for ${eventId}.`);
+            return { success: false, message: 'No recipient email' };
+        }
+
+        return await sendAdminEmailNotification({
+            subject: compiledSubject,
+            title: compiledHeading,
+            leadType: def.leadType || 'Notification',
+            fields: data,
+            message: compiledBody,
+            directLink: data.directLink || 'https://selectt.in',
+            targetRecipient: targetEmail
+        });
+    } catch (e) {
+        console.error(`⚠️ [Email Dispatcher Error] ${eventId}:`, e.message);
+        return { success: false, error: e.message };
     }
 }
 
@@ -2914,6 +3187,50 @@ app.post('/api/admin/smtp/test', authMiddleware, isAdmin, async (req, res) => {
         }
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 9. Admin: SMTP Event-Specific Template Test Dispatcher
+app.post('/api/admin/smtp/test-event', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { eventId, testEmail } = req.body;
+        if (!eventId) return res.status(400).json({ success: false, message: 'eventId is required' });
+
+        const sampleData = {
+            customer_name: 'Rahul Sharma',
+            customer_phone: '+91 98765 43210',
+            phone: '+91 98765 43210',
+            car_name: '2022 Hyundai Creta SX(O)',
+            request_id: 'REQ-8842',
+            booking_id: 'SEL-BK-9182',
+            amount: '9,999',
+            sold_price: '12,50,000',
+            date_slot: 'Saturday, 11:30 AM',
+            location: 'Mumbai Hub (Andheri West)',
+            hub_location: 'Selectt Hub Mumbai Central',
+            executive_name: 'Amit Verma (+91 98765 00112)',
+            reg_no: 'MH 02 EE 7788',
+            refund_status: 'Processed (Credited in 3-5 days)',
+            reason: 'Vehicle exceeds allowable mileage criteria',
+            loan_amount: '8,50,000',
+            monthly_emi: '16,240',
+            interest_rate: '8.99% p.a.',
+            application_no: 'LOAN-2026-449',
+            remarks: 'Requires latest 3 months bank statement',
+            new_price: '11,75,000',
+            subject: 'Doorstep Valuation & RC Transfer Process',
+            otp: '482910',
+            challan_no: 'MH02-CH-2026-991'
+        };
+
+        const result = await sendTransactionalEmail(eventId, testEmail, sampleData);
+        if (result && result.success) {
+            res.json({ success: true, message: `Test email for event "${eventId}" sent successfully to ${testEmail || 'configured admin email'}!` });
+        } else {
+            res.status(400).json({ success: false, message: result?.error || result?.message || 'Failed to dispatch test email' });
+        }
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
     }
 });
 
