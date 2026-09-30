@@ -1,38 +1,21 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Link, useSearchParams } from "react-router";
+import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router";
 import { toast } from "react-hot-toast";
 import {
   Image as ImageIcon,
-  Sliders,
-  Sparkles,
   Upload,
-  Trash2,
-  Copy,
+  RotateCcw,
   ExternalLink,
-  Check,
-  RefreshCw,
   Eye,
-  Smartphone,
-  Monitor,
-  ShieldCheck,
+  Check,
+  Sparkles,
+  Save,
+  Link as LinkIcon,
   HelpCircle,
-  FileImage,
-  Loader2,
-  Plus,
-  Edit2,
-  ToggleLeft,
-  ToggleRight,
-  X,
-  Car,
-  DollarSign,
-  LayoutList,
-  LayoutGrid,
-  CheckCircle2,
+  Copy,
   Info,
-  ShoppingBag,
-  CreditCard,
-  Layers,
-  Save
+  CheckCircle2,
+  X
 } from "lucide-react";
 import PageMeta from "../components/common/PageMeta";
 import PageBreadCrumb from "../components/common/PageBreadCrumb";
@@ -44,381 +27,274 @@ interface ImageSlotConfig {
   key: string;
   type: "site_content" | "site_setting";
   title: string;
-  page: string;
-  pageUrl: string;
   placement: string;
   recommendedSize: string;
-  aspectRatio: string;
   description: string;
   defaultPlaceholder: string;
+  hasLink?: boolean;
+  linkKey?: string;
+  defaultLink?: string;
+  hasVisibility?: boolean;
+  visibilityKey?: string;
 }
 
-type Banner = {
-  id: number;
-  page: string;
-  type: string;
-  title: string;
-  subtitle: string;
-  cta_text: string;
-  cta_link: string;
-  image_url: string;
-  sort_order: number;
-  is_active: number;
-  flip_image?: number;
-};
+// 1. BRAND LOGOS & IDENTITY
+const BRANDING_SLOTS: ImageSlotConfig[] = [
+  {
+    key: "header_logo",
+    type: "site_setting",
+    title: "Header Main Logo (Dark Navy Navbar)",
+    placement: "Main Website Top Navigation Bar",
+    recommendedSize: "240 × 60 px PNG / SVG",
+    description: "Primary brand logo displayed in the top header on desktop and mobile screens.",
+    defaultPlaceholder: "/img/light-logo.svg",
+  },
+  {
+    key: "header_logo_light",
+    type: "site_setting",
+    title: "Header Light / Contrast Logo",
+    placement: "Light Background Header Mode",
+    recommendedSize: "240 × 60 px PNG / SVG",
+    description: "Alternative brand logo for light mode backgrounds and white headers.",
+    defaultPlaceholder: "/img/dark-logo.svg",
+  },
+  {
+    key: "admin_logo_icon",
+    type: "site_setting",
+    title: "Browser Favicon & PWA App Icon",
+    placement: "Browser Tab, Mobile Home Screen & Bookmarks",
+    recommendedSize: "64 × 64 px or 192 × 192 px PNG / ICO",
+    description: "App icon visible in browser tabs, address bars, and install dialogs.",
+    defaultPlaceholder: "/favicon.png",
+  },
+  {
+    key: "auth_logo",
+    type: "site_setting",
+    title: "Login & Register Modal Logo",
+    placement: "Customer Authentication Popup Header",
+    recommendedSize: "200 × 50 px PNG / SVG",
+    description: "Brand logo shown inside the OTP login and customer signup modal dialog.",
+    defaultPlaceholder: "/img/light-logo.svg",
+  },
+  {
+    key: "admin_logo",
+    type: "site_setting",
+    title: "Admin Panel Logo (Light Sidebar)",
+    placement: "Admin Portal Navigation Sidebar",
+    recommendedSize: "240 × 60 px PNG / SVG",
+    description: "Logo shown in the top-left of the admin management console.",
+    defaultPlaceholder: "/images/logo/dark-logo.svg",
+  },
+  {
+    key: "og_image",
+    type: "site_setting",
+    title: "WhatsApp & Social Share Preview (OpenGraph)",
+    placement: "Social Media & WhatsApp Link Cards",
+    recommendedSize: "1200 × 630 px (1.91:1)",
+    description: "Rich preview image shown when website URLs are shared on WhatsApp, Facebook, or Twitter.",
+    defaultPlaceholder: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop",
+  },
+];
 
-// --- Page Wise Static Image Slots ---
-const HOME_STATIC_SLOTS: ImageSlotConfig[] = [
+// 2. BUY CARS IN-GRID BANNERS
+const BUY_CARS_SLOTS: ImageSlotConfig[] = [
+  {
+    key: "extra_card_logo_url",
+    type: "site_setting",
+    title: "In-Grid Banner Card #1 (Row 1, Slot 3)",
+    placement: "Vehicle Catalog Grid > Slot #1",
+    recommendedSize: "400 × 500 px (4:5 Aspect Ratio)",
+    description: "First promotional banner displayed seamlessly between car cards in the search catalog.",
+    defaultPlaceholder: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=800&auto=format&fit=crop",
+    hasLink: true,
+    linkKey: "extra_card_btn_link",
+    defaultLink: "/used-car-loan",
+    hasVisibility: true,
+    visibilityKey: "extra_card_is_active",
+  },
+  {
+    key: "buy_grid_banner_2_img",
+    type: "site_setting",
+    title: "In-Grid Banner Card #2 (3 Rows After Banner #1)",
+    placement: "Vehicle Catalog Grid > Slot #2",
+    recommendedSize: "400 × 500 px (4:5 Aspect Ratio)",
+    description: "Second promotional banner card shown 3 lines (9 cars) after Banner #1.",
+    defaultPlaceholder: "https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=800&auto=format&fit=crop",
+    hasLink: true,
+    linkKey: "buy_grid_banner_2_link",
+    defaultLink: "/car-insurance",
+    hasVisibility: true,
+    visibilityKey: "buy_grid_banner_2_active",
+  },
+  {
+    key: "buy_grid_banner_3_img",
+    type: "site_setting",
+    title: "In-Grid Banner Card #3 (3 Rows After Banner #2)",
+    placement: "Vehicle Catalog Grid > Slot #3",
+    recommendedSize: "400 × 500 px (4:5 Aspect Ratio)",
+    description: "Third promotional banner card shown 3 lines (9 cars) after Banner #2.",
+    defaultPlaceholder: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop",
+    hasLink: true,
+    linkKey: "buy_grid_banner_3_link",
+    defaultLink: "/sell-car",
+    hasVisibility: true,
+    visibilityKey: "buy_grid_banner_3_active",
+  },
+];
+
+// 3. HOME & SELL PAGE VISUALS
+const HOME_SELL_SLOTS: ImageSlotConfig[] = [
   {
     key: "mobile_hero_cover",
     type: "site_content",
-    title: "Mobile Hero Cover Banner",
-    page: "Home Page",
-    pageUrl: "/",
-    placement: "Home > Mobile Hero Section",
-    recommendedSize: "750 × 600 px",
-    aspectRatio: "5:4",
-    description: "Featured hero car showcase image on mobile smartphones.",
+    title: "Mobile Hero Showcase Banner",
+    placement: "Home Page > Mobile Hero Header",
+    recommendedSize: "750 × 600 px (5:4)",
+    description: "Featured hero car showcase image displayed at the top on mobile screens.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=800&auto=format&fit=crop",
   },
   {
     key: "buy_car_banner",
     type: "site_content",
-    title: "Buy Car Quick Search Banner",
-    page: "Home Page",
-    pageUrl: "/",
-    placement: "Home > Buy / Sell Switcher Tab",
-    recommendedSize: "600 × 400 px",
-    aspectRatio: "3:2",
-    description: "Visual banner for the Browse & Buy cars switcher card.",
+    title: "Browse & Buy Cars Switcher Card",
+    placement: "Home Page > Buy / Sell Switcher Tab",
+    recommendedSize: "600 × 400 px (3:2)",
+    description: "Promotional card image for the Buy Cars instant browse trigger.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=800&auto=format&fit=crop",
   },
   {
     key: "sell_car_banner",
     type: "site_content",
-    title: "Sell Your Car Form Banner",
-    page: "Home & Sell Pages",
-    pageUrl: "/sell-car",
-    placement: "Home / Sell > Instant Valuation Card",
-    recommendedSize: "600 × 400 px",
-    aspectRatio: "3:2",
-    description: "Visual banner for the Sell Car instant quote form.",
+    title: "Sell Car Instant Valuation Banner",
+    placement: "Home & Sell Car Pages > Valuation Card",
+    recommendedSize: "600 × 400 px (3:2)",
+    description: "Visual banner for the Sell Car instant pricing calculation form.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop",
   },
   {
     key: "trust_banner_1",
     type: "site_content",
     title: "Trust Badge #1 — 140-Point Inspection",
-    page: "Home Page",
-    pageUrl: "/",
-    placement: "Home > Selectt Trust Assurance",
-    recommendedSize: "400 × 300 px",
-    aspectRatio: "4:3",
-    description: "Certification & rigorous inspection illustration / badge.",
+    placement: "Home Page > Selectt Assured Trust Section",
+    recommendedSize: "400 × 300 px (4:3)",
+    description: "Illustration badge highlighting certified quality check guarantee.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?q=80&w=600&auto=format&fit=crop",
   },
   {
     key: "trust_banner_2",
     type: "site_content",
     title: "Trust Badge #2 — 7-Day Money Back Guarantee",
-    page: "Home Page",
-    pageUrl: "/",
-    placement: "Home > Selectt Trust Assurance",
-    recommendedSize: "400 × 300 px",
-    aspectRatio: "4:3",
-    description: "Return policy & assurance badge illustration.",
+    placement: "Home Page > Selectt Assured Trust Section",
+    recommendedSize: "400 × 300 px (4:3)",
+    description: "Illustration badge for customer return policy guarantee.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=600&auto=format&fit=crop",
   },
   {
     key: "trust_banner_3",
     type: "site_content",
     title: "Trust Badge #3 — 1-Year Comprehensive Warranty",
-    page: "Home Page",
-    pageUrl: "/",
-    placement: "Home > Selectt Trust Assurance",
-    recommendedSize: "400 × 300 px",
-    aspectRatio: "4:3",
-    description: "Warranty & roadside assistance badge illustration.",
+    placement: "Home Page > Selectt Assured Trust Section",
+    recommendedSize: "400 × 300 px (4:3)",
+    description: "Illustration badge for extended roadside assistance and warranty.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=600&auto=format&fit=crop",
   },
 ];
 
-// --- Buy Cars Page Static Image Slots ---
-const BUY_CARS_STATIC_SLOTS: ImageSlotConfig[] = [
-  {
-    key: "extra_card_logo_url",
-    type: "site_setting",
-    title: "In-Grid Banner #1 (Row 1, Slot 3)",
-    page: "Buy Cars Page",
-    pageUrl: "/buy-cars",
-    placement: "Vehicle Grid > Slot #1 (Row 1)",
-    recommendedSize: "400 × 500 px (4:5)",
-    aspectRatio: "4:5",
-    description: "First promotional banner card in the car grid (e.g. Used Car Loan @ ₹35L offer).",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    key: "buy_grid_banner_2_img",
-    type: "site_setting",
-    title: "In-Grid Banner #2 (After 3-Row Gap)",
-    page: "Buy Cars Page",
-    pageUrl: "/buy-cars",
-    placement: "Vehicle Grid > Slot #2 (3 Lines After Banner #1)",
-    recommendedSize: "400 × 500 px (4:5)",
-    aspectRatio: "4:5",
-    description: "Second promotional banner card shown 3 lines/rows after Banner #1 (e.g. Insurance / Warranty).",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    key: "buy_grid_banner_3_img",
-    type: "site_setting",
-    title: "In-Grid Banner #3 (After 3-Row Gap)",
-    page: "Buy Cars Page",
-    pageUrl: "/buy-cars",
-    placement: "Vehicle Grid > Slot #3 (3 Lines After Banner #2)",
-    recommendedSize: "400 × 500 px (4:5)",
-    aspectRatio: "4:5",
-    description: "Third promotional banner card shown 3 lines/rows after Banner #2 (e.g. Sell Car / Valuation).",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop",
-  },
-];
-
-const CAR_DETAIL_STATIC_SLOTS: ImageSlotConfig[] = [
+// 4. CAR DETAILS & MODALS
+const CAR_DETAILS_SLOTS: ImageSlotConfig[] = [
   {
     key: "login_modal_banner",
     type: "site_setting",
-    title: "Login / Signup Modal Left Side Banner",
-    page: "Global Login Modal",
-    pageUrl: "/",
-    placement: "Authentication Popup > Left Side Visual Image",
+    title: "Login / Signup Modal Left Side Illustration",
+    placement: "Authentication Popup > Left Side Visual",
     recommendedSize: "450 × 535 px (5:6)",
-    aspectRatio: "5:6",
-    description: "Visual banner shown on the customer login/register popup modal.",
+    description: "Visual banner shown on the left of customer login and signup modal.",
     defaultPlaceholder: "/login-banner-left-sdie.png",
   },
   {
     key: "car_details_sidebar_banner",
     type: "site_content",
     title: "Car Details Sidebar Promo Banner",
-    page: "Car Details Page",
-    pageUrl: "/car/view",
-    placement: "Car Details > Sticky Right Sidebar Banner",
-    recommendedSize: "600 × 350 px",
-    aspectRatio: "16:9",
-    description: "Promotional loan / warranty banner in car details sidebar.",
+    placement: "Car Details Page > Right Sidebar",
+    recommendedSize: "600 × 350 px (16:9)",
+    description: "Loan and warranty promotional banner displayed in vehicle view pages.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=800&auto=format&fit=crop",
   },
 ];
 
-const SERVICE_STATIC_SLOTS: ImageSlotConfig[] = [
+// 5. SERVICES & POLICIES
+const SERVICE_POLICY_SLOTS: ImageSlotConfig[] = [
   {
     key: "loan_banner",
     type: "site_content",
-    title: "Used Car Loan Page Header Banner",
-    page: "Used Car Loan",
-    pageUrl: "/used-car-loan",
-    placement: "Used Car Loan > Top Hero Banner",
-    recommendedSize: "1200 × 400 px",
-    aspectRatio: "3:1",
-    description: "Banner displayed on the Used Car Loan application page.",
+    title: "Used Car Loan Page Hero Banner",
+    placement: "Used Car Loan Page > Top Banner",
+    recommendedSize: "1200 × 400 px (3:1)",
+    description: "Header banner displayed on the Used Car Loan application page.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop",
   },
   {
     key: "insurance_banner",
     type: "site_content",
-    title: "Car Insurance Page Header Banner",
-    page: "Car Insurance",
-    pageUrl: "/car-insurance",
-    placement: "Car Insurance > Top Hero Banner",
-    recommendedSize: "1200 × 400 px",
-    aspectRatio: "3:1",
-    description: "Banner displayed on the Car Insurance quote page.",
+    title: "Car Insurance Page Hero Banner",
+    placement: "Car Insurance Page > Top Banner",
+    recommendedSize: "1200 × 400 px (3:1)",
+    description: "Header banner displayed on the Car Insurance quotes page.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&auto=format&fit=crop",
   },
   {
     key: "warranty_banner",
     type: "site_content",
     title: "Selectt Assured Warranty Page Banner",
-    page: "Selectt Assured",
-    pageUrl: "/selectt-assured",
-    placement: "Selectt Assured > Top Header Banner",
-    recommendedSize: "1200 × 400 px",
-    aspectRatio: "3:1",
-    description: "Banner displayed on the Selectt Assured quality page.",
+    placement: "Selectt Assured Quality Page > Top Header",
+    recommendedSize: "1200 × 400 px (3:1)",
+    description: "Header banner displayed on the Selectt Assured guarantee page.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=1200&auto=format&fit=crop",
   },
   {
     key: "buyback_banner",
     type: "site_content",
-    title: "Assured Buyback Guarantee Banner",
-    page: "Buyback Assurance",
-    pageUrl: "/buyback-assurance",
-    placement: "Buyback Assurance > Top Hero Banner",
-    recommendedSize: "1200 × 400 px",
-    aspectRatio: "3:1",
-    description: "Banner displayed on the Guaranteed Buyback policy page.",
+    title: "Selectt Buyback Guarantee Banner",
+    placement: "Selectt Buyback Assurance Page > Top Header",
+    recommendedSize: "1200 × 400 px (3:1)",
+    description: "Header banner on the Buyback Assurance information page.",
     defaultPlaceholder: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=1200&auto=format&fit=crop",
   },
 ];
 
-const BRANDING_STATIC_SLOTS: ImageSlotConfig[] = [
-  {
-    key: "login_modal_banner",
-    type: "site_setting",
-    title: "Login / Signup Popup Left Side Banner",
-    page: "Global Login Modal",
-    pageUrl: "/",
-    placement: "Authentication Modal > Left Side Visual Image",
-    recommendedSize: "450 × 535 px (5:6 or 900 × 1070 px for Retina)",
-    aspectRatio: "5:6",
-    description: "Featured left side illustration / image shown on customer login & registration popup modal.",
-    defaultPlaceholder: "/login-banner-left-sdie.png",
-  },
-  {
-    key: "frontend_header_logo",
-    type: "site_setting",
-    title: "Frontend Header Main Logo",
-    page: "Global Header",
-    pageUrl: "/",
-    placement: "Top Navigation Bar",
-    recommendedSize: "240 × 60 px PNG / SVG (Transparent)",
-    aspectRatio: "4:1",
-    description: "Primary logo displayed on website navigation bar.",
-    defaultPlaceholder: "/images/logo/light-logo.svg",
-  },
-  {
-    key: "frontend_footer_logo",
-    type: "site_setting",
-    title: "Frontend Footer Logo",
-    page: "Global Footer",
-    pageUrl: "/",
-    placement: "Website Footer Bottom Area",
-    recommendedSize: "240 × 60 px PNG / SVG",
-    aspectRatio: "4:1",
-    description: "Logo displayed in the website footer section across all pages.",
-    defaultPlaceholder: "/images/logo/light-logo.svg",
-  },
-  {
-    key: "auth_logo",
-    type: "site_setting",
-    title: "Auth Modal / Login Popup Logo",
-    page: "Login Modal",
-    pageUrl: "/",
-    placement: "Login & Signup Popup Header",
-    recommendedSize: "200 × 50 px PNG / SVG",
-    aspectRatio: "4:1",
-    description: "Brand logo shown inside the customer OTP login and signup modal.",
-    defaultPlaceholder: "/images/logo/light-logo.svg",
-  },
-  {
-    key: "admin_logo",
-    type: "site_setting",
-    title: "Admin Dashboard Logo (Light Theme)",
-    page: "Admin Portal",
-    pageUrl: "/dashboard",
-    placement: "Admin Sidebar (Light Mode)",
-    recommendedSize: "240 × 60 px PNG / SVG",
-    aspectRatio: "4:1",
-    description: "Brand logo shown in admin panel sidebar in light mode.",
-    defaultPlaceholder: "/images/logo/dark-logo.svg",
-  },
-  {
-    key: "admin_logo_dark",
-    type: "site_setting",
-    title: "Admin Dashboard Logo (Dark Theme)",
-    page: "Admin Portal",
-    pageUrl: "/dashboard",
-    placement: "Admin Sidebar (Dark Mode)",
-    recommendedSize: "240 × 60 px PNG / SVG",
-    aspectRatio: "4:1",
-    description: "Brand logo shown in admin panel sidebar in dark mode.",
-    defaultPlaceholder: "/images/logo/logo-dark.svg",
-  },
-  {
-    key: "admin_logo_icon",
-    type: "site_setting",
-    title: "Browser Favicon & App Icon",
-    page: "Browser Tab Icon",
-    pageUrl: "/",
-    placement: "Browser Tab & Bookmark Icon",
-    recommendedSize: "64 × 64 px PNG / ICO",
-    aspectRatio: "1:1",
-    description: "Small icon visible in browser tabs, bookmarks, and mobile shortcuts.",
-    defaultPlaceholder: "/favicon.png",
-  },
-  {
-    key: "og_image",
-    type: "site_setting",
-    title: "Social Share & WhatsApp Preview (OpenGraph)",
-    page: "Social Links",
-    pageUrl: "/",
-    placement: "WhatsApp, Facebook, Twitter Link Previews",
-    recommendedSize: "1200 × 630 px (1.91:1)",
-    aspectRatio: "1.91:1",
-    description: "Preview banner shown when website link is shared on WhatsApp or social media.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop",
-  },
-];
+type ActiveTabType = "branding" | "buy-cars" | "home-sell" | "car-details" | "services";
 
 export default function ImageSettings() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = (searchParams.get("tab") as any) || "home";
-  const [activeTab, setActiveTab] = useState<"home" | "buy-cars" | "car-detail" | "sell-car" | "services" | "branding">(
-    ["home", "buy-cars", "car-detail", "sell-car", "services", "branding"].includes(initialTab) ? initialTab : "home"
+  const initialTab = (searchParams.get("tab") as ActiveTabType) || "branding";
+  const [activeTab, setActiveTab] = useState<ActiveTabType>(
+    ["branding", "buy-cars", "home-sell", "car-details", "services"].includes(initialTab) ? initialTab : "branding"
   );
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+
   const [siteContent, setSiteContent] = useState<Record<string, string>>({});
   const [siteSettings, setSiteSettings] = useState<Record<string, string>>({});
-  const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
-  const [deletingKey, setDeletingKey] = useState<string | null>(null);
+  const [previewImgModal, setPreviewImgModal] = useState<{ url: string; title: string } | null>(null);
 
-  // Buy Cars Page In-Grid 3 Banners & Marquee states
-  const [extraCardBtnLink, setExtraCardBtnLink] = useState("/used-car-loan");
-  const [extraCardIsActive, setExtraCardIsActive] = useState(true);
-
-  const [gridBanner2Link, setGridBanner2Link] = useState("/car-insurance");
-  const [gridBanner2Active, setGridBanner2Active] = useState(true);
-
-  const [gridBanner3Link, setGridBanner3Link] = useState("/sell-car");
-  const [gridBanner3Active, setGridBanner3Active] = useState(true);
-
-  const [buyCarsMarquee, setBuyCarsMarquee] = useState("");
-  const [savingBuyCarsSettings, setSavingBuyCarsSettings] = useState(false);
-
-  const handleTabChange = (tab: "home" | "buy-cars" | "car-detail" | "sell-car" | "services" | "branding") => {
-    setActiveTab(tab);
-    setSearchParams({ tab });
-  };
-
-  // Full image preview modal
-  const [previewModalImg, setPreviewModalImg] = useState<{ url: string; title: string } | null>(null);
-
-  // Banner CRUD modal
-  const [showBannerModal, setShowBannerModal] = useState(false);
-  const [editingBanner, setEditingBanner] = useState<Partial<Banner> | null>(null);
-  const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
-  const [bannerPreview, setBannerPreview] = useState("");
-  const [savingBanner, setSavingBanner] = useState(false);
-
-  // Hidden file input ref for slot images
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentSlotForUpload, setCurrentSlotForUpload] = useState<ImageSlotConfig | null>(null);
 
   const getAuthToken = () => localStorage.getItem("adminToken") || "";
 
-  // Fetch all site content, settings, banners
-  const fetchData = async () => {
-    setLoading(true);
-    const token = getAuthToken();
-    const headers = { Authorization: `Bearer ${token}` };
+  const handleTabChange = (tab: ActiveTabType) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
 
+  // Load all settings and content
+  const loadData = async () => {
+    setLoading(true);
     try {
-      const [contentRes, settingsRes, bannersRes] = await Promise.all([
+      const [contentRes, settingsRes] = await Promise.all([
         fetch(`${API}/api/site-content`).catch(() => null),
         fetch(`${API}/api/settings/public`).catch(() => null),
-        fetch(`${API}/api/admin/banners`, { headers }).catch(() => null),
       ]);
 
       if (contentRes && contentRes.ok) {
@@ -428,79 +304,72 @@ export default function ImageSettings() {
       if (settingsRes && settingsRes.ok) {
         const settingsData = await settingsRes.json();
         setSiteSettings(settingsData || {});
-        if (settingsData.extra_card_btn_link !== undefined) {
-          setExtraCardBtnLink(settingsData.extra_card_btn_link || "/used-car-loan");
-        }
-        if (settingsData.extra_card_is_active !== undefined) {
-          setExtraCardIsActive(settingsData.extra_card_is_active !== "false" && settingsData.extra_card_is_active !== "0");
-        }
-        if (settingsData.buy_grid_banner_2_link !== undefined) {
-          setGridBanner2Link(settingsData.buy_grid_banner_2_link || "/car-insurance");
-        }
-        if (settingsData.buy_grid_banner_2_active !== undefined) {
-          setGridBanner2Active(settingsData.buy_grid_banner_2_active !== "false" && settingsData.buy_grid_banner_2_active !== "0");
-        }
-        if (settingsData.buy_grid_banner_3_link !== undefined) {
-          setGridBanner3Link(settingsData.buy_grid_banner_3_link || "/sell-car");
-        }
-        if (settingsData.buy_grid_banner_3_active !== undefined) {
-          setGridBanner3Active(settingsData.buy_grid_banner_3_active !== "false" && settingsData.buy_grid_banner_3_active !== "0");
-        }
-        if (settingsData.buy_cars_marquee_text !== undefined) {
-          setBuyCarsMarquee(settingsData.buy_cars_marquee_text || "");
-        }
-      }
-      if (bannersRes && bannersRes.ok) {
-        const bData = await bannersRes.json();
-        setBanners(Array.isArray(bData) ? bData : []);
       }
     } catch (err) {
-      console.error("Failed to load settings data:", err);
-      toast.error("Error loading image settings");
+      console.error("Error loading image settings:", err);
+      toast.error("Failed to load image settings");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    loadData();
   }, []);
 
-  const handleSaveBuyCarsSettings = async () => {
-    setSavingBuyCarsSettings(true);
+  // Save changes to backend
+  const handleSaveAll = async () => {
+    setSaving(true);
     const token = getAuthToken();
     try {
-      const res = await fetch(`${API}/api/settings`, {
+      // 1. Save site_settings
+      const settingsRes = await fetch(`${API}/api/settings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          extra_card_btn_link: extraCardBtnLink,
-          extra_card_is_active: extraCardIsActive ? "true" : "false",
-          buy_grid_banner_2_link: gridBanner2Link,
-          buy_grid_banner_2_active: gridBanner2Active ? "true" : "false",
-          buy_grid_banner_3_link: gridBanner3Link,
-          buy_grid_banner_3_active: gridBanner3Active ? "true" : "false",
-          buy_cars_marquee_text: buyCarsMarquee,
-        }),
+        body: JSON.stringify(siteSettings),
       });
 
-      if (res.ok) {
-        toast.success("All 3 In-Grid Banners & Buy Cars settings saved!");
-        fetchData();
+      // 2. Save site_content
+      const contentRes = await fetch(`${API}/api/admin/site-content/batch`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(siteContent),
+      }).catch(async () => {
+        // Fallback: save keys individually if batch endpoint not present
+        const promises = Object.entries(siteContent).map(([k, v]) =>
+          fetch(`${API}/api/admin/site-content/${k}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ value: v }),
+          }).catch(() => null)
+        );
+        return Promise.all(promises);
+      });
+
+      if (settingsRes.ok || contentRes) {
+        toast.success("✅ Image & Branding settings saved successfully!");
+        loadData();
       } else {
         toast.error("Failed to save settings");
       }
-    } catch {
-      toast.error("Network error saving settings");
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error while saving settings");
     } finally {
-      setSavingBuyCarsSettings(false);
+      setSaving(false);
     }
   };
 
-  // Slot Upload Handler
+  // Upload handler for single slot
   const handleTriggerUpload = (slot: ImageSlotConfig) => {
     setCurrentSlotForUpload(slot);
     if (fileInputRef.current) {
@@ -509,7 +378,7 @@ export default function ImageSettings() {
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !currentSlotForUpload) return;
 
@@ -532,9 +401,9 @@ export default function ImageSettings() {
         if (res.ok) {
           const data = await res.json();
           setSiteContent((prev) => ({ ...prev, [slot.key]: data.value }));
-          toast.success(`${slot.title} updated successfully!`);
+          toast.success(`${slot.title} image uploaded successfully!`);
         } else {
-          toast.error("Failed to update image");
+          toast.error("Failed to upload image");
         }
       } else {
         formData.append(slot.key, file);
@@ -547,9 +416,9 @@ export default function ImageSettings() {
 
         if (res.ok) {
           toast.success(`${slot.title} updated successfully!`);
-          fetchData();
+          loadData();
         } else {
-          toast.error("Failed to update logo/setting");
+          toast.error("Failed to upload image");
         }
       }
     } catch (err) {
@@ -561,1261 +430,373 @@ export default function ImageSettings() {
     }
   };
 
-  const handleRemoveImage = async (slot: ImageSlotConfig) => {
-    if (!window.confirm(`Are you sure you want to reset "${slot.title}" to default?`)) {
-      return;
-    }
+  // Reset image to default
+  const handleResetSlot = async (slot: ImageSlotConfig) => {
+    if (!window.confirm(`Reset "${slot.title}" to default placeholder?`)) return;
 
-    setDeletingKey(slot.key);
-    const token = getAuthToken();
-
-    try {
-      if (slot.type === "site_content") {
-        const res = await fetch(`${API}/api/admin/site-content/${slot.key}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (res.ok) {
-          toast.success(`${slot.title} reset to default`);
-          setSiteContent((prev) => {
-            const next = { ...prev };
-            delete next[slot.key];
-            return next;
-          });
-        } else {
-          toast.error("Failed to remove image");
-        }
-      } else {
-        const res = await fetch(`${API}/api/settings`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ [slot.key]: "" }),
-        });
-
-        if (res.ok) {
-          toast.success(`${slot.title} reset to default`);
-          setSiteSettings((prev) => ({ ...prev, [slot.key]: "" }));
-        } else {
-          toast.error("Failed to reset setting");
-        }
-      }
-    } catch (err) {
-      console.error("Error deleting image:", err);
-      toast.error("Error removing image");
-    } finally {
-      setDeletingKey(null);
-    }
-  };
-
-  // Banner CRUD
-  const openNewBanner = (page: string, type: string) => {
-    setEditingBanner({
-      page,
-      type,
-      title: "",
-      subtitle: "",
-      cta_text: "",
-      cta_link: "",
-      image_url: "",
-      sort_order: 0,
-      is_active: 1,
-    });
-    setBannerImageFile(null);
-    setBannerPreview("");
-    setShowBannerModal(true);
-  };
-
-  const openEditBanner = (b: Banner) => {
-    setEditingBanner({ ...b });
-    setBannerImageFile(null);
-    setBannerPreview(b.image_url ? (b.image_url.startsWith("http") ? b.image_url : `${API}${b.image_url}`) : "");
-    setShowBannerModal(true);
-  };
-
-  const handleSaveBanner = async () => {
-    if (!editingBanner) return;
-    setSavingBanner(true);
-    const token = getAuthToken();
-    const form = new FormData();
-    Object.entries(editingBanner).forEach(([k, v]) => {
-      if (v !== undefined && v !== null) form.append(k, String(v));
-    });
-    if (bannerImageFile) form.append("image", bannerImageFile);
-
-    const url = editingBanner.id ? `${API}/api/admin/banners/${editingBanner.id}` : `${API}/api/admin/banners`;
-    const method = editingBanner.id ? "PUT" : "POST";
-
-    try {
-      const res = await fetch(url, { method, headers: { Authorization: `Bearer ${token}` }, body: form });
-      if (res.ok) {
-        toast.success("Banner saved successfully!");
-        fetchData();
-        setShowBannerModal(false);
-      } else {
-        const d = await res.json();
-        toast.error(d.message || "Failed to save banner");
-      }
-    } catch (err) {
-      toast.error("Network error saving banner");
-    } finally {
-      setSavingBanner(false);
-    }
-  };
-
-  const handleDeleteBanner = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this banner?")) return;
-    const token = getAuthToken();
-    await fetch(`${API}/api/admin/banners/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-    toast.success("Banner deleted");
-    fetchData();
-  };
-
-  const handleToggleBanner = async (b: Banner) => {
-    const token = getAuthToken();
-    const form = new FormData();
-    Object.entries(b).forEach(([k, v]) => form.append(k, String(v)));
-    form.set("is_active", b.is_active ? "0" : "1");
-    await fetch(`${API}/api/admin/banners/${b.id}`, { method: "PUT", headers: { Authorization: `Bearer ${token}` }, body: form });
-    fetchData();
-  };
-
-  const getSlotImage = (slot: ImageSlotConfig) => {
     if (slot.type === "site_content") {
-      const val = siteContent[slot.key];
-      if (val) return val.startsWith("http") ? val : `${API}${val}`;
-      return slot.defaultPlaceholder.startsWith("http") || slot.defaultPlaceholder.startsWith("/") 
-        ? slot.defaultPlaceholder 
-        : `${API}${slot.defaultPlaceholder}`;
+      setSiteContent((prev) => ({ ...prev, [slot.key]: "" }));
     } else {
-      let val = siteSettings[slot.key];
-      if (!val && slot.key === "frontend_header_logo") val = siteSettings["header_logo"] || siteSettings["site_logo"];
-      if (!val && slot.key === "frontend_footer_logo") val = siteSettings["footer_logo"];
-      if (!val && slot.key === "admin_logo_icon") val = siteSettings["favicon"];
-      if (!val && slot.key === "header_logo") val = siteSettings["frontend_header_logo"];
-      if (!val && slot.key === "footer_logo") val = siteSettings["frontend_footer_logo"];
-      if (!val && slot.key === "favicon") val = siteSettings["admin_logo_icon"];
+      setSiteSettings((prev) => ({ ...prev, [slot.key]: "" }));
+    }
+    toast.success(`${slot.title} reset to default`);
+  };
 
-      if (val) return val.startsWith("http") ? val : `${API}${val}`;
-      return slot.defaultPlaceholder.startsWith("http") || slot.defaultPlaceholder.startsWith("/")
-        ? slot.defaultPlaceholder
-        : `${API}${slot.defaultPlaceholder}`;
+  // Helper to get image value
+  const getSlotValue = (slot: ImageSlotConfig) => {
+    if (slot.type === "site_content") {
+      return siteContent[slot.key] || slot.defaultPlaceholder;
+    }
+    return siteSettings[slot.key] || slot.defaultPlaceholder;
+  };
+
+  // Helper to update text input value
+  const handleValueChange = (slot: ImageSlotConfig, val: string) => {
+    if (slot.type === "site_content") {
+      setSiteContent((prev) => ({ ...prev, [slot.key]: val }));
+    } else {
+      setSiteSettings((prev) => ({ ...prev, [slot.key]: val }));
     }
   };
 
-  const isCustomImage = (slot: ImageSlotConfig) => {
-    if (slot.type === "site_content") return !!siteContent[slot.key];
-    let val = siteSettings[slot.key];
-    if (!val && slot.key === "frontend_header_logo") val = siteSettings["header_logo"] || siteSettings["site_logo"];
-    if (!val && slot.key === "frontend_footer_logo") val = siteSettings["footer_logo"];
-    if (!val && slot.key === "admin_logo_icon") val = siteSettings["favicon"];
-    if (!val && slot.key === "header_logo") val = siteSettings["frontend_header_logo"];
-    if (!val && slot.key === "footer_logo") val = siteSettings["frontend_footer_logo"];
-    if (!val && slot.key === "favicon") val = siteSettings["admin_logo_icon"];
-    return !!val;
+  const getVisibleSlots = () => {
+    switch (activeTab) {
+      case "branding":
+        return BRANDING_SLOTS;
+      case "buy-cars":
+        return BUY_CARS_SLOTS;
+      case "home-sell":
+        return HOME_SELL_SLOTS;
+      case "car-details":
+        return CAR_DETAILS_SLOTS;
+      case "services":
+        return SERVICE_POLICY_SLOTS;
+      default:
+        return BRANDING_SLOTS;
+    }
   };
 
-  const copyUrl = (url: string) => {
-    navigator.clipboard.writeText(url);
-    toast.success("Image URL copied to clipboard");
-  };
-
-  // ── Render Static Image Slots (List Table or Grid Cards) ──
-  const renderSlotsSection = (slots: ImageSlotConfig[], sectionTitle: string, subtitle?: string) => {
-    if (slots.length === 0) return null;
-
-    return (
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden space-y-3 p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2.5">
-          <div>
-            <h3 className="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-              <span>{sectionTitle}</span>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-[#1C3EB9] border border-blue-200 dark:border-blue-800/60">
-                {slots.length} items
-              </span>
-            </h3>
-            {subtitle && <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
-          </div>
-        </div>
-
-        {viewMode === "list" ? (
-          /* TABLE / LIST VIEW */
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 px-3 w-20">Preview</th>
-                  <th className="py-2.5 px-3 min-w-[180px]">Image & Section</th>
-                  <th className="py-2.5 px-3 w-32">Dimensions</th>
-                  <th className="py-2.5 px-3 w-24">Status</th>
-                  <th className="py-2.5 px-3 text-right min-w-[180px]">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {slots.map((slot) => {
-                  const currentImg = getSlotImage(slot);
-                  const isCustom = isCustomImage(slot);
-                  const isSlotUploading = uploadingKey === slot.key;
-                  const isSlotDeleting = deletingKey === slot.key;
-
-                  return (
-                    <tr key={slot.key} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                      {/* Image Thumbnail */}
-                      <td className="py-2 px-3">
-                        <div
-                          onClick={() => setPreviewModalImg({ url: currentImg, title: slot.title })}
-                          className="w-14 h-10 rounded-lg overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-700 relative group cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
-                        >
-                          <img
-                            src={currentImg}
-                            alt={slot.title}
-                            className="w-full h-full object-contain p-0.5 transition-transform duration-300 group-hover:scale-110"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = slot.defaultPlaceholder;
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
-                            <Eye size={12} />
-                          </div>
-                          {isSlotUploading && (
-                            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center text-[#1C3EB9]">
-                              <Loader2 size={14} className="animate-spin" />
-                            </div>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Title & Placement */}
-                      <td className="py-2 px-3 space-y-0.5">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-extrabold text-slate-900 dark:text-white text-xs">{slot.title}</span>
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase">
-                            {slot.placement}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">{slot.description}</p>
-                      </td>
-
-                      {/* Dimensions */}
-                      <td className="py-2 px-3">
-                        <div className="space-y-0.5">
-                          <span className="font-mono font-bold text-slate-800 dark:text-slate-200 text-[10px] block">
-                            {slot.recommendedSize}
-                          </span>
-                          <span className="text-[9px] font-semibold text-slate-400">Ratio: {slot.aspectRatio}</span>
-                        </div>
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-2 px-3">
-                        {isCustom ? (
-                          <span className="inline-flex items-center gap-1 text-[9px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                            <CheckCircle2 size={10} className="stroke-[3]" /> Custom
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
-                            Default
-                          </span>
-                        )}
-                      </td>
-
-                      {/* ACTION COLUMN: Replace, Delete/Reset, Copy, Open */}
-                      <td className="py-2 px-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                          {/* Replace / Upload Button */}
-                          <button
-                            onClick={() => handleTriggerUpload(slot)}
-                            disabled={isSlotUploading}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#1C3EB9] hover:bg-[#153299] text-white shadow-2xs transition-all cursor-pointer disabled:opacity-50"
-                            title={isCustom ? "Replace with new image (Auto WebP)" : "Upload custom image (Auto WebP)"}
-                          >
-                            <Upload size={11} />
-                            <span>{isCustom ? "Replace" : "Upload"}</span>
-                          </button>
-
-                          {/* Delete / Reset Button */}
-                          <button
-                            onClick={() => handleRemoveImage(slot)}
-                            disabled={isSlotDeleting || !isCustom}
-                            title={isCustom ? "Delete custom image and reset to default" : "Default system asset active"}
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                              isCustom
-                                ? "bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 cursor-pointer"
-                                : "bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 border border-slate-200/60 dark:border-slate-700/60 cursor-not-allowed opacity-50"
-                            }`}
-                          >
-                            {isSlotDeleting ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
-                            <span>Delete</span>
-                          </button>
-
-                          {/* Copy URL */}
-                          <button
-                            onClick={() => copyUrl(currentImg)}
-                            title="Copy image link"
-                            className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          >
-                            <Copy size={12} />
-                          </button>
-
-                          {/* Open New Tab */}
-                          <a
-                            href={currentImg}
-                            target="_blank"
-                            rel="noreferrer"
-                            title="Open original image"
-                            className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                          >
-                            <ExternalLink size={12} />
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          /* CARD GRID VIEW */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {slots.map((slot) => {
-              const currentImg = getSlotImage(slot);
-              const isCustom = isCustomImage(slot);
-              const isSlotUploading = uploadingKey === slot.key;
-              const isSlotDeleting = deletingKey === slot.key;
-
-              return (
-                <div
-                  key={slot.key}
-                  className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all"
-                >
-                  <div className="p-3 border-b border-slate-100 dark:border-slate-800 space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#1C3EB9]/10 text-[#1C3EB9] border border-[#1C3EB9]/20 uppercase">
-                        {slot.placement}
-                      </span>
-                      {isCustom ? (
-                        <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded-full border border-emerald-500/20">
-                          <Check size={10} className="stroke-[3]" /> Custom
-                        </span>
-                      ) : (
-                        <span className="text-[9px] font-semibold text-slate-400">Default</span>
-                      )}
-                    </div>
-                    <h4 className="font-extrabold text-slate-900 dark:text-white text-xs tracking-tight">{slot.title}</h4>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium line-clamp-1">{slot.description}</p>
-                  </div>
-
-                  <div className="relative p-2 bg-slate-950/5 dark:bg-slate-950/30 flex items-center justify-center">
-                    <div
-                      onClick={() => setPreviewModalImg({ url: currentImg, title: slot.title })}
-                      className="relative w-full h-32 rounded-lg overflow-hidden bg-slate-900 flex items-center justify-center border border-slate-200/60 dark:border-slate-800 shadow-inner group cursor-pointer"
-                    >
-                      <img
-                        src={currentImg}
-                        alt={slot.title}
-                        className="w-full h-full object-contain p-1 transition-transform duration-300 group-hover:scale-105"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = slot.defaultPlaceholder;
-                        }}
-                      />
-                      <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/75 text-white text-[9px] font-mono font-bold backdrop-blur-xs">
-                        {slot.recommendedSize}
-                      </div>
-                      {isSlotUploading && (
-                        <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex flex-col items-center justify-center text-white gap-1.5">
-                          <Loader2 size={18} className="animate-spin text-[#1C3EB9]" />
-                          <span className="text-[10px] font-bold">Optimizing...</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="p-2.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between gap-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleTriggerUpload(slot)}
-                        disabled={isSlotUploading}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1C3EB9] text-white hover:bg-[#153299] shadow-xs transition-all cursor-pointer disabled:opacity-50"
-                      >
-                        <Upload size={12} /> <span>{isCustom ? "Replace" : "Upload"}</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleRemoveImage(slot)}
-                        disabled={isSlotDeleting || !isCustom}
-                        title={isCustom ? "Delete custom image and reset to default" : "Default system asset active"}
-                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                          isCustom
-                            ? "bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 cursor-pointer"
-                            : "bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 border border-slate-200/60 dark:border-slate-700/60 cursor-not-allowed opacity-50"
-                        }`}
-                      >
-                        {isSlotDeleting ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
-                        <span>Delete</span>
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-0.5">
-                      <button
-                        onClick={() => copyUrl(currentImg)}
-                        title="Copy direct image URL"
-                        className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                      >
-                        <Copy size={13} />
-                      </button>
-                      <a
-                        href={currentImg}
-                        target="_blank"
-                        rel="noreferrer"
-                        title="View full size image"
-                        className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                      >
-                        <ExternalLink size={13} />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  // ── Render Dynamic Banners Section (List Table or Grid Cards) ──
-  const renderBannerListSection = (page: string, type: string, sectionTitle: string, description: string) => {
-    const bannerItems = banners.filter((b) => b.page === page && b.type === type);
-
-    return (
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 dark:border-slate-800 pb-2.5">
-          <div>
-            <h3 className="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-              <span>{sectionTitle}</span>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-[#1C3EB9] border border-blue-200 dark:border-blue-800/60">
-                {bannerItems.length} banners
-              </span>
-            </h3>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>
-          </div>
-
-          <button
-            onClick={() => openNewBanner(page, type)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1C3EB9] hover:bg-[#153299] text-white transition-all shadow-xs cursor-pointer self-start sm:self-auto"
-          >
-            <Plus size={13} /> Add Slide
-          </button>
-        </div>
-
-        {bannerItems.length === 0 ? (
-          <div className="p-6 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg space-y-1.5">
-            <ImageIcon size={28} className="mx-auto text-slate-400" />
-            <p className="text-xs font-semibold text-slate-500">No banner slides configured for this section yet.</p>
-            <button
-              onClick={() => openNewBanner(page, type)}
-              className="text-xs font-bold text-[#1C3EB9] hover:underline cursor-pointer"
-            >
-              + Create First Slide
-            </button>
-          </div>
-        ) : viewMode === "list" ? (
-          /* TABLE / LIST VIEW FOR BANNERS */
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 px-3 w-20">Preview</th>
-                  <th className="py-2.5 px-3 min-w-[180px]">Banner Title & Subtitle</th>
-                  <th className="py-2.5 px-3 w-40">CTA Button & Link</th>
-                  <th className="py-2.5 px-3 w-24">Live Status</th>
-                  <th className="py-2.5 px-3 text-right min-w-[180px]">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {bannerItems.map((banner) => {
-                  const img = banner.image_url.startsWith("http") ? banner.image_url : `${API}${banner.image_url}`;
-                  return (
-                    <tr key={banner.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                      {/* Image Thumbnail */}
-                      <td className="py-2 px-3">
-                        <div
-                          onClick={() => setPreviewModalImg({ url: img, title: banner.title || "Banner Preview" })}
-                          className="w-14 h-10 rounded-lg overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-700 relative group cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
-                        >
-                          <img src={img} alt={banner.title || "Banner"} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
-                            <Eye size={12} />
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Title & Subtitle */}
-                      <td className="py-2 px-3 space-y-0.5">
-                        <span className="font-extrabold text-slate-900 dark:text-white text-xs block">
-                          {banner.title || "Untitled Banner"}
-                        </span>
-                        {banner.subtitle && (
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">{banner.subtitle}</p>
-                        )}
-                      </td>
-
-                      {/* CTA & Link */}
-                      <td className="py-2 px-3 space-y-0.5">
-                        {banner.cta_text && (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 inline-block">
-                            {banner.cta_text}
-                          </span>
-                        )}
-                        {banner.cta_link && (
-                          <span className="text-[9px] font-mono text-[#1C3EB9] block truncate max-w-[140px]">
-                            {banner.cta_link}
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Status Toggle */}
-                      <td className="py-2 px-3">
-                        <button
-                          onClick={() => handleToggleBanner(banner)}
-                          className="inline-flex items-center gap-1 text-[9px] font-extrabold cursor-pointer transition-all"
-                          title="Click to toggle active status"
-                        >
-                          {banner.is_active ? (
-                            <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                              <ToggleRight size={13} className="text-emerald-600" /> Live
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
-                              <ToggleLeft size={13} className="text-slate-400" /> Draft
-                            </span>
-                          )}
-                        </button>
-                      </td>
-
-                      {/* ACTION COLUMN: Edit, Replace, Delete, Copy */}
-                      <td className="py-2 px-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {/* Edit Details */}
-                          <button
-                            onClick={() => openEditBanner(banner)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
-                            title="Edit banner content and image"
-                          >
-                            <Edit2 size={11} />
-                            <span>Edit</span>
-                          </button>
-
-                          {/* Delete */}
-                          <button
-                            onClick={() => handleDeleteBanner(banner.id)}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 transition-colors cursor-pointer"
-                            title="Delete banner"
-                          >
-                            <Trash2 size={11} />
-                            <span>Delete</span>
-                          </button>
-
-                          {/* Copy URL */}
-                          <button
-                            onClick={() => copyUrl(img)}
-                            title="Copy direct image URL"
-                            className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          >
-                            <Copy size={12} />
-                          </button>
-
-                          {/* Open New Tab */}
-                          <a
-                            href={img}
-                            target="_blank"
-                            rel="noreferrer"
-                            title="Open original image"
-                            className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                          >
-                            <ExternalLink size={12} />
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          /* CARD GRID VIEW FOR BANNERS */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {bannerItems.map((banner) => {
-              const img = banner.image_url.startsWith("http") ? banner.image_url : `${API}${banner.image_url}`;
-              return (
-                <div
-                  key={banner.id}
-                  className="bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 overflow-hidden flex flex-col justify-between"
-                >
-                  <div
-                    onClick={() => setPreviewModalImg({ url: img, title: banner.title || "Banner Preview" })}
-                    className="relative h-32 bg-slate-950 flex items-center justify-center overflow-hidden cursor-pointer group"
-                  >
-                    <img src={img} alt={banner.title || "Banner"} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                    <div className="absolute top-2 left-2">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                          banner.is_active ? "bg-emerald-500 text-white" : "bg-slate-600 text-slate-200"
-                        }`}
-                      >
-                        {banner.is_active ? "Active" : "Draft"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-2.5 space-y-1 flex-1">
-                    <h4 className="font-extrabold text-xs text-slate-900 dark:text-white line-clamp-1">
-                      {banner.title || "Untitled Banner"}
-                    </h4>
-                    {banner.subtitle && (
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">{banner.subtitle}</p>
-                    )}
-                    {banner.cta_link && (
-                      <span className="text-[9px] font-mono text-[#1C3EB9] block truncate">
-                        Link: {banner.cta_link}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="p-2 border-t border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-900/50 flex items-center justify-between gap-1.5">
-                    <button
-                      onClick={() => handleToggleBanner(banner)}
-                      className="text-xs font-bold flex items-center gap-1 text-slate-600 dark:text-slate-300 hover:text-[#1C3EB9] cursor-pointer"
-                    >
-                      {banner.is_active ? (
-                        <ToggleRight size={16} className="text-emerald-500" />
-                      ) : (
-                        <ToggleLeft size={16} className="text-slate-400" />
-                      )}
-                      <span className="text-[11px]">{banner.is_active ? "Live" : "Off"}</span>
-                    </button>
-
-                    <div className="flex items-center gap-0.5">
-                      <button
-                        onClick={() => openEditBanner(banner)}
-                        className="p-1 rounded-lg text-slate-500 hover:text-[#1C3EB9] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                        title="Edit Banner"
-                      >
-                        <Edit2 size={12} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteBanner(banner.id)}
-                        className="p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                        title="Delete Banner"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const slots = getVisibleSlots();
 
   return (
     <>
       <PageMeta
-        title="Image Settings | Selectt Admin"
-        description="Section-wise visual management for all frontend website images, banners, and logos."
+        title="Image & Branding Settings | Selectt Admin"
+        description="Configure brand logos, in-grid promo cards, and page hero banners with direct URLs and uploads."
       />
 
-      <div className="space-y-4 max-w-7xl mx-auto w-full">
-        {/* Hidden File Input for 1-Click Upload */}
+      <div className="p-4 md:p-6 max-w-7xl mx-auto font-['Plus_Jakarta_Sans',sans-serif]">
+        {/* Hidden File Input for Image Uploads */}
         <input
-          ref={fileInputRef}
           type="file"
-          accept="image/*,.svg,.ico,.png,.jpg,.jpeg,.webp"
+          ref={fileInputRef}
+          onChange={handleFileSelected}
+          accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon,image/vnd.microsoft.icon"
           className="hidden"
-          onChange={handleFileChange}
         />
 
-        {/* Top Header & Breadcrumb */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <PageBreadCrumb pageTitle="Image Settings" />
-
-          {/* Quick Links & Refresh */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <Link
-              to="/media-library"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-[#1C3EB9] hover:text-[#1C3EB9] shadow-xs transition-all"
-            >
-              <FileImage size={14} className="text-[#1C3EB9]" />
-              Open Media Library
-            </Link>
-
-            <button
-              onClick={fetchData}
-              className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-[#1C3EB9] transition-all cursor-pointer shadow-xs"
-              title="Refresh images"
-            >
-              <RefreshCw size={14} className={loading ? "animate-spin text-[#1C3EB9]" : ""} />
-            </button>
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <PageBreadCrumb pageTitle="Image & Branding Settings" />
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Easily manage brand logos, page hero visuals, and catalog promo banner cards with live preview and direct upload.
+            </p>
           </div>
+
+          <button
+            type="button"
+            onClick={handleSaveAll}
+            disabled={saving || loading}
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer whitespace-nowrap active:scale-95 self-start sm:self-auto"
+          >
+            {saving ? (
+              <>
+                <span className="animate-spin">⏳</span>
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save size={16} />
+                <span>Save All Changes</span>
+              </>
+            )}
+          </button>
         </div>
 
-        {/* Toolbar: Page Tabs + View Mode Switcher + Search */}
-        <div className="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
-          {/* Clean Page-Wise Navigation Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 scrollbar-thin">
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 border-b border-gray-200 dark:border-gray-800 scrollbar-none">
+          {[
+            { id: "branding", label: "🎨 Brand Logos & Identity", count: BRANDING_SLOTS.length },
+            { id: "buy-cars", label: "🚗 Buy Cars In-Grid Banners", count: BUY_CARS_SLOTS.length },
+            { id: "home-sell", label: "🏠 Home & Sell Page Visuals", count: HOME_SELL_SLOTS.length },
+            { id: "car-details", label: "📄 Car Details & Modal Visuals", count: CAR_DETAILS_SLOTS.length },
+            { id: "services", label: "🛡️ Services & Policy Banners", count: SERVICE_POLICY_SLOTS.length },
+          ].map((tab) => (
             <button
-              onClick={() => handleTabChange("home")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === "home"
-                  ? "bg-[#1C3EB9] text-white shadow-xs"
-                  : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id as ActiveTabType)}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === tab.id
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                  : "bg-slate-100 hover:bg-slate-200/80 text-slate-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               }`}
             >
-              <Smartphone size={13} /> Home Page
+              <span>{tab.label}</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === tab.id ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-gray-700 text-slate-600 dark:text-gray-300"
+              }`}>
+                {tab.count}
+              </span>
             </button>
-
-            <button
-              onClick={() => handleTabChange("buy-cars")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === "buy-cars"
-                  ? "bg-[#1C3EB9] text-white shadow-xs"
-                  : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              <ShoppingBag size={13} /> Buy Cars Page
-            </button>
-
-            <button
-              onClick={() => handleTabChange("car-detail")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === "car-detail"
-                  ? "bg-[#1C3EB9] text-white shadow-xs"
-                  : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              <Car size={13} /> Car Details Page
-            </button>
-
-            <button
-              onClick={() => handleTabChange("sell-car")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === "sell-car"
-                  ? "bg-[#1C3EB9] text-white shadow-xs"
-                  : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              <DollarSign size={13} /> Sell Car Page
-            </button>
-
-            <button
-              onClick={() => handleTabChange("services")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === "services"
-                  ? "bg-[#1C3EB9] text-white shadow-xs"
-                  : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              <ShieldCheck size={13} /> Service & Policy Pages
-            </button>
-
-            <button
-              onClick={() => handleTabChange("branding")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === "branding"
-                  ? "bg-[#1C3EB9] text-white shadow-xs"
-                  : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              <ImageIcon size={13} /> Brand Logos & Favicon
-            </button>
-          </div>
-
-          {/* Controls: List/Grid View Switcher */}
-          <div className="flex items-center p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shrink-0">
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-1 px-2.5 rounded-md text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                viewMode === "list"
-                  ? "bg-white dark:bg-slate-900 text-[#1C3EB9] shadow-xs"
-                  : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
-              }`}
-              title="List / Table Mode"
-            >
-              <LayoutList size={13} />
-              <span className="text-[11px]">List</span>
-            </button>
-
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-1 px-2.5 rounded-md text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                viewMode === "grid"
-                  ? "bg-white dark:bg-slate-900 text-[#1C3EB9] shadow-xs"
-                  : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
-              }`}
-              title="Grid / Cards Mode"
-            >
-              <LayoutGrid size={13} />
-              <span className="text-[11px]">Grid</span>
-            </button>
-          </div>
+          ))}
         </div>
 
-        {/* Tab Content Display */}
+        {/* Special Top Control for Buy Cars Page Marquee Announcement */}
+        {activeTab === "buy-cars" && (
+          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800/60 border border-blue-200/80 dark:border-gray-700 shadow-sm">
+            <div className="flex items-center gap-2 mb-2 text-blue-900 dark:text-blue-300 font-bold text-sm">
+              <Sparkles size={16} className="text-blue-600" />
+              <span>Catalog Top Announcement Marquee (Optional)</span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+              Announcement text displayed at the top of the vehicle inventory grid on /buy-cars.
+            </p>
+            <input
+              type="text"
+              placeholder="e.g. ⚡ Mega Festival Offer: Zero Downpayment & Free 1-Year Insurance on Selected Cars!"
+              value={siteSettings.buy_cars_marquee_text || ""}
+              onChange={(e) => setSiteSettings((prev) => ({ ...prev, buy_cars_marquee_text: e.target.value }))}
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+            />
+          </div>
+        )}
+
+        {/* Loading State */}
         {loading ? (
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center space-y-3">
-            <Loader2 size={32} className="animate-spin text-[#1C3EB9] mx-auto" />
-            <p className="text-xs font-semibold text-slate-500">Loading section configurations...</p>
-          </div>
-        ) : activeTab === "home" ? (
-          /* ── TAB 1: HOME PAGE ── */
-          <div className="space-y-4">
-            {/* Desktop Hero Sliders */}
-            {renderBannerListSection(
-              "home",
-              "desktop",
-              "Home Desktop Hero Sliders",
-              "Hero banner slider displayed on desktop computers and laptops."
-            )}
-
-            {/* Mobile Hero Sliders */}
-            {renderBannerListSection(
-              "home",
-              "mobile",
-              "Home Mobile Hero Sliders",
-              "Hero banner slider formatted for mobile smartphones."
-            )}
-
-            {/* Feature Cards & Trust Badges */}
-            {renderSlotsSection(
-              HOME_STATIC_SLOTS,
-              "Home Feature Sections & Trust Badges",
-              "Instant valuation card, quick buy search card, and 3 trust badges."
-            )}
-
-            {/* 4 Easy Steps — Buy */}
-            {renderBannerListSection(
-              "home",
-              "buy-step",
-              "4 Easy Steps — Buy Car Process",
-              "Step 1 to 4 illustrations explaining the car buying process."
-            )}
-          </div>
-        ) : activeTab === "buy-cars" ? (
-          /* ── TAB 2: BUY CARS PAGE ── */
-          <div className="space-y-5">
-            {/* 1. In-Grid 3 Promotional Banner Cards (3-line gap between each) */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-4 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 dark:border-slate-800 pb-2.5">
-                <div>
-                  <h3 className="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-                    <CreditCard size={15} className="text-[#1C3EB9]" />
-                    <span>3 In-Grid Promotional Banner Cards (3-Line Gap Between Each)</span>
-                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-[#1C3EB9] border border-blue-200 dark:border-blue-800/60">
-                      3 Positions Active
-                    </span>
-                  </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    Upload 3 custom banner cards displayed inside the car inventory catalog on <span className="font-mono text-slate-700 dark:text-slate-300">/buy-cars</span>. Each banner card is separated by a 3-line (9 cars) gap.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleSaveBuyCarsSettings}
-                    disabled={savingBuyCarsSettings}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-[#1C3EB9] hover:bg-[#153299] text-white transition-all shadow-sm cursor-pointer disabled:opacity-50"
-                  >
-                    {savingBuyCarsSettings ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-                    <span>Save Banner Settings</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Slot Table / Grid */}
-              {renderSlotsSection(
-                BUY_CARS_STATIC_SLOTS,
-                "In-Grid Promotional Card Images & Live Preview",
-                "Click Replace on any banner to upload a custom image (WebP auto-optimized). 3 banners show sequentially with 3-line gaps."
-              )}
-
-              {/* 3 Banners Individual Controls */}
-              <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  Configure Links & Grid Visibility For Each Banner
-                </h4>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Banner #1 Config */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-slate-800 dark:text-slate-200">Banner #1 (Row 1)</span>
-                      <span className="text-[10px] font-bold text-[#1C3EB9] bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full">Slot 1</span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Click Action URL</label>
-                      <input
-                        type="text"
-                        value={extraCardBtnLink}
-                        onChange={(e) => setExtraCardBtnLink(e.target.value)}
-                        placeholder="/used-car-loan"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 dark:bg-slate-900 font-semibold focus:outline-none focus:border-[#1C3EB9]"
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setExtraCardIsActive(!extraCardIsActive)}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
-                        extraCardIsActive
-                          ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 text-emerald-700 dark:text-emerald-400"
-                          : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400"
-                      }`}
-                    >
-                      <span className="text-[11px]">{extraCardIsActive ? "Visible in Grid" : "Hidden"}</span>
-                      {extraCardIsActive ? <ToggleRight size={16} className="text-emerald-600" /> : <ToggleLeft size={16} className="text-slate-400" />}
-                    </button>
-                  </div>
-
-                  {/* Banner #2 Config */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-slate-800 dark:text-slate-200">Banner #2 (+3 Lines Gap)</span>
-                      <span className="text-[10px] font-bold text-[#1C3EB9] bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full">Slot 2</span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Click Action URL</label>
-                      <input
-                        type="text"
-                        value={gridBanner2Link}
-                        onChange={(e) => setGridBanner2Link(e.target.value)}
-                        placeholder="/car-insurance"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 dark:bg-slate-900 font-semibold focus:outline-none focus:border-[#1C3EB9]"
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setGridBanner2Active(!gridBanner2Active)}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
-                        gridBanner2Active
-                          ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 text-emerald-700 dark:text-emerald-400"
-                          : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400"
-                      }`}
-                    >
-                      <span className="text-[11px]">{gridBanner2Active ? "Visible in Grid" : "Hidden"}</span>
-                      {gridBanner2Active ? <ToggleRight size={16} className="text-emerald-600" /> : <ToggleLeft size={16} className="text-slate-400" />}
-                    </button>
-                  </div>
-
-                  {/* Banner #3 Config */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-slate-800 dark:text-slate-200">Banner #3 (+3 Lines Gap)</span>
-                      <span className="text-[10px] font-bold text-[#1C3EB9] bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full">Slot 3</span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Click Action URL</label>
-                      <input
-                        type="text"
-                        value={gridBanner3Link}
-                        onChange={(e) => setGridBanner3Link(e.target.value)}
-                        placeholder="/sell-car"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 dark:bg-slate-900 font-semibold focus:outline-none focus:border-[#1C3EB9]"
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setGridBanner3Active(!gridBanner3Active)}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
-                        gridBanner3Active
-                          ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 text-emerald-700 dark:text-emerald-400"
-                          : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400"
-                      }`}
-                    >
-                      <span className="text-[11px]">{gridBanner3Active ? "Visible in Grid" : "Hidden"}</span>
-                      {gridBanner3Active ? <ToggleRight size={16} className="text-emerald-600" /> : <ToggleLeft size={16} className="text-slate-400" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-2">
-                  <button
-                    type="button"
-                    onClick={handleSaveBuyCarsSettings}
-                    disabled={savingBuyCarsSettings}
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-extrabold bg-[#1C3EB9] hover:bg-[#153299] text-white transition-all shadow-md cursor-pointer disabled:opacity-50"
-                  >
-                    {savingBuyCarsSettings ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-                    <span>Save All In-Grid Banner Changes</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Top Promotional Slider Banners */}
-            {renderBannerListSection(
-              "buy-cars",
-              "promo",
-              "Buy Cars Top Promotional Banners (Header Slides)",
-              "Slider banners displayed at the top of the Buy Cars catalog (PRE-APPROVAL, Discounts, Lifetime Warranty, etc.)"
-            )}
-
-            {/* 3. Marquee Ticker Notice */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 shadow-sm">
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                <div>
-                  <h3 className="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-                    <Sparkles size={14} className="text-[#1C3EB9]" />
-                    <span>Buy Cars Marquee Ticker Bar</span>
-                  </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    Moving ticker message banner shown at the top of the buy cars page.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleSaveBuyCarsSettings}
-                  disabled={savingBuyCarsSettings}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1C3EB9] hover:bg-[#153299] text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
-                >
-                  {savingBuyCarsSettings ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-                  <span>Save Marquee</span>
-                </button>
-              </div>
-
-              <input
-                type="text"
-                value={buyCarsMarquee}
-                onChange={(e) => setBuyCarsMarquee(e.target.value)}
-                placeholder="e.g. ⭐ Mega Used Car Carnival Live - Up to ₹1.5L Exchange Bonus on Select Vehicles ⭐"
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 font-semibold focus:outline-none focus:border-[#1C3EB9]"
-              />
-            </div>
-          </div>
-        ) : activeTab === "car-detail" ? (
-          /* ── TAB 3: CAR DETAILS PAGE ── */
-          <div className="space-y-4">
-            {/* Car Details Sticky Promo Banners */}
-            {renderBannerListSection(
-              "car-detail",
-              "sidebar",
-              "Car Details Sidebar Promo Banners",
-              "Sidebar promo banners displayed on individual vehicle details pages."
-            )}
-
-            {/* Static Login Modal & Sidebar Slots */}
-            {renderSlotsSection(
-              CAR_DETAIL_STATIC_SLOTS,
-              "Login Modal & Detail Visuals",
-              "Authentication popup visual illustration and sidebar banners."
-            )}
-          </div>
-        ) : activeTab === "sell-car" ? (
-          /* ── TAB 4: SELL CAR PAGE ── */
-          <div className="space-y-4">
-            {/* Sell Car Top Promo Banners */}
-            {renderBannerListSection(
-              "sell-car",
-              "promo",
-              "Sell Car Page Top Hero Banners",
-              "Header hero banners displayed on the Sell Car landing page."
-            )}
-
-            {/* Sell Car 4 Easy Steps */}
-            {renderBannerListSection(
-              "sell-car",
-              "step",
-              "Sell Car 4 Easy Steps Banners",
-              "Step 1 to 4 illustrations explaining how selling car works."
-            )}
-
-            {/* Instant Valuation Form Card Slot */}
-            {renderSlotsSection(
-              HOME_STATIC_SLOTS.filter((s) => s.key === "sell_car_banner"),
-              "Instant Valuation Form Card Banner",
-              "Form side banner for instant valuation quote."
-            )}
-          </div>
-        ) : activeTab === "services" ? (
-          /* ── TAB 5: SERVICE & POLICY PAGES ── */
-          <div className="space-y-4">
-            {renderSlotsSection(
-              SERVICE_STATIC_SLOTS,
-              "Service & Financial Page Header Banners",
-              "Manage top hero banners for Loan, Insurance, Warranty, and Buyback Assurance pages."
-            )}
+          <div className="py-16 text-center text-slate-500 flex flex-col items-center justify-center gap-3">
+            <span className="animate-spin text-3xl">⏳</span>
+            <p className="text-sm font-medium">Loading image settings...</p>
           </div>
         ) : (
-          /* ── TAB 6: BRAND LOGOS & IDENTITY ── */
-          <div className="space-y-4">
-            {renderSlotsSection(
-              BRANDING_STATIC_SLOTS,
-              "Brand Identity, Logos & Favicon",
-              "Manage dark navbar logo, transparent white logo, footer branding, and social preview assets."
-            )}
-          </div>
-        )}
+          /* Cards Grid */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+            {slots.map((slot) => {
+              const currentVal = getSlotValue(slot);
+              const isUploading = uploadingKey === slot.key;
 
-        {/* Modal: Full Image Preview */}
-        {previewModalImg && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-            <div className="bg-slate-900 rounded-3xl border border-slate-800 max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col">
-              <div className="p-4 border-b border-slate-800 flex items-center justify-between text-white">
-                <span className="font-extrabold text-sm">{previewModalImg.title}</span>
-                <button
-                  onClick={() => setPreviewModalImg(null)}
-                  className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800"
+              return (
+                <div
+                  key={slot.key}
+                  className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
                 >
-                  <X size={18} />
-                </button>
-              </div>
-              <div className="p-6 flex items-center justify-center bg-slate-950/80 max-h-[75vh]">
-                <img src={previewModalImg.url} alt={previewModalImg.title} className="max-w-full max-h-[70vh] object-contain rounded-xl" />
-              </div>
-              <div className="p-3 border-t border-slate-800 flex items-center justify-between text-xs bg-slate-900 text-slate-400 px-6">
-                <span className="font-mono truncate max-w-md">{previewModalImg.url}</span>
-                <a
-                  href={previewModalImg.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-[#1C3EB9] text-white font-bold hover:bg-[#153299] flex items-center gap-1"
-                >
-                  <ExternalLink size={12} /> Open Full Size
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal: Add / Edit Banner Slide */}
-        {showBannerModal && editingBanner && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 w-full max-w-lg overflow-hidden shadow-2xl space-y-4">
-              <div className="p-4 sm:px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <h3 className="font-black text-slate-900 dark:text-white text-base">
-                  {editingBanner.id ? "Edit Banner Slide" : "Add New Banner Slide"}
-                </h3>
-                <button
-                  onClick={() => setShowBannerModal(false)}
-                  className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="p-4 sm:px-6 space-y-3.5 max-h-[75vh] overflow-y-auto">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Banner Title
-                  </label>
-                  <input
-                    type="text"
-                    value={editingBanner.title || ""}
-                    onChange={(e) => setEditingBanner({ ...editingBanner, title: e.target.value })}
-                    placeholder="e.g. Assured Quality Used Cars"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 font-semibold focus:outline-none focus:border-[#1C3EB9]"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Subtitle / Description
-                  </label>
-                  <input
-                    type="text"
-                    value={editingBanner.subtitle || ""}
-                    onChange={(e) => setEditingBanner({ ...editingBanner, subtitle: e.target.value })}
-                    placeholder="e.g. 140+ Inspection checkpoints & 1-year warranty"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 font-semibold focus:outline-none focus:border-[#1C3EB9]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                      Button Text (CTA)
-                    </label>
-                    <input
-                      type="text"
-                      value={editingBanner.cta_text || ""}
-                      onChange={(e) => setEditingBanner({ ...editingBanner, cta_text: e.target.value })}
-                      placeholder="e.g. Explore Cars"
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 font-semibold focus:outline-none focus:border-[#1C3EB9]"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                      Button Link (URL)
-                    </label>
-                    <input
-                      type="text"
-                      value={editingBanner.cta_link || ""}
-                      onChange={(e) => setEditingBanner({ ...editingBanner, cta_link: e.target.value })}
-                      placeholder="e.g. /buy-cars"
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 font-semibold focus:outline-none focus:border-[#1C3EB9]"
-                    />
-                  </div>
-                </div>
-
-                {/* Banner Image Upload */}
-                <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Banner Image (Auto WebP)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setBannerImageFile(file);
-                        setBannerPreview(URL.createObjectURL(file));
-                      }
-                    }}
-                    className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-[#1C3EB9] file:text-white cursor-pointer"
-                  />
-
-                  {bannerPreview && (
-                    <div className="mt-2.5 h-32 rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-slate-700">
-                      <img src={bannerPreview} alt="Preview" className="w-full h-full object-contain" />
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3 mb-2.5">
+                      <div>
+                        <h4 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white leading-snug">
+                          {slot.title}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-gray-800 text-[10.5px] font-semibold text-slate-600 dark:text-slate-300">
+                            {slot.placement}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-[10.5px] font-bold text-blue-700 dark:text-blue-300">
+                            {slot.recommendedSize}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
 
-              <div className="p-4 sm:px-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2 bg-slate-50/50 dark:bg-slate-900/50">
-                <button
-                  onClick={() => setShowBannerModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveBanner}
-                  disabled={savingBanner}
-                  className="px-5 py-2 rounded-xl text-xs font-extrabold bg-[#1C3EB9] hover:bg-[#153299] text-white shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  {savingBanner && <Loader2 size={13} className="animate-spin" />}
-                  <span>Save Banner</span>
-                </button>
-              </div>
-            </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                      {slot.description}
+                    </p>
+
+                    {/* Image Preview & Upload Controls */}
+                    <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                      {/* Image Thumbnail Box */}
+                      <div className="relative group w-full sm:w-44 h-32 rounded-xl bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 overflow-hidden flex items-center justify-center shrink-0">
+                        {currentVal ? (
+                          <img
+                            src={currentVal}
+                            alt={slot.title}
+                            className="w-full h-full object-contain p-1.5 transition-transform duration-200 group-hover:scale-105"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = slot.defaultPlaceholder;
+                            }}
+                          />
+                        ) : (
+                          <div className="text-slate-400 text-xs flex flex-col items-center gap-1">
+                            <ImageIcon size={20} />
+                            <span>No Image</span>
+                          </div>
+                        )}
+
+                        {/* Hover Overlay with Preview Button */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setPreviewImgModal({ url: currentVal, title: slot.title })}
+                            className="p-2 rounded-lg bg-white/90 text-slate-900 hover:bg-white transition-colors shadow-sm cursor-pointer"
+                            title="View Full Preview"
+                          >
+                            <Eye size={16} />
+                          </button>
+                          <a
+                            href={currentVal}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 rounded-lg bg-white/90 text-slate-900 hover:bg-white transition-colors shadow-sm"
+                            title="Open Link"
+                          >
+                            <ExternalLink size={16} />
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* URL input and action buttons */}
+                      <div className="flex-1 flex flex-col justify-between gap-2.5">
+                        <div>
+                          <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                            Image URL / Source
+                          </label>
+                          <input
+                            type="text"
+                            value={slot.type === "site_content" ? (siteContent[slot.key] || "") : (siteSettings[slot.key] || "")}
+                            placeholder={slot.defaultPlaceholder}
+                            onChange={(e) => handleValueChange(slot, e.target.value)}
+                            className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 text-slate-800 dark:text-slate-200 font-mono"
+                          />
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleTriggerUpload(slot)}
+                            disabled={isUploading}
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-900 dark:bg-white dark:text-slate-900 text-white hover:bg-slate-800 text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-50"
+                          >
+                            {isUploading ? (
+                              <>
+                                <span className="animate-spin text-xs">⏳</span>
+                                <span>Uploading...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Upload size={13} />
+                                <span>Upload Image</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleResetSlot(slot)}
+                            className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-600 dark:text-slate-300 rounded-xl transition-colors cursor-pointer"
+                            title="Reset to default placeholder"
+                          >
+                            <RotateCcw size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Optional Associated Link & Visibility Controls (For In-Grid Banners) */}
+                    {slot.hasLink && slot.linkKey && (
+                      <div className="mt-3 pt-3 border-t border-slate-100 dark:border-gray-800 space-y-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1 flex items-center gap-1">
+                            <LinkIcon size={12} className="text-blue-500" /> Click Destination Link / Action URL
+                          </label>
+                          <input
+                            type="text"
+                            placeholder={slot.defaultLink || "/"}
+                            value={siteSettings[slot.linkKey] !== undefined ? siteSettings[slot.linkKey] : (slot.defaultLink || "")}
+                            onChange={(e) => setSiteSettings((prev) => ({ ...prev, [slot.linkKey!]: e.target.value }))}
+                            className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl outline-none focus:border-blue-500 text-slate-800 dark:text-slate-200"
+                          />
+                        </div>
+
+                        {slot.hasVisibility && slot.visibilityKey && (
+                          <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-gray-800/60 border border-slate-100 dark:border-gray-700">
+                            <div>
+                              <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Visible in Vehicle Grid</p>
+                              <p className="text-[11px] text-slate-500">Show this promo card in the catalog</p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={siteSettings[slot.visibilityKey] !== "false" && siteSettings[slot.visibilityKey] !== "0"}
+                                onChange={(e) => setSiteSettings((prev) => ({ ...prev, [slot.visibilityKey!]: e.target.checked ? "true" : "false" }))}
+                                className="sr-only peer"
+                              />
+                              <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500"></div>
+                            </label>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
+
+        {/* Bottom Save Changes Bar */}
+        <div className="sticky bottom-4 z-20 p-4 rounded-2xl bg-slate-900/90 backdrop-blur-md text-white shadow-xl flex items-center justify-between gap-4 border border-white/10">
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
+            <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+            <span className="hidden sm:inline text-slate-300">Ready to publish your brand visual changes?</span>
+            <span className="sm:hidden font-medium">Publish changes</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSaveAll}
+            disabled={saving || loading}
+            className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95"
+          >
+            {saving ? "Saving Changes..." : "Save All Settings"}
+          </button>
+        </div>
       </div>
+
+      {/* Full Image Preview Modal */}
+      {previewImgModal && (
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="relative max-w-3xl w-full bg-white dark:bg-gray-900 rounded-3xl p-6 overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-base text-slate-900 dark:text-white truncate">{previewImgModal.title}</h3>
+              <button
+                type="button"
+                onClick={() => setPreviewImgModal(null)}
+                className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 text-slate-600 dark:text-slate-300 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="w-full max-h-[70vh] flex items-center justify-center overflow-hidden rounded-2xl bg-slate-50 dark:bg-gray-800 p-2">
+              <img
+                src={previewImgModal.url}
+                alt={previewImgModal.title}
+                className="max-h-[65vh] w-auto object-contain rounded-xl"
+              />
+            </div>
+            <div className="mt-4 flex justify-end">
+              <a
+                href={previewImgModal.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors inline-flex items-center gap-1.5"
+              >
+                <ExternalLink size={14} /> Open Full Size in New Tab
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
