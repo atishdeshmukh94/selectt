@@ -348,9 +348,9 @@ const CheckoutPage = () => {
               </div>
 
               {/* Car Snapshot & Breakdown */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm relative">
                 {/* Header Car Info */}
-                <div className="p-4 sm:p-5 flex items-center gap-3.5 sm:gap-4 border-b border-slate-100">
+                <div className="p-4 sm:p-5 flex items-center gap-3.5 sm:gap-4 border-b border-slate-100 rounded-t-2xl">
                   <div className="w-24 h-20 sm:w-28 sm:h-22 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-100">
                     <img
                       src={getCarImageUrl(car?.image || car?.images?.[0])}
@@ -386,8 +386,28 @@ const CheckoutPage = () => {
                   </div>
                   <div className="font-price font-bold text-[#0F172A] text-[17px]">₹5,000</div>
                 </div>
-                <div className="bg-slate-50/70 px-4 py-2 border-b border-slate-100 flex items-center gap-1.5">
-                  <span className="text-slate-400 text-xs">ⓘ</span> <span className="text-[12px] text-slate-500 font-normal">Discount valid only for deliveries within 3 days of booking.</span>
+
+                {/* 3-Day Delivery Discount Notice with Tooltip */}
+                <div className="bg-slate-50/70 px-4 py-2 border-b border-slate-100 flex items-center gap-2 relative">
+                  <span className="relative group inline-flex items-center">
+                    <button
+                      type="button"
+                      className="w-4 h-4 rounded-full bg-slate-200/80 hover:bg-[#00C9AF]/20 hover:text-[#0C1B33] text-slate-500 flex items-center justify-center text-[10px] font-bold cursor-pointer transition-colors"
+                      aria-label="Delivery discount details"
+                    >
+                      i
+                    </button>
+                    <div className="absolute top-full left-[-4px] mt-2 w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
+                      <div className="font-heading font-bold text-[11px] sm:text-xs text-[#00C9AF] mb-1">
+                        Express Delivery Discount
+                      </div>
+                      <p className="text-[11px] leading-relaxed text-slate-200 font-normal font-sans">
+                        To claim the promotional ₹22,000 discount, vehicle delivery or hub pickup must be scheduled within 3 days of booking.
+                      </p>
+                      <div className="absolute bottom-full left-3.5 border-4 border-transparent border-b-[#0C1B33]" />
+                    </div>
+                  </span>
+                  <span className="text-[12px] text-slate-600 font-normal">Discount valid only for deliveries within 3 days of booking.</span>
                 </div>
 
                 {/* Breakdown List */}
@@ -418,14 +438,14 @@ const CheckoutPage = () => {
                           >
                             i
                           </button>
-                          <div className="absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-56 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
+                          <div className="absolute bottom-full left-[-8px] mb-2 w-60 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
                             <div className="font-heading font-bold text-[11px] sm:text-xs text-[#00C9AF] mb-1">
                               Insurance Coverage
                             </div>
                             <p className="text-[11px] leading-relaxed text-slate-200 font-normal font-sans">
                               Comprehensive insurance policy transfer assistance, verification, and legal road coverage compliance.
                             </p>
-                            <div className="absolute top-full left-2 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-[#0C1B33]" />
+                            <div className="absolute top-full left-3 border-4 border-transparent border-t-[#0C1B33]" />
                           </div>
                         </span>
                       </span>
@@ -442,14 +462,14 @@ const CheckoutPage = () => {
                           >
                             i
                           </button>
-                          <div className="absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-56 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
+                          <div className="absolute bottom-full left-[-8px] mb-2 w-60 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
                             <div className="font-heading font-bold text-[11px] sm:text-xs text-[#00C9AF] mb-1">
                               Delivery Essentials
                             </div>
                             <p className="text-[11px] leading-relaxed text-slate-200 font-normal font-sans">
                               Pre-activated FASTag with balance, complimentary fuel top-up for your drive home, and pre-delivery sanitization.
                             </p>
-                            <div className="absolute top-full left-2 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-[#0C1B33]" />
+                            <div className="absolute top-full left-3 border-4 border-transparent border-t-[#0C1B33]" />
                           </div>
                         </span>
                       </span>
@@ -469,14 +489,14 @@ const CheckoutPage = () => {
                           >
                             i
                           </button>
-                          <div className="absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-56 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
+                          <div className="absolute bottom-full left-[-8px] mb-2 w-60 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
                             <div className="font-heading font-bold text-[11px] sm:text-xs text-[#00C9AF] mb-1">
                               Refurbishment Included
                             </div>
                             <p className="text-[11px] leading-relaxed text-slate-200 font-normal font-sans">
                               200-point inspection repairs, fluid top-ups, mechanical tune-ups, and cosmetic upgrades included at zero extra charge.
                             </p>
-                            <div className="absolute top-full left-2 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-[#0C1B33]" />
+                            <div className="absolute top-full left-3 border-4 border-transparent border-t-[#0C1B33]" />
                           </div>
                         </span>
                       </span>

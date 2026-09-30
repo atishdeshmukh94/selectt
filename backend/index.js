@@ -2385,7 +2385,7 @@ app.put('/api/sell-requests/:id/status', authMiddleware, isAdmin, (req, res) => 
     const { status, admin_notes, make, model, variant, year, km, fuel_type, transmission, ownership, location, asking_price, description } = req.body;
     if (!['pending', 'approved', 'rejected'].includes(status)) return res.status(400).json({ message: 'Invalid status' });
     
-    db.query('SELECT * FROM sell_requests WHERE id = ?', [req.params.id], (err, results) => {
+    db.query('SELECT sr.*, c.phone as cust_phone, c.first_name, c.last_name FROM sell_requests sr LEFT JOIN customers c ON sr.customer_id = c.id WHERE sr.id = ?', [req.params.id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(404).json({ message: 'Not found' });
         
@@ -2410,21 +2410,31 @@ app.put('/api/sell-requests/:id/status', authMiddleware, isAdmin, (req, res) => 
             
             // Trigger status change WhatsApp notification to seller
             if (status !== previousStatus) {
+                const targetPhone = existing.customer_phone || existing.cust_phone;
+                const customerName = existing.customer_name || (existing.first_name ? `${existing.first_name} ${existing.last_name || ''}`.trim() : 'Valued Seller');
+                const carTitle = `${updateFields.year || existing.year || ''} ${updateFields.make || existing.make || ''} ${updateFields.model || existing.model || ''} ${updateFields.variant || existing.variant || ''}`.trim() || 'Vehicle';
+
                 if (status === 'approved') {
-                    sendGallaboxWhatsAppNotification('sell_request_approved', existing.customer_phone, {
-                        customer_name: existing.customer_name || 'Valued Seller',
-                        car_name: `${existing.year || ''} ${existing.make || ''} ${existing.model || ''} ${existing.variant || ''}`.trim(),
-                        request_id: `#SELL-${req.params.id}`,
-                        status: 'Approved & Listed in Catalog'
-                    });
+                    if (targetPhone) {
+                        sendGallaboxWhatsAppNotification('sell_request_approved', targetPhone, {
+                            customer_name: customerName,
+                            car_name: carTitle,
+                            request_id: `#SELL-${req.params.id}`,
+                            status: 'Approved & Listed in Catalog'
+                        });
+                    }
+                    createNotification('CAR_SELL_REQUEST', `Your sell request #${req.params.id} for ${carTitle} has been approved!`, existing.customer_id, req.params.id);
                 } else if (status === 'rejected') {
-                    sendGallaboxWhatsAppNotification('sell_request_rejected', existing.customer_phone, {
-                        customer_name: existing.customer_name || 'Valued Seller',
-                        car_name: `${existing.year || ''} ${existing.make || ''} ${existing.model || ''} ${existing.variant || ''}`.trim(),
-                        request_id: `#SELL-${req.params.id}`,
-                        status: 'Rejected',
-                        reason: admin_notes || 'Vehicle specifications could not be verified'
-                    });
+                    if (targetPhone) {
+                        sendGallaboxWhatsAppNotification('sell_request_rejected', targetPhone, {
+                            customer_name: customerName,
+                            car_name: carTitle,
+                            request_id: `#SELL-${req.params.id}`,
+                            status: 'Rejected',
+                            reason: admin_notes || 'Vehicle specifications could not be verified'
+                        });
+                    }
+                    createNotification('CAR_SELL_REQUEST', `Your sell request #${req.params.id} for ${carTitle} was rejected. Note: ${admin_notes || 'Specs could not be verified'}`, existing.customer_id, req.params.id);
                 }
             }
 
