@@ -529,6 +529,13 @@ db.getConnection((err, connection) => {
             db.query("ALTER TABLE users ADD COLUMN permissions TEXT NULL");
         }
     });
+
+    // Ensure cars table has rto_code column
+    db.query("SHOW COLUMNS FROM cars LIKE 'rto_code'", (err, rows) => {
+        if (!err && rows.length === 0) {
+            db.query("ALTER TABLE cars ADD COLUMN rto_code VARCHAR(20) NULL");
+        }
+    });
     db.query("SHOW COLUMNS FROM users LIKE 'totp_secret'", (err, rows) => {
         if (!err && rows.length === 0) {
             db.query("ALTER TABLE users ADD COLUMN totp_secret VARCHAR(64) NULL");
@@ -1477,6 +1484,8 @@ function mapCar(car) {
         createdAt: car.created_at,
         registrationNo: car.registration_no || car.registrationNo || null,
         registration_no: car.registration_no || car.registrationNo || null,
+        rto_code: car.rto_code || car.rto || (car.registration_no ? car.registration_no.slice(0, 4).toUpperCase() : null),
+        rto: car.rto_code || car.rto || (car.registration_no ? car.registration_no.slice(0, 4).toUpperCase() : null),
         status: car.status || 'active',
         listedBy: car.listed_by || null
     };
@@ -1577,7 +1586,7 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
     const { title, make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
         location, image, tag, badgeText, badge_text, hub, isAssured, listingType, listing_type, ownership, engineCapacity, engine_capacity,
         regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
-        insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status, registrationNo, registration_no } = req.body;
+        insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status, registrationNo, registration_no, rto_code, rto } = req.body;
 
     if (!make || !model) {
         return res.status(400).json({ error: 'Make and Model are required' });
@@ -1642,6 +1651,7 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
         body_type: bodyType || body_type || null,
         description: description || null,
         registration_no: registrationNo || registration_no || null,
+        rto_code: rto_code || rto || null,
         reasons_to_buy: req.body.reasonsToBuy ? (typeof req.body.reasonsToBuy === 'string' ? req.body.reasonsToBuy : JSON.stringify(req.body.reasonsToBuy)) : null,
         specifications: req.body.specifications ? (typeof req.body.specifications === 'string' ? req.body.specifications : JSON.stringify(req.body.specifications)) : null,
         features: req.body.features ? (typeof req.body.features === 'string' ? req.body.features : JSON.stringify(req.body.features)) : null,
@@ -1710,7 +1720,7 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
         const { title, make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
             location, image, tag, badgeText, badge_text, hub, isAssured, listingType, listing_type, ownership, engineCapacity, engine_capacity,
             regYear, reg_year, regState, reg_state, spareKey, spare_key, insuranceStatus,
-            insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status, registrationNo, registration_no } = req.body;
+            insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status, registrationNo, registration_no, rto_code, rto } = req.body;
 
         if (!make || !model) {
             return res.status(400).json({ error: 'Make and Model are required' });
@@ -1776,6 +1786,7 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             body_type: bodyType || body_type || null,
             description: description || null,
             registration_no: registrationNo || registration_no || null,
+            rto_code: rto_code !== undefined ? (rto_code || rto || null) : (rto || null),
             reasons_to_buy: req.body.reasonsToBuy ? (typeof req.body.reasonsToBuy === 'string' ? req.body.reasonsToBuy : JSON.stringify(req.body.reasonsToBuy)) : null,
             specifications: req.body.specifications ? (typeof req.body.specifications === 'string' ? req.body.specifications : JSON.stringify(req.body.specifications)) : null,
             features: req.body.features ? (typeof req.body.features === 'string' ? req.body.features : JSON.stringify(req.body.features)) : null,

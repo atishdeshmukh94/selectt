@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
-import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, X, FileText, ArrowDown, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, X, FileText, ArrowDown, ArrowRight, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
@@ -92,6 +92,7 @@ const CheckoutPage = () => {
   const [isBooking, setIsBooking] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [interestedInLoan, setInterestedInLoan] = useState(false);
+  const [mobileLoanPromptVisible, setMobileLoanPromptVisible] = useState(true);
   const [isTestDriveOpen, setIsTestDriveOpen] = useState(false);
   const [scheduledTestDrive, setScheduledTestDrive] = useState(null);
   const [steps, setSteps] = useState(DEFAULT_BUY_STEPS);
@@ -309,27 +310,52 @@ const CheckoutPage = () => {
             {/* Left Column: Flow Options */}
             <div className="space-y-6">
 
-              {/* Finance Option */}
-              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm flex items-start gap-4">
+              {/* Finance Option - Highlighted with glowing border & button */}
+              <div 
+                onClick={() => setInterestedInLoan(!interestedInLoan)}
+                className={`rounded-2xl p-5 sm:p-6 transition-all duration-300 flex items-start gap-4 cursor-pointer relative overflow-hidden ${
+                  interestedInLoan
+                    ? 'bg-gradient-to-r from-emerald-500/[0.08] via-teal-500/[0.05] to-white border-2 border-[#00C9AF] shadow-[0_0_25px_rgba(0,201,175,0.25)] ring-4 ring-[#00C9AF]/15'
+                    : 'bg-white hover:bg-slate-50/90 border-2 border-emerald-400/50 hover:border-[#00C9AF] shadow-[0_0_18px_rgba(0,201,175,0.15)] ring-2 ring-emerald-400/10'
+                }`}
+              >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-[#000] font-black text-base sm:text-lg tracking-tight italic flex items-center">
                       Get Finance This
                     </span>
+                    <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-xs">
+                      ⚡ Low EMI Rates
+                    </span>
                   </div>
-                  <h3 className="font-bold text-[#0C1B33] text-base mb-1.5">Interested in car loan?</h3>
+                  <h3 className="font-bold text-[#0C1B33] text-base mb-1.5 flex items-center gap-2">
+                    Interested in car loan?
+                    {interestedInLoan && (
+                      <span className="text-[11px] font-extrabold text-[#00C9AF] bg-[#00C9AF]/10 px-2 py-0.5 rounded-md border border-[#00C9AF]/20">
+                        ✓ Selected
+                      </span>
+                    )}
+                  </h3>
                   <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-                    Get your car financed at attractive interest rates. <a href="/privacy-policy" className="text-[#00C9AF] font-bold hover:underline">Learn more</a>
+                    Get your car financed at attractive interest rates. <a href="/privacy-policy" onClick={(e) => e.stopPropagation()} className="text-[#00C9AF] font-bold hover:underline">Learn more</a>
                   </p>
                 </div>
-                <div className="mt-1">
-                  <input
-                    type="checkbox"
+                
+                {/* Glowing Checkbox Button */}
+                <div className="mt-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
                     id="interested_in_loan"
-                    checked={interestedInLoan}
-                    onChange={e => setInterestedInLoan(e.target.checked)}
-                    className="w-5 h-5 accent-[#0C1B33] border-slate-300 rounded cursor-pointer"
-                  />
+                    onClick={() => setInterestedInLoan(!interestedInLoan)}
+                    className={`w-7 h-7 rounded-lg border-2 transition-all duration-300 flex items-center justify-center cursor-pointer ${
+                      interestedInLoan
+                        ? 'bg-[#00C9AF] border-[#00C9AF] text-[#0C1B33] shadow-[0_0_18px_rgba(0,201,175,0.7)] scale-105 ring-2 ring-[#00C9AF]/40'
+                        : 'bg-white border-emerald-400/80 hover:border-[#00C9AF] shadow-[0_0_10px_rgba(0,201,175,0.3)] hover:shadow-[0_0_16px_rgba(0,201,175,0.5)]'
+                    }`}
+                    aria-label="Toggle Interested in car loan"
+                  >
+                    {interestedInLoan && <Check size={18} strokeWidth={3.5} />}
+                  </button>
                 </div>
               </div>
 
@@ -632,18 +658,6 @@ const CheckoutPage = () => {
                     {step.desc}
                   </p>
                 </div>
-
-                {/* Horizontal Connector Arrow between desktop cards */}
-                {idx < steps.length - 1 && (
-                  <div className="absolute top-1/2 -right-3.5 -translate-y-1/2 z-20 hidden lg:flex items-center justify-center">
-                    <div
-                      className="w-7 h-7 rounded-full bg-slate-900 border border-slate-700 text-white flex items-center justify-center shadow-lg shadow-black/40"
-                      style={{ borderColor: step.accentColor }}
-                    >
-                      <ArrowRight size={13} style={{ color: step.accentColor }} />
-                    </div>
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -685,23 +699,26 @@ const CheckoutPage = () => {
                     </p>
                   </motion.div>
 
-                  {/* Animated Downward Connector Arrow between boxes */}
+                  {/* Animated Prominent Downward Connector Arrow between boxes */}
                   {idx < steps.length - 1 && (
-                    <div className="flex flex-col items-center justify-center py-2.5 my-1">
+                    <div className="flex flex-col items-center justify-center py-3 my-1 relative">
                       <div
-                        className="w-0.5 h-4 bg-gradient-to-b from-slate-400/80 to-transparent rounded-full"
+                        className="w-1 h-6 rounded-full opacity-80"
                         style={{ backgroundColor: step.accentColor }}
                       />
                       <motion.div
-                        animate={{ y: [0, 5, 0] }}
-                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                        className="w-8 h-8 rounded-full bg-slate-900 border-2 shadow-lg flex items-center justify-center my-0.5 z-10"
-                        style={{ borderColor: step.accentColor }}
+                        animate={{ y: [0, 6, 0] }}
+                        transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                        className="w-12 h-12 rounded-full bg-slate-900 border-[2.5px] shadow-2xl flex items-center justify-center my-1 z-10"
+                        style={{
+                          borderColor: step.accentColor,
+                          boxShadow: `0 8px 24px -4px ${step.accentColor}40`
+                        }}
                       >
-                        <ArrowDown size={15} style={{ color: step.accentColor }} />
+                        <ArrowDown size={22} strokeWidth={2.5} style={{ color: step.accentColor }} />
                       </motion.div>
                       <div
-                        className="w-0.5 h-4 bg-gradient-to-t from-slate-400/80 to-transparent rounded-full"
+                        className="w-1 h-6 rounded-full opacity-80"
                         style={{ backgroundColor: steps[idx + 1].accentColor }}
                       />
                     </div>
@@ -718,6 +735,56 @@ const CheckoutPage = () => {
         onClose={() => setIsTestDriveOpen(false)}
         onSuccess={(details) => setScheduledTestDrive(details)}
       />
+
+      {/* Mobile Sticky Footer Popup for Car Loan (Mobile Only) */}
+      {mobileLoanPromptVisible && (
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-4 pb-5 bg-white rounded-t-3xl shadow-[0_-10px_35px_rgba(0,0,0,0.18)] border-t border-slate-200/90 animate-in slide-in-from-bottom duration-300">
+          <div className="max-w-md mx-auto">
+            <div className="flex items-start gap-3 mb-3.5">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-white shadow-sm shrink-0 font-black text-sm">
+                ₹
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-[#0C1B33] text-[15px] leading-tight mb-1">
+                  Interested in car loan?
+                </h4>
+                <p className="text-xs text-slate-500 leading-snug">
+                  Get your car financed at attractive interest rates.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setInterestedInLoan(false);
+                  setMobileLoanPromptVisible(false);
+                }}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 font-bold text-xs sm:text-sm transition-all duration-150 cursor-pointer"
+              >
+                No, thanks
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setInterestedInLoan(true);
+                  setMobileLoanPromptVisible(false);
+                }}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-[#6B21A8] hover:bg-[#581c87] active:scale-[0.98] text-white font-bold text-xs sm:text-sm shadow-md shadow-purple-950/20 transition-all duration-150 cursor-pointer"
+              >
+                Yes, I'm interested
+              </button>
+            </div>
+
+            {/* Slider Dots Indicator */}
+            <div className="flex justify-center items-center gap-1 mt-2.5">
+              <span className="w-4 h-1 rounded-full bg-slate-200" />
+              <span className="w-1.5 h-1 rounded-full bg-slate-300" />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

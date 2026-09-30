@@ -371,6 +371,7 @@ const CarEditPage = () => {
     fuelType: "Petrol",
     transmission: "Manual",
     location: "",
+    rto_code: "",
     image: "",
     listingType: "standard",
     isAssured: false,
@@ -462,6 +463,7 @@ const CarEditPage = () => {
         fuelType: data.fuelType || data.fuel_type || "Petrol",
         transmission: data.transmission || "Manual",
         location: data.location || "Mumbai",
+        rto_code: data.rto_code || data.rto || (data.registration_no ? data.registration_no.slice(0, 4).toUpperCase() : ""),
         price: data.price !== undefined && data.price !== null ? data.price : "",
         km: data.km !== undefined && data.km !== null ? data.km : 0,
         ownership: data.ownership || "1st Owner",
@@ -557,6 +559,7 @@ const CarEditPage = () => {
       fuelType: finalFuelType,
       transmission: finalTransmission,
       location: finalLocation,
+      rto_code: formData.rto_code ? String(formData.rto_code).trim().toUpperCase() : "",
       ownership: finalOwnership,
       km: finalKm,
       image: primaryCover,
@@ -999,7 +1002,7 @@ const CarEditPage = () => {
                       Fuel Type <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
                     <select className={inpClass} value={formData.fuelType} onChange={e => setFormData({...formData, fuelType: e.target.value})}>
-                      {["Petrol", "Diesel", "CNG", "Electric", "Hybrid"].map(f => <option key={f} value={f}>{f}</option>)}
+                      {["Petrol", "Diesel", "CNG", "Petrol/CNG", "Electric", "Hybrid"].map(f => <option key={f} value={f}>{f}</option>)}
                     </select>
                   </div>
 
@@ -1014,6 +1017,19 @@ const CarEditPage = () => {
 
                   <div>
                     <label className={labelClass}>
+                      RTO Code <span className="text-gray-400 text-xs font-normal">(e.g. MH01, DL3C)</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      className={inpClass} 
+                      value={formData.rto_code || ""} 
+                      onChange={e => setFormData({...formData, rto_code: e.target.value.toUpperCase()})} 
+                      placeholder="e.g. MH01" 
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>
                       Body Type <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
                     <select className={inpClass} value={formData.bodyType || ""} onChange={e => setFormData({...formData, bodyType: e.target.value})}>
@@ -1024,9 +1040,9 @@ const CarEditPage = () => {
 
                   <div>
                     <label className={labelClass}>
-                      Location (City) <span className="text-rose-500 font-black ml-1">*</span>
+                      Location (City / Hub) <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
-                    <input type="text" className={inpClass} value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. Andheri West, Mumbai" />
+                    <input type="text" className={inpClass} value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. Neelkanth Business Park, Vidyavihar" />
                   </div>
 
                   {/* Custom Details / Long Description Box in Step 1 */}

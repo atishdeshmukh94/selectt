@@ -236,9 +236,13 @@ const CarCard = ({ car, lightBg = false }) => {
                 <h3 className={`text-[15px] sm:text-[16px] font-heading font-extrabold leading-snug truncate transition-colors duration-200 ${lightBg ? 'text-slate-800 group-hover:text-[#00C9AF]' : 'text-white group-hover:text-[#00C9AF]'}`}>
                   {car.title || `${car.year} ${car.make} ${car.model}`}
                 </h3>
-                <span className={`text-[12px] sm:text-[13px] font-medium block truncate mt-0.5 ${lightBg ? 'text-slate-500' : 'text-slate-400'}`}>
-                  {car.variant || car.fuelType}
-                </span>
+                {/* Full Vehicle Location / Hub Line */}
+                <div className="flex items-center gap-1.5 mt-1 text-[11.5px] sm:text-[12px] font-medium text-slate-500 dark:text-slate-400">
+                  <MapPin size={12} className="text-[#00C9AF] shrink-0" />
+                  <span className="truncate" title={car.hub ? `HUB • ${car.hub}` : car.location}>
+                    {car.hub ? `HUB • ${car.hub}` : (car.location || 'Mumbai')}
+                  </span>
+                </div>
               </div>
               {hasPriceDrop(car) && (() => {
                 const orig = Number(car.original_price || car.originalPrice || car.old_price || car.oldPrice || 0);
@@ -262,22 +266,30 @@ const CarCard = ({ car, lightBg = false }) => {
               })()}
             </div>
 
-            {/* Spec pills */}
+            {/* Spec pills: KM (full number), Fuel (including Petrol/CNG, Hybrid, EV), Transmission, RTO Code */}
             <div className="flex flex-wrap gap-1.5 mt-2.5">
               <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
                 <Gauge size={12} className="text-[#00C9AF]" />
-                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>{(car.km / 1000).toFixed(0)}k km</span>
+                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
+                  {(Number(car.km) || 0).toLocaleString('en-IN')} km
+                </span>
               </div>
               <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
                 <Fuel size={12} className="text-[#00C9AF]" />
-                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>{car.fuelType || car.fuel_type}</span>
+                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
+                  {car.fuelType || car.fuel_type || 'Petrol'}
+                </span>
               </div>
-              {car.location && (
-                <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
-                  <MapPin size={12} className="text-[#00C9AF]" />
-                  <span title={car.location} className={`text-[11.5px] sm:text-[12px] font-semibold truncate max-w-[95px] ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>{shortenLocation(car.location)}</span>
-                </div>
-              )}
+              <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
+                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
+                  {car.transmission || 'Manual'}
+                </span>
+              </div>
+              <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
+                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
+                  {car.rto_code || car.rto || (car.registration_no ? car.registration_no.slice(0, 4).toUpperCase() : (car.regState || 'MH01'))}
+                </span>
+              </div>
             </div>
           </div>
 
