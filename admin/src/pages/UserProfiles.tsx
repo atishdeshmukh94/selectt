@@ -5,7 +5,6 @@ import { useAuth } from "../context/AuthContext";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import UserMetaCard from "../components/UserProfile/UserMetaCard";
 import UserInfoCard from "../components/UserProfile/UserInfoCard";
-import User2FACard from "../components/UserProfile/User2FACard";
 import PageMeta from "../components/common/PageMeta";
 
 export default function UserProfiles() {
@@ -168,7 +167,6 @@ export default function UserProfiles() {
           <div className="space-y-6">
             <UserMetaCard profile={profile} onSave={fetchProfile} />
             <UserInfoCard profile={profile} onSave={fetchProfile} />
-            <User2FACard profile={profile} onSave={fetchProfile} />
           </div>
         </div>
       )}

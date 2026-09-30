@@ -69,7 +69,7 @@ const MOBILE_HERO_SLIDES_CONFIG: MobileHeroSlideConfig[] = [
     btnLinkKey: "mobile_hero_btn_link",
     defaultImage: "https://selectt.in/img/warranty_banner_1to1.png",
     defaultBadge: "Selectt assured cover",
-    defaultHeading: "1-Year warranty",
+    defaultHeading: "Don't just buy.Selectt.",
     defaultSubheading: "200-point inspection with 7-day money-back guarantee",
     defaultBtnText: "Explore cover",
     defaultBtnLink: "/pricing",

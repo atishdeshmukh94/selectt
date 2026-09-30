@@ -26,7 +26,7 @@ const MobileHomeLayout = () => {
   const [heroContent, setHeroContent] = useState({
     mobile_hero_video: 'https://mda-dev.spinny.com/sp-file-system/public/2026-02-16/3f7957ad509b4fc888114ae91d3690be/raw/file.mp4',
     mobile_hero_image: '',
-    mobile_hero_heading: 'the master',
+    mobile_hero_heading: "Don't just buy.Selectt.",
     mobile_hero_subheading: "India's most-trusted car home*",
     mobile_hero_btn_text: 'Buy Car',
   });

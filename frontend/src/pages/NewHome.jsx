@@ -782,9 +782,11 @@ const NewHome = () => {
   const [heroContent, setHeroContent] = useState({
     mobile_hero_video: '',
     mobile_hero_image: '/img/mobile_hero_cover.png',
-    mobile_hero_heading: 'the master',
+    mobile_hero_badge: 'Selectt assured cover',
+    mobile_hero_heading: "Don't just buy.Selectt.",
     mobile_hero_subheading: "India's most-trusted car home*",
     mobile_hero_btn_text: 'Buy Car',
+    mobile_hero_btn_link: '/buy-cars',
   });
   const [isScrolled, setIsScrolled] = useState(false);
   const [city, setCity] = useState(localStorage.getItem('user_city') || 'Delhi NCR');
@@ -853,7 +855,7 @@ const NewHome = () => {
       id: 'slide-1',
       badge: heroContent.mobile_hero_badge || 'Selectt assured cover',
       badgeIcon: heroContent.mobile_hero_badge_icon || '🛡️',
-      heading: heroContent.mobile_hero_heading || '1-Year warranty',
+      heading: heroContent.mobile_hero_heading || "Don't just buy.Selectt.",
       subheading: heroContent.mobile_hero_subheading || '200-point inspection with 7-day money-back guarantee',
       btnText: heroContent.mobile_hero_btn_text || 'Explore cover',
       btnLink: heroContent.mobile_hero_btn_link || '/pricing',

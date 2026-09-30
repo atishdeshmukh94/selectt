@@ -5587,17 +5587,58 @@ app.get('/api/site-content', (req, res) => {
             if (err) return res.status(500).json({ error: err.message });
             // Return as key-value map
             const map = {};
-            r.forEach(row => { map[row.content_key] = row.content_value; });
+            if (Array.isArray(r)) {
+                r.forEach(row => { map[row.content_key] = row.content_value; });
+            }
             res.json(map);
         });
     }
 });
 
-// Admin: update or insert site content
+// Admin: batch update site content map
+app.post('/api/admin/site-content/batch', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const payload = req.body;
+        if (!payload || typeof payload !== 'object') {
+            return res.status(400).json({ message: 'Invalid payload' });
+        }
+        const entries = Object.entries(payload);
+        for (const [key, val] of entries) {
+            if (key) {
+                const strVal = val !== undefined && val !== null ? String(val) : '';
+                await queryAsync(
+                    'INSERT INTO site_content (content_key, content_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE content_value = ?',
+                    [key, strVal, strVal]
+                );
+            }
+        }
+        res.json({ success: true, message: `Successfully saved ${entries.length} content items` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin: update single site content by key in URL
+app.put('/api/admin/site-content/:key', authMiddleware, isAdmin, (req, res) => {
+    const { key } = req.params;
+    const value = req.body.value !== undefined ? String(req.body.value) : (req.body.content_value !== undefined ? String(req.body.content_value) : '');
+    if (!key) return res.status(400).json({ message: 'key is required' });
+
+    db.query(
+        'INSERT INTO site_content (content_key, content_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE content_value = ?',
+        [key, value, value],
+        (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true, message: 'Content updated', key, value });
+        }
+    );
+});
+
+// Admin: update or insert site content with file upload or JSON
 app.put('/api/admin/site-content', authMiddleware, isAdmin, bannerUpload.single('file'), convertRequestImagesToWebp, (req, res) => {
     const { key, value } = req.body;
     if (!key) return res.status(400).json({ message: 'key is required' });
-    const val = req.file ? `/uploads/${req.file.filename}` : value;
+    const val = req.file ? `/uploads/${req.file.filename}` : (value !== undefined ? String(value) : '');
 
     db.query('SELECT content_value FROM site_content WHERE content_key = ?', [key], (findErr, findRes) => {
         const oldVal = findRes && findRes[0] ? findRes[0].content_value : null;
@@ -5614,6 +5655,21 @@ app.put('/api/admin/site-content', authMiddleware, isAdmin, bannerUpload.single(
             }
         );
     });
+});
+
+app.post('/api/admin/site-content', authMiddleware, isAdmin, bannerUpload.single('file'), convertRequestImagesToWebp, (req, res) => {
+    const { key, value } = req.body;
+    if (!key) return res.status(400).json({ message: 'key is required' });
+    const val = req.file ? `/uploads/${req.file.filename}` : (value !== undefined ? String(value) : '');
+
+    db.query(
+        'INSERT INTO site_content (content_key, content_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE content_value = ?',
+        [key, val, val],
+        (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true, message: 'Content updated', value: val });
+        }
+    );
 });
 
 // Admin: delete site content by key
