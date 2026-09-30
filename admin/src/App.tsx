@@ -33,6 +33,7 @@ import CarHubs from "./pages/CarHubs";
 import VisitorReports from "./pages/VisitorReports";
 import MetaCatalogSettings from "./pages/MetaCatalogSettings";
 import CareerManagement from "./pages/CareerManagement";
+import CouponsPage from "./pages/CouponsPage";
 
 export default function App() {
   return (
@@ -61,6 +62,7 @@ export default function App() {
                   {/* Customer & Sales */}
                   <Route path="/leads" element={<Leads />} />
                   <Route path="/customers" element={<Customers />} />
+                  <Route path="/coupons" element={<CouponsPage />} />
                   <Route path="/sell-requests" element={<SellRequests />} />
                   <Route path="/loan-applications" element={<LoanApplications />} />
                   <Route path="/insurance-requests" element={<InsuranceRequests />} />

@@ -13,7 +13,7 @@ import {
   TableIcon,
   UserCircleIcon,
 } from "../icons";
-import { BookmarkCheck, UserCog, Images, Settings, ShieldCheck, Briefcase, Inbox } from "lucide-react";
+import { BookmarkCheck, UserCog, Images, Settings, ShieldCheck, Briefcase, Inbox, Ticket } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
@@ -99,6 +99,12 @@ const navItems: NavItem[] = [
     name: "Customers",
     path: "/customers",
     permissionKey: "customers",
+  },
+  {
+    icon: <Ticket className="w-5 h-5" />,
+    name: "Coupons & Offers",
+    path: "/coupons",
+    permissionKey: "coupons",
   },
   {
     icon: <UserCog />,

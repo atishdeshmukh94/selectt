@@ -513,12 +513,14 @@ db.getConnection((err, connection) => {
         }
     });
 
-    // Ensure bookings table has maintenance package and loan interest columns
+    // Ensure bookings table has maintenance package, loan interest, and coupon columns
     const bookingColumns = [
         { name: 'maintenance_package', query: 'ALTER TABLE bookings ADD COLUMN maintenance_package TINYINT(1) DEFAULT 0' },
         { name: 'maintenance_plan_type', query: "ALTER TABLE bookings ADD COLUMN maintenance_plan_type VARCHAR(50) DEFAULT NULL" },
         { name: 'maintenance_price', query: 'ALTER TABLE bookings ADD COLUMN maintenance_price DECIMAL(10,2) DEFAULT NULL' },
-        { name: 'interested_in_loan', query: 'ALTER TABLE bookings ADD COLUMN interested_in_loan TINYINT(1) DEFAULT 0' }
+        { name: 'interested_in_loan', query: 'ALTER TABLE bookings ADD COLUMN interested_in_loan TINYINT(1) DEFAULT 0' },
+        { name: 'coupon_code', query: "ALTER TABLE bookings ADD COLUMN coupon_code VARCHAR(50) NULL" },
+        { name: 'discount_amount', query: "ALTER TABLE bookings ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0.00" }
     ];
     bookingColumns.forEach(col => {
         db.query(`SHOW COLUMNS FROM bookings LIKE '${col.name}'`, (err, rows) => {
@@ -528,6 +530,30 @@ db.getConnection((err, connection) => {
                 });
             }
         });
+    });
+
+    // Ensure coupons table exists
+    db.query(`
+        CREATE TABLE IF NOT EXISTS coupons (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            code VARCHAR(50) NOT NULL UNIQUE,
+            title VARCHAR(150) NULL,
+            description TEXT NULL,
+            discount_type ENUM('percentage', 'flat') NOT NULL DEFAULT 'flat',
+            discount_value DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            applies_to ENUM('booking_amount', 'car_price') NOT NULL DEFAULT 'booking_amount',
+            min_order_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            max_discount_amount DECIMAL(10,2) NULL,
+            usage_limit INT NULL,
+            used_count INT NOT NULL DEFAULT 0,
+            valid_from DATETIME NULL,
+            valid_until DATETIME NULL,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+    `, (err) => {
+        if (err) console.error('Error creating coupons table:', err);
     });
 
     // Ensure users table has all required profile & 2FA columns
@@ -1607,6 +1633,8 @@ app.get('/api/cars/:id', (req, res) => {
         }
         res.json(mapCar(car));
     });
+});
+
 function executeSafeCarMutation(queryTemplate, data, extraParams, callback) {
     const fullParams = extraParams && extraParams.length > 0 ? [data, ...extraParams] : [data];
     db.query(queryTemplate, fullParams, (err, result) => {
@@ -3839,7 +3867,9 @@ app.post('/api/bookings', customerAuth, (req, res) => {
         interested_in_loan,
         maintenance_package,
         maintenance_plan_type,
-        maintenance_price
+        maintenance_price,
+        coupon_code,
+        discount_amount
     } = req.body;
 
     if (!car_id || !final_amount) {
@@ -3859,7 +3889,9 @@ app.post('/api/bookings', customerAuth, (req, res) => {
         interested_in_loan: interested_in_loan ? 1 : 0,
         maintenance_package: maintenance_package ? 1 : 0,
         maintenance_plan_type: maintenance_plan_type || null,
-        maintenance_price: maintenance_price || null
+        maintenance_price: maintenance_price || null,
+        coupon_code: coupon_code ? String(coupon_code).trim().toUpperCase() : null,
+        discount_amount: discount_amount ? Number(discount_amount) : 0
     };
 
     db.query('SELECT status FROM cars WHERE id = ?', [car_id], (carErr, carRows) => {
@@ -3888,6 +3920,11 @@ app.post('/api/bookings', customerAuth, (req, res) => {
                 }
                 if (err) return res.status(500).json({ error: err.message });
                 createNotification('PAYMENT', `New car booking created: ${data.booking_no}`, req.user.id, result.insertId);
+
+                // Increment coupon usage count if coupon was applied
+                if (data.coupon_code) {
+                    db.query('UPDATE coupons SET used_count = used_count + 1 WHERE UPPER(code) = UPPER(?)', [data.coupon_code], () => {});
+                }
 
                 // Gallabox WhatsApp Automated Trigger
                 db.query('SELECT c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
@@ -6416,6 +6453,263 @@ app.post(['/api/admin/car-hub-locations/bulk-delete', '/api/car-hub-locations/bu
     db.query('DELETE FROM car_hub_locations WHERE id IN (?)', [ids], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true, message: 'Selected car hubs deleted successfully' });
+    });
+});
+
+// ============================================================
+// COUPONS & OFFERS API
+// ============================================================
+
+// Validate Coupon Code (Public/Customer)
+app.post(['/api/coupons/validate', '/api/coupons/apply'], (req, res) => {
+    const { code, booking_amount = 0, car_price = 0 } = req.body;
+    if (!code || !code.trim()) {
+        return res.status(400).json({ valid: false, message: 'Please enter a coupon code' });
+    }
+
+    const cleanCode = code.trim().toUpperCase();
+    db.query('SELECT * FROM coupons WHERE UPPER(code) = ?', [cleanCode], (err, rows) => {
+        if (err) return res.status(500).json({ valid: false, message: err.message });
+        if (!rows || rows.length === 0) {
+            return res.status(400).json({ valid: false, message: 'Invalid coupon code' });
+        }
+
+        const coupon = rows[0];
+
+        if (!coupon.is_active) {
+            return res.status(400).json({ valid: false, message: 'This coupon code is currently inactive' });
+        }
+
+        const now = new Date();
+        if (coupon.valid_from && new Date(coupon.valid_from) > now) {
+            return res.status(400).json({ valid: false, message: 'This coupon is not valid yet' });
+        }
+        if (coupon.valid_until && new Date(coupon.valid_until) < now) {
+            return res.status(400).json({ valid: false, message: 'This coupon code has expired' });
+        }
+
+        if (coupon.usage_limit !== null && coupon.usage_limit !== undefined && coupon.used_count >= coupon.usage_limit) {
+            return res.status(400).json({ valid: false, message: 'Coupon usage limit has been reached' });
+        }
+
+        const baseAmount = coupon.applies_to === 'car_price' ? (Number(car_price) || 0) : (Number(booking_amount) || 0);
+        const minOrder = Number(coupon.min_order_amount) || 0;
+
+        if (baseAmount < minOrder) {
+            return res.status(400).json({ 
+                valid: false, 
+                message: `Minimum ${coupon.applies_to === 'car_price' ? 'car price' : 'booking amount'} of ₹${minOrder.toLocaleString('en-IN')} required for this coupon` 
+            });
+        }
+
+        let calculatedDiscount = 0;
+        const discountVal = Number(coupon.discount_value) || 0;
+
+        if (coupon.discount_type === 'percentage') {
+            calculatedDiscount = (baseAmount * discountVal) / 100;
+            if (coupon.max_discount_amount && Number(coupon.max_discount_amount) > 0) {
+                calculatedDiscount = Math.min(calculatedDiscount, Number(coupon.max_discount_amount));
+            }
+        } else {
+            calculatedDiscount = discountVal;
+        }
+
+        // For booking amount discounts, ensure at least ₹1 or positive payable
+        if (coupon.applies_to === 'booking_amount') {
+            calculatedDiscount = Math.min(calculatedDiscount, Math.max(0, baseAmount - 1));
+        } else {
+            calculatedDiscount = Math.min(calculatedDiscount, baseAmount);
+        }
+
+        calculatedDiscount = Math.round(calculatedDiscount);
+
+        if (calculatedDiscount <= 0) {
+            return res.status(400).json({ valid: false, message: 'Coupon discount cannot be applied to this amount' });
+        }
+
+        res.json({
+            valid: true,
+            coupon: {
+                id: coupon.id,
+                code: coupon.code,
+                title: coupon.title,
+                description: coupon.description,
+                discount_type: coupon.discount_type,
+                discount_value: Number(coupon.discount_value),
+                applies_to: coupon.applies_to,
+                discount_amount: calculatedDiscount
+            },
+            message: `Coupon "${coupon.code}" applied! You save ₹${calculatedDiscount.toLocaleString('en-IN')}`
+        });
+    });
+});
+
+// Admin List Coupons
+app.get('/api/admin/coupons', authMiddleware, isAdmin, (req, res) => {
+    const { search, status } = req.query;
+    let query = 'SELECT * FROM coupons';
+    const params = [];
+    const conditions = [];
+
+    if (search && search.trim()) {
+        conditions.push('(code LIKE ? OR title LIKE ? OR description LIKE ?)');
+        const s = `%${search.trim()}%`;
+        params.push(s, s, s);
+    }
+
+    if (status === 'active') {
+        conditions.push('is_active = 1');
+    } else if (status === 'inactive') {
+        conditions.push('is_active = 0');
+    }
+
+    if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY id DESC';
+
+    db.query(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// Admin Create Coupon
+app.post('/api/admin/coupons', authMiddleware, isAdmin, (req, res) => {
+    const { 
+        code, 
+        title, 
+        description, 
+        discount_type = 'flat', 
+        discount_value, 
+        applies_to = 'booking_amount',
+        min_order_amount = 0, 
+        max_discount_amount, 
+        usage_limit, 
+        valid_from, 
+        valid_until, 
+        is_active = 1 
+    } = req.body;
+
+    if (!code || !code.trim()) {
+        return res.status(400).json({ error: 'Coupon code is required' });
+    }
+    if (discount_value === undefined || discount_value === null || Number(discount_value) <= 0) {
+        return res.status(400).json({ error: 'Valid discount value is required' });
+    }
+
+    const cleanCode = code.trim().toUpperCase().replace(/\s+/g, '');
+
+    db.query('SELECT id FROM coupons WHERE UPPER(code) = ?', [cleanCode], (checkErr, checkRows) => {
+        if (checkErr) return res.status(500).json({ error: checkErr.message });
+        if (checkRows && checkRows.length > 0) {
+            return res.status(400).json({ error: 'A coupon with this code already exists' });
+        }
+
+        const newCoupon = {
+            code: cleanCode,
+            title: title ? title.trim() : cleanCode,
+            description: description ? description.trim() : null,
+            discount_type: discount_type === 'percentage' ? 'percentage' : 'flat',
+            discount_value: Number(discount_value),
+            applies_to: applies_to === 'car_price' ? 'car_price' : 'booking_amount',
+            min_order_amount: Number(min_order_amount) || 0,
+            max_discount_amount: max_discount_amount ? Number(max_discount_amount) : null,
+            usage_limit: usage_limit ? parseInt(usage_limit, 10) : null,
+            valid_from: valid_from || null,
+            valid_until: valid_until || null,
+            is_active: is_active ? 1 : 0
+        };
+
+        db.query('INSERT INTO coupons SET ?', newCoupon, (insertErr, result) => {
+            if (insertErr) return res.status(500).json({ error: insertErr.message });
+            res.status(201).json({ 
+                success: true, 
+                id: result.insertId, 
+                message: `Coupon ${cleanCode} created successfully` 
+            });
+        });
+    });
+});
+
+// Admin Update Coupon
+app.put('/api/admin/coupons/:id', authMiddleware, isAdmin, (req, res) => {
+    const { id } = req.params;
+    const { 
+        code, 
+        title, 
+        description, 
+        discount_type, 
+        discount_value, 
+        applies_to,
+        min_order_amount, 
+        max_discount_amount, 
+        usage_limit, 
+        valid_from, 
+        valid_until, 
+        is_active 
+    } = req.body;
+
+    if (!code || !code.trim()) {
+        return res.status(400).json({ error: 'Coupon code is required' });
+    }
+
+    const cleanCode = code.trim().toUpperCase().replace(/\s+/g, '');
+
+    db.query('SELECT id FROM coupons WHERE UPPER(code) = ? AND id != ?', [cleanCode, id], (checkErr, checkRows) => {
+        if (checkErr) return res.status(500).json({ error: checkErr.message });
+        if (checkRows && checkRows.length > 0) {
+            return res.status(400).json({ error: 'Another coupon with this code already exists' });
+        }
+
+        const updateData = {
+            code: cleanCode,
+            title: title ? title.trim() : cleanCode,
+            description: description !== undefined ? (description ? description.trim() : null) : undefined,
+            discount_type: discount_type === 'percentage' ? 'percentage' : 'flat',
+            discount_value: Number(discount_value),
+            applies_to: applies_to === 'car_price' ? 'car_price' : 'booking_amount',
+            min_order_amount: Number(min_order_amount) || 0,
+            max_discount_amount: max_discount_amount ? Number(max_discount_amount) : null,
+            usage_limit: usage_limit ? parseInt(usage_limit, 10) : null,
+            valid_from: valid_from || null,
+            valid_until: valid_until || null,
+            is_active: is_active ? 1 : 0
+        };
+
+        db.query('UPDATE coupons SET ? WHERE id = ?', [updateData, id], (updateErr) => {
+            if (updateErr) return res.status(500).json({ error: updateErr.message });
+            res.json({ success: true, message: 'Coupon updated successfully' });
+        });
+    });
+});
+
+// Admin Toggle Status
+app.patch('/api/admin/coupons/:id/toggle-status', authMiddleware, isAdmin, (req, res) => {
+    db.query('UPDATE coupons SET is_active = NOT is_active WHERE id = ?', [req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: 'Coupon status updated successfully' });
+    });
+});
+
+// Admin Delete Coupon
+app.delete('/api/admin/coupons/:id', authMiddleware, isAdmin, (req, res) => {
+    db.query('DELETE FROM coupons WHERE id = ?', [req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: 'Coupon deleted successfully' });
+    });
+});
+
+// Admin Bulk Delete Coupons
+app.post('/api/admin/coupons/bulk-delete', authMiddleware, isAdmin, (req, res) => {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'No coupon IDs provided' });
+    }
+    db.query('DELETE FROM coupons WHERE id IN (?)', [ids], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: `${ids.length} coupon(s) deleted successfully` });
     });
 });
 

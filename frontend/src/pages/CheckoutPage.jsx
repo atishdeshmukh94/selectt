@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
-import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil, Building2 } from 'lucide-react';
+import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil, Building2, Tag, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
@@ -251,8 +251,64 @@ const CheckoutPage = () => {
   const [isMaintenanceDetailsOpen, setIsMaintenanceDetailsOpen] = useState(false);
   const [showCelebrationToast, setShowCelebrationToast] = useState(false);
   const [expandedFeature, setExpandedFeature] = useState(null); // 'warranty' | 'periodic' | 'rsa' | null (collapsed by default)
-  const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [activeBreakdownModal, setActiveBreakdownModal] = useState(null); // 'servicing' | 'fixes' | 'gst' | null
+
+  // Coupon Code State
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState(null);
+  const [couponSuccess, setCouponSuccess] = useState(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  const rawBookingAmount = getBookingAmount(car?.price);
+  const bookingDiscount = (appliedCoupon && appliedCoupon.applies_to === 'booking_amount') ? appliedCoupon.discount_amount : 0;
+  const finalPayableBookingAmount = Math.max(1, rawBookingAmount - bookingDiscount);
+
+  const carDiscount = (appliedCoupon && appliedCoupon.applies_to === 'car_price') ? appliedCoupon.discount_amount : 0;
+  const totalVehicleAmount = Math.max(0, (Number(car?.price) || 0) + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - carDiscount);
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) {
+      setCouponError('Please enter a coupon code');
+      return;
+    }
+    setIsApplyingCoupon(true);
+    setCouponError(null);
+    setCouponSuccess(null);
+
+    try {
+      const res = await fetch(`${API_URL}/api/coupons/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponInput.trim().toUpperCase(),
+          booking_amount: rawBookingAmount,
+          car_price: Number(car?.price) || 0
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        setCouponError(data.message || 'Invalid or expired coupon code');
+        setAppliedCoupon(null);
+      } else {
+        setAppliedCoupon(data.coupon);
+        setCouponSuccess(data.message || `Coupon "${data.coupon.code}" applied!`);
+        setCouponError(null);
+      }
+    } catch (err) {
+      setCouponError('Unable to apply coupon. Please try again.');
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponError(null);
+    setCouponSuccess(null);
+  };
 
   const openTestDrive = (location = 'hub') => {
     setTestDriveLocation(location);
@@ -312,7 +368,7 @@ const CheckoutPage = () => {
     if (isBooking || !razorpayLoaded) return;
     setIsBooking(true);
 
-    const bookingAmount = getBookingAmount(car?.price);
+    const bookingAmount = finalPayableBookingAmount;
 
     try {
       // 1. Create a placeholder booking in backend
@@ -324,12 +380,14 @@ const CheckoutPage = () => {
         },
         body: JSON.stringify({
           car_id: car.id,
-          final_amount: (Number(car.price) || 0) + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0),
+          final_amount: totalVehicleAmount,
           booking_amount: bookingAmount,
           interested_in_loan: interestedInLoan ? 1 : 0,
           maintenance_package: maintenancePackageAdded ? 1 : 0,
           maintenance_plan_type: maintenancePackageAdded ? maintenancePaymentType : null,
-          maintenance_price: maintenancePackageAdded ? (maintenancePaymentType === 'full' ? 11287 : 990) : null
+          maintenance_price: maintenancePackageAdded ? (maintenancePaymentType === 'full' ? 11287 : 990) : null,
+          coupon_code: appliedCoupon ? appliedCoupon.code : null,
+          discount_amount: appliedCoupon ? appliedCoupon.discount_amount : 0
         })
       });
 
@@ -774,7 +832,18 @@ const CheckoutPage = () => {
                       <span>Booking Amount</span>
                     </div>
                     <div className="flex items-center gap-1.5 font-extrabold text-sm sm:text-base text-[#0C1B33] font-price">
-                      <span>₹{getBookingAmount(car?.price).toLocaleString('en-IN')}</span>
+                      {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' ? (
+                        <>
+                          <span className="line-through text-slate-400 text-xs font-normal">
+                            ₹{rawBookingAmount.toLocaleString('en-IN')}
+                          </span>
+                          <span className="text-emerald-600">
+                            ₹{finalPayableBookingAmount.toLocaleString('en-IN')}
+                          </span>
+                        </>
+                      ) : (
+                        <span>₹{rawBookingAmount.toLocaleString('en-IN')}</span>
+                      )}
                       <Pencil size={13} className="text-[#00A38D] cursor-pointer hover:scale-110 transition-transform" />
                     </div>
                   </div>
@@ -864,10 +933,116 @@ const CheckoutPage = () => {
                         </span>
                       </div>
                     )}
+
+                    {/* Applied Coupon Discounts */}
+                    {appliedCoupon && appliedCoupon.applies_to === 'car_price' && (
+                      <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-dashed border-emerald-300">
+                        <span className="flex items-center gap-1.5 text-emerald-700">
+                          <Tag size={13} className="text-emerald-500 shrink-0" />
+                          Coupon Discount ({appliedCoupon.code})
+                        </span>
+                        <span className="font-price font-bold text-emerald-600">
+                          - ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    )}
+
+                    {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
+                      <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-dashed border-emerald-300">
+                        <span className="flex items-center gap-1.5 text-emerald-700">
+                          <Tag size={13} className="text-emerald-500 shrink-0" />
+                          Deposit Discount ({appliedCoupon.code})
+                        </span>
+                        <span className="font-price font-bold text-emerald-600">
+                          - ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* CTA Proceed to Pay inside right card for Desktop */}
-                  <div className="mt-5 pt-4 border-t border-slate-100 space-y-3">
+                  {/* Coupon Code Input & Applied Card (Positioned exactly as requested) */}
+                  <div className="mt-3.5 pt-3 border-t border-slate-100">
+                    {!appliedCoupon ? (
+                      <div className="space-y-1.5">
+                        <div className="relative flex items-center">
+                          <div className="absolute left-3 text-slate-400 pointer-events-none">
+                            <Tag size={14} />
+                          </div>
+                          <input
+                            type="text"
+                            value={couponInput}
+                            onChange={(e) => {
+                              setCouponInput(e.target.value.toUpperCase().replace(/\s+/g, ''));
+                              if (couponError) setCouponError(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleApplyCoupon();
+                              }
+                            }}
+                            placeholder="Enter coupon code"
+                            className="w-full pl-8 pr-20 py-2.5 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-[#00A38D] rounded-xl text-xs font-bold tracking-wider placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00A38D]/20 text-[#0C1B33] uppercase transition-all shadow-2xs"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleApplyCoupon}
+                            disabled={isApplyingCoupon || !couponInput.trim()}
+                            className="absolute right-1.5 top-1.5 bottom-1.5 px-3 bg-[#0C1B33] hover:bg-[#00A38D] disabled:opacity-35 disabled:hover:bg-[#0C1B33] text-white rounded-lg text-[11px] font-black uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center min-w-[58px]"
+                          >
+                            {isApplyingCoupon ? (
+                              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              'Apply'
+                            )}
+                          </button>
+                        </div>
+                        {couponError && (
+                          <p className="text-[11px] text-rose-500 font-semibold flex items-center gap-1 mt-1 animate-in fade-in duration-150">
+                            <AlertCircle size={12} className="shrink-0" />
+                            <span>{couponError}</span>
+                          </p>
+                        )}
+                        {couponSuccess && !couponError && (
+                          <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1 mt-1 animate-in fade-in duration-150">
+                            <Check size={12} strokeWidth={3} className="shrink-0" />
+                            <span>{couponSuccess}</span>
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="p-2.5 rounded-xl bg-emerald-50/90 border border-emerald-200/90 flex items-center justify-between shadow-2xs animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-6 h-6 rounded-md bg-emerald-500 text-white flex items-center justify-center text-xs shadow-xs shrink-0">
+                            <Check size={12} strokeWidth={3} />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono font-black text-xs text-emerald-950 tracking-wider">
+                                {appliedCoupon.code}
+                              </span>
+                              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-900 tracking-wider">
+                                APPLIED
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-emerald-700 font-semibold truncate leading-tight mt-0.5">
+                              You saved ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')}!
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleRemoveCoupon}
+                          className="text-xs font-bold text-rose-500 hover:text-rose-700 hover:underline px-2 py-1 cursor-pointer shrink-0 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* CTA Proceed to Pay inside right card */}
+                  <div className="mt-4 pt-3.5 border-t border-slate-100 space-y-3">
                     <button
                       onClick={handleBooking}
                       disabled={isBooking}
@@ -881,9 +1056,16 @@ const CheckoutPage = () => {
                       ) : (
                         <>
                           <span>PROCEED TO PAY</span>
-                          <span className="font-price font-black">
-                            ₹{getBookingAmount(car?.price).toLocaleString('en-IN')} →
-                          </span>
+                          <div className="flex items-center gap-1.5 font-price">
+                            {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
+                              <span className="line-through text-slate-700/70 text-xs font-bold">
+                                ₹{rawBookingAmount.toLocaleString('en-IN')}
+                              </span>
+                            )}
+                            <span className="font-black">
+                              ₹{finalPayableBookingAmount.toLocaleString('en-IN')} →
+                            </span>
+                          </div>
                         </>
                       )}
                     </button>
