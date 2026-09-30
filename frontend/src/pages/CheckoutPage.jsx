@@ -408,18 +408,78 @@ const CheckoutPage = () => {
                       <span className="text-[#0F172A] font-semibold font-price">+ ₹4,000</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-normal flex items-center gap-1">Insurance <span className="text-slate-400 text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full cursor-help">i</span></span>
+                      <span className="text-slate-600 font-normal flex items-center gap-1.5">
+                        Insurance
+                        <span className="relative group inline-flex items-center">
+                          <button
+                            type="button"
+                            className="w-3.5 h-3.5 rounded-full bg-slate-100 hover:bg-[#00C9AF]/20 hover:text-[#0C1B33] text-slate-400 flex items-center justify-center text-[10px] font-bold cursor-pointer transition-colors"
+                            aria-label="Insurance details"
+                          >
+                            i
+                          </button>
+                          <div className="absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-56 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
+                            <div className="font-heading font-bold text-[11px] sm:text-xs text-[#00C9AF] mb-1">
+                              Insurance Coverage
+                            </div>
+                            <p className="text-[11px] leading-relaxed text-slate-200 font-normal font-sans">
+                              Comprehensive insurance policy transfer assistance, verification, and legal road coverage compliance.
+                            </p>
+                            <div className="absolute top-full left-2 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-[#0C1B33]" />
+                          </div>
+                        </span>
+                      </span>
                       <span className="text-[#0F172A] font-semibold font-price">+ ₹4,420</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-normal flex items-center gap-1">FASTag, fuel & more <span className="text-slate-400 text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full cursor-help">i</span></span>
+                      <span className="text-slate-600 font-normal flex items-center gap-1.5">
+                        FASTag, fuel & more
+                        <span className="relative group inline-flex items-center">
+                          <button
+                            type="button"
+                            className="w-3.5 h-3.5 rounded-full bg-slate-100 hover:bg-[#00C9AF]/20 hover:text-[#0C1B33] text-slate-400 flex items-center justify-center text-[10px] font-bold cursor-pointer transition-colors"
+                            aria-label="FASTag and fuel details"
+                          >
+                            i
+                          </button>
+                          <div className="absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-56 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
+                            <div className="font-heading font-bold text-[11px] sm:text-xs text-[#00C9AF] mb-1">
+                              Delivery Essentials
+                            </div>
+                            <p className="text-[11px] leading-relaxed text-slate-200 font-normal font-sans">
+                              Pre-activated FASTag with balance, complimentary fuel top-up for your drive home, and pre-delivery sanitization.
+                            </p>
+                            <div className="absolute top-full left-2 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-[#0C1B33]" />
+                          </div>
+                        </span>
+                      </span>
                       <div className="flex items-center gap-2">
                         <span className="text-slate-400 line-through text-[12px] font-normal font-price">₹5,700</span>
                         <span className="text-emerald-700 font-medium text-[12px] sm:text-[13px] bg-emerald-50 border border-emerald-150 px-2 py-0.5 rounded-md">Included</span>
                       </div>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-normal flex items-center gap-1">Fixes & upgrades <span className="text-slate-400 text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full cursor-help">i</span></span>
+                      <span className="text-slate-600 font-normal flex items-center gap-1.5">
+                        Fixes & upgrades
+                        <span className="relative group inline-flex items-center">
+                          <button
+                            type="button"
+                            className="w-3.5 h-3.5 rounded-full bg-slate-100 hover:bg-[#00C9AF]/20 hover:text-[#0C1B33] text-slate-400 flex items-center justify-center text-[10px] font-bold cursor-pointer transition-colors"
+                            aria-label="Fixes and upgrades details"
+                          >
+                            i
+                          </button>
+                          <div className="absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-56 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
+                            <div className="font-heading font-bold text-[11px] sm:text-xs text-[#00C9AF] mb-1">
+                              Refurbishment Included
+                            </div>
+                            <p className="text-[11px] leading-relaxed text-slate-200 font-normal font-sans">
+                              200-point inspection repairs, fluid top-ups, mechanical tune-ups, and cosmetic upgrades included at zero extra charge.
+                            </p>
+                            <div className="absolute top-full left-2 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-[#0C1B33]" />
+                          </div>
+                        </span>
+                      </span>
                       <span className="text-emerald-700 font-medium text-[12px] sm:text-[13px] bg-emerald-50 border border-emerald-150 px-2 py-0.5 rounded-md">Included</span>
                     </div>
                   </div>

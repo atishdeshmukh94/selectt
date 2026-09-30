@@ -62,7 +62,25 @@ const PriceSummaryModal = ({ isOpen, onClose, carPrice }) => {
 
               <div className="flex justify-between items-start text-sm">
                 <div className="flex items-center gap-1.5 font-medium text-[#0c1b33]">
-                  Servicing, FASTag, fuel & more <span className="w-3.5 h-3.5 rounded-full border border-slate-300 flex items-center justify-center text-[9px] text-slate-400 cursor-help">i</span>
+                  Servicing, FASTag, fuel & more
+                  <span className="relative group inline-flex items-center">
+                    <button
+                      type="button"
+                      className="w-3.5 h-3.5 rounded-full border border-slate-300 hover:border-[#00C9AF] hover:bg-[#00C9AF]/20 hover:text-[#0C1B33] flex items-center justify-center text-[9px] text-slate-400 cursor-pointer transition-colors"
+                      aria-label="Servicing and FASTag details"
+                    >
+                      i
+                    </button>
+                    <div className="absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-56 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
+                      <div className="font-heading font-bold text-[11px] sm:text-xs text-[#00C9AF] mb-1">
+                        Delivery Essentials
+                      </div>
+                      <p className="text-[11px] leading-relaxed text-slate-200 font-normal font-sans">
+                        Pre-activated FASTag with balance, complimentary fuel top-up for your drive home, and pre-delivery sanitization.
+                      </p>
+                      <div className="absolute top-full left-2 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-[#0C1B33]" />
+                    </div>
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-slate-400 line-through text-xs font-book">₹12,700</span>
@@ -80,7 +98,25 @@ const PriceSummaryModal = ({ isOpen, onClose, carPrice }) => {
 
               <div className="flex justify-between items-start text-sm pb-5 border-b border-dashed border-slate-200">
                 <div className="flex items-center gap-1.5 font-medium text-[#0c1b33]">
-                  Fixes & upgrades <span className="w-3.5 h-3.5 rounded-full border border-slate-300 flex items-center justify-center text-[9px] text-slate-400 cursor-help">i</span>
+                  Fixes & upgrades
+                  <span className="relative group inline-flex items-center">
+                    <button
+                      type="button"
+                      className="w-3.5 h-3.5 rounded-full border border-slate-300 hover:border-[#00C9AF] hover:bg-[#00C9AF]/20 hover:text-[#0C1B33] flex items-center justify-center text-[9px] text-slate-400 cursor-pointer transition-colors"
+                      aria-label="Fixes and upgrades details"
+                    >
+                      i
+                    </button>
+                    <div className="absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-56 sm:w-64 p-3 bg-[#0C1B33] text-white rounded-xl shadow-2xl border border-white/10 text-left z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100">
+                      <div className="font-heading font-bold text-[11px] sm:text-xs text-[#00C9AF] mb-1">
+                        Refurbishment Included
+                      </div>
+                      <p className="text-[11px] leading-relaxed text-slate-200 font-normal font-sans">
+                        200-point inspection repairs, fluid top-ups, mechanical tune-ups, and cosmetic upgrades included at zero extra charge.
+                      </p>
+                      <div className="absolute top-full left-2 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-[#0C1B33]" />
+                    </div>
+                  </span>
                 </div>
                 <span className="text-[#000] font-book">Included</span>
               </div>
