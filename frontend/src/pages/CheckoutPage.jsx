@@ -237,6 +237,7 @@ const CheckoutPage = () => {
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [interestedInLoan, setInterestedInLoan] = useState(false);
   const [mobileLoanPromptVisible, setMobileLoanPromptVisible] = useState(true);
+  const [mobilePromptStep, setMobilePromptStep] = useState(1); // 1: Loan prompt, 2: Test drive prompt
   const [isPriceSummaryOpen, setIsPriceSummaryOpen] = useState(false);
   const [isTestDriveOpen, setIsTestDriveOpen] = useState(false);
   const [testDriveLocation, setTestDriveLocation] = useState('hub');
@@ -1801,51 +1802,116 @@ const CheckoutPage = () => {
         </div>
       )}
 
-      {/* Mobile Sticky Footer Popup for Car Loan (Mobile Only) */}
+      {/* Mobile Sticky Footer Popup for Car Loan & Test Drive (Mobile Only) */}
       {mobileLoanPromptVisible && (
         <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-4 pb-5 bg-white rounded-t-3xl shadow-[0_-10px_35px_rgba(0,0,0,0.18)] border-t border-slate-200/90 animate-in slide-in-from-bottom duration-300">
           <div className="max-w-md mx-auto">
-            <div className="flex items-start gap-3 mb-3.5">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-white shadow-sm shrink-0 font-black text-sm">
-                ₹
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-[#0C1B33] text-[15px] leading-tight mb-1">
-                  Interested in car loan?
-                </h4>
-                <p className="text-xs text-slate-500 leading-snug">
-                  Get your car financed at attractive interest rates.
-                </p>
-              </div>
-            </div>
+            {mobilePromptStep === 1 ? (
+              <div className="animate-in fade-in duration-200">
+                <div className="flex items-start gap-3 mb-3.5">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00C9AF] via-[#00DFB8] to-[#00A884] text-[#0C1B33] flex items-center justify-center shadow-sm shadow-[#00C9AF]/30 shrink-0 font-black text-sm">
+                    ₹
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-[#0C1B33] text-[15px] leading-tight mb-1">
+                      Interested in car loan?
+                    </h4>
+                    <p className="text-xs text-slate-500 leading-snug">
+                      Get your car financed at attractive interest rates.
+                    </p>
+                  </div>
+                </div>
 
-            <div className="flex items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setInterestedInLoan(false);
-                  setMobileLoanPromptVisible(false);
-                }}
-                className="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 font-bold text-xs sm:text-sm transition-all duration-150 cursor-pointer"
-              >
-                No, thanks
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setInterestedInLoan(true);
-                  setMobileLoanPromptVisible(false);
-                }}
-                className="flex-1 py-2.5 px-3 rounded-xl bg-[#00C9AF] hover:bg-[#00b29a] active:scale-[0.98] text-[#0C1B33] font-black text-xs sm:text-sm shadow-md shadow-[#00C9AF]/25 transition-all duration-150 cursor-pointer"
-              >
-                Yes, I'm interested
-              </button>
-            </div>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInterestedInLoan(false);
+                      setMobilePromptStep(2);
+                    }}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 font-bold text-xs sm:text-sm transition-all duration-150 cursor-pointer"
+                  >
+                    No, thanks
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInterestedInLoan(true);
+                      setMobilePromptStep(2);
+                    }}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-[#00C9AF] hover:bg-[#00b29a] active:scale-[0.98] text-[#0C1B33] font-black text-xs sm:text-sm shadow-md shadow-[#00C9AF]/25 transition-all duration-150 cursor-pointer"
+                  >
+                    Yes, I'm interested
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="animate-in fade-in duration-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-slate-500 font-medium">
+                    You haven't taken a test drive yet.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsTestDriveSkipped(true);
+                      setMobileLoanPromptVisible(false);
+                    }}
+                    className="text-xs font-bold text-slate-400 hover:text-slate-700 underline cursor-pointer"
+                  >
+                    Skip
+                  </button>
+                </div>
+
+                <h4 className="font-black text-[#0F172A] text-sm sm:text-base leading-tight">
+                  Where would you prefer to take it?
+                </h4>
+
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileLoanPromptVisible(false);
+                      openTestDrive('doorstep');
+                    }}
+                    className="py-2.5 px-2 rounded-xl bg-gradient-to-r from-[#00A38D] to-[#00C9AF] hover:from-[#008f7b] hover:to-[#00aa93] text-[#0C1B33] font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#00A38D]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <MapPin size={13} className="text-[#0C1B33] shrink-0" />
+                    <span>YOUR LOCATION</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileLoanPromptVisible(false);
+                      openTestDrive('hub');
+                    }}
+                    className="py-2.5 px-2 rounded-xl bg-gradient-to-r from-[#008975] to-[#00A38D] hover:from-[#007362] hover:to-[#008f7b] text-white font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#008975]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <Building2 size={13} className="text-white shrink-0" />
+                    <span>AT SELECTT HUB</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Slider Dots Indicator */}
-            <div className="flex justify-center items-center gap-1 mt-2.5">
-              <span className="w-4 h-1 rounded-full bg-slate-200" />
-              <span className="w-1.5 h-1 rounded-full bg-slate-300" />
+            <div className="flex justify-center items-center gap-1.5 mt-3">
+              <button
+                type="button"
+                onClick={() => setMobilePromptStep(1)}
+                className={`h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
+                  mobilePromptStep === 1 ? 'w-5 bg-[#00A38D]' : 'w-2 bg-slate-200 hover:bg-slate-300'
+                }`}
+                aria-label="Step 1: Car loan prompt"
+              />
+              <button
+                type="button"
+                onClick={() => setMobilePromptStep(2)}
+                className={`h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
+                  mobilePromptStep === 2 ? 'w-5 bg-[#00A38D]' : 'w-2 bg-slate-200 hover:bg-slate-300'
+                }`}
+                aria-label="Step 2: Test drive prompt"
+              />
             </div>
           </div>
         </div>
