@@ -427,7 +427,34 @@ const CheckoutPage = () => {
   return (
     <>
       <PageMeta title={`Checkout - Reserve ${car.year} ${car.make} ${car.model} | Selectt`} description={`Complete booking deposit for your ${car.year} ${car.make} ${car.model}.`} />
-      <div className="bg-[#f9f9f9] min-h-screen pt-4 lg:pt-8 pb-12 font-sans text-slate-800 relative">
+      <div className="bg-[#f9f9f9] min-h-screen pt-0 md:pt-4 lg:pt-8 pb-12 font-sans text-slate-800 relative">
+        {/* Mobile Top Navigation with Bold Back Arrow */}
+        <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 flex items-center justify-between shadow-2xs mb-4">
+          <button
+            type="button"
+            onClick={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate(`/car/${car?.id || carId}`);
+              }
+            }}
+            className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 text-[#0C1B33] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+            aria-label="Back"
+          >
+            <ArrowLeft size={22} strokeWidth={3} className="text-[#0C1B33]" />
+          </button>
+
+          <div className="text-center flex-1 pr-9">
+            <span className="text-xs font-black text-[#0C1B33] uppercase tracking-wider block">
+              Checkout
+            </span>
+            <span className="text-[11px] font-bold text-slate-500 truncate block max-w-[200px] mx-auto">
+              {car?.year} {car?.make} {car?.model}
+            </span>
+          </div>
+        </div>
+
         <div className="max-w-5xl mx-auto px-4 relative z-10">
 
           {/* Progress Bar Header */}

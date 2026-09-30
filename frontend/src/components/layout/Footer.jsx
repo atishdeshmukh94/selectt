@@ -9,6 +9,7 @@ const Footer = () => {
   const navigate = useNavigate();
   const { user, openLoginModal } = useAuth();
   const isCarDetailsPage = location.pathname.startsWith('/car/');
+  const isCheckoutPage = location.pathname.startsWith('/checkout');
   const [frontendFooterLogo, setFrontendFooterLogo] = useState(null);
 
   const [activeSection, setActiveSection] = useState(null);
@@ -76,7 +77,7 @@ const Footer = () => {
     fetchSettings();
   }, []); return (
     <>
-      <footer className="bg-gradient-to-b from-[#0B1528] via-[#050B16] to-[#02050B] text-slate-400 pt-16 pb-24 md:pb-8 font-sans relative overflow-hidden border-t border-white/5">
+      <footer className={`bg-gradient-to-b from-[#0B1528] via-[#050B16] to-[#02050B] text-slate-400 pt-16 pb-24 md:pb-8 font-sans relative overflow-hidden border-t border-white/5 ${isCheckoutPage ? 'hidden md:block' : ''}`}>
         {/* Glow meshes, Orbs, and Columns grid style lines matching Hero but darker */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_80%_68%_at_50%_50%,rgba(0,242,200,0.06)_0%,transparent_58%),radial-gradient(ellipse_50%_50%_at_14%_80%,rgba(0,90,255,0.04)_0%,transparent_60%)]"></div>
@@ -261,7 +262,7 @@ const Footer = () => {
       </footer>
 
       {/* Mobile Bottom Navigation */}
-      {!isCarDetailsPage && (
+      {!isCarDetailsPage && !isCheckoutPage && (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 shadow-lg">
           <div className="flex items-center justify-around h-16 px-2">
             <Link to="/" className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/' ? 'text-[#00C9AF]' : 'text-slate-500'} hover:text-[#00C9AF] transition-colors`}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const MESSAGES = [
   "🎁 Free Doorstep Inspection!",
@@ -9,6 +10,8 @@ const MESSAGES = [
 ];
 
 const WhatsAppChatButton = () => {
+  const location = useLocation();
+  const isCheckoutPage = location.pathname.startsWith('/checkout');
   const [currentText, setCurrentText] = useState('');
   const [messageIndex, setMessageIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -149,7 +152,7 @@ const WhatsAppChatButton = () => {
         }
       `}</style>
 
-      <div className="fixed bottom-[88px] sm:bottom-[92px] md:bottom-6 left-3 sm:left-6 z-[99998] flex items-center select-none wa-chat-font">
+      <div className={`fixed bottom-[88px] sm:bottom-[92px] md:bottom-6 left-3 sm:left-6 z-[99998] flex items-center select-none wa-chat-font ${isCheckoutPage ? 'hidden md:flex' : ''}`}>
         <button
           onClick={handleChatClick}
           onMouseEnter={() => setIsHovered(true)}

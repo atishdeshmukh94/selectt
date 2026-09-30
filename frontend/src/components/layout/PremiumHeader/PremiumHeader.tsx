@@ -58,6 +58,7 @@ export const PremiumHeader: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const isCheckoutPage = location.pathname.startsWith('/checkout');
 
   // Close mobile drawer on outside click/tap
   useEffect(() => {
@@ -287,7 +288,7 @@ export const PremiumHeader: React.FC = () => {
 
   return (
     <header 
-      className={`${styles.headerContainer} ${!isHeaderVisible ? styles.headerHidden : ''}`} 
+      className={`${styles.headerContainer} ${!isHeaderVisible ? styles.headerHidden : ''} ${isCheckoutPage ? '!hidden md:!block' : ''}`} 
       style={{
         background: scrolled ? 'rgba(12, 27, 51, 0.96)' : '#0c1b33',
         transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',

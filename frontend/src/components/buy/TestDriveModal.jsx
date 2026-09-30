@@ -197,12 +197,12 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
             <button
               type="button"
               onClick={handleClose}
-              className="w-8 h-8 rounded-full hover:bg-slate-100 text-[#5B0888] flex items-center justify-center transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-full hover:bg-slate-100 text-[#0C1B33] flex items-center justify-center transition-colors cursor-pointer"
               aria-label="Back"
             >
               <ArrowLeft size={20} strokeWidth={2.5} />
             </button>
-            <h2 className="text-base sm:text-lg font-black text-[#2b0a3d] tracking-tight">
+            <h2 className="text-base sm:text-lg font-black text-[#0C1B33] tracking-tight">
               Schedule Free Test Drive
             </h2>
           </div>
@@ -220,17 +220,17 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar space-y-5">
           {isSuccess ? (
             <div className="flex flex-col items-center justify-center py-8 text-center animate-in zoom-in-95 duration-300">
-              <div className="w-16 h-16 bg-purple-50 text-[#5B0888] rounded-full flex items-center justify-center mb-4 shadow-xs">
+              <div className="w-16 h-16 bg-teal-50 text-[#00A38D] rounded-full flex items-center justify-center mb-4 shadow-xs">
                 <CheckCircle2 size={40} />
               </div>
-              <h3 className="text-xl sm:text-2xl font-black text-[#2b0a3d] mb-1">
+              <h3 className="text-xl sm:text-2xl font-black text-[#0C1B33] mb-1">
                 Test Drive Scheduled! 🎉
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 max-w-sm mx-auto leading-relaxed mb-6">
                 <span className="font-bold text-slate-900 block text-base mt-1">
                   {car?.year} {car?.make} {car?.model} {car?.variant || ''}
                 </span>
-                <span className="font-extrabold text-[#5B0888] block mt-1.5 text-sm">
+                <span className="font-extrabold text-[#00A38D] block mt-1.5 text-sm">
                   {selectedSlot} • {getSelectedDateDisplay()}
                 </span>
                 <span className="text-xs text-slate-500 block mt-1">
@@ -238,7 +238,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                 </span>
               </p>
 
-              <div className="w-full max-w-sm bg-purple-50/70 border border-purple-200/80 rounded-2xl p-3.5 flex items-center gap-2.5 text-[#5B0888] text-xs font-bold mb-6">
+              <div className="w-full max-w-sm bg-teal-50/80 border border-teal-200/80 rounded-2xl p-3.5 flex items-center gap-2.5 text-[#008975] text-xs font-bold mb-6">
                 <ShieldCheck size={18} className="shrink-0" />
                 <span>Our representative will confirm your visit via SMS / WhatsApp.</span>
               </div>
@@ -246,7 +246,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
               <button
                 type="button"
                 onClick={handleClose}
-                className="w-full max-w-sm py-3.5 bg-[#5B0888] hover:bg-[#49056E] text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-900/20 transition-all cursor-pointer"
+                className="w-full max-w-sm py-3.5 bg-gradient-to-r from-[#00C9AF] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] rounded-xl font-black text-sm shadow-md shadow-[#00C9AF]/25 transition-all cursor-pointer"
               >
                 Done
               </button>
@@ -284,16 +284,16 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
               )}
 
               {/* Step-by-Step Vertical Timeline (Matching Spinny layout) */}
-              <div className="relative pl-7 space-y-6 before:absolute before:left-[11px] before:top-2.5 before:bottom-3 before:w-[2px] before:bg-purple-200">
+              <div className="relative pl-7 space-y-6 before:absolute before:left-[11px] before:top-2.5 before:bottom-3 before:w-[2px] before:bg-teal-200">
 
                 {/* STEP 1: Select Location */}
                 <div className="relative">
                   {/* Step Bullet Dot */}
-                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#5B0888] ring-4 ring-white flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
-                    <span className="w-2 h-2 rounded-full bg-white" />
+                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#00C9AF] ring-4 ring-white flex items-center justify-center text-[#0C1B33] text-[10px] font-black shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-[#0C1B33]" />
                   </span>
 
-                  <label className="block text-xs sm:text-sm font-extrabold text-[#2b0a3d] mb-2.5">
+                  <label className="block text-xs sm:text-sm font-extrabold text-[#0C1B33] mb-2.5">
                     Select location
                   </label>
 
@@ -303,7 +303,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                       onClick={() => setSelectedLocation('hub')}
                       className={`py-3 px-3 rounded-xl border-2 text-xs font-black tracking-wider uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 ${
                         selectedLocation === 'hub'
-                          ? 'border-[#5B0888] bg-purple-50/50 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                          ? 'border-[#00C9AF] bg-teal-50/60 text-[#008975] shadow-xs ring-1 ring-[#00C9AF]/30'
                           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                       }`}
                     >
@@ -316,7 +316,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                       onClick={() => setSelectedLocation('doorstep')}
                       className={`py-3 px-3 rounded-xl border-2 text-xs font-black tracking-wider uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 ${
                         selectedLocation === 'doorstep'
-                          ? 'border-[#5B0888] bg-purple-50/50 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                          ? 'border-[#00C9AF] bg-teal-50/60 text-[#008975] shadow-xs ring-1 ring-[#00C9AF]/30'
                           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                       }`}
                     >
@@ -329,11 +329,11 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                 {/* STEP 2: Hub Location or Doorstep Address */}
                 <div className="relative">
                   {/* Step Bullet Dot */}
-                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#5B0888] ring-4 ring-white flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
-                    <span className="w-2 h-2 rounded-full bg-white" />
+                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#00C9AF] ring-4 ring-white flex items-center justify-center text-[#0C1B33] text-[10px] font-black shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-[#0C1B33]" />
                   </span>
 
-                  <label className="block text-xs sm:text-sm font-extrabold text-[#2b0a3d] mb-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-[#0C1B33] mb-2">
                     {selectedLocation === 'hub' ? 'Selectt hub location' : 'Doorstep test drive location'}
                   </label>
 
@@ -341,7 +341,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                     <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-start gap-2">
-                          <MapPin size={16} className="text-[#5B0888] shrink-0 mt-0.5" />
+                          <MapPin size={16} className="text-[#00A38D] shrink-0 mt-0.5" />
                           <div>
                             <h4 className="text-xs sm:text-sm font-bold text-slate-800">
                               {selectedHub.name || car?.hubLocation || 'Selectt Main Hub'}
@@ -358,7 +358,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                         <button
                           type="button"
                           onClick={() => setIsAddressExpanded(!isAddressExpanded)}
-                          className="text-[#5B0888] text-xs font-bold hover:underline cursor-pointer"
+                          className="text-[#00A38D] text-xs font-bold hover:underline cursor-pointer"
                         >
                           {isAddressExpanded ? 'Read Less' : 'Read More'}
                         </button>
@@ -369,7 +369,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                             <button
                               type="button"
                               onClick={() => setIsHubDropdownOpen(!isHubDropdownOpen)}
-                              className="text-xs text-purple-700 font-bold flex items-center gap-1 hover:underline cursor-pointer"
+                              className="text-xs text-[#00A38D] font-bold flex items-center gap-1 hover:underline cursor-pointer"
                             >
                               <span>Change Hub</span>
                               <ChevronDown size={13} className={isHubDropdownOpen ? 'rotate-180' : ''} />
@@ -387,10 +387,10 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                                         setSelectedHubId(String(h.id));
                                         setIsHubDropdownOpen(false);
                                       }}
-                                      className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold hover:bg-purple-50 text-slate-700 flex items-center justify-between"
+                                      className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold hover:bg-teal-50 text-slate-700 flex items-center justify-between"
                                     >
                                       <span className="truncate">{h.name}</span>
-                                      {String(h.id) === String(selectedHubId) && <Check size={14} className="text-[#5B0888]" />}
+                                      {String(h.id) === String(selectedHubId) && <Check size={14} className="text-[#00A38D]" />}
                                     </button>
                                   ))}
                                 </div>
@@ -411,7 +411,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                           placeholder="e.g. Flat 402, Green Avenue, Baner"
                           value={doorstepAddress}
                           onChange={(e) => setDoorstepAddress(e.target.value)}
-                          className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#5B0888] focus:outline-none"
+                          className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#00C9AF] focus:outline-none"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
@@ -425,7 +425,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                             placeholder="e.g. 411045"
                             value={doorstepPincode}
                             onChange={(e) => setDoorstepPincode(e.target.value)}
-                            className="w-full p-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#5B0888] focus:outline-none"
+                            className="w-full p-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#00C9AF] focus:outline-none"
                           />
                         </div>
                         <div className="flex items-end">
@@ -441,12 +441,12 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                 {/* STEP 3: Select Date */}
                 <div className="relative">
                   {/* Step Bullet Dot */}
-                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#5B0888] ring-4 ring-white flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
-                    <span className="w-2 h-2 rounded-full bg-white" />
+                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#00C9AF] ring-4 ring-white flex items-center justify-center text-[#0C1B33] text-[10px] font-black shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-[#0C1B33]" />
                   </span>
 
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs sm:text-sm font-extrabold text-[#2b0a3d]">
+                    <label className="block text-xs sm:text-sm font-extrabold text-[#0C1B33]">
                       Select date
                     </label>
                     <button
@@ -455,7 +455,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                         setShowCalendar(!showCalendar);
                         if (!showCalendar) setSelectedDate('custom');
                       }}
-                      className="text-xs font-bold text-[#5B0888] hover:underline cursor-pointer flex items-center gap-1"
+                      className="text-xs font-bold text-[#00A38D] hover:underline cursor-pointer flex items-center gap-1"
                     >
                       <Calendar size={13} />
                       <span>{showCalendar ? 'Quick dates' : 'See all dates'}</span>
@@ -475,7 +475,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                           }}
                           className={`p-2 sm:p-2.5 rounded-xl border-2 flex flex-col items-center justify-center transition-all cursor-pointer ${
                             isSelected
-                              ? 'border-[#5B0888] bg-purple-50/50 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                              ? 'border-[#00C9AF] bg-teal-50/60 text-[#008975] shadow-xs ring-1 ring-[#00C9AF]/30'
                               : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                           }`}
                         >
@@ -498,14 +498,14 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                       }}
                       className={`p-2 sm:p-2.5 rounded-xl border-2 flex flex-col items-center justify-center transition-all cursor-pointer ${
                         showCalendar
-                          ? 'border-[#5B0888] bg-purple-50/50 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                          ? 'border-[#00C9AF] bg-teal-50/60 text-[#008975] shadow-xs ring-1 ring-[#00C9AF]/30'
                           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                       }`}
                     >
-                      <span className="text-xs font-bold text-purple-700 leading-tight">
+                      <span className="text-xs font-bold text-[#008975] leading-tight">
                         See all
                       </span>
-                      <span className="text-[10px] font-bold text-purple-700 mt-0.5">
+                      <span className="text-[10px] font-bold text-[#008975] mt-0.5">
                         dates
                       </span>
                     </button>
@@ -519,7 +519,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                         min={minDate}
                         value={customDate}
                         onChange={(e) => setCustomDate(e.target.value)}
-                        className="w-full p-2.5 rounded-xl border-2 border-[#5B0888] bg-purple-50/30 text-[#2b0a3d] text-xs font-bold focus:outline-none cursor-pointer"
+                        className="w-full p-2.5 rounded-xl border-2 border-[#00C9AF] bg-teal-50/30 text-[#0C1B33] text-xs font-bold focus:outline-none cursor-pointer"
                       />
                     </div>
                   )}
@@ -528,11 +528,11 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                 {/* STEP 4: Select Time Slot */}
                 <div className="relative">
                   {/* Step Bullet Dot */}
-                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#5B0888] ring-4 ring-white flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
-                    <span className="w-2 h-2 rounded-full bg-white" />
+                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#00C9AF] ring-4 ring-white flex items-center justify-center text-[#0C1B33] text-[10px] font-black shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-[#0C1B33]" />
                   </span>
 
-                  <label className="block text-xs sm:text-sm font-extrabold text-[#2b0a3d] mb-2.5">
+                  <label className="block text-xs sm:text-sm font-extrabold text-[#0C1B33] mb-2.5">
                     Select time slot
                   </label>
 
@@ -546,7 +546,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                           onClick={() => setSelectedSlot(slot)}
                           className={`py-2.5 px-2 rounded-xl border-2 text-xs font-bold transition-all cursor-pointer text-center ${
                             isSelected
-                              ? 'border-[#5B0888] bg-purple-50/60 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                              ? 'border-[#00C9AF] bg-teal-50/60 text-[#008975] shadow-xs ring-1 ring-[#00C9AF]/30'
                               : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                           }`}
                         >
@@ -575,21 +575,21 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
               type="button"
               disabled={isLoading || !selectedSlot}
               onClick={handleConfirm}
-              className={`w-full py-3.5 px-5 rounded-2xl font-black text-white text-sm sm:text-base flex flex-col items-center justify-center transition-all duration-200 shadow-md cursor-pointer ${
+              className={`w-full py-3.5 px-5 rounded-2xl font-black text-sm sm:text-base flex flex-col items-center justify-center transition-all duration-200 shadow-md cursor-pointer ${
                 selectedSlot && !isLoading
-                  ? 'bg-gradient-to-r from-[#F43F5E] via-[#E11D48] to-[#BE123C] hover:from-[#E11D48] hover:to-[#9F1239] active:scale-[0.99] shadow-rose-500/25'
+                  ? 'bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] active:scale-[0.99] shadow-[#00C9AF]/25'
                   : 'bg-slate-300 text-slate-500 cursor-not-allowed'
               }`}
             >
               {isLoading ? (
                 <div className="flex items-center gap-2 py-1">
-                  <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                  <span>Scheduling Test Drive...</span>
+                  <div className="w-4 h-4 border-2 border-[#0C1B33]/40 border-t-[#0C1B33] rounded-full animate-spin" />
+                  <span className="text-[#0C1B33]">Scheduling Test Drive...</span>
                 </div>
               ) : (
                 <>
                   <span className="leading-tight">Pick slot & continue</span>
-                  <span className="text-[11px] font-semibold text-rose-100 leading-tight mt-0.5">
+                  <span className="text-[11px] font-bold text-[#0C1B33]/75 leading-tight mt-0.5">
                     {selectedLocation === 'hub' ? 'Selectt Hub' : 'Doorstep'} on {getSelectedDateDisplay()} {selectedSlot ? `• ${selectedSlot}` : ''}
                   </span>
                 </>
