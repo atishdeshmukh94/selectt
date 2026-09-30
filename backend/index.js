@@ -513,6 +513,55 @@ db.getConnection((err, connection) => {
         }
     });
 
+    // Ensure insurance_requests table exists
+    db.query(`CREATE TABLE IF NOT EXISTS insurance_requests (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        request_no VARCHAR(50) NOT NULL UNIQUE,
+        customer_id INT NULL,
+        vehicle_number VARCHAR(20) NOT NULL,
+        phone VARCHAR(20) NOT NULL,
+        plan_type VARCHAR(100) DEFAULT 'Comprehensive Plan',
+        status ENUM('pending', 'contacted', 'quoted', 'issued', 'rejected') DEFAULT 'pending',
+        notes TEXT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )`, (err) => {
+        if (err) console.error('Error creating insurance_requests table:', err.message);
+    });
+
+    // Ensure leads table exists & has all columns
+    db.query(`CREATE TABLE IF NOT EXISTS leads (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        lead_type VARCHAR(50) DEFAULT 'general_lead',
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) DEFAULT NULL,
+        phone VARCHAR(20) NOT NULL,
+        subject VARCHAR(255) DEFAULT NULL,
+        message TEXT DEFAULT NULL,
+        car_id INT DEFAULT NULL,
+        details TEXT DEFAULT NULL,
+        status VARCHAR(50) DEFAULT 'new',
+        admin_notes TEXT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )`, (err) => {
+        if (err) console.error('Error creating leads table:', err.message);
+        else {
+            db.query("SHOW COLUMNS FROM leads LIKE 'lead_type'", (cErr, rows) => {
+                if (!cErr && rows.length === 0) db.query("ALTER TABLE leads ADD COLUMN lead_type VARCHAR(50) DEFAULT 'general_lead'");
+            });
+            db.query("SHOW COLUMNS FROM leads LIKE 'details'", (cErr, rows) => {
+                if (!cErr && rows.length === 0) db.query("ALTER TABLE leads ADD COLUMN details TEXT NULL");
+            });
+            db.query("SHOW COLUMNS FROM leads LIKE 'admin_notes'", (cErr, rows) => {
+                if (!cErr && rows.length === 0) db.query("ALTER TABLE leads ADD COLUMN admin_notes TEXT NULL");
+            });
+            db.query("SHOW COLUMNS FROM leads LIKE 'subject'", (cErr, rows) => {
+                if (!cErr && rows.length === 0) db.query("ALTER TABLE leads ADD COLUMN subject VARCHAR(255) NULL");
+            });
+        }
+    });
+
     // Ensure variants table exists
     db.query(`CREATE TABLE IF NOT EXISTS variants (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -2480,20 +2529,390 @@ app.delete('/api/sell-requests/:id', authMiddleware, isAdmin, (req, res) => {
 });
 
 // ============================================================
-// LEADS API
+// CENTRALIZED SMTP ADMIN EMAIL NOTIFICATION SERVICE
 // ============================================================
-app.post('/api/leads', (req, res) => {
-    db.query('INSERT INTO leads SET ?', req.body, (err, result) => {
+async function sendAdminEmailNotification({ subject, title, leadType, fields = {}, message = '', directLink = 'https://admin.selectt.in/leads' }) {
+    try {
+        const settingsRows = await queryAsync("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'admin_notification_email', 'smtp_admin_email', 'contact_email', 'site_email', 'smtp_from_name')");
+        const settings = {};
+        if (Array.isArray(settingsRows)) {
+            settingsRows.forEach(row => { settings[row.setting_key] = row.setting_value; });
+        }
+
+        const host = settings.smtp_host || process.env.SMTP_HOST;
+        const port = parseInt(settings.smtp_port || process.env.SMTP_PORT || '587', 10);
+        const user = settings.smtp_user || process.env.SMTP_USER;
+        const pass = settings.smtp_pass || process.env.SMTP_PASS;
+        const fromName = settings.smtp_from_name || 'Selectt Leads';
+        const adminEmail = settings.admin_notification_email || settings.smtp_admin_email || settings.contact_email || settings.site_email || user || 'hello@selectt.in';
+
+        if (!host || !user || !pass) {
+            console.log('ℹ️ [SMTP Service] SMTP credentials not fully configured in site_settings. Skipping email alert.');
+            return { success: false, message: 'SMTP credentials not configured' };
+        }
+
+        const transporter = nodemailer.createTransport({
+            host: host,
+            port: port,
+            secure: port === 465,
+            auth: { user, pass }
+        });
+
+        // Generate table rows for key-value fields
+        const fieldRows = Object.entries(fields)
+            .filter(([_, val]) => val !== undefined && val !== null && val !== '')
+            .map(([key, val]) => `
+                <tr>
+                    <td style="padding: 10px 14px; color: #64748b; font-weight: 600; width: 160px; border-bottom: 1px solid #f1f5f9; text-transform: capitalize; font-size: 13px;">
+                        ${key.replace(/_/g, ' ')}:
+                    </td>
+                    <td style="padding: 10px 14px; color: #0f172a; font-weight: 600; border-bottom: 1px solid #f1f5f9; font-size: 13.5px;">
+                        ${val}
+                    </td>
+                </tr>
+            `).join('');
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head><meta charset="utf-8"></head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 24px;">
+                <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+                    <!-- Header -->
+                    <div style="background-color: #0C1B33; padding: 28px 24px; text-align: center; border-bottom: 3px solid #00C9AF;">
+                        <h1 style="color: #00C9AF; margin: 0 0 8px 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">
+                            ${title || 'New Website Lead Submission'}
+                        </h1>
+                        <span style="background: rgba(0,201,175,0.15); color: #00C9AF; border: 1px solid rgba(0,201,175,0.35); padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; display: inline-block;">
+                            ${leadType || 'Inbound Lead'}
+                        </span>
+                    </div>
+
+                    <!-- Body -->
+                    <div style="padding: 28px 24px;">
+                        <p style="font-size: 14px; color: #475569; margin: 0 0 16px 0; line-height: 1.5;">
+                            A new customer lead/inquiry form has been submitted on <strong>Selectt</strong>:
+                        </p>
+
+                        <table style="width: 100%; border-collapse: collapse; background-color: #f8fafc; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                            ${fieldRows}
+                            <tr>
+                                <td style="padding: 10px 14px; color: #64748b; font-weight: 600; font-size: 13px;">Submitted At:</td>
+                                <td style="padding: 10px 14px; color: #334155; font-size: 13.5px;">${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</td>
+                            </tr>
+                        </table>
+
+                        ${message ? `
+                        <div style="margin: 20px 0; padding: 16px; background-color: #f8fafc; border-left: 4px solid #00C9AF; border-radius: 8px;">
+                            <strong style="color: #0C1B33; display: block; margin-bottom: 6px; font-size: 13px;">Customer Message / Notes:</strong>
+                            <p style="color: #334155; margin: 0; line-height: 1.6; white-space: pre-line; font-size: 13px;">${message}</p>
+                        </div>
+                        ` : ''}
+
+                        <div style="text-align: center; margin: 30px 0 10px 0;">
+                            <a href="${directLink}" target="_blank" style="background-color: #00C9AF; color: #0C1B33; font-weight: 800; font-size: 14px; padding: 14px 32px; border-radius: 12px; text-decoration: none; display: inline-block; box-shadow: 0 4px 14px rgba(0, 201, 175, 0.4);">
+                                ⚡ View & Manage Lead in Admin Panel
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="background-color: #f8fafc; padding: 16px 24px; text-align: center; border-top: 1px solid #f1f5f9;">
+                        <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                            Selectt Automated Notification • Delivered via SMTP Server (${host})
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const mailOptions = {
+            from: `"${fromName}" <${user}>`,
+            to: adminEmail,
+            subject: subject || `⚡ New Lead Alert: ${title || 'Website Form Submission'}`,
+            html: htmlContent
+        };
+
+        const result = await transporter.sendMail(mailOptions);
+        console.log(`✅ [SMTP Service] Notification email delivered to ${adminEmail} (MsgID: ${result.messageId})`);
+        return { success: true, messageId: result.messageId };
+    } catch (err) {
+        console.error('⚠️ [SMTP Service Error]:', err.message);
+        return { success: false, error: err.message };
+    }
+}
+
+// ============================================================
+// UNIFIED LEADS & INQUIRIES API
+// ============================================================
+
+// 1. General Lead Submission (Public / Customer)
+app.post('/api/leads', async (req, res) => {
+    try {
+        const { name, email, phone, message, subject, car_id, lead_type, details } = req.body;
+        if (!name && !phone) {
+            return res.status(400).json({ error: 'Name or phone number is required' });
+        }
+
+        const leadData = {
+            name: name || 'Customer',
+            email: email || null,
+            phone: phone || '',
+            subject: subject || null,
+            message: message || null,
+            car_id: car_id || null,
+            lead_type: lead_type || 'general_lead',
+            details: typeof details === 'object' ? JSON.stringify(details) : (details || null),
+            status: 'new'
+        };
+
+        db.query('INSERT INTO leads SET ?', leadData, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            const leadId = result.insertId;
+
+            createNotification('LEAD', `New Lead received from ${leadData.name} (${leadData.phone})`, null, leadId);
+
+            // Send Admin Email Alert via SMTP
+            sendAdminEmailNotification({
+                subject: `⚡ New Lead: ${leadData.name} (${leadData.lead_type})`,
+                title: `${leadData.lead_type.replace(/_/g, ' ').toUpperCase()} Lead`,
+                leadType: leadData.lead_type,
+                fields: {
+                    'Customer Name': leadData.name,
+                    'Phone Number': leadData.phone,
+                    'Email Address': leadData.email || 'N/A',
+                    'Subject': leadData.subject || 'N/A',
+                    ...(typeof details === 'object' ? details : {})
+                },
+                message: leadData.message,
+                directLink: 'https://admin.selectt.in/leads'
+            }).catch(e => console.error('SMTP Lead Error:', e.message));
+
+            res.status(201).json({ success: true, id: leadId, message: 'Lead submitted successfully' });
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 2. Dealer Partner Application (Public)
+app.post(['/api/partners/apply', '/api/dealer-partners'], async (req, res) => {
+    try {
+        const { mobile, firstName, lastName, dealershipName, state, city, notes } = req.body;
+        if (!mobile || !dealershipName) {
+            return res.status(400).json({ error: 'Mobile number and Dealership name are required' });
+        }
+
+        const fullName = `${firstName || ''} ${lastName || ''}`.trim() || dealershipName;
+        const details = {
+            'Dealership Name': dealershipName,
+            'Contact Person': fullName,
+            'Mobile': mobile,
+            'State': state || 'N/A',
+            'City': city || 'N/A'
+        };
+
+        const leadData = {
+            name: fullName,
+            email: null,
+            phone: mobile,
+            subject: `Dealer Partner Sign Up: ${dealershipName}`,
+            message: notes || `Dealership: ${dealershipName} (${city || ''}, ${state || ''})`,
+            lead_type: 'dealer_partner',
+            details: JSON.stringify(details),
+            status: 'new'
+        };
+
+        db.query('INSERT INTO leads SET ?', leadData, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            const leadId = result.insertId;
+
+            createNotification('LEAD', `New Dealer Partner Application: ${dealershipName} (${mobile})`, null, leadId);
+
+            // Send Admin Email Alert
+            sendAdminEmailNotification({
+                subject: `🤝 New Dealer Partner Application: ${dealershipName} (${city || 'India'})`,
+                title: 'Dealer Partner Sign Up',
+                leadType: 'Dealer Partner Network',
+                fields: {
+                    'Dealership Name': dealershipName,
+                    'Contact Person': fullName,
+                    'Mobile Number': mobile,
+                    'State': state || 'N/A',
+                    'City': city || 'N/A'
+                },
+                message: leadData.message,
+                directLink: 'https://admin.selectt.in/leads'
+            }).catch(e => console.error('SMTP Partner Alert Error:', e.message));
+
+            // WhatsApp Notification to Admin
+            sendAdminWhatsAppAlert('admin_contact', {
+                customer_name: fullName,
+                customer_phone: mobile,
+                topic: `Dealer Partner: ${dealershipName} (${city || ''})`,
+                request_id: `#PARTNER-${leadId}`
+            }).catch(() => {});
+
+            res.status(201).json({ success: true, id: leadId, message: 'Partner application received successfully' });
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 3. Contact Us / Support Inquiry (Public)
+app.post('/api/contact', async (req, res) => {
+    try {
+        const { name, email, phone, subject, message } = req.body;
+        if (!name || (!email && !phone)) {
+            return res.status(400).json({ error: 'Name and at least phone or email are required' });
+        }
+
+        const leadData = {
+            name,
+            email: email || null,
+            phone: phone || '',
+            subject: subject || 'General Inquiry',
+            message: message || '',
+            lead_type: 'contact_us',
+            details: JSON.stringify({ 'Inquiry Topic': subject || 'General Support', 'Message': message || '' }),
+            status: 'new'
+        };
+
+        db.query('INSERT INTO leads SET ?', leadData, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            const leadId = result.insertId;
+
+            createNotification('LEAD', `New Contact Us Message from ${name} (${phone || email})`, null, leadId);
+
+            // Send Admin Email Alert
+            sendAdminEmailNotification({
+                subject: `✉️ New Contact Message: ${name} — ${subject || 'Inquiry'}`,
+                title: 'Contact Us Inquiry',
+                leadType: 'Contact & Support',
+                fields: {
+                    'Full Name': name,
+                    'Email Address': email || 'N/A',
+                    'Phone Number': phone || 'N/A',
+                    'Inquiry Topic': subject || 'General Support'
+                },
+                message: message,
+                directLink: 'https://admin.selectt.in/leads'
+            }).catch(e => console.error('SMTP Contact Alert Error:', e.message));
+
+            res.status(201).json({ success: true, id: leadId, message: 'Message sent successfully' });
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 4. Selectt Buyback Inquiry (Public)
+app.post('/api/buyback/inquiry', async (req, res) => {
+    try {
+        const { name, phone, car_details, message } = req.body;
+        if (!phone) return res.status(400).json({ error: 'Phone number is required' });
+
+        const leadData = {
+            name: name || 'Customer',
+            phone: phone,
+            subject: 'Selectt Buyback Assurance Inquiry',
+            message: message || car_details || 'Customer interested in Selectt Buyback Assurance Plan',
+            lead_type: 'buyback_inquiry',
+            details: JSON.stringify({ 'Car Details': car_details || 'N/A' }),
+            status: 'new'
+        };
+
+        db.query('INSERT INTO leads SET ?', leadData, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            const leadId = result.insertId;
+
+            createNotification('LEAD', `New Buyback Inquiry from ${leadData.name} (${phone})`, null, leadId);
+
+            sendAdminEmailNotification({
+                subject: `🚗 New Buyback Inquiry: ${leadData.name} (${phone})`,
+                title: 'Selectt Buyback Inquiry',
+                leadType: 'Selectt Buyback',
+                fields: {
+                    'Customer Name': leadData.name,
+                    'Phone Number': phone,
+                    'Car Information': car_details || 'N/A'
+                },
+                message: leadData.message,
+                directLink: 'https://admin.selectt.in/leads'
+            }).catch(e => console.error('SMTP Buyback Alert Error:', e.message));
+
+            res.status(201).json({ success: true, id: leadId, message: 'Buyback inquiry received successfully' });
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 5. Admin: Get Unified Leads List
+app.get('/api/admin/leads', authMiddleware, isAdmin, (req, res) => {
+    const query = `
+        SELECT l.*, c.make, c.model, c.year, c.price as car_price, c.image as car_image
+        FROM leads l
+        LEFT JOIN cars c ON l.car_id = c.id
+        ORDER BY l.created_at DESC
+    `;
+    db.query(query, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ id: result.insertId, ...req.body });
+        res.json(results || []);
     });
 });
 
-app.get('/api/leads', authMiddleware, isAdmin, (req, res) => {
-    db.query('SELECT l.*, c.make, c.model FROM leads l LEFT JOIN cars c ON l.car_id = c.id ORDER BY l.created_at DESC', (err, results) => {
+// 6. Admin: Update Lead Status & Admin Notes
+app.put('/api/admin/leads/:id/status', authMiddleware, isAdmin, (req, res) => {
+    const { status, admin_notes } = req.body;
+    const updates = {};
+    if (status) updates.status = status;
+    if (admin_notes !== undefined) updates.admin_notes = admin_notes;
+
+    if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ message: 'No fields to update' });
+    }
+
+    db.query('UPDATE leads SET ? WHERE id = ?', [updates, req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
+        res.json({ success: true, message: 'Lead updated successfully' });
     });
+});
+
+// 7. Admin: Delete Lead
+app.delete('/api/admin/leads/:id', authMiddleware, isAdmin, (req, res) => {
+    db.query('DELETE FROM leads WHERE id = ?', [req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: 'Lead deleted successfully' });
+    });
+});
+
+// 8. Admin: SMTP Live Test Email Sender
+app.post('/api/admin/smtp/test', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const testResult = await sendAdminEmailNotification({
+            subject: '✅ Selectt SMTP Integration Test Email',
+            title: 'SMTP Test Successful',
+            leadType: 'System Diagnostics',
+            fields: {
+                'Status': 'Operational & Connected',
+                'Triggered By': req.user?.email || 'Admin User',
+                'Test Mode': 'Live Verification'
+            },
+            message: 'Congratulations! Your SMTP settings on admin.selectt.in are configured correctly. All inbound leads (Car Insurance, Dealer Partners, Contact Us, Buyback) will be delivered to this inbox automatically.',
+            directLink: 'https://admin.selectt.in/settings/smtp'
+        });
+
+        if (testResult.success) {
+            res.json({ success: true, message: 'Test email delivered successfully! Please check your inbox / spam.' });
+        } else {
+            res.status(400).json({ success: false, message: testResult.error || testResult.message || 'Failed to send test email' });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
 });
 
 // ============================================================
@@ -2878,6 +3297,54 @@ app.post('/api/insurance/request', (req, res) => {
             resolvedCustomerId,
             result.insertId
         );
+
+        // Also record in unified leads table
+        const leadRecord = {
+            name: `Insurance Lead (${cleanVehicle})`,
+            phone: cleanPhone,
+            subject: `Car Insurance Quote: ${cleanVehicle}`,
+            message: `Requested Plan: ${insuranceData.plan_type}. Vehicle Reg: ${cleanVehicle}`,
+            lead_type: 'car_insurance',
+            details: JSON.stringify({
+                'Vehicle Number': cleanVehicle,
+                'Phone': cleanPhone,
+                'Plan Type': insuranceData.plan_type,
+                'Request No': requestNo
+            }),
+            status: 'new'
+        };
+        db.query('INSERT INTO leads SET ?', leadRecord, () => {});
+
+        // Gallabox WhatsApp confirmation to Customer
+        sendGallaboxWhatsAppNotification('insurance_query', cleanPhone, {
+            customer_name: 'Valued Customer',
+            vehicle_no: cleanVehicle,
+            plan_type: insuranceData.plan_type,
+            request_id: requestNo
+        }).catch(() => {});
+
+        // Gallabox WhatsApp alert to Admin
+        sendAdminWhatsAppAlert('admin_insurance', {
+            customer_phone: cleanPhone,
+            vehicle_no: cleanVehicle,
+            plan_type: insuranceData.plan_type,
+            request_id: requestNo
+        }).catch(() => {});
+
+        // SMTP Admin Email Alert
+        sendAdminEmailNotification({
+            subject: `🛡️ New Car Insurance Quote Request: ${cleanVehicle}`,
+            title: 'Car Insurance Quote Request',
+            leadType: 'Car Insurance',
+            fields: {
+                'Vehicle Registration No': cleanVehicle,
+                'Customer Phone': cleanPhone,
+                'Preferred Coverage Plan': insuranceData.plan_type,
+                'Quote Reference No': requestNo
+            },
+            message: `Customer requested a quote for vehicle ${cleanVehicle} with ${insuranceData.plan_type}.`,
+            directLink: 'https://admin.selectt.in/leads'
+        }).catch(e => console.error('SMTP Insurance Alert Error:', e.message));
 
         res.status(201).json({
             success: true,

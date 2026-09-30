@@ -21,6 +21,7 @@ import { Link } from 'react-router-dom';
 import PageMeta from '../components/common/PageMeta';
 import FAQ from '../components/home/FAQ';
 import NeedAssistanceSection from '../components/common/NeedAssistanceSection';
+import { API_URL } from '../config/api';
 
 export default function SelecttPartnersPage() {
   const [formData, setFormData] = useState({
@@ -32,14 +33,35 @@ export default function SelecttPartnersPage() {
     city: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      const res = await fetch(`${API_URL}/api/partners/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || data.message || 'Failed to submit partner application');
+      }
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Partner submission error:', err);
+      setErrorMsg(err.message || 'Error submitting application. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -214,12 +236,19 @@ export default function SelecttPartnersPage() {
                       </div>
                     </div>
 
+                    {errorMsg && (
+                      <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
+                        {errorMsg}
+                      </div>
+                    )}
+
                     <button
                       type="submit"
-                      className="w-full py-3.5 mt-2 bg-[#00C9AF] hover:bg-[#00b29c] text-[#0C1B33] font-bold rounded-xl shadow-xs transition-all text-xs uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2"
+                      disabled={loading}
+                      className="w-full py-3.5 mt-2 bg-[#00C9AF] hover:bg-[#00b29c] disabled:opacity-60 text-[#0C1B33] font-bold rounded-xl shadow-xs transition-all text-xs uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2"
                     >
-                      <span>Submit Partner Application</span>
-                      <ArrowRight size={14} />
+                      <span>{loading ? 'Submitting Application...' : 'Submit Partner Application'}</span>
+                      {!loading && <ArrowRight size={14} />}
                     </button>
 
                     <p className="text-[10px] text-slate-400 font-medium text-center pt-1">

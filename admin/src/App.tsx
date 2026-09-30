@@ -16,6 +16,7 @@ import LoanApplications from "./pages/LoanApplications";
 import InsuranceRequests from "./pages/InsuranceRequests";
 import StaffManagement from "./pages/StaffManagement";
 import TestDriveRequests from "./pages/TestDriveRequests";
+import Leads from "./pages/Leads";
 import CarEditPage from "./pages/CarEditPage";
 import BookedCars from "./pages/BookedCars";
 import Locations from "./pages/Locations";
@@ -58,6 +59,7 @@ export default function App() {
                   <Route path="/brands" element={<BrandModels />} />
 
                   {/* Customer & Sales */}
+                  <Route path="/leads" element={<Leads />} />
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/sell-requests" element={<SellRequests />} />
                   <Route path="/loan-applications" element={<LoanApplications />} />

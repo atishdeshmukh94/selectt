@@ -13,7 +13,7 @@ import {
   TableIcon,
   UserCircleIcon,
 } from "../icons";
-import { BookmarkCheck, UserCog, Images, Settings, ShieldCheck, Briefcase } from "lucide-react";
+import { BookmarkCheck, UserCog, Images, Settings, ShieldCheck, Briefcase, Inbox } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
@@ -81,6 +81,12 @@ const navItems: NavItem[] = [
     name: "Insurance Requests",
     path: "/insurance-requests",
     permissionKey: "insurance_requests",
+  },
+  {
+    icon: <Inbox />,
+    name: "Leads & Enquiries",
+    path: "/leads",
+    permissionKey: "leads",
   },
   {
     icon: <TableIcon />,

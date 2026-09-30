@@ -16,9 +16,12 @@ import {
   ArrowRight
 } from 'lucide-react';
 import PageMeta from '../components/common/PageMeta';
+import { API_URL } from '../config/api';
 
 const ContactUsPage = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -31,9 +34,28 @@ const ContactUsPage = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormSubmitted(true);
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      const res = await fetch(`${API_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || data.message || 'Failed to send message');
+      }
+      setFormSubmitted(true);
+    } catch (err) {
+      console.error('Contact submission error:', err);
+      setErrorMsg(err.message || 'Error sending message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -221,12 +243,19 @@ const ContactUsPage = () => {
                     ></textarea>
                   </div>
 
+                  {errorMsg && (
+                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
+                      {errorMsg}
+                    </div>
+                  )}
+
                   <button
                     type="submit"
-                    className="w-full py-3.5 bg-[#00C9AF] hover:bg-[#00b29c] text-[#0C1B33] font-bold rounded-xl shadow-xs transition-all text-xs uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-[#00C9AF] hover:bg-[#00b29c] disabled:opacity-60 text-[#0C1B33] font-bold rounded-xl shadow-xs transition-all text-xs uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2"
                   >
-                    <span>Send Message</span>
-                    <Send size={13} />
+                    <span>{loading ? 'Sending Message...' : 'Send Message'}</span>
+                    {!loading && <Send size={13} />}
                   </button>
                 </form>
               )}

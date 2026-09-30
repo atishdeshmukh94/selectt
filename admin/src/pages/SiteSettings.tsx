@@ -44,6 +44,9 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
   const [ikTestResult, setIkTestResult] = useState<{ success?: boolean; message?: string } | null>(null);
   const [testingBunny, setTestingBunny] = useState(false);
   const [bunnyTestResult, setBunnyTestResult] = useState<{ success?: boolean; message?: string; name?: string } | null>(null);
+  const [testingSmtp, setTestingSmtp] = useState(false);
+  const [testSmtpEmail, setTestSmtpEmail] = useState("");
+  const [smtpTestResult, setSmtpTestResult] = useState<{ success?: boolean; message?: string } | null>(null);
 
   // Live WhatsApp Test Sender state
   const [testPhone, setTestPhone] = useState("");
@@ -235,6 +238,49 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
     }
   };
 
+  const handleTestSmtp = async () => {
+    try {
+      setTestingSmtp(true);
+      setSmtpTestResult(null);
+      const token = localStorage.getItem("adminToken");
+      const targetEmail = testSmtpEmail.trim() || settings.admin_notification_email || settings.smtp_user;
+      if (!targetEmail) {
+        toast.error("Please enter a destination email address to receive the test email");
+        setTestingSmtp(false);
+        return;
+      }
+      const res = await fetch(`${API_URL}/api/admin/smtp/test`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          smtp_host: settings.smtp_host,
+          smtp_port: settings.smtp_port,
+          smtp_user: settings.smtp_user,
+          smtp_pass: settings.smtp_pass,
+          smtp_from_email: settings.smtp_from_email,
+          smtp_from_name: settings.smtp_from_name,
+          test_to_email: targetEmail
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSmtpTestResult({ success: true, message: data.message });
+        toast.success(data.message || "Test email sent successfully!");
+      } else {
+        setSmtpTestResult({ success: false, message: data.error || "Failed to send test email" });
+        toast.error(data.error || "Failed to send test email");
+      }
+    } catch (err: any) {
+      setSmtpTestResult({ success: false, message: err.message });
+      toast.error("SMTP test failed: " + err.message);
+    } finally {
+      setTestingSmtp(false);
+    }
+  };
+
   const handleChange = (key: string, value: string) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
@@ -365,51 +411,139 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
         )}
 
         {activeSection === "smtp" && (
-          <ComponentCard title="SMTP & Email Settings">
-            <form onSubmit={handleSave} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label>SMTP Host</Label>
-                  <Input
-                    type="text"
-                    placeholder="smtp.example.com"
-                    value={settings.smtp_host || ""}
-                    onChange={(e) => handleChange("smtp_host", e.target.value)}
-                  />
+          <div className="space-y-6">
+            <ComponentCard title="SMTP & Email Server Configuration">
+              <form onSubmit={handleSave} className="space-y-6">
+                <div className="p-4 bg-blue-50/70 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl text-sm text-blue-800 dark:text-blue-300">
+                  <p className="font-semibold mb-1">⚡ Automatic Email Lead Alerts Enabled</p>
+                  <p className="text-xs text-blue-700 dark:text-blue-400">
+                    When customers submit any form on the website (Car Insurance Quote, Dealer Partner Signup, Contact Us, Buyback inquiries, etc.), an instant styled HTML email will be dispatched to your Admin Notification Email using the SMTP server configured below.
+                  </p>
                 </div>
-                <div>
-                  <Label>SMTP Port</Label>
-                  <Input
-                    type="number"
-                    placeholder="587"
-                    value={settings.smtp_port || ""}
-                    onChange={(e) => handleChange("smtp_port", e.target.value)}
-                  />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label>SMTP Host</Label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. smtp.gmail.com or mail.selectt.in"
+                      value={settings.smtp_host || ""}
+                      onChange={(e) => handleChange("smtp_host", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>SMTP Port</Label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 587 or 465"
+                      value={settings.smtp_port || ""}
+                      onChange={(e) => handleChange("smtp_port", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>SMTP Username</Label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. user@example.com or support@selectt.in"
+                      value={settings.smtp_user || ""}
+                      onChange={(e) => handleChange("smtp_user", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>SMTP Password</Label>
+                    <Input
+                      type="password"
+                      placeholder="App Password or SMTP Password"
+                      value={settings.smtp_pass || ""}
+                      onChange={(e) => handleChange("smtp_pass", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Admin Notification Email (Receives Lead & Form Alerts)</Label>
+                    <Input
+                      type="email"
+                      placeholder="e.g. admin@selectt.in, leads@selectt.in"
+                      value={settings.admin_notification_email || ""}
+                      onChange={(e) => handleChange("admin_notification_email", e.target.value)}
+                    />
+                    <p className="text-[11px] text-gray-500 mt-1">Leave empty to fall back to SMTP Username or Contact Email.</p>
+                  </div>
+                  <div>
+                    <Label>Sender Name (From Name)</Label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Selectt Cars Portal"
+                      value={settings.smtp_from_name || ""}
+                      onChange={(e) => handleChange("smtp_from_name", e.target.value)}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label>Sender Email Address (From Address)</Label>
+                    <Input
+                      type="email"
+                      placeholder="e.g. no-reply@selectt.in"
+                      value={settings.smtp_from_email || ""}
+                      onChange={(e) => handleChange("smtp_from_email", e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label>SMTP Username</Label>
-                  <Input
-                    type="text"
-                    placeholder="user@example.com"
-                    value={settings.smtp_user || ""}
-                    onChange={(e) => handleChange("smtp_user", e.target.value)}
-                  />
+
+                <div className="flex justify-end pt-2">
+                  <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save SMTP Settings"}</Button>
                 </div>
-                <div>
-                  <Label>SMTP Password</Label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••••••••••"
-                    value={settings.smtp_pass || ""}
-                    onChange={(e) => handleChange("smtp_pass", e.target.value)}
-                  />
+              </form>
+            </ComponentCard>
+
+            {/* Test Email Dispatcher */}
+            <ComponentCard title="🧪 Test SMTP Connection & Email Dispatch">
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Send a live test email directly using the current SMTP configuration to verify delivery before customers submit leads.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <Input
+                      type="email"
+                      placeholder="Enter destination email for test (e.g. your personal email)"
+                      value={testSmtpEmail}
+                      onChange={(e) => setTestSmtpEmail(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleTestSmtp}
+                    disabled={testingSmtp}
+                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 whitespace-nowrap text-sm"
+                  >
+                    {testingSmtp ? (
+                      <>
+                        <span className="animate-spin text-base">⏳</span> Sending Test...
+                      </>
+                    ) : (
+                      <>
+                        <span>✉️</span> Send Test Email
+                      </>
+                    )}
+                  </button>
                 </div>
+
+                {smtpTestResult && (
+                  <div className={`p-4 rounded-xl border text-sm flex items-start gap-3 ${
+                    smtpTestResult.success 
+                      ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
+                      : "bg-rose-50 dark:bg-rose-900/20 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300"
+                  }`}>
+                    <span className="text-xl">{smtpTestResult.success ? "✅" : "❌"}</span>
+                    <div>
+                      <p className="font-semibold">{smtpTestResult.success ? "SMTP Test Passed" : "SMTP Test Failed"}</p>
+                      <p className="text-xs mt-0.5 opacity-90">{smtpTestResult.message}</p>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="flex justify-end">
-                <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save Changes"}</Button>
-              </div>
-            </form>
-          </ComponentCard>
+            </ComponentCard>
+          </div>
         )}
         {activeSection === "maintenance" && (
           <ComponentCard title="Site Maintenance Mode">
