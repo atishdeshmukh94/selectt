@@ -513,6 +513,33 @@ db.getConnection((err, connection) => {
         }
     });
 
+    // Ensure users table has all required profile & 2FA columns
+    db.query("SHOW COLUMNS FROM users LIKE 'phone'", (err, rows) => {
+        if (!err && rows.length === 0) {
+            db.query("ALTER TABLE users ADD COLUMN phone VARCHAR(20) NULL");
+        }
+    });
+    db.query("SHOW COLUMNS FROM users LIKE 'job_title'", (err, rows) => {
+        if (!err && rows.length === 0) {
+            db.query("ALTER TABLE users ADD COLUMN job_title VARCHAR(100) NULL");
+        }
+    });
+    db.query("SHOW COLUMNS FROM users LIKE 'permissions'", (err, rows) => {
+        if (!err && rows.length === 0) {
+            db.query("ALTER TABLE users ADD COLUMN permissions TEXT NULL");
+        }
+    });
+    db.query("SHOW COLUMNS FROM users LIKE 'totp_secret'", (err, rows) => {
+        if (!err && rows.length === 0) {
+            db.query("ALTER TABLE users ADD COLUMN totp_secret VARCHAR(64) NULL");
+        }
+    });
+    db.query("SHOW COLUMNS FROM users LIKE 'two_factor_enabled'", (err, rows) => {
+        if (!err && rows.length === 0) {
+            db.query("ALTER TABLE users ADD COLUMN two_factor_enabled TINYINT(1) DEFAULT 0");
+        }
+    });
+
     // Ensure insurance_requests table exists
     db.query(`CREATE TABLE IF NOT EXISTS insurance_requests (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -4677,8 +4704,129 @@ app.post(['/api/locations/bulk-delete', '/api/admin/locations/bulk-delete'], aut
 });
 
 // ============================================================
-// ADMIN PROFILE & AUTH
+// ADMIN PROFILE & USER MANAGEMENT
 // ============================================================
+
+// Get Current User Profile
+app.get('/api/profile', authMiddleware, (req, res) => {
+    db.query('SELECT id, first_name, last_name, email, phone, role, image, job_title, permissions, two_factor_enabled, totp_secret, created_at FROM users WHERE id = ?', [req.user.id], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (results.length === 0) return res.status(404).json({ message: 'User not found' });
+        res.json(results[0]);
+    });
+});
+
+// Update Current User Profile
+app.put('/api/profile', authMiddleware, async (req, res) => {
+    try {
+        const { first_name, last_name, email, phone, job_title, password } = req.body;
+        const updates = {};
+        if (first_name !== undefined) updates.first_name = first_name;
+        if (last_name !== undefined) updates.last_name = last_name;
+        if (email !== undefined) updates.email = email.toLowerCase().trim();
+        if (phone !== undefined) updates.phone = phone;
+        if (job_title !== undefined) updates.job_title = job_title;
+        
+        if (password && String(password).trim().length > 0) {
+            const salt = await bcrypt.genSalt(10);
+            updates.password = await bcrypt.hash(String(password).trim(), salt);
+        }
+
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ message: 'No fields provided for update' });
+        }
+
+        db.query('UPDATE users SET ? WHERE id = ?', [updates, req.user.id], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            db.query('SELECT id, first_name, last_name, email, phone, role, image, job_title, permissions, two_factor_enabled, totp_secret FROM users WHERE id = ?', [req.user.id], (err2, rows) => {
+                res.json({ message: 'Profile updated successfully', user: rows?.[0] });
+            });
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin: Get all staff/admin users
+app.get('/api/users', authMiddleware, isAdmin, (req, res) => {
+    db.query('SELECT id, first_name, last_name, email, phone, role, image, job_title, permissions, two_factor_enabled, totp_secret, created_at FROM users ORDER BY id ASC', (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// Admin: Create new staff/admin user
+app.post('/api/users', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { first_name, last_name, email, phone, password, role, permissions, job_title } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const newUser = {
+            first_name: first_name || '',
+            last_name: last_name || '',
+            email: email.toLowerCase().trim(),
+            phone: phone || '',
+            password: hashedPassword,
+            role: role || 'staff',
+            job_title: job_title || '',
+            permissions: Array.isArray(permissions) ? JSON.stringify(permissions) : (permissions || '[]')
+        };
+
+        db.query('INSERT INTO users SET ?', newUser, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ id: result.insertId, ...newUser, password: undefined, message: 'User created successfully' });
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin: Update user profile
+app.put('/api/users/:id', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { first_name, last_name, email, phone, password, role, permissions, job_title } = req.body;
+        const updates = {};
+        if (first_name !== undefined) updates.first_name = first_name;
+        if (last_name !== undefined) updates.last_name = last_name;
+        if (email !== undefined) updates.email = email.toLowerCase().trim();
+        if (phone !== undefined) updates.phone = phone;
+        if (role !== undefined) updates.role = role;
+        if (job_title !== undefined) updates.job_title = job_title;
+        if (permissions !== undefined) {
+            updates.permissions = Array.isArray(permissions) ? JSON.stringify(permissions) : String(permissions);
+        }
+        if (password && String(password).trim().length > 0) {
+            const salt = await bcrypt.genSalt(10);
+            updates.password = await bcrypt.hash(String(password).trim(), salt);
+        }
+
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ message: 'No fields provided for update' });
+        }
+
+        db.query('UPDATE users SET ? WHERE id = ?', [updates, req.params.id], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: 'User updated successfully' });
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin: Delete user
+app.delete('/api/users/:id', authMiddleware, isAdmin, (req, res) => {
+    if (parseInt(req.params.id) === req.user.id) {
+        return res.status(400).json({ message: 'You cannot delete your own account' });
+    }
+    db.query('DELETE FROM users WHERE id = ?', [req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'User deleted successfully' });
+    });
+});
 
 app.post('/api/upload-avatar', authMiddleware, upload.single('avatar'), convertRequestImagesToWebp, (req, res) => {
     if (!req.file) {

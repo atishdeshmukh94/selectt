@@ -72,6 +72,7 @@ export default function UserInfoCard({ profile, onSave }: Props) {
             first_name: formData.first_name,
             last_name: formData.last_name,
             email: formData.email,
+            phone: formData.phone,
           });
         }
         onSave();
