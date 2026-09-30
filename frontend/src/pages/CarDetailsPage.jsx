@@ -746,11 +746,11 @@ const CarDetailsPage = () => {
                       {shortenLocation(car.location || car.hubLocation || 'Spinny Mini Car Hub, Rohini')}
                     </span>
                   </div>
-                  <a href="tel:+919876543210" className="flex items-center gap-2 cursor-pointer group hover:-translate-y-1 transition-all duration-300">
-                    <div className="w-10 h-10 bg-[#e6faf7] border border-[#00C9AF]/60 rounded-full flex items-center justify-center text-[#00C9AF] shadow-[0_0_18px_rgba(0,196,175,0.4)] animate-pulse group-hover:bg-[#00C9AF] group-hover:text-[#0A1C3A] transition-colors">
+                  <a href="tel:+919876543210" className="flex items-center gap-2 cursor-pointer group hover:-translate-y-0.5 transition-all duration-300">
+                    <div className="w-10 h-10 bg-[#e6faf7] border border-[#00C9AF]/60 rounded-full flex items-center justify-center text-[#00A38D] group-hover:bg-[#00C9AF]/25 group-hover:text-[#008270] shadow-[0_0_18px_rgba(0,196,175,0.25)] transition-all">
                       <Phone size={18} className="animate-phone-ring" />
                     </div>
-                    <span className="text-xs font-bold text-[#00C9AF] uppercase tracking-wider group-hover:text-[#00B4A0] transition-colors">Call us</span>
+                    <span className="text-xs font-bold text-[#00A38D] group-hover:text-[#008270] transition-colors">Call us</span>
                   </a>
                 </div>
 

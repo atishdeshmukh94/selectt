@@ -92,14 +92,14 @@ const RecentlyViewed = ({
           <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700 max-w-[80px] md:max-w-none" />
         </h2>
 
-        {/* Navigation Arrows (Desktop) */}
+        {/* Navigation Arrows (Desktop - Reveal on Hover) */}
         {currentIndex > 0 && (
           <button 
             onClick={prevSlide}
             aria-label="Previous cars"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:text-[#00C9AF] hover:scale-110 transition-all duration-300 cursor-pointer hidden lg:flex opacity-90 group-hover/section:opacity-100"
+            className="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-white hover:text-[#00C9AF] hover:scale-110 transition-all duration-300 cursor-pointer hidden lg:flex opacity-0 pointer-events-none group-hover/section:opacity-100 group-hover/section:pointer-events-auto"
           >
-            <ChevronLeft size={22} />
+            <ChevronLeft size={22} strokeWidth={2.5} />
           </button>
         )}
         
@@ -107,9 +107,9 @@ const RecentlyViewed = ({
           <button 
             onClick={nextSlide}
             aria-label="Next cars"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:text-[#00C9AF] hover:scale-110 transition-all duration-300 cursor-pointer hidden lg:flex opacity-90 group-hover/section:opacity-100"
+            className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-white hover:text-[#00C9AF] hover:scale-110 transition-all duration-300 cursor-pointer hidden lg:flex opacity-0 pointer-events-none group-hover/section:opacity-100 group-hover/section:pointer-events-auto"
           >
-            <ChevronRight size={22} />
+            <ChevronRight size={22} strokeWidth={2.5} />
           </button>
         )}
 

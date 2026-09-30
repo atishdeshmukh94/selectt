@@ -251,24 +251,26 @@ const NewTestimonials = () => {
             <button
               onClick={() => scroll(-1)}
               disabled={!canScrollLeft}
-              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer ${!canScrollLeft
-                ? 'border-white/10 text-slate-600 bg-white/5 cursor-not-allowed'
-                : 'border-white/20 text-white hover:text-[#00C9AF] hover:border-[#00C9AF] bg-[#00C9AF]/10 hover:bg-[#00C9AF]/20 active:scale-95'
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm ${!canScrollLeft
+                ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-50'
+                : 'bg-[#0C1B33] text-white hover:bg-[#00C9AF] hover:text-[#0C1B33] active:scale-95'
                 }`}
               title="Previous Videos"
+              aria-label="Previous Videos"
             >
-              <ChevronLeft size={18} strokeWidth={2.5} />
+              <ChevronLeft size={20} strokeWidth={2.5} />
             </button>
             <button
               onClick={() => scroll(1)}
               disabled={!canScrollRight}
-              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer ${!canScrollRight
-                ? 'border-white/10 text-slate-600 bg-white/5 cursor-not-allowed'
-                : 'border-white/20 text-white hover:text-[#00C9AF] hover:border-[#00C9AF] bg-[#00C9AF]/10 hover:bg-[#00C9AF]/20 active:scale-95'
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm ${!canScrollRight
+                ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-50'
+                : 'bg-[#0C1B33] text-white hover:bg-[#00C9AF] hover:text-[#0C1B33] active:scale-95'
                 }`}
               title="Next Videos"
+              aria-label="Next Videos"
             >
-              <ChevronRight size={18} strokeWidth={2.5} />
+              <ChevronRight size={20} strokeWidth={2.5} />
             </button>
           </div>
         </div>

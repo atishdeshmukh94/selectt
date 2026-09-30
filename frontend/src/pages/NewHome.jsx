@@ -1569,8 +1569,8 @@ const NewHome = () => {
                     onClick={() => navigate(slide.btnLink)}
                     className="bg-gradient-to-r from-[#00C9AF] via-[#00E4C0] to-[#00C9AF] hover:from-white hover:to-white text-[#0C1B33] px-4.5 py-2.5 rounded-full font-heading font-semibold text-xs sm:text-sm shadow-[0_6px_20px_rgba(0,201,175,0.45)] transition-all active:scale-95 cursor-pointer inline-flex items-center gap-1.5 group shrink-0"
                   >
-                    <span>{slide.btnText}</span>
-                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    <span className="text-[#0C1B33] font-bold">{slide.btnText}</span>
+                    <ArrowRight size={14} className="text-[#0C1B33] group-hover:translate-x-1 transition-transform" />
                   </button>
 
                   {/* Quick Access Secondary Buttons */}

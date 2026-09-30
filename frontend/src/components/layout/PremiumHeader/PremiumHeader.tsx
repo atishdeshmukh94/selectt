@@ -53,9 +53,26 @@ export const PremiumHeader: React.FC = () => {
 
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
   const mobileSearchContainerRef = React.useRef<HTMLDivElement>(null);
+  const mobileDrawerRef = React.useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Close mobile drawer on outside click/tap
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      if (mobileDrawerRef.current && !mobileDrawerRef.current.contains(e.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [mobileMenuOpen]);
 
   // Typing placeholder animation state
   const searchWords = ["brands", "models", "budget", "fuel type", "transmission", "year", "km driven"];
@@ -902,10 +919,18 @@ export const PremiumHeader: React.FC = () => {
       {mobileMenuOpen && (
         <>
           {/* Backdrop Overlay */}
-          <div className={styles.mobileMenuBackdrop} onClick={() => setMobileMenuOpen(false)} />
+          <div 
+            className={styles.mobileMenuBackdrop} 
+            onClick={() => setMobileMenuOpen(false)}
+            onTouchStart={() => setMobileMenuOpen(false)} 
+          />
 
           {/* Slide-In White Drawer Canvas */}
-          <div className={`${styles.mobileMenu} font-['Plus_Jakarta_Sans',sans-serif]`} aria-label="Mobile Navigation Menu">
+          <div 
+            ref={mobileDrawerRef}
+            className={`${styles.mobileMenu} font-['Plus_Jakarta_Sans',sans-serif]`} 
+            aria-label="Mobile Navigation Menu"
+          >
             
             {/* Top User Profile Header (Dark Navy Theme) */}
             <div className="bg-gradient-to-r from-[#0C1B33] via-[#162947] to-[#0A162A] text-white p-4 sm:p-5 flex items-center justify-between shadow-md">
