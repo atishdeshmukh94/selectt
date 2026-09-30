@@ -299,12 +299,12 @@ const CarCard = ({ car, lightBg = false }) => {
               </span>
             </div>
 
-            <div className={`px-3.5 py-2.5 rounded-xl text-[12px] font-heading font-bold uppercase tracking-wider transition-all duration-300 shrink-0 shadow-xs flex items-center gap-1 cursor-pointer ${lightBg 
-              ? 'bg-[#0C1B33] text-white group-hover:bg-[#00C9AF] group-hover:text-[#0C1B33]' 
-              : 'bg-[#00C9AF] text-[#0C1B33] group-hover:bg-white group-hover:text-[#0C1B33]'
+            <div className={`px-3.5 py-2.5 rounded-xl text-[12px] font-heading font-semibold transition-all duration-300 shrink-0 shadow-xs flex items-center gap-1 cursor-pointer ${lightBg 
+              ? 'bg-[#0C1B33] text-white hover:bg-[#00C9AF] hover:text-[#0C1B33]' 
+              : 'bg-[#00C9AF] text-[#0C1B33] hover:bg-white hover:text-[#0C1B33]'
             }`}>
-              <span>View</span>
-              <ArrowUpRight size={14} className="stroke-[2.5] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <span className={lightBg ? 'text-white' : 'text-[#0C1B33]'}>View</span>
+              <ArrowUpRight size={14} className={`stroke-[2.5] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${lightBg ? 'text-white' : 'text-[#0C1B33]'}`} />
             </div>
           </div>
         </div>

@@ -1063,7 +1063,7 @@ const CarDetailsPage = () => {
                       </div>
                       <button
                         onClick={scrollToEMI}
-                        className="bg-[#00C9AF] text-[#0C1B33] px-3.5 py-2 rounded-xl font-sans font-bold text-[11px] shadow-xs hover:bg-[#00B49F] transition-all uppercase tracking-wider cursor-pointer"
+                        className="bg-[#00C9AF] text-[#0C1B33] px-3.5 py-2 rounded-xl font-heading font-semibold text-[11px] sm:text-xs shadow-xs hover:bg-[#00B49F] transition-all cursor-pointer"
                       >
                         Calculate your EMI
                       </button>
@@ -1079,18 +1079,18 @@ const CarDetailsPage = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={handleBookNow}
-                      className="relative overflow-hidden bg-[#00C9AF] text-[#0C1B33] py-3 rounded-xl font-sans font-bold text-xs shadow-xl shadow-[#00C9AF]/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex flex-col items-center justify-center uppercase tracking-wider group cursor-pointer"
+                      className="relative overflow-hidden bg-[#00C9AF] text-[#0C1B33] py-3 rounded-xl font-heading font-semibold text-xs sm:text-sm shadow-xl shadow-[#00C9AF]/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex flex-col items-center justify-center group cursor-pointer"
                     >
                       {/* Shimmer/glare animation */}
                       <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
-                      <span>BOOK NOW</span>
-                      <span className="text-[8.5px] font-sans font-bold opacity-75">100% refundable</span>
+                      <span>Book now</span>
+                      <span className="text-[9px] font-sans font-medium opacity-75">100% refundable</span>
                     </button>
                     <button
                       onClick={handleTestDriveClick}
-                      className="bg-[#EF4444] text-white hover:bg-[#DC2626] border border-transparent shadow-lg shadow-[#EF4444]/25 py-3 rounded-xl font-sans font-bold text-xs hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center uppercase tracking-wider cursor-pointer"
+                      className="bg-[#EF4444] text-white hover:bg-[#DC2626] border border-transparent shadow-lg shadow-[#EF4444]/25 py-3 rounded-xl font-heading font-semibold text-xs sm:text-sm hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer"
                     >
-                      FREE TEST DRIVE
+                      Free test drive
                     </button>
                   </div>
 

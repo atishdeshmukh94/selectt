@@ -139,10 +139,11 @@ const QualityReport = ({ report, theme = 'white' }) => {
               <span className={`font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>(whichever comes first post delivery)</span>
             </p>
             <button
+              type="button"
               onClick={() => report?.fullReportUrl && window.open(report.fullReportUrl, '_blank')}
-              className={`w-full px-6 py-2.5 border rounded-2xl font-black text-[10px] md:text-[11px] uppercase tracking-widest cursor-pointer transition-all shadow-sm outline-none ${theme === 'dark' ? 'bg-[#00C9AF] border-transparent text-[#0C1B33] hover:bg-white hover:text-[#0C1B33]' : 'bg-[#0c1b33] border-transparent text-white hover:bg-[#00C9AF] hover:text-[#0C1B33]'}`}
+              className={`w-full px-6 py-2.5 rounded-2xl font-heading font-semibold text-xs md:text-sm cursor-pointer transition-all shadow-sm outline-none flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-[#00C9AF] text-[#0C1B33] hover:bg-white' : 'bg-[#0C1B33] text-white hover:bg-[#00C9AF] hover:text-[#0C1B33]'}`}
             >
-              View full report
+              <span className={theme === 'dark' ? 'text-[#0C1B33]' : 'text-white'}>View full report</span>
             </button>
           </div>
 

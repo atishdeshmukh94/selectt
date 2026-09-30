@@ -85,14 +85,7 @@ const FALLBACK_CARS = [
   }
 ];
 
-const FOMO_SOLD_CARS = [
-  { name: 'Tata Nexon EV', price: '16.8' },
-  { name: 'Kia Seltos', price: '15.9' },
-  { name: 'MG Hector', price: '18.2' },
-  { name: 'Hyundai Creta', price: '13.5' },
-  { name: 'Honda City', price: '9.2' },
-  { name: 'Maruti Swift', price: '6.8' }
-];
+
 
 const INSPECTION_REPORTS = [
   {
@@ -298,30 +291,30 @@ function BodyTypeButton({ type, isActive, onClick }) {
 const FINANCIAL_SERVICES_CAROUSEL = [
   {
     id: 1,
-    title: 'Selectt Insurance',
-    tag: 'RIGHT COVER · ZERO HASSLE',
+    title: 'Selectt insurance',
+    tag: 'Right cover · Zero hassle',
     subtext: 'Instant digital policy • 50% NCB savings',
-    ctaText: 'Get Quotes →',
+    ctaText: 'Get quotes →',
     ctaLink: '/car-insurance',
     image: '/img/insurance_banner_1to1.png',
     badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8]'
   },
   {
     id: 2,
-    title: 'Used Car Loans',
-    tag: 'LOW EMI · 24HR APPROVAL',
-    subtext: 'From 8.9% ROI • 100% paperless process',
-    ctaText: 'Apply Now →',
+    title: 'Used car loans',
+    tag: 'Low EMI · 24hr approval',
+    subtext: 'Pre-approved loans starting at 8.9% ROI',
+    ctaText: 'Apply now →',
     ctaLink: '/used-car-loan',
     image: '/img/car_loan_banner_1to1.png',
     badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8]'
   },
   {
     id: 3,
-    title: '1-Year Warranty',
-    tag: 'SELECTT ASSURED COVER',
+    title: '1-Year warranty',
+    tag: 'Selectt assured cover',
     subtext: 'Engine, gearbox & electrical protection',
-    ctaText: 'Explore Cover →',
+    ctaText: 'Explore cover →',
     ctaLink: '/pricing',
     image: '/img/warranty_banner_1to1.png',
     badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8]'
@@ -845,8 +838,6 @@ const NewHome = () => {
   const [loadingCars, setLoadingCars] = useState(true);
   const [loadingBrands, setLoadingBrands] = useState(true);
   const [carouselHovered, setCarouselHovered] = useState(false);
-  const [showFomo, setShowFomo] = useState(false);
-  const [fomoIndex, setFomoIndex] = useState(0);
   const [buySteps, setBuySteps] = useState([]);
   const [buyStepIdx, setBuyStepIdx] = useState(0);
   const [buySliderHovered, setBuySliderHovered] = useState(false);
@@ -858,33 +849,33 @@ const NewHome = () => {
   const mobileHeroSlides = [
     {
       id: 'slide-1',
-      badge: "India's Most Trusted",
-      badgeIcon: "✨",
-      heading: heroContent.mobile_hero_heading || 'THE MASTER',
-      subheading: heroContent.mobile_hero_subheading || "India's most-trusted car home*",
-      btnText: heroContent.mobile_hero_btn_text || 'Buy Car',
-      btnLink: '/buy-cars',
-      image: resolveUrl(heroContent.mobile_hero_image || '/img/mobile_hero_cover.png'),
+      badge: heroContent.mobile_hero_badge || 'Selectt assured cover',
+      badgeIcon: '🛡️',
+      heading: heroContent.mobile_hero_heading || '1-Year warranty',
+      subheading: heroContent.mobile_hero_subheading || '200-point inspection with 7-day money-back guarantee',
+      btnText: heroContent.mobile_hero_btn_text || 'Explore cover',
+      btnLink: '/pricing',
+      image: resolveUrl(heroContent.mobile_hero_image || '/img/warranty_banner_1to1.png'),
     },
     {
       id: 'slide-2',
-      badge: 'Low EMI · 24hr Approval',
+      badge: 'Low EMI · 24hr approval',
       badgeIcon: '⚡',
-      heading: 'USED CAR LOANS',
-      subheading: 'Pre-approved loans starting at 8.9% ROI with paperless process',
-      btnText: 'Apply Loan',
+      heading: 'Used car loans',
+      subheading: 'Pre-approved loans starting at 8.9% ROI',
+      btnText: 'Apply loan',
       btnLink: '/used-car-loan',
       image: '/img/car_loan_banner_1to1.png',
     },
     {
       id: 'slide-3',
-      badge: 'Selectt Assured Cover',
-      badgeIcon: '🛡️',
-      heading: '1-YEAR WARRANTY',
-      subheading: '200-point inspection with 7-day money-back guarantee',
-      btnText: 'Explore Cover',
-      btnLink: '/pricing',
-      image: '/img/warranty_banner_1to1.png',
+      badge: "India's most trusted",
+      badgeIcon: "✨",
+      heading: 'Find your dream car',
+      subheading: "India's most-trusted certified pre-owned cars",
+      btnText: 'Buy car',
+      btnLink: '/buy-cars',
+      image: '/img/mobile_hero_cover.png',
     }
   ];
 
@@ -1222,40 +1213,7 @@ const NewHome = () => {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    let showTimer;
-    let hideTimer;
-    let count = 0;
-    const maxCount = 2; // Maximum 2 times total as requested by user
 
-    const scheduleNextToast = (delayMs) => {
-      showTimer = setTimeout(() => {
-        if (count >= maxCount) return;
-
-        setFomoIndex((prevIndex) => (prevIndex + 1) % FOMO_SOLD_CARS.length);
-        setShowFomo(true);
-        count++;
-
-        // Hides after 3.5 seconds
-        hideTimer = setTimeout(() => {
-          setShowFomo(false);
-
-          // Schedule 2nd appearance in 45 seconds if count < 2
-          if (count < maxCount) {
-            scheduleNextToast(45000);
-          }
-        }, 3500);
-      }, delayMs);
-    };
-
-    // 1st Toast appears 12 seconds after page load
-    scheduleNextToast(12000);
-
-    return () => {
-      clearTimeout(showTimer);
-      clearTimeout(hideTimer);
-    };
-  }, []);
 
   // Responsive itemsPerView handler
   useEffect(() => {
@@ -1590,27 +1548,18 @@ const NewHome = () => {
             return (
               <div key={slide.id} className="animate-in fade-in slide-in-from-bottom-3 duration-500">
                 {/* High-Contrast Glassmorphic Badge */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00C9AF]/15 border border-[#00C9AF]/30 rounded-full text-xs font-black text-[#00C9AF] uppercase tracking-wider mb-2.5 backdrop-blur-md shadow-sm">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00C9AF]/15 border border-[#00C9AF]/30 rounded-full text-xs font-heading font-semibold text-[#00C9AF] mb-2.5 backdrop-blur-md shadow-sm">
                   <span>{slide.badgeIcon || '✨'}</span>
                   <span>{slide.badge}</span>
                 </div>
 
                 {/* Big Hero Heading */}
-                <h1 className="text-2xl xs:text-3xl sm:text-4xl font-black leading-[1.05] tracking-tight mb-2 uppercase text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] whitespace-pre-line">
-                  {typeof slide.heading === 'string' && slide.heading.toUpperCase().includes('YOUR CAR') ? (
-                    <>
-                      YOUR CAR DESERVES A <br />
-                      <span className="text-[#00C9AF] bg-gradient-to-r from-[#00C9AF] via-[#52F6E2] to-[#00C9AF] bg-clip-text text-transparent">
-                        FAIR PRICE.
-                      </span>
-                    </>
-                  ) : (
-                    slide.heading
-                  )}
+                <h1 className="text-2xl xs:text-3xl sm:text-4xl font-heading font-semibold leading-[1.1] tracking-tight mb-2 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] whitespace-pre-line">
+                  {slide.heading}
                 </h1>
 
                 {/* Subtitle */}
-                <p className="text-slate-100 font-extrabold text-xs sm:text-sm tracking-tight mb-5 leading-snug drop-shadow-md line-clamp-2">
+                <p className="text-slate-100 font-normal text-xs sm:text-sm mb-5 leading-snug drop-shadow-md line-clamp-2">
                   {slide.subheading}
                 </p>
 
@@ -1618,27 +1567,27 @@ const NewHome = () => {
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => navigate(slide.btnLink)}
-                    className="bg-gradient-to-r from-[#00C9AF] via-[#00E4C0] to-[#00C9AF] hover:from-white hover:to-white text-[#0C1B33] px-4.5 py-2.5 rounded-full font-black text-xs sm:text-sm shadow-[0_6px_20px_rgba(0,201,175,0.45)] transition-all active:scale-95 cursor-pointer inline-flex items-center gap-1.5 uppercase tracking-wider group shrink-0"
+                    className="bg-gradient-to-r from-[#00C9AF] via-[#00E4C0] to-[#00C9AF] hover:from-white hover:to-white text-[#0C1B33] px-4.5 py-2.5 rounded-full font-heading font-semibold text-xs sm:text-sm shadow-[0_6px_20px_rgba(0,201,175,0.45)] transition-all active:scale-95 cursor-pointer inline-flex items-center gap-1.5 group shrink-0"
                   >
                     <span>{slide.btnText}</span>
                     <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </button>
 
                   {/* Quick Access Secondary Buttons */}
-                  {slide.btnText?.toUpperCase() !== 'BUY CAR' && (
+                  {slide.btnText?.toLowerCase() !== 'buy car' && (
                     <button
                       onClick={() => navigate('/buy-cars')}
-                      className="bg-white/15 hover:bg-white/30 text-white border border-white/30 backdrop-blur-md px-3.5 py-2.5 rounded-full font-black text-[11px] transition-all active:scale-95 cursor-pointer inline-flex items-center gap-1 uppercase tracking-wider shrink-0 shadow-sm"
+                      className="bg-white/15 hover:bg-white/30 text-white border border-white/30 backdrop-blur-md px-3.5 py-2.5 rounded-full font-heading font-semibold text-[11px] sm:text-xs transition-all active:scale-95 cursor-pointer inline-flex items-center gap-1 shrink-0 shadow-sm"
                     >
-                      <span>Buy Car</span>
+                      <span>Buy car</span>
                     </button>
                   )}
-                  {slide.btnText?.toUpperCase() !== 'SELL CAR' && (
+                  {slide.btnText?.toLowerCase() !== 'sell car' && (
                     <button
                       onClick={() => navigate('/sell-car')}
-                      className="bg-white/15 hover:bg-white/30 text-white border border-white/30 backdrop-blur-md px-3.5 py-2.5 rounded-full font-black text-[11px] transition-all active:scale-95 cursor-pointer inline-flex items-center gap-1 uppercase tracking-wider shrink-0 shadow-sm"
+                      className="bg-white/15 hover:bg-white/30 text-white border border-white/30 backdrop-blur-md px-3.5 py-2.5 rounded-full font-heading font-semibold text-[11px] sm:text-xs transition-all active:scale-95 cursor-pointer inline-flex items-center gap-1 shrink-0 shadow-sm"
                     >
-                      <span>Sell Car</span>
+                      <span>Sell car</span>
                     </button>
                   )}
                 </div>
@@ -3246,29 +3195,7 @@ const NewHome = () => {
         }
       `}</style>
 
-      {/* Floating FOMO Notification Badge (Right-Side Vertically Centered) */}
-      <div
-        style={{ fontFamily: "'Inter', sans-serif" }}
-        className={`fixed top-1/2 -translate-y-1/2 right-3 sm:right-6 md:right-8 z-50 bg-white text-slate-900 rounded-2xl p-3 sm:p-4 shadow-[0_12px_32px_rgba(0,0,0,0.14),0_2px_6px_rgba(0,0,0,0.04)] flex items-center gap-2.5 sm:gap-3.5 min-w-[210px] max-w-[250px] sm:max-w-[310px] border border-slate-100/90 transition-all duration-500 ease-out transform ${showFomo ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-[130%] opacity-0 scale-95 pointer-events-none'
-          }`}
-      >
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 bg-[#EAFAF4] border border-[#d1f4e7]">
-          🎉
-        </div>
-        <div className="flex-1 text-left pr-3">
-          <div className="text-[13.5px] font-bold text-slate-900 leading-snug tracking-tight font-['Inter']">Just Booked!</div>
-          <div className="text-[12px] text-slate-500 font-medium mt-0.5 leading-normal tracking-normal font-['Inter']">
-            {FOMO_SOLD_CARS[fomoIndex]?.name} <span className="text-slate-300 mx-1">·</span> <span className="font-semibold text-slate-700">₹{FOMO_SOLD_CARS[fomoIndex]?.price}L</span>
-          </div>
-        </div>
-        <button
-          onClick={() => setShowFomo(false)}
-          className="absolute top-2.5 right-2.5 text-slate-400 hover:text-slate-700 p-1 rounded-full transition-colors cursor-pointer"
-          aria-label="Close notification"
-        >
-          <X size={14} />
-        </button>
-      </div>
+
 
     </div>
   );

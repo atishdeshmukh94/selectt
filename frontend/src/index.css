@@ -128,48 +128,62 @@
   }
 }
 
-/* Explicit text color utility guarantees (Authoritative) */
-.text-white,
-h1.text-white,
-h2.text-white,
-h3.text-white,
-h4.text-white,
-h5.text-white,
-h6.text-white,
-p.text-white,
-span.text-white,
-a.text-white,
-[class~="text-white"],
-[class*="text-white"] {
+/* Explicit text color utility guarantees */
+.text-white {
   color: #ffffff !important;
 }
 
-.text-[#CBD5E1],
-[class*="text-[#CBD5E1]"],
-[class*="text-[#cbd5e1]"],
-.text-slate-300,
-.text-slate-200,
+.text-\[\#00C9AF\],
+.text-\[\#00c9af\],
+.text-primary {
+  color: #00C9AF !important;
+}
+
 .text-slate-100 {
-  color: #CBD5E1 !important;
+  color: #f1f5f9 !important;
 }
 
-.text-slate-900,
-.text-slate-950,
-h1.text-slate-900,
-h2.text-slate-900,
-h3.text-slate-900,
-[class*="text-[#0F172A]"],
-[class*="text-[#0f172a]"],
-[class*="text-[#0C1B33]"],
-[class*="text-[#0c1b33]"] {
-  color: #0F172A !important;
+.text-slate-200 {
+  color: #e2e8f0 !important;
 }
 
-.text-slate-600,
-.text-slate-700,
-[class*="text-[#475569]"],
-[class*="text-[#64748b]"] {
+.text-slate-300 {
+  color: #cbd5e1 !important;
+}
+
+.text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+.text-slate-500 {
+  color: #64748b !important;
+}
+
+.text-slate-600 {
   color: #475569 !important;
+}
+
+.text-slate-700 {
+  color: #334155 !important;
+}
+
+.text-slate-800 {
+  color: #1e293b !important;
+}
+
+.text-slate-900 {
+  color: #0f172a !important;
+}
+
+.text-slate-950 {
+  color: #020617 !important;
+}
+
+/* Explicit button text inheritance & dark button support */
+button.text-white *,
+a.text-white *,
+div.text-white * {
+  color: inherit;
 }
 
 /* Dark background containers - default text light */
