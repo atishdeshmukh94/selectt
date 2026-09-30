@@ -525,9 +525,11 @@ const CheckoutPage = () => {
                 <div className="flex items-center justify-between gap-3">
                   {/* Left Icon & Info */}
                   <div className="flex items-start gap-3.5 min-w-0">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#0C1B33] to-[#00C9AF] flex items-center justify-center text-white shrink-0 shadow-md shadow-[#00C9AF]/20">
-                      <Wrench size={22} className="text-amber-300 transform -rotate-12" />
-                    </div>
+                    <img 
+                      src="/images/maintenance-package-icon.png" 
+                      alt="Complete Maintenance Package" 
+                      className="w-12 h-12 rounded-2xl object-cover shrink-0 shadow-md shadow-[#00C9AF]/20" 
+                    />
                     <div className="min-w-0">
                       <h3 className="font-black text-[#0F172A] text-sm sm:text-base leading-tight">
                         1-Year complete maintenance package
@@ -1131,11 +1133,13 @@ const CheckoutPage = () => {
             </div>
 
             <div className="p-6 pt-5 space-y-3">
-              {/* Central Gift Box Graphic */}
+              {/* Central 3D Graphic */}
               <div className="w-20 h-20 mx-auto relative flex items-center justify-center">
-                <div className="w-16 h-16 bg-gradient-to-tr from-[#0C1B33] to-[#00C9AF] rounded-2xl flex items-center justify-center text-white shadow-xl shadow-[#00C9AF]/25 transform -rotate-3">
-                  <Wrench size={30} className="text-amber-300" />
-                </div>
+                <img 
+                  src="/images/maintenance-package-icon.png" 
+                  alt="Complete Maintenance Package" 
+                  className="w-16 h-16 rounded-2xl object-cover shadow-xl shadow-[#00C9AF]/25 transform -rotate-3" 
+                />
                 <span className="absolute -top-1 -right-1 text-lg animate-bounce">✨</span>
                 <span className="absolute -bottom-1 -left-1 text-lg animate-pulse">🎊</span>
               </div>
@@ -1208,16 +1212,12 @@ const CheckoutPage = () => {
                   </div>
 
                   {/* 3D Toolbox Graphic Card */}
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 relative flex items-center justify-center">
-                    <div className="w-20 h-20 bg-gradient-to-tr from-[#0C1B33] to-[#00C9AF] rounded-3xl p-3 shadow-2xl flex flex-col items-center justify-center relative border border-white/20 transform rotate-2">
-                      <div className="flex items-center gap-1 mb-1">
-                        <Wrench size={22} className="text-amber-300 transform -rotate-45" />
-                        <ShieldCheck size={20} className="text-teal-300" />
-                      </div>
-                      <div className="w-8 h-6 bg-slate-900/80 rounded-md flex items-center justify-center text-[10px] font-black text-[#00C9AF]">
-                        S
-                      </div>
-                    </div>
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 relative flex items-center justify-center shrink-0">
+                    <img 
+                      src="/images/maintenance-package-icon.png" 
+                      alt="Complete Maintenance Package" 
+                      className="w-20 h-20 sm:w-22 sm:h-22 rounded-3xl object-cover shadow-2xl border border-white/20 transform rotate-2" 
+                    />
                   </div>
                 </div>
 
