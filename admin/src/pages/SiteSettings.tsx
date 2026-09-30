@@ -142,6 +142,16 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
         acc[curr.setting_key] = curr.setting_value;
         return acc;
       }, {} as Record<string, string>);
+
+      // Pre-populate Google Workspace SMTP configuration for donotreply@selectt.in
+      if (!settingsMap.smtp_host) settingsMap.smtp_host = "smtp.gmail.com";
+      if (!settingsMap.smtp_port) settingsMap.smtp_port = "587";
+      if (!settingsMap.smtp_user) settingsMap.smtp_user = "donotreply@selectt.in";
+      if (!settingsMap.smtp_pass) settingsMap.smtp_pass = "fvks ldir ugpc mwxh";
+      if (!settingsMap.smtp_from_name) settingsMap.smtp_from_name = "Selectt.";
+      if (!settingsMap.smtp_from_email) settingsMap.smtp_from_email = "donotreply@selectt.in";
+      if (!settingsMap.admin_notification_email) settingsMap.admin_notification_email = "donotreply@selectt.in";
+
       setSettings(settingsMap);
     } catch (error) {
       console.error(error);

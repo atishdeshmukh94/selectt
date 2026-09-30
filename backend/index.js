@@ -2533,18 +2533,20 @@ app.delete('/api/sell-requests/:id', authMiddleware, isAdmin, (req, res) => {
 // ============================================================
 async function sendAdminEmailNotification({ subject, title, leadType, fields = {}, message = '', directLink = 'https://admin.selectt.in/leads' }) {
     try {
-        const settingsRows = await queryAsync("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'admin_notification_email', 'smtp_admin_email', 'contact_email', 'site_email', 'smtp_from_name')");
+        const settingsRows = await queryAsync("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from_email', 'admin_notification_email', 'smtp_admin_email', 'contact_email', 'site_email', 'smtp_from_name')");
         const settings = {};
         if (Array.isArray(settingsRows)) {
             settingsRows.forEach(row => { settings[row.setting_key] = row.setting_value; });
         }
 
-        const host = settings.smtp_host || process.env.SMTP_HOST;
+        const host = settings.smtp_host || process.env.SMTP_HOST || 'smtp.gmail.com';
         const port = parseInt(settings.smtp_port || process.env.SMTP_PORT || '587', 10);
-        const user = settings.smtp_user || process.env.SMTP_USER;
-        const pass = settings.smtp_pass || process.env.SMTP_PASS;
-        const fromName = settings.smtp_from_name || 'Selectt Leads';
-        const adminEmail = settings.admin_notification_email || settings.smtp_admin_email || settings.contact_email || settings.site_email || user || 'hello@selectt.in';
+        const user = settings.smtp_user || process.env.SMTP_USER || 'donotreply@selectt.in';
+        const rawPass = settings.smtp_pass || process.env.SMTP_PASS || 'fvks ldir ugpc mwxh';
+        const pass = rawPass ? rawPass.replace(/\s+/g, '') : '';
+        const fromName = settings.smtp_from_name || 'Selectt.';
+        const fromEmail = settings.smtp_from_email || user || 'donotreply@selectt.in';
+        const adminEmail = settings.admin_notification_email || settings.smtp_admin_email || settings.contact_email || settings.site_email || user || 'donotreply@selectt.in';
 
         if (!host || !user || !pass) {
             console.log('ℹ️ [SMTP Service] SMTP credentials not fully configured in site_settings. Skipping email alert.');
@@ -2628,7 +2630,7 @@ async function sendAdminEmailNotification({ subject, title, leadType, fields = {
         `;
 
         const mailOptions = {
-            from: `"${fromName}" <${user}>`,
+            from: `"${fromName}" <${fromEmail || user}>`,
             to: adminEmail,
             subject: subject || `⚡ New Lead Alert: ${title || 'Website Form Submission'}`,
             html: htmlContent
