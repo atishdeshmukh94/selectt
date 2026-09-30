@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
 import TestDriveModal from '../components/buy/TestDriveModal';
+import carLoanIcon from '../assets/car-loan-icon.png';
 
 export const getBookingAmount = (price) => {
   const numericPrice = Number(price) || 0;
@@ -1766,9 +1767,11 @@ const CheckoutPage = () => {
             {mobilePromptStep === 1 ? (
               <div className="animate-in fade-in duration-200">
                 <div className="flex items-start gap-3 mb-3.5">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00C9AF] via-[#00DFB8] to-[#00A884] text-[#0C1B33] flex items-center justify-center shadow-sm shadow-[#00C9AF]/30 shrink-0 font-black text-sm">
-                    ₹
-                  </div>
+                  <img 
+                    src={carLoanIcon} 
+                    alt="Car Loan" 
+                    className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0 drop-shadow-sm" 
+                  />
                   <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-[#0C1B33] text-[15px] leading-tight mb-1">
                       Interested in car loan?
