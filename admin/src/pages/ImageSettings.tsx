@@ -646,15 +646,14 @@ export default function ImageSettings() {
       }
 
       // Default fallbacks for Mobile Hero
-      if (!contentData.mobile_hero_image) {
-        contentData.mobile_hero_image = "https://selectt.in/img/warranty_banner_1to1.png";
-      }
-      if (!contentData.mobile_hero_2_image) {
-        contentData.mobile_hero_2_image = "https://selectt.in/img/car_loan_banner_1to1.png";
-      }
-      if (!contentData.mobile_hero_3_image) {
-        contentData.mobile_hero_3_image = "https://selectt.in/img/mobile_hero_cover.png";
-      }
+      MOBILE_HERO_SLIDES_CONFIG.forEach((s) => {
+        if (!contentData[s.imageKey]) contentData[s.imageKey] = s.defaultImage;
+        if (!contentData[s.badgeKey]) contentData[s.badgeKey] = s.defaultBadge;
+        if (!contentData[s.headingKey]) contentData[s.headingKey] = s.defaultHeading;
+        if (!contentData[s.subheadingKey]) contentData[s.subheadingKey] = s.defaultSubheading;
+        if (!contentData[s.btnTextKey]) contentData[s.btnTextKey] = s.defaultBtnText;
+        if (!contentData[s.btnLinkKey]) contentData[s.btnLinkKey] = s.defaultBtnLink;
+      });
 
       setSiteContent(contentData || {});
       setSiteSettings(settingsData || {});
@@ -802,6 +801,39 @@ export default function ImageSettings() {
     } finally {
       setUploadingKey(null);
       setCurrentKeyForUpload(null);
+    }
+  };
+
+  // Save single mobile hero slide
+  const handleSaveSingleMobileSlide = async (slide: MobileHeroSlideConfig) => {
+    const token = getAuthToken();
+    const saveToast = toast.loading(`Saving Mobile Slide #${slide.slideNumber}...`);
+    try {
+      const payload: Record<string, string> = {
+        [slide.imageKey]: siteContent[slide.imageKey] || slide.defaultImage,
+        [slide.badgeKey]: siteContent[slide.badgeKey] || slide.defaultBadge,
+        [slide.headingKey]: siteContent[slide.headingKey] || slide.defaultHeading,
+        [slide.subheadingKey]: siteContent[slide.subheadingKey] || slide.defaultSubheading,
+        [slide.btnTextKey]: siteContent[slide.btnTextKey] || slide.defaultBtnText,
+        [slide.btnLinkKey]: siteContent[slide.btnLinkKey] || slide.defaultBtnLink,
+      };
+
+      const res = await fetch(`${API}/api/admin/site-content/batch`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        toast.success(`✅ Mobile Slide #${slide.slideNumber} saved & published!`, { id: saveToast });
+      } else {
+        toast.error(`Failed to save Slide #${slide.slideNumber}`, { id: saveToast });
+      }
+    } catch (err) {
+      toast.error("Network error while saving slide", { id: saveToast });
     }
   };
 
@@ -1450,8 +1482,8 @@ export default function ImageSettings() {
                           </div>
                         </div>
 
-                        {/* Reset button */}
-                        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex justify-end">
+                        {/* Action buttons footer */}
+                        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
                           <button
                             type="button"
                             onClick={() => {
@@ -1468,7 +1500,15 @@ export default function ImageSettings() {
                             }}
                             className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
                           >
-                            <RotateCcw size={12} /> Reset Slide to Default
+                            <RotateCcw size={12} /> Reset
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleSaveSingleMobileSlide(slide)}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
+                          >
+                            <Save size={13} /> Save Slide {slide.slideNumber}
                           </button>
                         </div>
                       </div>
