@@ -2,10 +2,58 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
-import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, X, FileText } from 'lucide-react';
+import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, X, FileText, ArrowDown, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
 import TestDriveModal from '../components/buy/TestDriveModal';
+
+const DEFAULT_BUY_STEPS = [
+  {
+    stepNumber: 1,
+    badge: 'Step 1',
+    icon: <Search size={22} className="text-[#00C9AF]" />,
+    title: '1. Discover your ride',
+    desc: 'Book and reserve any car exclusively for yourself for up to 3 days.',
+    bgClass: 'bg-gradient-to-br from-[#0C1B33] via-[#0E2242] to-[#122A4F] border-[#00C9AF]/40',
+    glow: 'shadow-[#00C9AF]/15',
+    accentColor: '#00C9AF',
+    badgeBg: 'bg-[#00C9AF]/20 text-[#00C9AF] border-[#00C9AF]/40',
+  },
+  {
+    stepNumber: 2,
+    badge: 'Step 2',
+    icon: <FileText size={22} className="text-cyan-400" />,
+    title: '2. Submit documents effortlessly',
+    desc: "We'll handle all the paperwork to make the process simple and stress-free.",
+    bgClass: 'bg-gradient-to-br from-[#101F38] via-[#142646] to-[#1A2D52] border-cyan-500/40',
+    glow: 'shadow-cyan-400/15',
+    accentColor: '#22D3EE',
+    badgeBg: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40',
+  },
+  {
+    stepNumber: 3,
+    badge: 'Step 3',
+    icon: <CreditCard size={22} className="text-purple-400" />,
+    title: '3. Pay the balance, your way',
+    desc: 'Choose from a range of payment options - pay in full or finance your purchase.',
+    bgClass: 'bg-gradient-to-br from-[#18182E] via-[#1E1E3A] to-[#262642] border-purple-500/40',
+    glow: 'shadow-purple-400/15',
+    accentColor: '#C084FC',
+    badgeBg: 'bg-purple-500/20 text-purple-300 border-purple-400/40',
+  },
+  {
+    stepNumber: 4,
+    badge: 'Step 4',
+    icon: <MapPin size={22} className="text-rose-400" />,
+    title: '4. Delivered to your doorstep',
+    desc: "Sit back and relax while we bring your dream car to your doorstep - it's that easy!",
+    bgClass: 'bg-gradient-to-br from-[#1F1426] via-[#281830] to-[#331E3D] border-rose-500/40',
+    glow: 'shadow-rose-400/15',
+    accentColor: '#FB7185',
+    badgeBg: 'bg-rose-500/20 text-rose-300 border-rose-400/40',
+  }
+];
 
 const CheckoutPage = () => {
   const { carId } = useParams();
@@ -46,6 +94,31 @@ const CheckoutPage = () => {
   const [interestedInLoan, setInterestedInLoan] = useState(false);
   const [isTestDriveOpen, setIsTestDriveOpen] = useState(false);
   const [scheduledTestDrive, setScheduledTestDrive] = useState(null);
+  const [steps, setSteps] = useState(DEFAULT_BUY_STEPS);
+
+  useEffect(() => {
+    // Fetch dynamic buy steps from backend if customized
+    fetch(`${API_URL}/api/banners?page=home&type=buy-step`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const active = data.filter(s => s.is_active !== 0).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+          if (active.length > 0) {
+            setSteps(DEFAULT_BUY_STEPS.map((def, idx) => {
+              const live = active[idx];
+              if (!live) return def;
+              return {
+                ...def,
+                badge: live.cta_text || def.badge,
+                title: live.title ? `${idx + 1}. ${live.title.replace(/^\d+\.\s*/, '')}` : def.title,
+                desc: live.subtitle || def.desc,
+              };
+            }));
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const loadScript = (src) => {
     return new Promise((resolve) => {
@@ -523,53 +596,119 @@ const CheckoutPage = () => {
           </div>
         </div>
 
-        {/* What Happens Next - Expanded Full Width Section */}
+        {/* What Happens Next - Expanded Dynamic Step-by-Step Section */}
         <div className="max-w-7xl mx-auto px-4 mt-16 sm:mt-20">
-          <h3 className="text-xl sm:text-2xl font-heading font-semibold text-[#0F172A] text-center mb-8 flex items-center justify-center gap-4">
-            <div className="h-px bg-slate-200 flex-1 max-w-[150px]" />
-            <span>What happens next</span>
-            <div className="h-px bg-slate-200 flex-1 max-w-[150px]" />
-          </h3>
+          <div className="text-center mb-10">
+            <h3 className="text-xl sm:text-2xl font-heading font-bold text-[#0F172A] text-center flex items-center justify-center gap-4">
+              <div className="h-px bg-slate-200 flex-1 max-w-[150px]" />
+              <span>What happens next</span>
+              <div className="h-px bg-slate-200 flex-1 max-w-[150px]" />
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1.5 font-medium">
+              Simple, transparent 4-step process from online reservation to doorstep delivery.
+            </p>
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                icon: <Search size={24} className="text-[#00C9AF]" />,
-                title: '1. Discover your ride',
-                desc: 'Book and reserve any car exclusively for yourself for up to 3 days.',
-                bgClass: 'bg-gradient-to-br from-[#0C1B33] to-[#122A4F] border-[#00C9AF]/30',
-                glow: 'shadow-[#00C9AF]/10'
-              },
-              {
-                icon: <FileText size={24} className="text-cyan-400" />,
-                title: '2. Submit documents effortlessly',
-                desc: 'We\'ll handle all the paperwork to make the process simple and stress-free.',
-                bgClass: 'bg-gradient-to-br from-[#121E36] to-[#1A2D52] border-cyan-500/30',
-                glow: 'shadow-cyan-400/10'
-              },
-              {
-                icon: <CreditCard size={24} className="text-purple-400" />,
-                title: '3. Pay the balance, your way',
-                desc: 'Choose from a range of payment options - pay in full or finance your purchase.',
-                bgClass: 'bg-gradient-to-br from-[#19192C] to-[#262642] border-purple-500/30',
-                glow: 'shadow-purple-400/10'
-              },
-              {
-                icon: <MapPin size={24} className="text-rose-400" />,
-                title: '4. Delivered to your doorstep',
-                desc: 'Sit back and relax while we bring your dream car to your doorstep - it\'s that easy!',
-                bgClass: 'bg-gradient-to-br from-[#1F1426] to-[#331E3D] border-rose-500/30',
-                glow: 'shadow-rose-400/10'
-              }
-            ].map((step, idx) => (
-              <div key={idx} className={`p-6 sm:p-7 rounded-2xl flex flex-col items-center text-center border hover:-translate-y-1.5 transition-all duration-300 shadow-xl ${step.bgClass} ${step.glow}`}>
-                <div className="w-12 h-12 p-2.5 border border-white/15 rounded-2xl flex items-center justify-center bg-white/10 mb-4 shadow-md shrink-0">
-                  {step.icon}
+          {/* DESKTOP VIEW (Horizontal 4-Grid with Connectors) */}
+          <div className="hidden lg:grid grid-cols-4 gap-6 relative">
+            {steps.map((step, idx) => (
+              <div key={idx} className="relative flex flex-col">
+                <div
+                  className={`p-6 sm:p-7 rounded-2xl flex flex-col items-center text-center border hover:-translate-y-1.5 transition-all duration-300 shadow-xl ${step.bgClass} ${step.glow} h-full relative overflow-hidden group`}
+                >
+                  {/* Subtle Top Glow Pill */}
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mb-4 border ${step.badgeBg}`}>
+                    {step.badge || `Step ${idx + 1}`}
+                  </span>
+
+                  <div className="w-13 h-13 p-3 border border-white/20 rounded-2xl flex items-center justify-center bg-white/10 mb-4 shadow-md shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    {step.icon}
+                  </div>
+
+                  <h4 className="font-heading font-bold text-white text-[16px] mb-2 leading-snug">
+                    {step.title}
+                  </h4>
+                  <p className="text-[13px] text-slate-300 font-normal leading-relaxed">
+                    {step.desc}
+                  </p>
                 </div>
-                <h4 className="font-heading font-semibold text-white text-[16px] sm:text-[17px] mb-2 leading-snug max-w-[260px]">{step.title}</h4>
-                <p className="text-[13px] text-slate-300 font-normal leading-relaxed max-w-[260px]">{step.desc}</p>
+
+                {/* Horizontal Connector Arrow between desktop cards */}
+                {idx < steps.length - 1 && (
+                  <div className="absolute top-1/2 -right-3.5 -translate-y-1/2 z-20 hidden lg:flex items-center justify-center">
+                    <div
+                      className="w-7 h-7 rounded-full bg-slate-900 border border-slate-700 text-white flex items-center justify-center shadow-lg shadow-black/40"
+                      style={{ borderColor: step.accentColor }}
+                    >
+                      <ArrowRight size={13} style={{ color: step.accentColor }} />
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
+          </div>
+
+          {/* MOBILE / TABLET VIEW (Alternating Left/Right Animated Slide-ins with Down Arrows) */}
+          <div className="flex flex-col gap-0 lg:hidden max-w-md sm:max-w-lg mx-auto">
+            {steps.map((step, idx) => {
+              const isEven = idx % 2 === 0; // 0, 2 from LEFT, 1, 3 from RIGHT
+
+              return (
+                <div key={idx} className="flex flex-col items-center w-full">
+                  {/* Step Card with Alternating Directional Animation */}
+                  <motion.div
+                    initial={{ opacity: 0, x: isEven ? -60 : 60, scale: 0.96 }}
+                    whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.55, ease: "easeOut" }}
+                    className={`w-full p-6 rounded-2xl flex flex-col items-center text-center border shadow-xl ${step.bgClass} ${step.glow} relative overflow-hidden`}
+                  >
+                    {/* Step Badge & Directional Indicator */}
+                    <div className="flex items-center justify-between w-full mb-3">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${step.badgeBg}`}>
+                        {step.badge || `Step ${idx + 1}`}
+                      </span>
+                      <span className="text-[11px] font-mono font-bold text-slate-400">
+                        {isEven ? "Step " + (idx + 1) + " →" : "← Step " + (idx + 1)}
+                      </span>
+                    </div>
+
+                    <div className="w-13 h-13 p-3 border border-white/20 rounded-2xl flex items-center justify-center bg-white/10 mb-3 shadow-md shrink-0">
+                      {step.icon}
+                    </div>
+
+                    <h4 className="font-heading font-bold text-white text-[16px] sm:text-[17px] mb-2 leading-snug">
+                      {step.title}
+                    </h4>
+                    <p className="text-[13px] text-slate-300 font-normal leading-relaxed">
+                      {step.desc}
+                    </p>
+                  </motion.div>
+
+                  {/* Animated Downward Connector Arrow between boxes */}
+                  {idx < steps.length - 1 && (
+                    <div className="flex flex-col items-center justify-center py-2.5 my-1">
+                      <div
+                        className="w-0.5 h-4 bg-gradient-to-b from-slate-400/80 to-transparent rounded-full"
+                        style={{ backgroundColor: step.accentColor }}
+                      />
+                      <motion.div
+                        animate={{ y: [0, 5, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                        className="w-8 h-8 rounded-full bg-slate-900 border-2 shadow-lg flex items-center justify-center my-0.5 z-10"
+                        style={{ borderColor: step.accentColor }}
+                      >
+                        <ArrowDown size={15} style={{ color: step.accentColor }} />
+                      </motion.div>
+                      <div
+                        className="w-0.5 h-4 bg-gradient-to-t from-slate-400/80 to-transparent rounded-full"
+                        style={{ backgroundColor: steps[idx + 1].accentColor }}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

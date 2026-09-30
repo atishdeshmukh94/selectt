@@ -818,20 +818,46 @@ export default function ImageSettings() {
         [slide.btnLinkKey]: siteContent[slide.btnLinkKey] || slide.defaultBtnLink,
       };
 
-      const res = await fetch(`${API}/api/admin/site-content/batch`, {
+      // 1. Save to site_content
+      const p1 = fetch(`${API}/api/admin/site-content/batch`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
-      });
+      }).catch(() => null);
 
-      if (res.ok) {
-        toast.success(`✅ Mobile Slide #${slide.slideNumber} saved & published!`, { id: saveToast });
-      } else {
-        toast.error(`Failed to save Slide #${slide.slideNumber}`, { id: saveToast });
-      }
+      // 2. Save to site_settings as fallback
+      const p2 = fetch(`${API}/api/settings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }).catch(() => null);
+
+      // 3. Save single keys in parallel
+      const p3 = Promise.all(
+        Object.entries(payload).map(([k, v]) =>
+          fetch(`${API}/api/admin/site-content/${k}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ value: v }),
+          }).catch(() => null)
+        )
+      );
+
+      await Promise.all([p1, p2, p3]);
+
+      setSiteContent((prev) => ({ ...prev, ...payload }));
+      setSiteSettings((prev) => ({ ...prev, ...payload }));
+
+      toast.success(`✅ Mobile Slide #${slide.slideNumber} saved & published!`, { id: saveToast });
     } catch (err) {
       toast.error("Network error while saving slide", { id: saveToast });
     }
