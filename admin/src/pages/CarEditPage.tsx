@@ -559,7 +559,9 @@ const CarEditPage = () => {
       fuelType: finalFuelType,
       transmission: finalTransmission,
       location: finalLocation,
+      hub: finalLocation,
       rto_code: formData.rto_code ? String(formData.rto_code).trim().toUpperCase() : "",
+      rto: formData.rto_code ? String(formData.rto_code).trim().toUpperCase() : "",
       ownership: finalOwnership,
       km: finalKm,
       image: primaryCover,
@@ -1042,7 +1044,13 @@ const CarEditPage = () => {
                     <label className={labelClass}>
                       Location (City / Hub) <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
-                    <input type="text" className={inpClass} value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. Neelkanth Business Park, Vidyavihar" />
+                    <input 
+                      type="text" 
+                      className={inpClass} 
+                      value={formData.location || ""} 
+                      onChange={e => setFormData({ ...formData, location: e.target.value, hub: e.target.value })} 
+                      placeholder="e.g. Eksar Village, Borivali West, Mumbai" 
+                    />
                   </div>
 
                   {/* Custom Details / Long Description Box in Step 1 */}

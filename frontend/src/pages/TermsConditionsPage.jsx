@@ -223,7 +223,7 @@ const TermsConditionsPage = () => {
                         <h3>1. Vehicle Token Booking & Reservation</h3>
                       </div>
                       <p>
-                        Buyers may reserve any listed vehicle by paying a refundable token booking amount (typically ₹5,000 to ₹10,000 as indicated on the car details page).
+                        Buyers may reserve any listed vehicle by paying a 100% refundable token booking amount (₹5,000 for cars under 10 Lakhs, ₹11,000 for cars below 20 Lakhs, and ₹21,000 for cars 20 Lakhs & above as indicated during checkout).
                       </p>
                       <ul className="list-disc pl-6 space-y-1.5 text-xs md:text-sm">
                         <li><strong>48-Hour Exclusive Hold:</strong> Once a token payment is successfully verified via our secure gateway, the vehicle is marked as reserved and will not be sold to other buyers for a period of 48 hours.</li>

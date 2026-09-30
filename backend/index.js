@@ -1669,6 +1669,9 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
         ? title.trim()
         : `${finalYear} ${String(make).trim()} ${String(model).trim()} ${variant ? String(variant).trim() : ''}`.trim();
 
+    const finalRto = rto_code || rto || (registrationNo || registration_no ? String(registrationNo || registration_no).slice(0, 4).toUpperCase() : null);
+    const finalLoc = location || hub || 'Mumbai';
+
     const data = {
         title: finalTitle,
         make: String(make).trim(),
@@ -1684,10 +1687,10 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
         offer_price: safeNumber(offerPrice !== undefined ? offerPrice : offer_price, null),
         fuel_type: fuelType || fuel_type || 'Petrol',
         transmission: transmission || 'Manual',
-        location: location || 'Mumbai',
+        location: finalLoc,
         image: primaryImage,
         tag: tag || null,
-        hub: hub || null,
+        hub: hub || finalLoc,
         badge_text: badgeText || badge_text || null,
         is_assured: isAssured ? 1 : 0,
         listing_type: listingType || listing_type || 'standard',
@@ -1701,7 +1704,8 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
         body_type: bodyType || body_type || null,
         description: description || null,
         registration_no: registrationNo || registration_no || null,
-        rto_code: rto_code || rto || null,
+        rto_code: finalRto,
+        rto: finalRto,
         reasons_to_buy: req.body.reasonsToBuy ? (typeof req.body.reasonsToBuy === 'string' ? req.body.reasonsToBuy : JSON.stringify(req.body.reasonsToBuy)) : null,
         specifications: req.body.specifications ? (typeof req.body.specifications === 'string' ? req.body.specifications : JSON.stringify(req.body.specifications)) : null,
         features: req.body.features ? (typeof req.body.features === 'string' ? req.body.features : JSON.stringify(req.body.features)) : null,
@@ -1804,6 +1808,11 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             ? title.trim()
             : `${finalYear} ${String(make).trim()} ${String(model).trim()} ${variant ? String(variant).trim() : ''}`.trim();
 
+        const finalRto = rto_code !== undefined 
+            ? (rto_code || rto || (registrationNo || registration_no ? String(registrationNo || registration_no).slice(0, 4).toUpperCase() : null))
+            : (rto || (registrationNo || registration_no ? String(registrationNo || registration_no).slice(0, 4).toUpperCase() : null));
+        const finalLoc = location || hub || 'Mumbai';
+
         const data = {
             title: finalTitle,
             make: String(make).trim(),
@@ -1819,10 +1828,10 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             offer_price: safeNumber(offerPrice !== undefined ? offerPrice : offer_price, null),
             fuel_type: fuelType || fuel_type || 'Petrol',
             transmission: transmission || 'Manual',
-            location: location || 'Mumbai',
+            location: finalLoc,
             image: primaryImage,
             tag: tag || null,
-            hub: hub || null,
+            hub: hub || finalLoc,
             badge_text: badgeText || badge_text || null,
             is_assured: isAssured !== undefined ? (isAssured ? 1 : 0) : 0,
             listing_type: listingType || listing_type || 'standard',
@@ -1836,7 +1845,8 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             body_type: bodyType || body_type || null,
             description: description || null,
             registration_no: registrationNo || registration_no || null,
-            rto_code: rto_code !== undefined ? (rto_code || rto || null) : (rto || null),
+            rto_code: finalRto,
+            rto: finalRto,
             reasons_to_buy: req.body.reasonsToBuy ? (typeof req.body.reasonsToBuy === 'string' ? req.body.reasonsToBuy : JSON.stringify(req.body.reasonsToBuy)) : null,
             specifications: req.body.specifications ? (typeof req.body.specifications === 'string' ? req.body.specifications : JSON.stringify(req.body.specifications)) : null,
             features: req.body.features ? (typeof req.body.features === 'string' ? req.body.features : JSON.stringify(req.body.features)) : null,
@@ -3807,6 +3817,18 @@ app.delete('/api/admin/insurance-requests/:id', authMiddleware, isAdmin, (req, r
 });
 
 // ============================================================
+// Helper to compute tiered booking token amount based on vehicle price:
+// - Cars under 10 Lakhs: ₹5,000
+// - Cars below 20 Lakhs (10L to 20L): ₹11,000
+// - Cars 20 Lakhs and above: ₹21,000
+const calculateBookingAmount = (price) => {
+    const p = Number(price) || 0;
+    if (p < 1000000) return 5000;
+    if (p < 2000000) return 11000;
+    return 21000;
+};
+
+// ============================================================
 // CAR BOOKINGS API
 // ============================================================
 app.post('/api/bookings', customerAuth, (req, res) => {
@@ -3824,10 +3846,12 @@ app.post('/api/bookings', customerAuth, (req, res) => {
         return res.status(400).json({ message: 'Missing car_id or final_amount' });
     }
 
+    const calculatedBookingAmount = booking_amount || calculateBookingAmount(final_amount);
+
     const bookingData = {
         customer_id: req.user.id,
         car_id,
-        booking_amount: booking_amount || 10000,
+        booking_amount: calculatedBookingAmount,
         final_amount,
         booking_no: `BK-${Math.floor(100000 + Math.random() * 900000)}`,
         payment_status: 'pending',

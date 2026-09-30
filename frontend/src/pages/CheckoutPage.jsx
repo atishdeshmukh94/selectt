@@ -8,6 +8,17 @@ import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/a
 import PageMeta from '../components/common/PageMeta';
 import TestDriveModal from '../components/buy/TestDriveModal';
 
+export const getBookingAmount = (price) => {
+  const numericPrice = Number(price) || 0;
+  if (numericPrice < 1000000) {
+    return 5000; // Under 10 Lakhs
+  } else if (numericPrice < 2000000) {
+    return 11000; // Below 20 Lakhs (10L to 20L)
+  } else {
+    return 21000; // 20 Lakhs and above
+  }
+};
+
 const DEFAULT_BUY_STEPS = [
   {
     stepNumber: 1,
@@ -167,6 +178,8 @@ const CheckoutPage = () => {
     if (isBooking || !razorpayLoaded) return;
     setIsBooking(true);
 
+    const bookingAmount = getBookingAmount(car?.price);
+
     try {
       // 1. Create a placeholder booking in backend
       const bookingResp = await fetch(`${API_URL}/api/bookings`, {
@@ -178,7 +191,7 @@ const CheckoutPage = () => {
         body: JSON.stringify({
           car_id: car.id,
           final_amount: (Number(car.price) || 0) + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0),
-          booking_amount: 10000,
+          booking_amount: bookingAmount,
           interested_in_loan: interestedInLoan ? 1 : 0,
           maintenance_package: maintenancePackageAdded ? 1 : 0,
           maintenance_plan_type: maintenancePackageAdded ? maintenancePaymentType : null,
@@ -198,7 +211,7 @@ const CheckoutPage = () => {
           'Authorization': `Bearer ${localStorage.getItem('customerToken')}`
         },
         body: JSON.stringify({
-          amount: 5000,
+          amount: bookingAmount,
           currency: 'INR',
           receipt: bookingData.booking_no
         })
@@ -572,7 +585,7 @@ const CheckoutPage = () => {
                       <div className="flex items-center justify-between w-full">
                         <span>PROCEED TO PAY</span>
                         <span className="flex items-center gap-1 font-black">
-                          ₹10,000 <ChevronRight size={18} />
+                          ₹{getBookingAmount(car?.price).toLocaleString('en-IN')} <ChevronRight size={18} />
                         </span>
                       </div>
                     )}
@@ -652,7 +665,9 @@ const CheckoutPage = () => {
                   <div className="flex items-center gap-2 text-[14px] sm:text-[15px] font-medium text-emerald-900">
                     <CheckCircle2 size={17} className="text-emerald-600" /> Booking amount
                   </div>
-                  <div className="font-price font-bold text-[#0F172A] text-[17px]">₹5,000</div>
+                  <div className="font-price font-bold text-[#0F172A] text-[17px]">
+                    ₹{getBookingAmount(car?.price).toLocaleString('en-IN')}
+                  </div>
                 </div>
 
                 {/* 3-Day Delivery Discount Notice with Tooltip */}

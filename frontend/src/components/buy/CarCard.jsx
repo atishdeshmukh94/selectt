@@ -236,11 +236,16 @@ const CarCard = ({ car, lightBg = false }) => {
                 <h3 className={`text-[15px] sm:text-[16px] font-heading font-extrabold leading-snug truncate transition-colors duration-200 ${lightBg ? 'text-slate-800 group-hover:text-[#00C9AF]' : 'text-white group-hover:text-[#00C9AF]'}`}>
                   {car.title || `${car.year} ${car.make} ${car.model}`}
                 </h3>
-                {/* Full Vehicle Location / Hub Line */}
                 <div className="flex items-center gap-1.5 mt-1 text-[11.5px] sm:text-[12px] font-medium text-slate-500 dark:text-slate-400">
                   <MapPin size={12} className="text-[#00C9AF] shrink-0" />
-                  <span className="truncate" title={car.hub ? `HUB • ${car.hub}` : car.location}>
-                    {car.hub ? `HUB • ${car.hub}` : (car.location || 'Mumbai')}
+                  <span className="truncate" title={car.location || car.hub || 'Mumbai'}>
+                    {(() => {
+                      const loc = (car.location || car.hub || 'Mumbai').trim();
+                      if (loc.toLowerCase().startsWith('hub') || loc.toLowerCase().startsWith('selectt hub')) {
+                        return loc;
+                      }
+                      return `HUB • ${loc}`;
+                    })()}
                   </span>
                 </div>
               </div>
