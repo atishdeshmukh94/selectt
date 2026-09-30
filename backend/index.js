@@ -513,6 +513,23 @@ db.getConnection((err, connection) => {
         }
     });
 
+    // Ensure bookings table has maintenance package and loan interest columns
+    const bookingColumns = [
+        { name: 'maintenance_package', query: 'ALTER TABLE bookings ADD COLUMN maintenance_package TINYINT(1) DEFAULT 0' },
+        { name: 'maintenance_plan_type', query: "ALTER TABLE bookings ADD COLUMN maintenance_plan_type VARCHAR(50) DEFAULT NULL" },
+        { name: 'maintenance_price', query: 'ALTER TABLE bookings ADD COLUMN maintenance_price DECIMAL(10,2) DEFAULT NULL' },
+        { name: 'interested_in_loan', query: 'ALTER TABLE bookings ADD COLUMN interested_in_loan TINYINT(1) DEFAULT 0' }
+    ];
+    bookingColumns.forEach(col => {
+        db.query(`SHOW COLUMNS FROM bookings LIKE '${col.name}'`, (err, rows) => {
+            if (!err && rows && rows.length === 0) {
+                db.query(col.query, (alterErr) => {
+                    if (!alterErr) console.log(`Added ${col.name} column to bookings table successfully!`);
+                });
+            }
+        });
+    });
+
     // Ensure users table has all required profile & 2FA columns
     db.query("SHOW COLUMNS FROM users LIKE 'phone'", (err, rows) => {
         if (!err && rows.length === 0) {
@@ -3793,22 +3810,32 @@ app.delete('/api/admin/insurance-requests/:id', authMiddleware, isAdmin, (req, r
 // CAR BOOKINGS API
 // ============================================================
 app.post('/api/bookings', customerAuth, (req, res) => {
-    const { car_id, final_amount, booking_amount } = req.body;
+    const { 
+        car_id, 
+        final_amount, 
+        booking_amount, 
+        interested_in_loan,
+        maintenance_package,
+        maintenance_plan_type,
+        maintenance_price
+    } = req.body;
+
     if (!car_id || !final_amount) {
         return res.status(400).json({ message: 'Missing car_id or final_amount' });
     }
 
-    const { interested_in_loan } = req.body;
-
     const bookingData = {
         customer_id: req.user.id,
         car_id,
-        booking_amount: booking_amount || 5000,
+        booking_amount: booking_amount || 10000,
         final_amount,
         booking_no: `BK-${Math.floor(100000 + Math.random() * 900000)}`,
         payment_status: 'pending',
         booking_status: 'pending',
-        interested_in_loan: interested_in_loan ? 1 : 0
+        interested_in_loan: interested_in_loan ? 1 : 0,
+        maintenance_package: maintenance_package ? 1 : 0,
+        maintenance_plan_type: maintenance_plan_type || null,
+        maintenance_price: maintenance_price || null
     };
 
     db.query('SELECT status FROM cars WHERE id = ?', [car_id], (carErr, carRows) => {
@@ -3816,29 +3843,50 @@ app.post('/api/bookings', customerAuth, (req, res) => {
             return res.status(400).json({ message: 'Car bookings are not available for vehicles with Coming Soon status.' });
         }
 
-        db.query('INSERT INTO bookings SET ?', bookingData, (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            createNotification('PAYMENT', `New car booking created: ${bookingData.booking_no}`, req.user.id, result.insertId);
+        const safeInsertBooking = (data) => {
+            db.query('INSERT INTO bookings SET ?', data, (err, result) => {
+                if (err && (err.code === 'ER_BAD_FIELD_ERROR' || (err.message && err.message.includes('Unknown column')))) {
+                    const match = err.message.match(/Unknown column '([^']+)'/);
+                    if (match && match[1]) {
+                        const missingCol = match[1];
+                        console.log(`Auto-adding missing column '${missingCol}' to bookings table...`);
+                        db.query(`ALTER TABLE bookings ADD COLUMN \`${missingCol}\` VARCHAR(255) NULL`, (alterErr) => {
+                            if (!alterErr) {
+                                return safeInsertBooking(data);
+                            } else {
+                                const sanitized = { ...data };
+                                delete sanitized[missingCol];
+                                return safeInsertBooking(sanitized);
+                            }
+                        });
+                        return;
+                    }
+                }
+                if (err) return res.status(500).json({ error: err.message });
+                createNotification('PAYMENT', `New car booking created: ${data.booking_no}`, req.user.id, result.insertId);
 
-        // Gallabox WhatsApp Automated Trigger
-        db.query('SELECT c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
-            if (!cErr && cRows.length > 0) {
-                const info = cRows[0];
-                sendGallaboxWhatsAppNotification('car_booking', info.phone || req.user.phone, {
-                    customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
-                    car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
-                    amount: `₹${Number(bookingData.booking_amount).toLocaleString()}`,
-                    booking_id: bookingData.booking_no
+                // Gallabox WhatsApp Automated Trigger
+                db.query('SELECT c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
+                    if (!cErr && cRows.length > 0) {
+                        const info = cRows[0];
+                        sendGallaboxWhatsAppNotification('car_booking', info.phone || req.user.phone, {
+                            customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
+                            car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
+                            amount: `₹${Number(data.booking_amount).toLocaleString()}`,
+                            booking_id: data.booking_no
+                        });
+                    }
+                    res.status(201).json({ 
+                        message: 'Booking created successfully', 
+                        id: result.insertId,
+                        booking_no: data.booking_no 
+                    });
                 });
-            }
-             res.status(201).json({ 
-                message: 'Booking created successfully', 
-                id: result.insertId,
-                booking_no: bookingData.booking_no 
             });
-        });
+        };
+
+        safeInsertBooking(bookingData);
     });
-});
 });
 
 app.get('/api/bookings', (req, res) => {

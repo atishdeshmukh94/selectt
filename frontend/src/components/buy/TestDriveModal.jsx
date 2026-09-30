@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
-import { X, MapPin, Calendar, Clock, ChevronRight, ChevronDown, Check, Car, ShieldCheck, Navigation, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, X, MapPin, Calendar, Clock, ChevronRight, ChevronDown, Check, Car, ShieldCheck, Navigation, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../../config/api';
+
 const API = API_URL;
 
-const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
+const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hub' }) => {
   const { token, user, openLoginModal, handleAuthError } = useAuth();
   const [selectedLocation, setSelectedLocation] = useState('hub');
   const [selectedDate, setSelectedDate] = useState('day0');
   const [customDate, setCustomDate] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState('4pm - 5pm');
+  const [doorstepAddress, setDoorstepAddress] = useState('');
+  const [doorstepPincode, setDoorstepPincode] = useState('');
+  const [isAddressExpanded, setIsAddressExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -19,7 +22,13 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
   const [selectedHubId, setSelectedHubId] = useState('');
   const [isHubDropdownOpen, setIsHubDropdownOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (initialLocation) {
+      setSelectedLocation(initialLocation === 'doorstep' ? 'doorstep' : 'hub');
+    }
+  }, [initialLocation, isOpen]);
+
+  useEffect(() => {
     if (!isOpen) return;
     fetch(`${API}/api/car-hub-locations`)
       .then(res => res.json())
@@ -27,25 +36,26 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
         if (Array.isArray(data) && data.length > 0) {
           setHubs(data);
           const carLoc = (car?.location || '').toLowerCase();
-          const matched = data.find(h => h.city.toLowerCase() === carLoc || carLoc.includes(h.city.toLowerCase()));
+          const matched = data.find(h => h.city?.toLowerCase() === carLoc || carLoc.includes(h.city?.toLowerCase()));
           setSelectedHubId(matched ? String(matched.id) : String(data[0].id));
         }
       })
       .catch(console.error);
   }, [isOpen, car]);
 
-  // Generate real upcoming 3 days
+  // Generate real 3 upcoming days (Today, Tomorrow, Day 3)
   const generateDates = () => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const result = [];
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 0; i <= 2; i++) {
       const d = new Date();
       d.setDate(d.getDate() + i);
       result.push({
-        id: `day${i - 1}`,
+        id: `day${i}`,
         day: `${d.getDate()} ${months[d.getMonth()]}`,
-        label: i === 1 ? 'Tomorrow' : days[d.getDay()],
+        label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : days[d.getDay()],
+        fullDayName: days[d.getDay()],
         dateObj: d
       });
     }
@@ -57,25 +67,44 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
 
   const slots = [
-    '10:30 AM', '12:00 PM', '02:00 PM', '04:00 PM', '06:00 PM'
+    '10am - 11am',
+    '12pm - 1pm',
+    '2pm - 3pm',
+    '4pm - 5pm',
+    '5pm - 6pm',
+    '6pm - 7pm',
+    '7pm - 8pm'
   ];
 
-  // Get the display date string for confirm button / success message
+  // Get the display date string for confirm button / summary
   const getSelectedDateDisplay = () => {
     if (selectedDate === 'custom' && customDate) {
       const d = new Date(customDate);
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
     }
-    return dates.find(d => d.id === selectedDate)?.day || '';
+    const found = dates.find(d => d.id === selectedDate);
+    return found ? `${found.fullDayName} ${found.day}` : dates[0]?.day || '';
   };
 
-  // Min date for calendar = tomorrow
-  const minDate = (() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().split('T')[0];
-  })();
+  const getShortDateDisplay = () => {
+    if (selectedDate === 'custom' && customDate) {
+      const d = new Date(customDate);
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${d.getDate()} ${months[d.getMonth()]}`;
+    }
+    return dates.find(d => d.id === selectedDate)?.day || dates[0]?.day || '';
+  };
+
+  // Min date for custom calendar = today
+  const minDate = new Date().toISOString().split('T')[0];
+
+  const selectedHub = hubs.find(h => String(h.id) === String(selectedHubId)) || {
+    name: car?.hubLocation || 'Selectt Main Hub',
+    address: 'Metro Walk Mall, Adventure Island, Parking Lane No. 4, Rohini / Pune Hub',
+    city: car?.location || 'Pune'
+  };
 
   const submitBooking = async (authToken) => {
     setIsLoading(true);
@@ -83,7 +112,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
 
     const dateInfo = selectedDate === 'custom'
       ? { label: 'Custom', day: getSelectedDateDisplay() }
-      : dates.find(d => d.id === selectedDate);
+      : dates.find(d => d.id === selectedDate) || dates[0];
 
     try {
       const response = await fetch(`${API}/api/test-drives`, {
@@ -93,10 +122,10 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
           'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({
-          car_id: car.id,
+          car_id: car?.id,
           location: selectedLocation === 'hub' ? 'hub' : 'doorstep',
-          hub_name: selectedLocation === 'hub' ? (hubs.find(h => String(h.id) === String(selectedHubId))?.name || car.hubLocation || 'Selectt Hub') : null,
-          hub_address: selectedLocation === 'hub' ? (hubs.find(h => String(h.id) === String(selectedHubId))?.address || '') : null,
+          hub_name: selectedLocation === 'hub' ? selectedHub.name : 'Doorstep Test Drive',
+          hub_address: selectedLocation === 'hub' ? selectedHub.address : (doorstepAddress ? `${doorstepAddress} (Pin: ${doorstepPincode || 'N/A'})` : 'Customer Doorstep Location'),
           date_label: dateInfo.label,
           date_day: dateInfo.day,
           slot: selectedSlot
@@ -110,6 +139,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
         if (onSuccess) {
           onSuccess({
             location: selectedLocation === 'hub' ? 'hub' : 'doorstep',
+            hub_name: selectedLocation === 'hub' ? selectedHub.name : 'Doorstep Test Drive',
             date_label: dateInfo.label,
             date_day: dateInfo.day,
             slot: selectedSlot
@@ -129,14 +159,16 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
   };
 
   const handleConfirm = async () => {
+    if (!selectedSlot) {
+      setError('Please select a time slot.');
+      return;
+    }
     if (!token) {
-      // Open login modal with a callback — after login, auto-submit the booking
       openLoginModal((freshToken) => {
         submitBooking(freshToken);
       });
       return;
     }
-
     await submitBooking(token);
   };
 
@@ -147,153 +179,207 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
     onClose();
   };
 
+  const estimatedEmi = car?.emi
+    ? Number(car.emi).toLocaleString()
+    : Math.round(((car?.price || 550000) * 0.017)).toLocaleString();
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 md:p-6">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={handleClose} />
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+      {/* Backdrop overlay */}
+      <div className="fixed inset-0" onClick={handleClose} />
 
-      {/* Modal Card */}
-      <div className="bg-white rounded-3xl w-full max-w-md md:max-w-3xl lg:max-w-4xl relative z-10 shadow-2xl flex flex-col overflow-hidden" style={{ maxHeight: 'min(720px, calc(100vh - 40px))' }}>
+      {/* Modal Container */}
+      <div className="bg-white rounded-t-[28px] sm:rounded-3xl w-full max-w-lg sm:max-w-xl relative z-10 shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-250 border border-slate-200/80">
 
-        {/* Header */}
-        <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-slate-100 flex items-center justify-between">
-          <div className="text-left">
-            <h1 className="text-lg sm:text-xl font-heading font-extrabold text-[#0C1B33]">Free Test Drive</h1>
-            <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Schedule your visit</p>
+        {/* Top Header */}
+        <div className="px-5 py-4 sm:px-6 bg-white border-b border-slate-100 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="w-8 h-8 rounded-full hover:bg-slate-100 text-[#5B0888] flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Back"
+            >
+              <ArrowLeft size={20} strokeWidth={2.5} />
+            </button>
+            <h2 className="text-base sm:text-lg font-black text-[#2b0a3d] tracking-tight">
+              Schedule Free Test Drive
+            </h2>
           </div>
-          <button 
-            onClick={handleClose} 
-            className="w-9 h-9 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors cursor-pointer text-slate-400 hover:text-slate-700"
+          <button
+            type="button"
+            onClick={handleClose}
+            className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
             aria-label="Close"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 custom-scrollbar">
+        {/* Scrollable Content Body */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar space-y-5">
           {isSuccess ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <div className="w-16 h-16 bg-emerald-50 text-[#00C9AF] rounded-full flex items-center justify-center mb-4 animate-in zoom-in duration-300 shadow-sm">
-                <CheckCircle2 size={36} />
+            <div className="flex flex-col items-center justify-center py-8 text-center animate-in zoom-in-95 duration-300">
+              <div className="w-16 h-16 bg-purple-50 text-[#5B0888] rounded-full flex items-center justify-center mb-4 shadow-xs">
+                <CheckCircle2 size={40} />
               </div>
-              <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-[#0C1B33] mb-1">Test Drive Booked! 🎉</h2>
-              <p className="text-sm text-slate-600 max-w-sm mx-auto leading-relaxed mb-5">
-                <span className="font-bold text-slate-800 block text-base">{car.year} {car.make} {car.model}</span>
-                <span className="font-bold text-[#008A77] block mt-1">{selectedSlot} • {getSelectedDateDisplay()}</span>
-                {selectedLocation === 'hub' && (
-                  <span className="text-xs text-slate-500 block mt-1">
-                    📍 {hubs.find(h => String(h.id) === String(selectedHubId))?.name || car.hubLocation || 'Selectt Hub'}
-                  </span>
-                )}
+              <h3 className="text-xl sm:text-2xl font-black text-[#2b0a3d] mb-1">
+                Test Drive Scheduled! 🎉
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 max-w-sm mx-auto leading-relaxed mb-6">
+                <span className="font-bold text-slate-900 block text-base mt-1">
+                  {car?.year} {car?.make} {car?.model} {car?.variant || ''}
+                </span>
+                <span className="font-extrabold text-[#5B0888] block mt-1.5 text-sm">
+                  {selectedSlot} • {getSelectedDateDisplay()}
+                </span>
+                <span className="text-xs text-slate-500 block mt-1">
+                  📍 {selectedLocation === 'hub' ? (selectedHub.name || 'Selectt Hub') : 'Your Location (Doorstep)'}
+                </span>
               </p>
-              <div className="flex items-center gap-2 px-4 py-2.5 bg-[#00C9AF]/10 rounded-xl border border-[#00C9AF]/25 text-[#008A77] mb-6">
-                <ShieldCheck size={18} />
-                <span className="text-xs font-bold">Selectt Assured · Our team will contact you shortly</span>
+
+              <div className="w-full max-w-sm bg-purple-50/70 border border-purple-200/80 rounded-2xl p-3.5 flex items-center gap-2.5 text-[#5B0888] text-xs font-bold mb-6">
+                <ShieldCheck size={18} className="shrink-0" />
+                <span>Our representative will confirm your visit via SMS / WhatsApp.</span>
               </div>
+
               <button
+                type="button"
                 onClick={handleClose}
-                className="w-full max-w-xs py-3.5 bg-[#0C1B33] hover:bg-[#162947] text-white rounded-xl font-heading font-semibold text-sm shadow-md transition-all cursor-pointer"
+                className="w-full max-w-sm py-3.5 bg-[#5B0888] hover:bg-[#49056E] text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-900/20 transition-all cursor-pointer"
               >
                 Done
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-7 items-start">
-              
-              {/* LEFT COLUMN: Car summary & Location Selection */}
-              <div className="space-y-4 text-left">
-                {/* Simple Car Card */}
-                <div className="flex gap-3.5 p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 items-center">
-                  <div className="w-20 h-16 rounded-xl overflow-hidden bg-white shrink-0 border border-slate-200/60 shadow-2xs">
+            <>
+              {/* Car Card Preview (Matching Spinny reference exactly) */}
+              {car && (
+                <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-[#fafafa] border border-slate-200/90 shadow-2xs">
+                  <div className="w-24 h-18 sm:w-28 sm:h-20 rounded-xl overflow-hidden bg-white shrink-0 border border-slate-200 shadow-2xs">
                     <img
-                      src={getCarImageUrl(car?.image || car?.images?.[0])}
-                      alt={car?.model || 'Car'}
+                      src={getCarImageUrl(car.image || car.images?.[0])}
+                      alt={`${car.make} ${car.model}`}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
-                      }}
+                      onError={(e) => { e.target.src = DEFAULT_CAR_FALLBACK_IMAGE; }}
                     />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-heading font-extrabold text-[#0C1B33] text-sm sm:text-base leading-tight truncate">
-                      {car.year} {car.make} {car.model}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-black text-[#2b0a3d] text-sm sm:text-base leading-tight truncate">
+                      {car.year} {car.make} {car.model} {car.variant ? String(car.variant) : ''}
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5">
-                      {car.km ? car.km.toLocaleString() : '18,200'} Km • {car.fuelType}
+                    <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 truncate">
+                      {car.km ? `${Number(car.km).toLocaleString()} Km` : '20,000 Km'} · {car.fuelType || car.fuel_type || 'Petrol'} · {car.transmission || 'Manual'}
                     </p>
-                    <p className="text-sm sm:text-base font-heading font-black text-[#0C1B33] mt-0.5">
-                      ₹{(car.price / 100000).toFixed(2)} Lakh
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="font-black text-[#2b0a3d] text-sm sm:text-base">
+                        ₹ {((Number(car.price) || 550000) / 100000).toFixed(2)} Lakh
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-500">
+                        EMI ₹{estimatedEmi}/mo
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step-by-Step Vertical Timeline (Matching Spinny layout) */}
+              <div className="relative pl-7 space-y-6 before:absolute before:left-[11px] before:top-2.5 before:bottom-3 before:w-[2px] before:bg-purple-200">
+
+                {/* STEP 1: Select Location */}
+                <div className="relative">
+                  {/* Step Bullet Dot */}
+                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#5B0888] ring-4 ring-white flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-white" />
+                  </span>
+
+                  <label className="block text-xs sm:text-sm font-extrabold text-[#2b0a3d] mb-2.5">
+                    Select location
+                  </label>
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLocation('hub')}
+                      className={`py-3 px-3 rounded-xl border-2 text-xs font-black tracking-wider uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 ${
+                        selectedLocation === 'hub'
+                          ? 'border-[#5B0888] bg-purple-50/50 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      <Car size={15} />
+                      <span>SELECTT HUB</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLocation('doorstep')}
+                      className={`py-3 px-3 rounded-xl border-2 text-xs font-black tracking-wider uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 ${
+                        selectedLocation === 'doorstep'
+                          ? 'border-[#5B0888] bg-purple-50/50 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      <Navigation size={14} />
+                      <span>MY LOCATION</span>
+                    </button>
                   </div>
                 </div>
 
-                {/* Location Section */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2.5">
-                    <MapPin size={15} className="text-[#00C9AF]" />
-                    <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest">Select Location</h2>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {[
-                      { id: 'hub', label: 'Selectt Hub', icon: <Car size={15} /> },
-                      { id: 'doorstep', label: 'Doorstep', icon: <Navigation size={15} /> }
-                    ].map((loc) => (
-                      <button
-                        key={loc.id}
-                        disabled={isLoading}
-                        onClick={() => setSelectedLocation(loc.id)}
-                        className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all text-xs sm:text-sm font-heading font-semibold cursor-pointer ${selectedLocation === loc.id
-                          ? 'border-[#00C9AF] bg-[#e6faf7] text-[#008A77] shadow-xs'
-                          : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
-                          } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        {loc.icon}
-                        <span>{loc.label}</span>
-                      </button>
-                    ))}
-                  </div>
+                {/* STEP 2: Hub Location or Doorstep Address */}
+                <div className="relative">
+                  {/* Step Bullet Dot */}
+                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#5B0888] ring-4 ring-white flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-white" />
+                  </span>
 
-                  {selectedLocation === 'hub' && (
-                    <div className="mt-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 text-left">
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="block text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
-                          Selectt Spot / Hub Location
-                        </label>
-                        {hubs.length > 0 && (
-                          <span className="text-[11px] font-black text-[#008A77] bg-[#E6FAF7] px-2.5 py-0.5 rounded-full border border-[#00C9AF]/30">
-                            {hubs.length} Hubs
-                          </span>
-                        )}
+                  <label className="block text-xs sm:text-sm font-extrabold text-[#2b0a3d] mb-2">
+                    {selectedLocation === 'hub' ? 'Selectt hub location' : 'Doorstep test drive location'}
+                  </label>
+
+                  {selectedLocation === 'hub' ? (
+                    <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2">
+                          <MapPin size={16} className="text-[#5B0888] shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="text-xs sm:text-sm font-bold text-slate-800">
+                              {selectedHub.name || car?.hubLocation || 'Selectt Main Hub'}
+                            </h4>
+                            <p className={`text-xs text-slate-500 font-medium leading-relaxed mt-0.5 ${!isAddressExpanded ? 'line-clamp-2' : ''}`}>
+                              {selectedHub.address || 'Phoenix Marketcity, Viman Nagar / Metro Walk Mall, Adventure Island, Parking Lane No. 4'}
+                            </p>
+                          </div>
+                        </div>
                       </div>
 
-                      {hubs.length > 0 ? (
-                        <div className="relative">
-                          {/* Slim Custom Trigger Button */}
-                          <button
-                            type="button"
-                            onClick={() => setIsHubDropdownOpen(!isHubDropdownOpen)}
-                            className="w-full bg-white border border-slate-200 hover:border-[#00C9AF] rounded-xl px-3 py-2 text-xs font-bold text-slate-800 shadow-2xs flex items-center justify-between transition-all outline-none cursor-pointer active:scale-[0.99]"
-                          >
-                            <div className="flex items-center gap-2 truncate">
-                              <MapPin size={13} className="text-[#00C9AF] shrink-0" />
-                              <span className="truncate">
-                                {hubs.find(h => String(h.id) === String(selectedHubId))?.name || 'Select Hub'}
-                              </span>
-                            </div>
-                            <ChevronDown size={14} className={`text-slate-400 shrink-0 transition-transform duration-200 ${isHubDropdownOpen ? 'rotate-180 text-[#00C9AF]' : ''}`} />
-                          </button>
+                      {/* Read More / Read Less Toggle */}
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => setIsAddressExpanded(!isAddressExpanded)}
+                          className="text-[#5B0888] text-xs font-bold hover:underline cursor-pointer"
+                        >
+                          {isAddressExpanded ? 'Read Less' : 'Read More'}
+                        </button>
 
-                          {/* Floating Dropdown Menu */}
-                          {isHubDropdownOpen && (
-                            <>
-                              <div
-                                className="fixed inset-0 z-40"
-                                onClick={() => setIsHubDropdownOpen(false)}
-                              />
-                              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200/90 rounded-2xl shadow-xl z-50 p-1.5 max-h-48 overflow-y-auto divide-y divide-slate-100 scrollbar-none">
-                                {hubs.map((h) => {
-                                  const isSelected = String(h.id) === String(selectedHubId);
-                                  return (
+                        {/* Hub Selector if multiple hubs */}
+                        {hubs.length > 1 && (
+                          <div className="relative">
+                            <button
+                              type="button"
+                              onClick={() => setIsHubDropdownOpen(!isHubDropdownOpen)}
+                              className="text-xs text-purple-700 font-bold flex items-center gap-1 hover:underline cursor-pointer"
+                            >
+                              <span>Change Hub</span>
+                              <ChevronDown size={13} className={isHubDropdownOpen ? 'rotate-180' : ''} />
+                            </button>
+
+                            {isHubDropdownOpen && (
+                              <>
+                                <div className="fixed inset-0 z-40" onClick={() => setIsHubDropdownOpen(false)} />
+                                <div className="absolute right-0 top-full mt-1.5 w-64 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-1.5 max-h-48 overflow-y-auto">
+                                  {hubs.map((h) => (
                                     <button
                                       key={h.id}
                                       type="button"
@@ -301,165 +387,216 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
                                         setSelectedHubId(String(h.id));
                                         setIsHubDropdownOpen(false);
                                       }}
-                                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${isSelected
-                                        ? 'bg-[#E6FAF7] text-[#0C1B33]'
-                                        : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
-                                      }`}
+                                      className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold hover:bg-purple-50 text-slate-700 flex items-center justify-between"
                                     >
-                                      <div className="flex flex-col min-w-0 pr-2">
-                                        <span className="truncate font-bold">{h.name}</span>
-                                        <span className="text-[10px] text-slate-400 font-semibold uppercase">{h.city}</span>
-                                      </div>
-                                      {isSelected && <Check size={14} className="text-[#00C9AF] shrink-0" />}
+                                      <span className="truncate">{h.name}</span>
+                                      {String(h.id) === String(selectedHubId) && <Check size={14} className="text-[#5B0888]" />}
                                     </button>
-                                  );
-                                })}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-xs font-bold text-slate-800">
-                          {car.hubLocation || 'Selectt Main Hub'}
-                        </p>
-                      )}
-
-                      {(() => {
-                        const selectedHub = hubs.find(h => String(h.id) === String(selectedHubId));
-                        return selectedHub ? (
-                          <div className="mt-2.5 pt-2 border-t border-slate-200/60">
-                            <p className="text-xs font-semibold text-slate-700 leading-normal flex items-start gap-1">
-                              <MapPin size={12} className="text-[#00C9AF] shrink-0 mt-0.5" />
-                              <span>{selectedHub.address}</span>
-                            </p>
-                            <p className="text-xs text-slate-500 font-bold mt-1">
-                              🕒 {selectedHub.open_hours || '09:30 AM - 08:00 PM (Mon-Sun)'}
-                            </p>
+                                  ))}
+                                </div>
+                              </>
+                            )}
                           </div>
-                        ) : (
-                          <p className="text-xs text-slate-500 font-medium mt-1">
-                            Phoenix Marketcity Mall Road, Viman Nagar, Pune, Maharashtra 411014
-                          </p>
-                        );
-                      })()}
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2.5">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                          Delivery Street Address / Landmark
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Flat 402, Green Avenue, Baner"
+                          value={doorstepAddress}
+                          onChange={(e) => setDoorstepAddress(e.target.value)}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#5B0888] focus:outline-none"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                            Pincode
+                          </label>
+                          <input
+                            type="text"
+                            maxLength={6}
+                            placeholder="e.g. 411045"
+                            value={doorstepPincode}
+                            onChange={(e) => setDoorstepPincode(e.target.value)}
+                            className="w-full p-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#5B0888] focus:outline-none"
+                          />
+                        </div>
+                        <div className="flex items-end">
+                          <span className="text-[11px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-2.5 py-2 rounded-xl w-full text-center">
+                            ✓ Free Doorstep
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
-              </div>
 
-              {/* RIGHT COLUMN: Date & Time Selection & Confirmation */}
-              <div className="space-y-4 text-left flex flex-col justify-between h-full">
-                <div className="space-y-4">
-                  {/* Date Section */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-2.5">
-                      <Calendar size={15} className="text-[#00C9AF]" />
-                      <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest">Select Date</h2>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2">
-                      {dates.map((date) => (
-                        <button
-                          key={date.id}
-                          disabled={isLoading}
-                          onClick={() => { setSelectedDate(date.id); setShowCalendar(false); setCustomDate(''); }}
-                          className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer ${selectedDate === date.id && !showCalendar
-                            ? 'border-[#00C9AF] bg-[#e6faf7] text-[#008A77] shadow-xs'
-                            : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
-                            } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          <span className="text-[10px] font-bold uppercase tracking-tight mb-0.5">{date.label}</span>
-                          <span className="text-xs font-extrabold">{date.day}</span>
-                        </button>
-                      ))}
-                      {/* Calendar picker button */}
-                      <button
-                        disabled={isLoading}
-                        onClick={() => { setShowCalendar(true); setSelectedDate('custom'); }}
-                        className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer ${showCalendar
-                          ? 'border-[#00C9AF] bg-[#e6faf7] text-[#008A77] shadow-xs'
-                          : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
-                          } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        <Calendar size={14} className="mb-0.5" />
-                        <span className="text-[10px] font-bold uppercase tracking-tight">Pick</span>
-                      </button>
-                    </div>
-                    {/* Native calendar input shown when Pick is selected */}
-                    {showCalendar && (
-                      <div className="mt-2.5">
-                        <input
-                          type="date"
-                          min={minDate}
-                          value={customDate}
-                          onChange={(e) => setCustomDate(e.target.value)}
-                          className="w-full p-2.5 rounded-xl border border-[#00C9AF] bg-[#e6faf7] text-[#008A77] text-xs font-bold focus:outline-none cursor-pointer"
-                        />
-                      </div>
-                    )}
+                {/* STEP 3: Select Date */}
+                <div className="relative">
+                  {/* Step Bullet Dot */}
+                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#5B0888] ring-4 ring-white flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-white" />
+                  </span>
+
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs sm:text-sm font-extrabold text-[#2b0a3d]">
+                      Select date
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCalendar(!showCalendar);
+                        if (!showCalendar) setSelectedDate('custom');
+                      }}
+                      className="text-xs font-bold text-[#5B0888] hover:underline cursor-pointer flex items-center gap-1"
+                    >
+                      <Calendar size={13} />
+                      <span>{showCalendar ? 'Quick dates' : 'See all dates'}</span>
+                    </button>
                   </div>
 
-                  {/* Slot Section */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-2.5">
-                      <Clock size={15} className="text-[#00C9AF]" />
-                      <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest">Select Time</h2>
+                  <div className="grid grid-cols-4 gap-2">
+                    {dates.map((d) => {
+                      const isSelected = selectedDate === d.id && !showCalendar;
+                      return (
+                        <button
+                          key={d.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedDate(d.id);
+                            setShowCalendar(false);
+                          }}
+                          className={`p-2 sm:p-2.5 rounded-xl border-2 flex flex-col items-center justify-center transition-all cursor-pointer ${
+                            isSelected
+                              ? 'border-[#5B0888] bg-purple-50/50 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                              : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                          }`}
+                        >
+                          <span className="text-xs sm:text-sm font-black leading-tight">
+                            {d.day}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-500 mt-0.5">
+                            {d.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+
+                    {/* 4th Box: See all dates trigger */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCalendar(true);
+                        setSelectedDate('custom');
+                      }}
+                      className={`p-2 sm:p-2.5 rounded-xl border-2 flex flex-col items-center justify-center transition-all cursor-pointer ${
+                        showCalendar
+                          ? 'border-[#5B0888] bg-purple-50/50 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      <span className="text-xs font-bold text-purple-700 leading-tight">
+                        See all
+                      </span>
+                      <span className="text-[10px] font-bold text-purple-700 mt-0.5">
+                        dates
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Calendar input when Custom / See all dates is chosen */}
+                  {showCalendar && (
+                    <div className="mt-2.5 animate-in fade-in duration-200">
+                      <input
+                        type="date"
+                        min={minDate}
+                        value={customDate}
+                        onChange={(e) => setCustomDate(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border-2 border-[#5B0888] bg-purple-50/30 text-[#2b0a3d] text-xs font-bold focus:outline-none cursor-pointer"
+                      />
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {slots.map((slot) => (
+                  )}
+                </div>
+
+                {/* STEP 4: Select Time Slot */}
+                <div className="relative">
+                  {/* Step Bullet Dot */}
+                  <span className="absolute -left-7 top-0.5 w-[22px] h-[22px] rounded-full bg-[#5B0888] ring-4 ring-white flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-white" />
+                  </span>
+
+                  <label className="block text-xs sm:text-sm font-extrabold text-[#2b0a3d] mb-2.5">
+                    Select time slot
+                  </label>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    {slots.map((slot) => {
+                      const isSelected = selectedSlot === slot;
+                      return (
                         <button
                           key={slot}
-                          disabled={isLoading}
+                          type="button"
                           onClick={() => setSelectedSlot(slot)}
-                          className={`p-2.5 sm:p-3 rounded-xl border transition-all text-xs font-heading font-bold cursor-pointer ${selectedSlot === slot
-                            ? 'bg-[#00C9AF] border-[#00C9AF] text-[#0C1B33] shadow-sm'
-                            : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
-                            } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          className={`py-2.5 px-2 rounded-xl border-2 text-xs font-bold transition-all cursor-pointer text-center ${
+                            isSelected
+                              ? 'border-[#5B0888] bg-purple-50/60 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                              : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                          }`}
                         >
                           {slot}
                         </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {error && (
-                    <div className="p-3 bg-red-50 text-red-500 text-xs font-bold rounded-xl text-center border border-red-100">
-                      {error}
-                    </div>
-                  )}
-                </div>
-
-                {/* Confirm Action Button */}
-                <div className="pt-2">
-                  {car?.status === 'coming_soon' ? (
-                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs font-semibold text-center">
-                      ⏳ Test drives are currently locked for vehicles with "Coming Soon" status.
-                    </div>
-                  ) : (
-                    <button
-                      disabled={!selectedSlot || isLoading}
-                      onClick={handleConfirm}
-                      className={`w-full py-3.5 rounded-xl font-heading font-semibold text-xs sm:text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${selectedSlot && !isLoading
-                        ? 'bg-[#00C9AF] hover:bg-[#00E5C8] text-[#0C1B33] shadow-lg shadow-[#00C9AF]/25 active:scale-[0.99]'
-                        : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                        }`}
-                    >
-                      {isLoading && (
-                        <div className="w-4 h-4 border-2 border-[#0C1B33]/30 border-t-[#0C1B33] rounded-full animate-spin" />
-                      )}
-                      <span>{selectedSlot ? `Confirm Test Drive • ${selectedSlot}` : 'Select a time slot'}</span>
-                    </button>
-                  )}
-                  <div className="mt-2.5 flex items-center justify-center gap-1.5 opacity-60">
-                    <ShieldCheck size={12} className="text-[#00C9AF]" />
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Secured by Selectt Assured</span>
+                      );
+                    })}
                   </div>
                 </div>
 
               </div>
 
-            </div>
+              {error && (
+                <div className="p-3 bg-red-50 text-red-600 text-xs font-bold rounded-xl border border-red-200 text-center">
+                  {error}
+                </div>
+              )}
+            </>
           )}
         </div>
+
+        {/* Bottom Sticky Action Footer (Matching Spinny reference exactly) */}
+        {!isSuccess && (
+          <div className="p-4 sm:p-5 bg-white border-t border-slate-100 shadow-[0_-8px_20px_rgba(0,0,0,0.06)] shrink-0">
+            <button
+              type="button"
+              disabled={isLoading || !selectedSlot}
+              onClick={handleConfirm}
+              className={`w-full py-3.5 px-5 rounded-2xl font-black text-white text-sm sm:text-base flex flex-col items-center justify-center transition-all duration-200 shadow-md cursor-pointer ${
+                selectedSlot && !isLoading
+                  ? 'bg-gradient-to-r from-[#F43F5E] via-[#E11D48] to-[#BE123C] hover:from-[#E11D48] hover:to-[#9F1239] active:scale-[0.99] shadow-rose-500/25'
+                  : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+              }`}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2 py-1">
+                  <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  <span>Scheduling Test Drive...</span>
+                </div>
+              ) : (
+                <>
+                  <span className="leading-tight">Pick slot & continue</span>
+                  <span className="text-[11px] font-semibold text-rose-100 leading-tight mt-0.5">
+                    {selectedLocation === 'hub' ? 'Selectt Hub' : 'Doorstep'} on {getSelectedDateDisplay()} {selectedSlot ? `• ${selectedSlot}` : ''}
+                  </span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
 
       </div>
     </div>
@@ -467,5 +604,3 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
 };
 
 export default TestDriveModal;
-
-

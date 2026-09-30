@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
-import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info } from 'lucide-react';
+import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
@@ -95,8 +95,33 @@ const CheckoutPage = () => {
   const [mobileLoanPromptVisible, setMobileLoanPromptVisible] = useState(true);
   const [isPriceSummaryOpen, setIsPriceSummaryOpen] = useState(false);
   const [isTestDriveOpen, setIsTestDriveOpen] = useState(false);
+  const [testDriveLocation, setTestDriveLocation] = useState('hub');
+  const [isTestDriveSkipped, setIsTestDriveSkipped] = useState(false);
   const [scheduledTestDrive, setScheduledTestDrive] = useState(null);
   const [steps, setSteps] = useState(DEFAULT_BUY_STEPS);
+
+  // 1-Year Complete Maintenance Package state
+  const [maintenancePackageAdded, setMaintenancePackageAdded] = useState(false);
+  const [maintenancePaymentType, setMaintenancePaymentType] = useState('full'); // 'full' | 'monthly'
+  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
+  const [isMaintenanceDetailsOpen, setIsMaintenanceDetailsOpen] = useState(false);
+  const [showCelebrationToast, setShowCelebrationToast] = useState(false);
+  const [expandedFeature, setExpandedFeature] = useState('warranty'); // 'warranty' | 'periodic' | 'rsa' | null
+  const [openFaqIndex, setOpenFaqIndex] = useState(0);
+
+  const openTestDrive = (location = 'hub') => {
+    setTestDriveLocation(location);
+    setIsTestDriveOpen(true);
+  };
+
+  const handleConfirmMaintenance = () => {
+    setMaintenancePackageAdded(true);
+    setIsMaintenanceModalOpen(false);
+    setShowCelebrationToast(true);
+    setTimeout(() => {
+      setShowCelebrationToast(false);
+    }, 2800);
+  };
 
   useEffect(() => {
     // Fetch dynamic buy steps from backend if customized
@@ -152,9 +177,12 @@ const CheckoutPage = () => {
         },
         body: JSON.stringify({
           car_id: car.id,
-          final_amount: car.price,
-          booking_amount: 5000,
-          interested_in_loan: interestedInLoan
+          final_amount: (Number(car.price) || 0) + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0),
+          booking_amount: 10000,
+          interested_in_loan: interestedInLoan ? 1 : 0,
+          maintenance_package: maintenancePackageAdded ? 1 : 0,
+          maintenance_plan_type: maintenancePackageAdded ? maintenancePaymentType : null,
+          maintenance_price: maintenancePackageAdded ? (maintenancePaymentType === 'full' ? 11287 : 990) : null
         })
       });
 
@@ -311,136 +339,247 @@ const CheckoutPage = () => {
             {/* Left Column: Flow Options */}
             <div className="space-y-6">
 
-              {/* Finance Option - Highlighted with glowing border & button */}
-              <div 
-                onClick={() => setInterestedInLoan(!interestedInLoan)}
-                className={`rounded-2xl p-5 sm:p-6 transition-all duration-300 flex items-start gap-4 cursor-pointer relative overflow-hidden ${
-                  interestedInLoan
-                    ? 'bg-gradient-to-r from-emerald-500/[0.08] via-teal-500/[0.05] to-white border-2 border-[#00C9AF] shadow-[0_0_25px_rgba(0,201,175,0.25)] ring-4 ring-[#00C9AF]/15'
-                    : 'bg-white hover:bg-slate-50/90 border-2 border-emerald-400/50 hover:border-[#00C9AF] shadow-[0_0_18px_rgba(0,201,175,0.15)] ring-2 ring-emerald-400/10'
-                }`}
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[#000] font-black text-base sm:text-lg tracking-tight italic flex items-center">
-                      Get Finance This
-                    </span>
-                    <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-xs">
-                      ⚡ Low EMI Rates
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-[#0C1B33] text-base mb-1.5 flex items-center gap-2">
-                    Interested in car loan?
-                    {interestedInLoan && (
-                      <span className="text-[11px] font-extrabold text-[#00C9AF] bg-[#00C9AF]/10 px-2 py-0.5 rounded-md border border-[#00C9AF]/20">
-                        ✓ Selected
+              {/* 1. Test Drive Details / Selector */}
+              {scheduledTestDrive ? (
+                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center text-[#5B0888]">
+                        <Calendar size={16} />
+                      </div>
+                      <span className="font-black text-[#2b0a3d] text-sm sm:text-base">
+                        {scheduledTestDrive.date_day || 'Wed, 30 Sep'} • {scheduledTestDrive.slot || '4pm - 5pm'}
                       </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => openTestDrive(scheduledTestDrive.location || 'hub')}
+                      className="text-[#5B0888] font-bold text-xs hover:underline cursor-pointer"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold pl-1">
+                    <MapPin size={14} className="text-[#5B0888] shrink-0" />
+                    <span>{scheduledTestDrive.location === 'hub' ? (scheduledTestDrive.hub_name || 'Selectt Car Hub, Pune') : 'Your Location (Doorstep)'}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 font-medium leading-relaxed border-t border-slate-100 pt-2">
+                    We'll assign an agent during your test drive. If you can't make it for any reason, feel free to walk-in anytime.
+                  </p>
+                </div>
+              ) : !isTestDriveSkipped ? (
+                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-3 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                      You haven’t taken a test drive yet.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsTestDriveSkipped(true)}
+                      className="text-xs font-bold text-slate-400 hover:text-slate-700 underline cursor-pointer"
+                    >
+                      Skip
+                    </button>
+                  </div>
+                  <h4 className="font-black text-[#2b0a3d] text-base sm:text-lg">
+                    Where would you prefer to take it?
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => openTestDrive('doorstep')}
+                      className="py-3 px-3 rounded-xl bg-[#5B0888] hover:bg-[#49056E] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-purple-900/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Navigation size={15} />
+                      <span>YOUR LOCATION</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openTestDrive('hub')}
+                      className="py-3 px-3 rounded-xl bg-[#5B0888] hover:bg-[#49056E] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-purple-900/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Car size={16} />
+                      <span>AT SELECTT HUB</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+                  <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-600 font-semibold">
+                    <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                      <Car size={14} />
+                    </div>
+                    <span>Test drive skipped</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsTestDriveSkipped(false);
+                      openTestDrive('hub');
+                    }}
+                    className="text-xs text-[#5B0888] font-bold hover:underline cursor-pointer"
+                  >
+                    Schedule now
+                  </button>
+                </div>
+              )}
+
+              {/* 2. 1-Year Complete Maintenance Package (Screenshots 1 & 4) */}
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm relative overflow-hidden transition-all hover:border-purple-200">
+                {/* Green Pill Badge */}
+                <div className="inline-flex items-center gap-1 bg-[#00C9AF] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-2.5 shadow-2xs">
+                  <span>SAVE ₹31,320</span>
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  {/* Left Icon & Info */}
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md shadow-indigo-500/25">
+                      <Wrench size={22} className="text-amber-300 transform -rotate-12" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-black text-[#2b0a3d] text-sm sm:text-base leading-tight">
+                        1-Year complete maintenance package
+                      </h3>
+                      <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5">
+                        Warranty, service, RSA & buyback
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsMaintenanceDetailsOpen(true)}
+                        className="text-xs text-[#5B0888] font-black flex items-center gap-0.5 mt-1 hover:underline cursor-pointer"
+                      >
+                        <span>See details</span>
+                        <ChevronRight size={13} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Right Price & Add/Added Button */}
+                  <div className="flex flex-col items-end shrink-0 gap-1.5">
+                    <div className="text-right">
+                      <span className="text-sm sm:text-base font-black text-[#2b0a3d] block leading-tight">
+                        ₹11,287
+                      </span>
+                      <span className="text-[10px] sm:text-[11px] text-slate-500 font-semibold block leading-tight">
+                        or ₹990/m
+                      </span>
+                    </div>
+
+                    {maintenancePackageAdded ? (
+                      <button
+                        type="button"
+                        onClick={() => setIsMaintenanceModalOpen(true)}
+                        className="py-1.5 px-3.5 rounded-xl bg-purple-100/90 border border-purple-300 text-[#5B0888] font-black text-xs flex items-center gap-1 hover:bg-purple-200 transition-all cursor-pointer shadow-2xs"
+                      >
+                        <Check size={14} strokeWidth={3} />
+                        <span>Added</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setIsMaintenanceModalOpen(true)}
+                        className="py-1.5 px-4 rounded-xl border-2 border-[#5B0888] text-[#5B0888] hover:bg-purple-50 font-black text-xs flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-2xs"
+                      >
+                        <Plus size={14} strokeWidth={3} />
+                        <span>Add</span>
+                      </button>
                     )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Interested in Car Loan? (Screenshots 1 & 4) */}
+              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-3">
+                <div>
+                  <h3 className="font-extrabold text-[#2b0a3d] text-base mb-1">
+                    Interested in car loan?
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-                    Get your car financed at attractive interest rates. <a href="/privacy-policy" onClick={(e) => e.stopPropagation()} className="text-[#00C9AF] font-bold hover:underline">Learn more</a>
+                  <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
+                    Get your car financed at attractive interest rates. <a href="/privacy-policy" className="text-[#5B0888] font-bold hover:underline">Learn more</a>
                   </p>
                 </div>
                 
-                {/* Glowing Checkbox Button */}
-                <div className="mt-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                <div className="grid grid-cols-2 gap-3 pt-1">
                   <button
                     type="button"
-                    id="interested_in_loan"
-                    onClick={() => setInterestedInLoan(!interestedInLoan)}
-                    className={`w-7 h-7 rounded-lg border-2 transition-all duration-300 flex items-center justify-center cursor-pointer ${
-                      interestedInLoan
-                        ? 'bg-[#00C9AF] border-[#00C9AF] text-[#0C1B33] shadow-[0_0_18px_rgba(0,201,175,0.7)] scale-105 ring-2 ring-[#00C9AF]/40'
-                        : 'bg-white border-emerald-400/80 hover:border-[#00C9AF] shadow-[0_0_10px_rgba(0,201,175,0.3)] hover:shadow-[0_0_16px_rgba(0,201,175,0.5)]'
+                    onClick={() => setInterestedInLoan(false)}
+                    className={`py-3 px-4 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
+                      !interestedInLoan
+                        ? 'border-slate-300 bg-slate-100/90 text-slate-800'
+                        : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
                     }`}
-                    aria-label="Toggle Interested in car loan"
                   >
-                    {interestedInLoan && <Check size={18} strokeWidth={3.5} />}
+                    Not Interested
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInterestedInLoan(true)}
+                    className={`py-3 px-4 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 ${
+                      interestedInLoan
+                        ? 'border-[#5B0888] bg-purple-50/60 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-[#5B0888]/40'
+                    }`}
+                  >
+                    {interestedInLoan && <Check size={16} strokeWidth={2.5} />}
+                    <span>Yes, I’m interested</span>
                   </button>
                 </div>
               </div>
 
-              {/* Test Drive Details */}
+              {/* 4. Price summary Trigger */}
               <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
-                <h3 className="font-bold text-[#0C1B33] text-base mb-4">Test drive details</h3>
-                {scheduledTestDrive ? (
-                  <div className="flex justify-between items-center bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-100 mb-4">
-                    <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-emerald-800">
-                      <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
-                        <CheckCircle2 size={14} className="text-emerald-600" />
-                      </div>
-                      <span>Scheduled: <strong>{scheduledTestDrive.slot}</strong> on <strong>{scheduledTestDrive.date_day}</strong> ({scheduledTestDrive.location === 'hub' ? 'Selectt Hub' : 'Doorstep'})</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex justify-between items-center bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 mb-4">
-                    <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-slate-600">
-                      <div className="w-6 h-6 bg-slate-200 rounded-full flex items-center justify-center shrink-0">
-                        <X size={14} className="text-slate-500" />
-                      </div>
-                      <span>Test drive not scheduled</span>
-                    </div>
-                  </div>
-                )}
-                <div className="text-xs sm:text-sm text-slate-600 font-semibold flex items-center justify-between pt-1">
-                  <span>{scheduledTestDrive ? 'Want to reschedule?' : 'Changed your mind?'}</span>
-                  <button onClick={() => setIsTestDriveOpen(true)} className="text-[#00C9AF] font-black text-sm flex items-center gap-1 hover:underline cursor-pointer">
-                    {scheduledTestDrive ? 'Reschedule' : 'Find a slot'} <ChevronRight size={15} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Price summary - Total on-road price trigger */}
-              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
-                <h3 className="font-bold text-[#0C1B33] text-base mb-3">Price summary</h3>
+                <h3 className="font-extrabold text-[#2b0a3d] text-base mb-3">Price summary</h3>
                 <button
                   type="button"
                   onClick={() => setIsPriceSummaryOpen(true)}
-                  className="w-full flex items-center justify-between p-4 rounded-xl border border-purple-200 hover:border-purple-600 bg-white hover:bg-purple-50/40 transition-all duration-200 cursor-pointer shadow-xs group"
+                  className="w-full flex items-center justify-between p-4 rounded-xl border border-purple-200 hover:border-[#5B0888] bg-white hover:bg-purple-50/40 transition-all duration-200 cursor-pointer shadow-xs group"
                 >
                   <div className="flex items-center gap-3 text-[#0C1B33] font-bold text-sm sm:text-base">
-                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700">
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-[#5B0888]">
                       <FileText size={18} />
                     </div>
                     <span>Total on-road price</span>
                   </div>
                   <div className="flex items-center gap-2 text-[#0C1B33] font-extrabold text-sm sm:text-base">
-                    <span>₹ {(((Number(car?.price) || 550000) + 4000 + 2691) / 100000).toFixed(2)} Lakh</span>
-                    <ChevronRight size={18} className="text-slate-400 group-hover:translate-x-1 group-hover:text-purple-600 transition-all" />
+                    <span>₹ {(((Number(car?.price) || 550000) + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) + 4000 + 2691) / 100000).toFixed(2)} Lakh</span>
+                    <ChevronRight size={18} className="text-slate-400 group-hover:translate-x-1 group-hover:text-[#5B0888] transition-all" />
                   </div>
                 </button>
               </div>
 
-              {/* Pay Action Card */}
+              {/* 5. Proceed to Pay Card (Screenshots 1 & 4) */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden transition-all hover:shadow-lg">
-                <div className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 bg-white">
-                  <div className="text-xs text-slate-500 font-medium text-center sm:text-left">
-                    This car will be booked on<br />
-                    <span className="text-[#0C1B33] text-sm font-extrabold">{user.phone}</span>
-                    <button className="text-[#00C9AF] font-bold ml-2 hover:underline cursor-pointer">EDIT</button>
+                <div className="p-4 sm:p-5 bg-purple-50/50 border-b border-purple-100 flex items-center justify-between">
+                  <div className="text-xs text-slate-600 font-medium">
+                    This car will be booked on <span className="font-extrabold text-[#2b0a3d]">{user.phone}</span>
                   </div>
+                  <button className="text-[#5B0888] font-bold text-xs hover:underline cursor-pointer">EDIT</button>
+                </div>
+
+                <div className="p-5 sm:p-6 space-y-3">
                   <button
                     onClick={handleBooking}
                     disabled={isBooking}
-                    className={`relative overflow-hidden w-full sm:w-auto whitespace-nowrap bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-semibold py-3.5 sm:py-4 px-7 rounded-xl transition-all duration-300 shadow-[0_0_22px_rgba(0,201,175,0.45)] hover:shadow-[0_0_32px_rgba(0,201,175,0.6)] flex items-center justify-center gap-2.5 cursor-pointer text-[15px] leading-[1.45] transform hover:scale-[1.02] active:scale-[0.98] group ${isBooking ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    className={`relative overflow-hidden w-full bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-extrabold py-4 px-6 rounded-2xl transition-all duration-300 shadow-[0_0_22px_rgba(0,201,175,0.45)] hover:shadow-[0_0_32px_rgba(0,201,175,0.6)] flex items-center justify-center gap-2 cursor-pointer text-base uppercase tracking-wider ${isBooking ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
-                    {/* Continuous Shimmer Light Wave Effect */}
-                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/45 to-transparent -translate-x-full animate-[shimmer_2.4s_infinite] pointer-events-none" />
-
                     {isBooking ? (
-                      <span className="flex items-center gap-2 relative z-10">
-                        <span className="w-4 h-4 border-2 border-[#0C1B33] border-t-transparent rounded-full animate-spin" />
-                        <span>Processing...</span>
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-2 border-[#0C1B33] border-t-transparent rounded-full animate-spin" />
+                        <span>Processing Booking...</span>
+                      </div>
                     ) : (
-                      <div className="flex items-center gap-2.5 relative z-10">
-                        <ShieldCheck size={19} className="text-[#0C1B33] shrink-0 group-hover:rotate-12 transition-transform" />
-                        <span>Proceed to pay</span>
-                        <span className="bg-[#0C1B33]/15 text-[#0C1B33] px-2.5 py-0.5 rounded-lg text-sm sm:text-base font-bold font-price shadow-inner">₹5,000</span>
-                        <ChevronRight size={20} className="text-[#0C1B33] shrink-0 group-hover:translate-x-1.5 transition-transform" />
+                      <div className="flex items-center justify-between w-full">
+                        <span>PROCEED TO PAY</span>
+                        <span className="flex items-center gap-1 font-black">
+                          ₹10,000 <ChevronRight size={18} />
+                        </span>
                       </div>
                     )}
                   </button>
+                  <div className="text-center">
+                    <span className="text-xs text-slate-400 font-semibold">100% refundable</span>
+                  </div>
                 </div>
 
                 {/* Reassurance & Security Section */}
@@ -765,6 +904,605 @@ const CheckoutPage = () => {
         onClose={() => setIsTestDriveOpen(false)}
         onSuccess={(details) => setScheduledTestDrive(details)}
       />
+
+      {/* 1-Year Complete Maintenance Package Payment Selection Modal / Bottom Sheet (Screenshots 2 & 3) */}
+      {isMaintenanceModalOpen && (
+        <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="fixed inset-0" onClick={() => setIsMaintenanceModalOpen(false)} />
+          <div className="bg-white rounded-t-[28px] sm:rounded-3xl w-full max-w-md relative z-10 shadow-2xl p-5 sm:p-6 space-y-4 animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-200 border border-slate-200/90">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-base sm:text-lg font-black text-[#2b0a3d]">
+                Select payment type
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsMaintenanceModalOpen(false)}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center cursor-pointer transition-colors"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* 2 Payment Type Toggle Cards */}
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              {/* Option 1: Pay in Full */}
+              <button
+                type="button"
+                onClick={() => setMaintenancePaymentType('full')}
+                className={`p-3.5 pt-4 rounded-2xl border-2 text-center transition-all cursor-pointer relative ${
+                  maintenancePaymentType === 'full'
+                    ? 'border-[#5B0888] bg-purple-50/50 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                }`}
+              >
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-[#00C9AF] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full whitespace-nowrap shadow-2xs">
+                  SAVE EXTRA ₹594
+                </span>
+                <span className="block text-xs font-black uppercase tracking-wider mb-0.5">
+                  Pay in full
+                </span>
+                <span className="block text-sm font-black">
+                  ₹11,287
+                </span>
+              </button>
+
+              {/* Option 2: Pay monthly */}
+              <button
+                type="button"
+                onClick={() => setMaintenancePaymentType('monthly')}
+                className={`p-3.5 pt-4 rounded-2xl border-2 text-center transition-all cursor-pointer ${
+                  maintenancePaymentType === 'monthly'
+                    ? 'border-[#5B0888] bg-purple-50/50 text-[#5B0888] shadow-xs ring-1 ring-[#5B0888]/20'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                }`}
+              >
+                <span className="block text-xs font-black uppercase tracking-wider mb-0.5">
+                  Pay monthly
+                </span>
+                <span className="block text-xs font-black text-slate-800">
+                  ₹990/m · <span className="text-[10px] text-slate-500 font-semibold">for 12 months</span>
+                </span>
+              </button>
+            </div>
+
+            {/* Breakdown Card */}
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-2.5 text-xs">
+              <div className="flex items-center justify-between text-slate-600 font-medium">
+                <span>Total price</span>
+                <span className="font-bold text-slate-800">₹13,201</span>
+              </div>
+              <div className="flex items-center justify-between text-[#00A884] font-bold">
+                <span>Package discount</span>
+                <span>- ₹1,320</span>
+              </div>
+              {maintenancePaymentType === 'full' && (
+                <div className="flex items-center justify-between text-[#00A884] font-bold">
+                  <span>Full payment discount</span>
+                  <span>- ₹594</span>
+                </div>
+              )}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-600 font-medium">
+                <span>Subtotal</span>
+                <span className="font-bold text-slate-800">
+                  {maintenancePaymentType === 'full' ? '₹11,287' : '₹11,881'}
+                </span>
+              </div>
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-sm">
+                <span className="font-black text-[#2b0a3d]">You pay</span>
+                <span className="font-black text-[#2b0a3d] text-base">
+                  {maintenancePaymentType === 'full' ? '₹11,287' : '₹990/m (for 12 months)'}
+                </span>
+              </div>
+              {maintenancePaymentType === 'monthly' && (
+                <p className="text-[11px] text-slate-400 font-medium text-center pt-1">
+                  You can setup an UPI autopay on the delivery day
+                </p>
+              )}
+            </div>
+
+            {/* Confirm Button */}
+            <button
+              type="button"
+              onClick={handleConfirmMaintenance}
+              className="w-full py-3.5 bg-[#5B0888] hover:bg-[#49056E] text-white rounded-xl font-bold text-sm shadow-md shadow-purple-900/20 transition-all cursor-pointer"
+            >
+              Confirm
+            </button>
+
+            {maintenancePackageAdded && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMaintenancePackageAdded(false);
+                  setIsMaintenanceModalOpen(false);
+                }}
+                className="w-full text-center text-xs font-bold text-rose-500 hover:text-rose-700 py-1 cursor-pointer"
+              >
+                Remove package from booking
+              </button>
+            )}
+
+            {/* Validity Footer */}
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-medium pt-1">
+              <Calendar size={13} />
+              <span>Valid for 1 years from delivery</span>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Celebration / Confetti Modal (Screenshot 3) */}
+      {showCelebrationToast && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-250 text-center border border-slate-100">
+            {/* Green Top Wave Banner */}
+            <div className="bg-[#00C9AF] text-white px-4 py-2.5 text-xs font-black flex items-center justify-center gap-1.5 shadow-xs">
+              <span>🎉 Saving ₹1,320 on package + upto ₹30,000 on upgrade</span>
+            </div>
+
+            <div className="p-6 pt-5 space-y-3">
+              {/* Central Gift Box Graphic */}
+              <div className="w-20 h-20 mx-auto relative flex items-center justify-center">
+                <div className="w-16 h-16 bg-gradient-to-tr from-[#6366F1] to-[#8B5CF6] rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/30 transform -rotate-3">
+                  <Wrench size={30} className="text-amber-300" />
+                </div>
+                <span className="absolute -top-1 -right-1 text-lg animate-bounce">✨</span>
+                <span className="absolute -bottom-1 -left-1 text-lg animate-pulse">🎊</span>
+              </div>
+
+              <div>
+                <h4 className="font-black text-[#2b0a3d] text-base sm:text-lg leading-tight">
+                  1-Year complete maintenance package added
+                </h4>
+                <p className="text-xs text-slate-500 font-medium mt-1">
+                  Enjoy complete ownership package for 1-Year
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowCelebrationToast(false)}
+                className="w-full py-2.5 bg-[#5B0888] hover:bg-[#49056E] text-white font-bold text-xs rounded-xl shadow-md cursor-pointer transition-all mt-2"
+              >
+                Great!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full-Fidelity Complete Maintenance Package Details Modal / Drawer (Matching Screenshots 1, 2, 3, 4, 5) */}
+      {isMaintenanceDetailsOpen && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="fixed inset-0" onClick={() => setIsMaintenanceDetailsOpen(false)} />
+          <div className="bg-[#FAF7FC] w-full max-w-lg h-full sm:h-[92vh] sm:rounded-3xl relative z-10 shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-250 border border-purple-100">
+            
+            {/* Top Navigation Bar */}
+            <div className="bg-white px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 shadow-2xs z-20">
+              <button
+                type="button"
+                onClick={() => setIsMaintenanceDetailsOpen(false)}
+                className="flex items-center gap-2 text-xs sm:text-sm font-black text-[#2b0a3d] hover:text-[#5B0888] cursor-pointer"
+              >
+                <ArrowLeft size={18} />
+                <span>Complete Maintenance Package</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsMaintenanceDetailsOpen(false)}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Scrollable Content Container */}
+            <div className="flex-1 overflow-y-auto pb-28">
+              
+              {/* Hero Purple Header Card */}
+              <div className="bg-[#4338CA] bg-gradient-to-br from-[#3b2d82] via-[#4338CA] to-[#5B0888] text-white p-5 pt-6 relative overflow-hidden">
+                <div className="flex items-start justify-between relative z-10">
+                  <div className="max-w-[62%]">
+                    <h2 className="text-xl sm:text-2xl font-black leading-tight">
+                      <span className="relative inline-block">
+                        1-Year
+                        <svg className="absolute -bottom-1 left-0 w-full h-2 text-amber-400" viewBox="0 0 100 20" preserveAspectRatio="none" fill="none" stroke="currentColor" strokeWidth="4">
+                          <path d="M0,10 Q50,20 100,10" />
+                        </svg>
+                      </span> complete maintenance package
+                    </h2>
+                    <p className="text-xs sm:text-sm text-purple-200 font-semibold mt-2">
+                      {maintenancePaymentType === 'full' ? '₹11,287 in full' : '₹11,881 or ₹990/m (for 12 months)'}
+                    </p>
+                  </div>
+
+                  {/* 3D Toolbox Graphic Card */}
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 relative flex items-center justify-center">
+                    <div className="w-20 h-20 bg-gradient-to-tr from-[#6366F1] to-[#A855F7] rounded-3xl p-3 shadow-2xl flex flex-col items-center justify-center relative border border-white/20 transform rotate-2">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Wrench size={22} className="text-amber-300 transform -rotate-45" />
+                        <ShieldCheck size={20} className="text-teal-300" />
+                      </div>
+                      <div className="w-8 h-6 bg-purple-900/60 rounded-md flex items-center justify-center text-[10px] font-black text-amber-300">
+                        S
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scalloped Green Wave Top Ribbon */}
+                <div className="mt-4 -mx-5 -mb-5 bg-[#00C9AF] text-white px-4 py-2.5 text-xs font-black flex items-center justify-center gap-1.5 shadow-md">
+                  <span>🎉 Saving ₹1,320 on package + upto ₹30,000 on upgrade</span>
+                </div>
+              </div>
+
+              {/* Main Content Area */}
+              <div className="p-4 sm:p-5 space-y-4">
+                
+                {/* 1. Warranty - Super Protect Card (Expandable) */}
+                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+                  <div 
+                    onClick={() => setExpandedFeature(expandedFeature === 'warranty' ? null : 'warranty')}
+                    className="p-4 flex items-start justify-between cursor-pointer hover:bg-slate-50/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Icon */}
+                      <div className="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Wrench size={22} className="text-amber-500 transform -rotate-12" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-black text-[#2b0a3d]">Warranty - Super Protect</h4>
+                        </div>
+                        <p className="text-[11px] text-slate-500 font-medium">Covers all parts for upto 1 year</p>
+                        <div className="flex items-center gap-2 mt-1.5 text-xs font-black">
+                          <span className="text-emerald-700">₹7,437</span>
+                          <span className="text-slate-400 line-through font-semibold text-[11px]">₹8,263</span>
+                          <span className="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-black px-1.5 py-0.5 rounded-md uppercase">
+                            SAVE ₹826
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-slate-400 pt-1">
+                      {expandedFeature === 'warranty' ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    </div>
+                  </div>
+
+                  {/* Expanded Accordion Body (Matching Screenshot 5) */}
+                  {expandedFeature === 'warranty' && (
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-100 space-y-3.5 text-xs animate-in fade-in duration-150">
+                      
+                      {/* Powertrain coverage */}
+                      <div>
+                        <div className="text-xs font-black text-[#2b0a3d] mb-1.5">
+                          Powertrain coverage <span className="text-[10px] text-slate-400 font-semibold">(For 12 months/ 12,000 km)</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px]">
+                            <Car size={13} className="text-[#00C9AF]" /> Engine & peripherals
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px]">
+                            <RotateCcw size={13} className="text-[#00C9AF]" /> Transmission
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Key Systems */}
+                      <div>
+                        <div className="text-xs font-black text-[#2b0a3d] mb-1.5">
+                          Key Systems <span className="text-[10px] text-slate-400 font-semibold">(For 3 months/ 3,000 km)</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px]">
+                            <ShieldCheck size={13} className="text-[#00C9AF]" /> Steering system
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px]">
+                            <CheckCircle2 size={13} className="text-[#00C9AF]" /> Braking system
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px]">
+                            <Sparkles size={13} className="text-[#00C9AF]" /> Air conditioning
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Functional */}
+                      <div>
+                        <div className="text-xs font-black text-[#2b0a3d] mb-1.5">
+                          Functional <span className="text-[10px] text-slate-400 font-semibold">(For 3 months/ 3,000 km)</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px]">
+                            <ShieldCheck size={13} className="text-[#00C9AF]" /> Suspension
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px]">
+                            <Info size={13} className="text-[#00C9AF]" /> Electrical & electronic systems
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px]">
+                            <Sparkles size={13} className="text-[#00C9AF]" /> Infotainment & comfort features
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px]">
+                            <Sparkles size={13} className="text-[#00C9AF]" /> Interior & exterior functional components
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Disclaimer Note */}
+                      <div className="pt-2 border-t border-dashed border-slate-200 text-[10px] text-slate-400 leading-relaxed font-medium">
+                        Note: Does not cover accident damage, wear & tear consumables, cosmetic issues, misuse, flooding, or modifications.
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Periodic Service Card (Expandable) */}
+                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+                  <div 
+                    onClick={() => setExpandedFeature(expandedFeature === 'periodic' ? null : 'periodic')}
+                    className="p-4 flex items-start justify-between cursor-pointer hover:bg-slate-50/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Icon */}
+                      <div className="w-11 h-11 rounded-2xl bg-purple-50 border border-purple-200 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Wrench size={20} className="text-[#5B0888]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-black text-[#2b0a3d]">Periodic service</h4>
+                        </div>
+                        <p className="text-[11px] text-slate-500 font-medium">Scheduled service for every 12,000 km driven</p>
+                        <div className="flex items-center gap-2 mt-1.5 text-xs font-black">
+                          <span className="text-emerald-700">₹3,905</span>
+                          <span className="text-slate-400 line-through font-semibold text-[11px]">₹4,339</span>
+                          <span className="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-black px-1.5 py-0.5 rounded-md uppercase">
+                            SAVE ₹434
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-slate-400 pt-1">
+                      {expandedFeature === 'periodic' ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    </div>
+                  </div>
+
+                  {/* Expanded Accordion Body (Matching Screenshot 6) */}
+                  {expandedFeature === 'periodic' && (
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-100 space-y-3.5 text-xs animate-in fade-in duration-150">
+                      <div>
+                        <div className="text-xs font-black text-[#2b0a3d] mb-2">Standard service</div>
+                        <ul className="space-y-2 text-[11px] text-slate-700 font-medium">
+                          <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Engine oil & oil filter replacement</li>
+                          <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Air filter replacement</li>
+                          <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Basic brake servicing & fluid top-ups</li>
+                          <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Coolant & washer fluid replenishment</li>
+                          <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Car health scan & essential checks</li>
+                          <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Interior vacuuming & exterior wash</li>
+                        </ul>
+                      </div>
+
+                      {/* 2 Boxes: What this covers / What this doesn't cover */}
+                      <div className="grid grid-cols-2 gap-2.5 pt-1">
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                          <span className="font-bold text-[#2b0a3d] flex items-center gap-1 text-[11px] mb-1">
+                            <Check size={12} className="text-[#00C9AF]" /> What this covers
+                          </span>
+                          <p className="text-[10px] text-slate-500 font-medium leading-tight">
+                            One scheduled annual service <strong className="text-[#00C9AF]">12 months</strong> (or 12,000 km)
+                          </p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                          <span className="font-bold text-[#2b0a3d] flex items-center gap-1 text-[11px] mb-1">
+                            <X size={12} className="text-rose-500" /> What this doesn't cover
+                          </span>
+                          <p className="text-[10px] text-slate-500 font-medium leading-tight">
+                            Repairs or part replacements outside the service scope.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Partner badge */}
+                      <div className="text-center pt-2 text-[10px] font-bold text-slate-400">
+                        POWERED BY <strong className="text-slate-700">SELECTT CERTIFIED WORKSHOPS</strong>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Roadside Assistance 24x7 Card (Expandable) */}
+                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
+                  <div 
+                    onClick={() => setExpandedFeature(expandedFeature === 'rsa' ? null : 'rsa')}
+                    className="p-4 flex items-start justify-between cursor-pointer hover:bg-slate-50/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Icon */}
+                      <div className="w-11 h-11 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Navigation size={20} className="text-orange-500" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-black text-[#2b0a3d]">Roadside side assistance 24x7</h4>
+                        </div>
+                        <p className="text-[11px] text-slate-500 font-medium">Stuck on the road? We've got you - 24x7</p>
+                        <div className="flex items-center gap-2 mt-1.5 text-xs font-black">
+                          <span className="text-emerald-700">₹539</span>
+                          <span className="text-slate-400 line-through font-semibold text-[11px]">₹599</span>
+                          <span className="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-black px-1.5 py-0.5 rounded-md uppercase">
+                            SAVE ₹60
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-slate-400 pt-1">
+                      {expandedFeature === 'rsa' ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    </div>
+                  </div>
+
+                  {/* Expanded Accordion Body (Matching Screenshot 7) */}
+                  {expandedFeature === 'rsa' && (
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-100 space-y-2.5 text-xs animate-in fade-in duration-150">
+                      <div className="text-xs font-black text-[#2b0a3d] mb-1.5">Benefits</div>
+                      <ul className="space-y-2 text-[11px] text-slate-700 font-medium">
+                        <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Dead battery? On-spot jump-start</li>
+                        <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Flat tyre? Repaired or spare fitted, roadside</li>
+                        <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Locked your keys in? Lockout help</li>
+                        <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Out of fuel? We bring enough to reach the pump</li>
+                        <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Minor breakdown? On-spot fix to get you moving</li>
+                        <li className="flex items-center gap-2"><Check size={14} className="text-[#00C9AF] shrink-0" /> Can't be fixed roadside? Free towing to nearest garage</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Plus (+) Separator */}
+                <div className="flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-slate-200/80 text-slate-600 flex items-center justify-center text-xs font-black shadow-2xs">
+                    +
+                  </div>
+                </div>
+
+                {/* 4. Upgrade Discount Card (With Green FREE Ribbon) */}
+                <div className="bg-white rounded-2xl border border-emerald-200 overflow-hidden shadow-2xs relative flex">
+                  <div className="bg-[#00C9AF] text-white px-2 py-4 flex items-center justify-center font-black text-[10px] uppercase tracking-widest [writing-mode:vertical-rl] rotate-180 shrink-0">
+                    FREE
+                  </div>
+                  <div className="p-4 flex-1">
+                    <h4 className="font-black text-[#2b0a3d] text-sm">
+                      Get up-to ₹30,000 off on upgrade
+                    </h4>
+                    <p className="text-[11px] text-slate-600 font-medium mt-1 leading-relaxed">
+                      Sell this car back to Selectt when you upgrade and get <strong className="text-emerald-700">₹10,000 assured coupon</strong> + up to <strong className="text-emerald-700">₹20,000 off</strong> your next purchase.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Trust Stats Strip (Soft Purple bg) */}
+                <div className="bg-purple-100/60 border border-purple-200/80 rounded-2xl p-3.5 grid grid-cols-3 divide-x divide-purple-200 text-center">
+                  <div>
+                    <span className="block text-xs font-black text-[#2b0a3d]">4.7 ★</span>
+                    <span className="block text-[9px] font-black text-slate-500 uppercase tracking-wider">AVG RATING</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs font-black text-[#2b0a3d]">3,556</span>
+                    <span className="block text-[9px] font-black text-slate-500 uppercase tracking-wider">HAPPY OWNERS</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs font-black text-[#2b0a3d]">₹20,000</span>
+                    <span className="block text-[9px] font-black text-slate-500 uppercase tracking-wider">SAVED ON REPAIRS</span>
+                  </div>
+                </div>
+
+                {/* FAQs Section (Matching Screenshots 3, 4, 5) */}
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs space-y-3">
+                  <h3 className="font-black text-[#2b0a3d] text-base">FAQs</h3>
+
+                  <div className="divide-y divide-slate-100">
+                    {[
+                      {
+                        q: "What is the Complete Maintenance Package (CMP)?",
+                        a: "CMP is a single bundle that covers your car after purchase — Extended Warranty, Periodic Service, 24x7 Roadside Assistance, an Upgrade Voucher for your next Selectt car, and (on eligible cars) a 90-day Buyback assurance. Buying them together costs less than buying each separately."
+                      },
+                      {
+                        q: "What does the warranty cover, and what's not covered?",
+                        a: "Super Protect covers 100% of engine components, transmission (manual & automatic), steering, braking, AC, suspension, and electrical systems. It does not cover accidental damage, regular wear-and-tear consumables (wipers, tyres), cosmetic damages, or external flooding."
+                      },
+                      {
+                        q: "How do I pay for CMP — all at once or monthly?",
+                        a: "You can choose either 'Pay in full' for ₹11,287 (which gives you an extra ₹594 discount) or 'Pay monthly' at ₹990/month for 12 months with easy zero-cost UPI autopay setup on delivery day."
+                      },
+                      {
+                        q: "When does my coverage start?",
+                        a: "Your coverage begins on the exact day of vehicle delivery and remains valid for a full 12 months or 12,000 km (whichever occurs first)."
+                      },
+                      {
+                        q: "What is the 90-day Buyback assurance?",
+                        a: "If you decide to upgrade or sell within 90 days, Selectt guarantees a pre-determined locked valuation with minimal depreciation."
+                      },
+                      {
+                        q: "Can I choose only some services instead of the full package?",
+                        a: "CMP is specifically curated as an all-inclusive bundle to give you maximum savings (saving ₹31,320+ across 1 year). Individual services cost significantly more when purchased separately."
+                      },
+                      {
+                        q: "How does the Upgrade Voucher work?",
+                        a: "When you trade-in or sell this car back to Selectt in future, you get an instant ₹10,000 assured upgrade coupon + up to ₹20,000 discount on your next vehicle purchase."
+                      },
+                      {
+                        q: "Can I buy CMP or the warranty after I've booked, or after delivery?",
+                        a: "Yes, you can add CMP anytime before or on the delivery day. After delivery, special bundled pricing may expire."
+                      },
+                      {
+                        q: "What happens to my coverage if a monthly payment fails?",
+                        a: "We provide a 5-day grace period with automatic payment retry links sent to your WhatsApp and SMS so your coverage never gets interrupted."
+                      },
+                      {
+                        q: "Can I cancel, and will I get a refund?",
+                        a: "Yes, if you cancel your car booking prior to delivery, the CMP is 100% refunded along with your booking token deposit."
+                      },
+                      {
+                        q: "How does Roadside Assistance work, and how is my service fulfilled?",
+                        a: "Simply call our dedicated 24x7 helpline or click 'Request RSA' from your Selectt profile. A certified breakdown support team is dispatched to your GPS location with an average arrival time under 45 minutes."
+                      }
+                    ].map((faq, fIdx) => (
+                      <div key={fIdx} className="py-2.5">
+                        <button
+                          type="button"
+                          onClick={() => setOpenFaqIndex(openFaqIndex === fIdx ? -1 : fIdx)}
+                          className="w-full text-left flex items-center justify-between gap-3 text-xs font-black text-[#2b0a3d] hover:text-[#5B0888] cursor-pointer"
+                        >
+                          <span>{faq.q}</span>
+                          <span className="text-slate-400 shrink-0">
+                            {openFaqIndex === fIdx ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </span>
+                        </button>
+                        {openFaqIndex === fIdx && (
+                          <p className="text-[11px] text-slate-600 font-medium mt-2 leading-relaxed animate-in fade-in duration-150">
+                            {faq.a}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Terms Footer */}
+                <div className="text-center pt-1 pb-4">
+                  <span className="text-[11px] text-slate-400 underline font-medium cursor-pointer">
+                    Terms & Conditions apply
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Sticky Bottom Bar (Matching Screenshots 2, 3, 4, 5) */}
+            <div className="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-4 border-t border-slate-200/90 shadow-[0_-8px_25px_rgba(0,0,0,0.08)] z-30 text-center space-y-2">
+              <p className="text-xs font-black text-[#2b0a3d]">
+                {maintenancePaymentType === 'full' 
+                  ? 'You are paying in full ₹11,287' 
+                  : 'You are paying monthly ₹990/m for 12 months'}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMaintenanceDetailsOpen(false);
+                  setIsMaintenanceModalOpen(true);
+                }}
+                className="w-full py-3.5 bg-[#5B0888] hover:bg-[#49056E] text-white rounded-2xl font-black text-sm shadow-md shadow-purple-900/20 transition-all cursor-pointer"
+              >
+                {maintenancePackageAdded ? 'Change Payment Type' : 'Add Maintenance Package'}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* Mobile Sticky Footer Popup for Car Loan (Mobile Only) */}
       {mobileLoanPromptVisible && (
