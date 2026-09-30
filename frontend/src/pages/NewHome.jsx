@@ -652,12 +652,12 @@ const HowItWorksCarousel = () => {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex flex-row sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory scrollbar-none relative max-w-6xl mx-auto -mx-6 px-6 sm:mx-auto sm:px-0"
+        className="flex flex-row sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory scrollbar-none relative max-w-6xl mx-auto -mx-4 px-4 sm:mx-auto sm:px-0"
       >
         {HOW_IT_WORKS_STEPS.map((item, idx) => (
           <div
             key={item.step}
-            className={`w-[calc(100vw-48px)] sm:w-auto shrink-0 snap-center sm:snap-start rounded-[2rem] p-7 md:p-8 flex flex-col justify-between transition-all duration-500 hover:-translate-y-2 h-[420px] group cursor-default relative overflow-hidden ${
+            className={`w-[82vw] max-w-[300px] sm:w-auto shrink-0 snap-center sm:snap-start rounded-[26px] p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 min-h-[380px] sm:min-h-[400px] group cursor-default relative overflow-hidden ${
               activeIndex === idx ? 'ring-2 ring-[#00C9AF]/60 scale-[1.01]' : 'opacity-95'
             }`}
             style={{
@@ -665,36 +665,36 @@ const HowItWorksCarousel = () => {
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
               border: `1px solid ${item.borderColor}`,
-              boxShadow: `0 8px 32px ${item.shadowColor}, inset 0 1px 0 rgba(255,255,255,0.1)`
+              boxShadow: `0 8px 30px ${item.shadowColor}, inset 0 1px 0 rgba(255,255,255,0.12)`
             }}
           >
-            <div className="flex flex-col items-start gap-2.5">
+            <div className="flex flex-col items-start gap-2">
               <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-black shadow-md"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black shadow-md"
                 style={{ backgroundColor: item.accentColor }}
               >
                 {item.step}
               </div>
               <div
-                className="w-7 h-[3px] rounded-full"
+                className="w-6 h-[3px] rounded-full"
                 style={{ backgroundColor: item.accentColor }}
               ></div>
             </div>
 
-            <div className="flex-1 flex items-center justify-center py-4">
+            <div className="flex-1 flex items-center justify-center py-4 my-auto">
               <img
                 src={item.icon}
                 alt={item.title}
-                className="max-h-[145px] w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                className="max-h-[125px] sm:max-h-[135px] w-auto object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-md"
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
             </div>
 
-            <div className="text-left mt-auto">
-              <h3 className="font-extrabold text-[18px] sm:text-[19px] text-white mb-2.5 leading-snug">
+            <div className="text-left mt-3">
+              <h3 className="font-bold text-[17px] sm:text-[18px] text-white mb-1.5 leading-snug tracking-tight">
                 {item.title}
               </h3>
-              <p className="text-slate-300 text-[13px] sm:text-[13.5px] leading-[1.85] min-h-[85px]">
+              <p className="text-slate-300 text-[12.5px] sm:text-[13px] leading-relaxed">
                 {item.desc}
               </p>
             </div>
@@ -850,32 +850,32 @@ const NewHome = () => {
     {
       id: 'slide-1',
       badge: heroContent.mobile_hero_badge || 'Selectt assured cover',
-      badgeIcon: '🛡️',
+      badgeIcon: heroContent.mobile_hero_badge_icon || '🛡️',
       heading: heroContent.mobile_hero_heading || '1-Year warranty',
       subheading: heroContent.mobile_hero_subheading || '200-point inspection with 7-day money-back guarantee',
       btnText: heroContent.mobile_hero_btn_text || 'Explore cover',
-      btnLink: '/pricing',
+      btnLink: heroContent.mobile_hero_btn_link || '/pricing',
       image: resolveUrl(heroContent.mobile_hero_image || '/img/warranty_banner_1to1.png'),
     },
     {
       id: 'slide-2',
-      badge: 'Low EMI · 24hr approval',
-      badgeIcon: '⚡',
-      heading: 'Used car loans',
-      subheading: 'Pre-approved loans starting at 8.9% ROI',
-      btnText: 'Apply loan',
-      btnLink: '/used-car-loan',
-      image: '/img/car_loan_banner_1to1.png',
+      badge: heroContent.mobile_hero_2_badge || 'Low EMI · 24hr approval',
+      badgeIcon: heroContent.mobile_hero_2_badge_icon || '⚡',
+      heading: heroContent.mobile_hero_2_heading || 'Used car loans',
+      subheading: heroContent.mobile_hero_2_subheading || 'Pre-approved loans starting at 8.9% ROI',
+      btnText: heroContent.mobile_hero_2_btn_text || 'Apply loan',
+      btnLink: heroContent.mobile_hero_2_btn_link || '/used-car-loan',
+      image: resolveUrl(heroContent.mobile_hero_2_image || '/img/car_loan_banner_1to1.png'),
     },
     {
       id: 'slide-3',
-      badge: "India's most trusted",
-      badgeIcon: "✨",
-      heading: 'Find your dream car',
-      subheading: "India's most-trusted certified pre-owned cars",
-      btnText: 'Buy car',
-      btnLink: '/buy-cars',
-      image: '/img/mobile_hero_cover.png',
+      badge: heroContent.mobile_hero_3_badge || "India's most trusted",
+      badgeIcon: heroContent.mobile_hero_3_badge_icon || "✨",
+      heading: heroContent.mobile_hero_3_heading || 'Find your dream car',
+      subheading: heroContent.mobile_hero_3_subheading || "India's most-trusted certified pre-owned cars",
+      btnText: heroContent.mobile_hero_3_btn_text || 'Buy car',
+      btnLink: heroContent.mobile_hero_3_btn_link || '/buy-cars',
+      image: resolveUrl(heroContent.mobile_hero_3_image || '/img/mobile_hero_cover.png'),
     }
   ];
 

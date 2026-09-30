@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   IconMapPin,
@@ -915,12 +916,12 @@ export const PremiumHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer Menu (≤980px) */}
-      {mobileMenuOpen && (
-        <>
+      {/* Mobile Drawer Menu (≤980px) Portal */}
+      {mobileMenuOpen && typeof document !== 'undefined' && createPortal(
+        <div className="md:hidden">
           {/* Backdrop Overlay */}
           <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] transition-opacity duration-300 md:hidden" 
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[99999] transition-opacity duration-300" 
             onClick={() => setMobileMenuOpen(false)}
             onTouchStart={() => setMobileMenuOpen(false)} 
           />
@@ -928,7 +929,7 @@ export const PremiumHeader: React.FC = () => {
           {/* Slide-In White Drawer Canvas */}
           <div 
             ref={mobileDrawerRef}
-            className="fixed inset-y-0 right-0 z-[10000] w-[86%] max-w-[340px] bg-white shadow-2xl flex flex-col overflow-hidden font-['Plus_Jakarta_Sans',sans-serif] transition-transform duration-300 ease-out md:hidden" 
+            className="fixed inset-y-0 right-0 z-[100000] w-[86%] max-w-[340px] h-full bg-white shadow-2xl flex flex-col overflow-hidden font-['Plus_Jakarta_Sans',sans-serif] transition-transform duration-300 ease-out" 
             aria-label="Mobile Navigation Menu"
           >
             
@@ -1427,7 +1428,8 @@ export const PremiumHeader: React.FC = () => {
               </div>
             </div>
           </div>
-        </>
+        </div>,
+        document.body
       )}
     </header>
   );
