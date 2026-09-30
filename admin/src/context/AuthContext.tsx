@@ -13,10 +13,20 @@ interface User {
   permissions?: string[];
 }
 
+export interface TwoFactorChallenge {
+  require2FA: boolean;
+  twoFactorToken?: string;
+  methods?: string[];
+  phoneMasked?: string;
+  whatsappSent?: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<TwoFactorChallenge>;
+  verify2FA: (twoFactorToken: string, code: string, method?: string) => Promise<void>;
+  resendWhatsApp2FA: (twoFactorToken: string) => Promise<string>;
   logout: () => void;
   updateUser: (data: Partial<User>) => void;
   hasPermission: (permissionKey: string) => boolean;
@@ -59,24 +69,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return user.permissions.includes(permissionKey) || user.permissions.includes("all");
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<TwoFactorChallenge> => {
     const res = await fetch(`${API_URL}/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
+    const data = await res.json();
     if (!res.ok) {
-      const data = await res.json();
       throw new Error(data.message || "Invalid credentials");
     }
 
-    const data = await res.json();
+    // Check if 2-Step Authentication challenge was returned
+    if (data.require2FA) {
+      return {
+        require2FA: true,
+        twoFactorToken: data.twoFactorToken,
+        methods: data.methods || ["whatsapp", "authenticator"],
+        phoneMasked: data.phoneMasked,
+        whatsappSent: data.whatsappSent,
+      };
+    }
+
+    // Direct Login Successful (2FA Disabled)
     localStorage.setItem("adminToken", data.token);
     localStorage.setItem("adminUser", JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
     navigate("/");
+    return { require2FA: false };
+  };
+
+  const verify2FA = async (twoFactorToken: string, code: string, method?: string) => {
+    const res = await fetch(`${API_URL}/api/auth/2fa/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ twoFactorToken, code, method }),
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Invalid verification code");
+    }
+
+    localStorage.setItem("adminToken", data.token);
+    localStorage.setItem("adminUser", JSON.stringify(data.user));
+    setToken(data.token);
+    setUser(data.user);
+    navigate("/");
+  };
+
+  const resendWhatsApp2FA = async (twoFactorToken: string): Promise<string> => {
+    const res = await fetch(`${API_URL}/api/auth/2fa/send-whatsapp-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ twoFactorToken }),
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to resend WhatsApp OTP");
+    }
+    return data.message || "OTP resent successfully";
   };
 
   const logout = () => {
@@ -96,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, updateUser, hasPermission, isLoading }}>
+    <AuthContext.Provider value={{ user, token, login, verify2FA, resendWhatsApp2FA, logout, updateUser, hasPermission, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

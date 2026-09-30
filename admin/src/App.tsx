@@ -98,6 +98,8 @@ export default function App() {
                   <Route path="/settings/smtp" element={<SiteSettings section="smtp" />} />
                   <Route path="/settings/maintenance" element={<SiteSettings section="maintenance" />} />
                   <Route path="/settings/whatsapp" element={<SiteSettings section="whatsapp" />} />
+                  <Route path="/settings/security" element={<SiteSettings section="security" />} />
+                  <Route path="/settings/2fa" element={<SiteSettings section="security" />} />
                   <Route path="/settings/meta-catalog" element={<MetaCatalogSettings />} />
                   <Route path="/meta-catalog-setup" element={<MetaCatalogSettings />} />
                 </Route>

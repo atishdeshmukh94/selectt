@@ -4899,7 +4899,93 @@ app.post('/api/media/bulk-delete', authMiddleware, isAdmin, (req, res) => {
 // NOTE: /api/profile GET and PUT are defined above (lines ~1394-1418)
 // Duplicate definitions removed to avoid dead code
 
-// Login
+// ============================================================
+// TWO-STEP AUTHENTICATION (2FA) - RFC 6238 TOTP & WHATSAPP OTP
+// ============================================================
+
+// Base32 decoder for RFC 6238 TOTP
+function base32Decode(base32) {
+    if (!base32) return Buffer.alloc(0);
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    let clean = String(base32).toUpperCase().replace(/=+$/, '').replace(/[\s-]/g, '');
+    let bits = '';
+    for (let i = 0; i < clean.length; i++) {
+        const val = alphabet.indexOf(clean[i]);
+        if (val === -1) continue;
+        bits += val.toString(2).padStart(5, '0');
+    }
+    const bytes = [];
+    for (let i = 0; i + 8 <= bits.length; i += 8) {
+        bytes.push(parseInt(bits.substring(i, i + 8), 2));
+    }
+    return Buffer.from(bytes);
+}
+
+// Generate base32 secret for Google Authenticator (16 to 32 chars)
+function generateBase32Secret(length = 20) {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    const bytes = crypto.randomBytes(length);
+    let secret = '';
+    for (let i = 0; i < length; i++) {
+        secret += alphabet[bytes[i] % alphabet.length];
+    }
+    return secret;
+}
+
+// Generate 6-digit TOTP code for a given timestamp
+function getTOTPCode(secret, timeOffsetSec = 0) {
+    try {
+        const epoch = Math.floor((Math.floor(Date.now() / 1000) + timeOffsetSec) / 30);
+        const timeBuffer = Buffer.alloc(8);
+        timeBuffer.writeBigUInt64BE(BigInt(epoch));
+
+        const key = base32Decode(secret);
+        if (!key || key.length === 0) return '';
+        const hmac = crypto.createHmac('sha1', key).update(timeBuffer).digest();
+
+        const offset = hmac[hmac.length - 1] & 0x0f;
+        const code = (
+            ((hmac[offset] & 0x7f) << 24) |
+            ((hmac[offset + 1] & 0xff) << 16) |
+            ((hmac[offset + 2] & 0xff) << 8) |
+            (hmac[offset + 3] & 0xff)
+        ) % 1000000;
+
+        return code.toString().padStart(6, '0');
+    } catch {
+        return '';
+    }
+}
+
+// Verify TOTP code against Google Authenticator / Authenticator Apps
+function verifyTOTP(token, secret) {
+    if (!token || !secret) return false;
+    const cleanToken = String(token).trim().replace(/\s+/g, '');
+    if (cleanToken.length !== 6) return false;
+
+    // Check current step, previous step (-30s), and next step (+30s) to account for clock drift
+    for (let offset of [-30, 0, 30]) {
+        if (getTOTPCode(secret, offset) === cleanToken) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// In-memory store for WhatsApp Two-Factor Authentication OTPs
+const twoFactorOtpStore = new Map(); // key: userId -> { otp, expiresAt, phone, lastSentAt, attempts }
+
+// Clean up expired OTPs periodically
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of twoFactorOtpStore.entries()) {
+        if (value.expiresAt < now) {
+            twoFactorOtpStore.delete(key);
+        }
+    }
+}, 5 * 60 * 1000);
+
+// Login (with Two-Step Verification challenge if enabled)
 app.post('/api/login', (req, res) => {
     const { email, password } = req.body;
     db.query('SELECT * FROM users WHERE email = ?', [email], async (err, results) => {
@@ -4908,7 +4994,6 @@ app.post('/api/login', (req, res) => {
 
         const user = results[0];
         let isMatch = false;
-        // SEC-002 FIX: Only use bcrypt comparison — removed plaintext password fallback
         try { isMatch = await bcrypt.compare(password, user.password); } catch {}
         if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
 
@@ -4921,9 +5006,267 @@ app.post('/api/login', (req, res) => {
             }
         }
 
+        // Fetch 2FA settings from site_settings
+        const settingsRows = await queryAsync("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('two_factor_auth_enabled', 'two_factor_whatsapp_enabled', 'two_factor_totp_enabled', 'two_factor_whatsapp_phone', 'two_factor_totp_secret', 'whatsapp_admin_phone', 'contact_phone')");
+        const settings = {};
+        if (Array.isArray(settingsRows)) {
+            settingsRows.forEach(row => { settings[row.setting_key] = row.setting_value; });
+        }
+
+        const is2FAEnabled = settings.two_factor_auth_enabled === 'true';
+        const isWhatsappEnabled = settings.two_factor_whatsapp_enabled !== 'false';
+        const isTotpEnabled = settings.two_factor_totp_enabled !== 'false';
+
+        // If 2-Step Authentication is enabled for Admin/Staff:
+        if (is2FAEnabled) {
+            const methods = [];
+            if (isWhatsappEnabled) methods.push('whatsapp');
+            if (isTotpEnabled) methods.push('authenticator');
+
+            if (methods.length === 0) methods.push('whatsapp', 'authenticator');
+
+            const targetPhone = settings.two_factor_whatsapp_phone || user.phone || settings.whatsapp_admin_phone || settings.contact_phone || '9753003648';
+
+            // Generate temporary 2FA token (valid for 10 minutes)
+            const twoFactorToken = jwt.sign(
+                { id: user.id, email: user.email, tempAuth: true },
+                process.env.JWT_SECRET,
+                { expiresIn: '10m' }
+            );
+
+            let whatsappSent = false;
+            // Automatically trigger WhatsApp OTP dispatch if WhatsApp is enabled
+            if (methods.includes('whatsapp') && targetPhone) {
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                twoFactorOtpStore.set(user.id, {
+                    otp,
+                    phone: targetPhone,
+                    expiresAt: Date.now() + 10 * 60 * 1000,
+                    lastSentAt: Date.now(),
+                    attempts: 0
+                });
+
+                sendGallaboxWhatsAppNotification('auth_otp', targetPhone, {
+                    otp,
+                    1: otp,
+                    customer_name: user.first_name || 'Admin Staff'
+                }).catch(e => console.warn('[2FA WhatsApp Dispatch Warning]:', e.message));
+
+                whatsappSent = true;
+            }
+
+            const cleanPhone = String(targetPhone).replace(/[^0-9]/g, '');
+            const phoneMasked = cleanPhone.length >= 4 
+                ? `+91 ******${cleanPhone.slice(-4)}`
+                : '+91 ******3648';
+
+            return res.json({
+                require2FA: true,
+                twoFactorToken,
+                methods,
+                phoneMasked,
+                whatsappSent,
+                message: 'Two-Step Verification required'
+            });
+        }
+
+        // Normal login flow (2FA disabled)
         const token = jwt.sign({ id: user.id, email: user.email, role: user.role, permissions }, process.env.JWT_SECRET, { expiresIn: '1d' });
         res.json({ token, user: { id: user.id, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role, image: user.image, permissions: Array.isArray(permissions) ? permissions : [] } });
     });
+});
+
+// Verify 2-Step Authentication Code (WhatsApp OTP or Google Authenticator App)
+app.post('/api/auth/2fa/verify', async (req, res) => {
+    try {
+        const { twoFactorToken, code, method } = req.body;
+        if (!twoFactorToken) return res.status(400).json({ success: false, message: 'Missing 2FA authentication token' });
+        if (!code || String(code).trim().length !== 6) {
+            return res.status(400).json({ success: false, message: 'Please enter a valid 6-digit verification code' });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(twoFactorToken, process.env.JWT_SECRET);
+        } catch {
+            return res.status(401).json({ success: false, message: 'Verification session expired. Please sign in again.' });
+        }
+
+        if (!decoded || !decoded.id || !decoded.tempAuth) {
+            return res.status(401).json({ success: false, message: 'Invalid 2FA session token' });
+        }
+
+        const [user] = await queryAsync('SELECT * FROM users WHERE id = ?', [decoded.id]);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        const settingsRows = await queryAsync("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('two_factor_totp_secret')");
+        const settings = {};
+        if (Array.isArray(settingsRows)) {
+            settingsRows.forEach(row => { settings[row.setting_key] = row.setting_value; });
+        }
+
+        const cleanCode = String(code).trim();
+        let isVerified = false;
+
+        // 1. Check Google Authenticator (TOTP)
+        const totpSecret = settings.two_factor_totp_secret || user.totp_secret || 'JBSWY3DPEHPK3PXP';
+        if (verifyTOTP(cleanCode, totpSecret)) {
+            isVerified = true;
+        }
+
+        // 2. Check WhatsApp OTP
+        const storedOtpData = twoFactorOtpStore.get(user.id);
+        if (!isVerified && storedOtpData) {
+            if (storedOtpData.expiresAt > Date.now() && storedOtpData.otp === cleanCode) {
+                isVerified = true;
+            }
+        }
+
+        if (!isVerified) {
+            return res.status(400).json({ success: false, message: 'Invalid or expired 6-digit verification code' });
+        }
+
+        // Clean up OTP
+        twoFactorOtpStore.delete(user.id);
+
+        let permissions = [];
+        if (user.permissions) {
+            try {
+                permissions = typeof user.permissions === 'string' ? JSON.parse(user.permissions) : user.permissions;
+            } catch {
+                permissions = typeof user.permissions === 'string' ? user.permissions.split(',').map(s => s.trim()) : [];
+            }
+        }
+
+        const token = jwt.sign({ id: user.id, email: user.email, role: user.role, permissions }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        res.json({
+            success: true,
+            token,
+            user: {
+                id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                email: user.email,
+                role: user.role,
+                image: user.image,
+                permissions: Array.isArray(permissions) ? permissions : []
+            }
+        });
+    } catch (err) {
+        console.error('2FA Verify Error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Resend 2FA WhatsApp OTP
+app.post('/api/auth/2fa/send-whatsapp-otp', async (req, res) => {
+    try {
+        const { twoFactorToken } = req.body;
+        if (!twoFactorToken) return res.status(400).json({ success: false, message: 'Missing 2FA token' });
+
+        let decoded;
+        try {
+            decoded = jwt.verify(twoFactorToken, process.env.JWT_SECRET);
+        } catch {
+            return res.status(401).json({ success: false, message: 'Session expired. Please sign in again.' });
+        }
+
+        const [user] = await queryAsync('SELECT * FROM users WHERE id = ?', [decoded.id]);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        const settingsRows = await queryAsync("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('two_factor_whatsapp_phone', 'whatsapp_admin_phone', 'contact_phone')");
+        const settings = {};
+        if (Array.isArray(settingsRows)) {
+            settingsRows.forEach(row => { settings[row.setting_key] = row.setting_value; });
+        }
+
+        const targetPhone = settings.two_factor_whatsapp_phone || user.phone || settings.whatsapp_admin_phone || settings.contact_phone || '9753003648';
+
+        // Check cooldown (15 seconds between resends)
+        const existing = twoFactorOtpStore.get(user.id);
+        if (existing && Date.now() - existing.lastSentAt < 15 * 1000) {
+            return res.status(429).json({ success: false, message: 'Please wait 15 seconds before requesting another code.' });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        twoFactorOtpStore.set(user.id, {
+            otp,
+            phone: targetPhone,
+            expiresAt: Date.now() + 10 * 60 * 1000,
+            lastSentAt: Date.now(),
+            attempts: 0
+        });
+
+        await sendGallaboxWhatsAppNotification('auth_otp', targetPhone, {
+            otp,
+            1: otp,
+            customer_name: user.first_name || 'Admin Staff'
+        });
+
+        res.json({ success: true, message: 'A new 6-digit verification code has been sent to your WhatsApp number.' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Admin: Generate new Google Authenticator Secret Key
+app.post('/api/admin/2fa/generate-secret', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const secret = generateBase32Secret(24);
+        const issuer = 'Selectt';
+        const account = req.user?.email || 'admin@selectt.in';
+        const otpauthUrl = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(account)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
+
+        res.json({
+            success: true,
+            secret,
+            otpauthUrl,
+            qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(otpauthUrl)}`
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Admin: Test Google Authenticator Code
+app.post('/api/admin/2fa/test-totp', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { secret, code } = req.body;
+        if (!secret || !code) return res.status(400).json({ success: false, message: 'Secret and 6-digit code are required' });
+
+        const isValid = verifyTOTP(code, secret);
+        if (isValid) {
+            res.json({ success: true, message: '✅ Authenticator code verified successfully! Google Authenticator is configured correctly.' });
+        } else {
+            res.status(400).json({ success: false, message: '❌ Invalid authenticator code. Check that the time on your phone is synchronized.' });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Admin: Test WhatsApp 2FA OTP Send
+app.post('/api/admin/2fa/test-whatsapp', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { phone } = req.body;
+        if (!phone) return res.status(400).json({ success: false, message: 'Phone number is required' });
+
+        const testOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        const result = await sendGallaboxWhatsAppNotification('auth_otp', phone, {
+            otp: testOtp,
+            1: testOtp,
+            customer_name: req.user?.first_name || 'Admin'
+        });
+
+        res.json({
+            success: true,
+            testOtp,
+            result,
+            message: `Test 2FA OTP message dispatched to WhatsApp (+${phone}) successfully!`
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
 });
 
 // ==================== BANNER MANAGEMENT ====================

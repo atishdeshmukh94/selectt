@@ -27,7 +27,7 @@ interface Setting {
 }
 
 interface SiteSettingsProps {
-  section?: "location" | "payment" | "smtp" | "maintenance" | "whatsapp" | "branding" | "api_keys";
+  section?: "location" | "payment" | "smtp" | "maintenance" | "whatsapp" | "branding" | "api_keys" | "security";
 }
 
 const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
@@ -47,6 +47,107 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
   const [testingSmtp, setTestingSmtp] = useState(false);
   const [testSmtpEmail, setTestSmtpEmail] = useState("");
   const [smtpTestResult, setSmtpTestResult] = useState<{ success?: boolean; message?: string } | null>(null);
+
+  // Two-Factor Authentication (2FA) State
+  const [generatingTotpSecret, setGeneratingTotpSecret] = useState(false);
+  const [totpTestCode, setTotpTestCode] = useState("");
+  const [testingTotp, setTestingTotp] = useState(false);
+  const [totpTestResult, setTotpTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [testingWhatsapp2fa, setTestingWhatsapp2fa] = useState(false);
+  const [whatsapp2faTestResult, setWhatsapp2faTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [qrModalData, setQrModalData] = useState<{ secret: string; otpauthUrl: string; qrCodeUrl: string } | null>(null);
+
+  const handleGenerateTotpSecret = async () => {
+    try {
+      setGeneratingTotpSecret(true);
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(`${API_URL}/api/admin/2fa/generate-secret`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        handleChange("two_factor_totp_secret", data.secret);
+        setQrModalData(data);
+        setShowQrModal(true);
+        toast.success("New Google Authenticator secret key generated!");
+      } else {
+        toast.error(data.message || "Failed to generate secret key");
+      }
+    } catch (err: any) {
+      toast.error("Error generating secret: " + err.message);
+    } finally {
+      setGeneratingTotpSecret(false);
+    }
+  };
+
+  const handleTestTotpCode = async () => {
+    if (!totpTestCode || totpTestCode.trim().length !== 6) {
+      toast.error("Please enter a 6-digit code from Google Authenticator");
+      return;
+    }
+    try {
+      setTestingTotp(true);
+      setTotpTestResult(null);
+      const token = localStorage.getItem("adminToken");
+      const secret = settings.two_factor_totp_secret || "JBSWY3DPEHPK3PXP";
+      const res = await fetch(`${API_URL}/api/admin/2fa/test-totp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ secret, code: totpTestCode.trim() })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setTotpTestResult({ success: true, message: data.message });
+        toast.success("Google Authenticator verified successfully!");
+      } else {
+        setTotpTestResult({ success: false, message: data.message || "Invalid code" });
+        toast.error(data.message || "Invalid code");
+      }
+    } catch (err: any) {
+      setTotpTestResult({ success: false, message: err.message });
+      toast.error("Error testing code: " + err.message);
+    } finally {
+      setTestingTotp(false);
+    }
+  };
+
+  const handleTestWhatsapp2fa = async () => {
+    const phone = settings.two_factor_whatsapp_phone || settings.whatsapp_admin_phone || "9753003648";
+    try {
+      setTestingWhatsapp2fa(true);
+      setWhatsapp2faTestResult(null);
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(`${API_URL}/api/admin/2fa/test-whatsapp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ phone })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setWhatsapp2faTestResult({ success: true, message: data.message });
+        toast.success(`WhatsApp 2FA test OTP sent to +${phone}!`);
+      } else {
+        setWhatsapp2faTestResult({ success: false, message: data.message || "Failed to send OTP" });
+        toast.error(data.message || "Failed to send WhatsApp OTP");
+      }
+    } catch (err: any) {
+      setWhatsapp2faTestResult({ success: false, message: err.message });
+      toast.error("Error sending test OTP: " + err.message);
+    } finally {
+      setTestingWhatsapp2fa(false);
+    }
+  };
 
   // Live WhatsApp Test Sender state
   const [testPhone, setTestPhone] = useState("");
@@ -393,6 +494,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
             { id: "payment", label: "💳 Payment Gateway" },
             { id: "smtp", label: "✉️ SMTP & Email" },
             { id: "whatsapp", label: "💬 WhatsApp API" },
+            { id: "security", label: "🛡️ 2-Step Verification (2FA)" },
             { id: "maintenance", label: "🚧 Maintenance Mode" },
             { id: "location", label: "📍 Location & Contact" },
           ].map((tab) => (
@@ -2456,6 +2558,294 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
             </div>
           );
         })()}
+
+        {activeSection === "security" && (
+          <div className="space-y-6">
+            {/* 1. Master Two-Step Verification Switch & Status Banner */}
+            <ComponentCard title="🛡️ Two-Step Authentication (2FA) for Admin & Staff Sign-In">
+              <form onSubmit={handleSave} className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-indigo-50 dark:from-emerald-950/30 dark:via-teal-950/20 dark:to-indigo-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold text-2xl shadow-sm shrink-0">
+                      🛡️
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="text-sm font-black text-gray-900 dark:text-white">
+                          Two-Step Verification Status:{" "}
+                          <span className={settings.two_factor_auth_enabled === "true" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-500"}>
+                            {settings.two_factor_auth_enabled === "true" ? "ACTIVE & ENFORCED" : "DISABLED"}
+                          </span>
+                        </h4>
+                        <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
+                          settings.two_factor_auth_enabled === "true"
+                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700"
+                            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-gray-300"
+                        }`}>
+                          {settings.two_factor_auth_enabled === "true" ? "High Security" : "Standard Security"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 font-medium leading-relaxed">
+                        When enabled, all Admin and Staff logins require a secondary verification step via instant WhatsApp OTP or Google Authenticator code.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 bg-white dark:bg-gray-900 p-3 px-4 rounded-xl border border-emerald-200 dark:border-emerald-800 shadow-2xs shrink-0 self-start sm:self-auto">
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        id="two_factor_auth_enabled"
+                        className="sr-only peer"
+                        checked={settings.two_factor_auth_enabled === "true"}
+                        onChange={(e) => handleChange("two_factor_auth_enabled", e.target.checked ? "true" : "false")}
+                      />
+                      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-600"></div>
+                    </label>
+                    <label htmlFor="two_factor_auth_enabled" className="text-xs font-black text-gray-900 dark:text-white cursor-pointer select-none">
+                      Enable 2FA Sign-In
+                    </label>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Method 1: WhatsApp OTP */}
+                  <div className="p-5 rounded-2xl border border-slate-200 dark:border-gray-800 bg-slate-50/70 dark:bg-gray-800/40 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">💬</span>
+                        <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">Method 1: WhatsApp OTP</h4>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={settings.two_factor_whatsapp_enabled !== "false"}
+                          onChange={(e) => handleChange("two_factor_whatsapp_enabled", e.target.checked ? "true" : "false")}
+                        />
+                        <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500"></div>
+                      </label>
+                    </div>
+                    <p className="text-xs text-gray-500 font-medium">
+                      Dispatches an automated 6-digit security OTP directly to the designated Admin WhatsApp number via Gallabox API.
+                    </p>
+
+                    <div>
+                      <Label>Admin WhatsApp Phone Number</Label>
+                      <Input
+                        type="text"
+                        placeholder="e.g. 9753003648"
+                        value={settings.two_factor_whatsapp_phone || ""}
+                        onChange={(e) => handleChange("two_factor_whatsapp_phone", e.target.value)}
+                      />
+                      <p className="text-[11px] text-gray-400 mt-1 font-medium">
+                        Defaults to Admin WhatsApp Phone configured in WhatsApp settings if left empty.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={testingWhatsapp2fa}
+                      onClick={handleTestWhatsapp2fa}
+                      className="px-4 py-2 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 text-xs font-bold rounded-xl transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      {testingWhatsapp2fa ? (
+                        <>
+                          <span className="animate-spin text-xs">⏳</span> Sending Test OTP...
+                        </>
+                      ) : (
+                        <>
+                          <span>📲</span> Send Test WhatsApp 2FA OTP
+                        </>
+                      )}
+                    </button>
+
+                    {whatsapp2faTestResult && (
+                      <div className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
+                        whatsapp2faTestResult.success
+                          ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200"
+                          : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200"
+                      }`}>
+                        <span>{whatsapp2faTestResult.success ? "✅" : "❌"}</span>
+                        <span>{whatsapp2faTestResult.message}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Method 2: Google Authenticator (TOTP) */}
+                  <div className="p-5 rounded-2xl border border-slate-200 dark:border-gray-800 bg-slate-50/70 dark:bg-gray-800/40 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">🔐</span>
+                        <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">Method 2: Google Authenticator (App)</h4>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={settings.two_factor_totp_enabled !== "false"}
+                          onChange={(e) => handleChange("two_factor_totp_enabled", e.target.checked ? "true" : "false")}
+                        />
+                        <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500"></div>
+                      </label>
+                    </div>
+                    <p className="text-xs text-gray-500 font-medium">
+                      Standard RFC 6238 Time-based One-Time Password (TOTP) compatible with Google Authenticator, Microsoft Authenticator, and Authy.
+                    </p>
+
+                    <div>
+                      <Label>Authenticator Secret Key (Base32)</Label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          readOnly
+                          className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-mono"
+                          placeholder="JBSWY3DPEHPK3PXP"
+                          value={settings.two_factor_totp_secret || "JBSWY3DPEHPK3PXP"}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const sec = settings.two_factor_totp_secret || "JBSWY3DPEHPK3PXP";
+                            navigator.clipboard.writeText(sec);
+                            toast.success("Secret key copied!");
+                          }}
+                          className="px-3 py-2.5 bg-white dark:bg-gray-900 hover:bg-gray-50 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0"
+                          title="Copy secret key"
+                        >
+                          📋 Copy
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={generatingTotpSecret}
+                        onClick={handleGenerateTotpSecret}
+                        className="px-3.5 py-2 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-bold rounded-xl transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
+                      >
+                        {generatingTotpSecret ? "⏳ Generating..." : "🔑 Generate New Secret & QR"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const sec = settings.two_factor_totp_secret || "JBSWY3DPEHPK3PXP";
+                          const otpauthUrl = `otpauth://totp/Selectt:admin%40selectt.in?secret=${sec}&issuer=Selectt&algorithm=SHA1&digits=6&period=30`;
+                          setQrModalData({
+                            secret: sec,
+                            otpauthUrl,
+                            qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(otpauthUrl)}`
+                          });
+                          setShowQrModal(true);
+                        }}
+                        className="px-3.5 py-2 bg-white dark:bg-gray-900 hover:bg-gray-50 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 text-xs font-bold rounded-xl transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
+                      >
+                        <span>📱 View App QR Code</span>
+                      </button>
+                    </div>
+
+                    {/* Test Authenticator Code Box */}
+                    <div className="p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 space-y-2">
+                      <Label>Test 6-Digit App Code</Label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={6}
+                          placeholder="Enter live 6-digit code"
+                          className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-mono tracking-widest text-center"
+                          value={totpTestCode}
+                          onChange={(e) => setTotpTestCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
+                        />
+                        <button
+                          type="button"
+                          disabled={testingTotp || totpTestCode.length !== 6}
+                          onClick={handleTestTotpCode}
+                          className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+                        >
+                          {testingTotp ? "⏳ Testing..." : "Verify Code"}
+                        </button>
+                      </div>
+
+                      {totpTestResult && (
+                        <div className={`p-2.5 rounded-lg border text-xs font-semibold flex items-center gap-2 ${
+                          totpTestResult.success
+                            ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200"
+                            : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200"
+                        }`}>
+                          <span>{totpTestResult.success ? "✅" : "❌"}</span>
+                          <span>{totpTestResult.message}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <Button type="submit" disabled={saving}>
+                    {saving ? "Saving Security Settings..." : "Save 2FA Security Settings"}
+                  </Button>
+                </div>
+              </form>
+            </ComponentCard>
+
+            {/* QR Code Setup Modal */}
+            {showQrModal && qrModalData && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
+                <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
+                  <div className="p-4 px-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">📱</span>
+                      <h3 className="text-sm font-black text-gray-900 dark:text-white">
+                        Scan Google Authenticator QR Code
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowQrModal(false)}
+                      className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-700 dark:text-gray-200 font-bold flex items-center justify-center cursor-pointer transition-all"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="p-6 text-center space-y-4">
+                    <p className="text-xs text-gray-600 dark:text-gray-300 font-medium">
+                      Open <strong>Google Authenticator</strong> (or Microsoft Authenticator / Authy) on your smartphone, tap <strong>"+"</strong> and scan this QR code:
+                    </p>
+
+                    <div className="bg-white p-4 rounded-2xl border border-gray-200 inline-block shadow-inner">
+                      <img
+                        src={qrModalData.qrCodeUrl}
+                        alt="2FA QR Code"
+                        className="w-52 h-52 mx-auto rounded-lg"
+                      />
+                    </div>
+
+                    <div className="p-3 bg-slate-50 dark:bg-gray-800/60 rounded-xl border border-slate-200 dark:border-gray-700 text-left space-y-1">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">Or Enter Key Manually:</span>
+                      <p className="font-mono text-xs font-black text-indigo-600 dark:text-indigo-400 select-all break-all">
+                        {qrModalData.secret}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 px-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setShowQrModal(false)}
+                      className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs cursor-pointer"
+                    >
+                      Done & Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {section === "branding" && (
           <div className="space-y-6">
