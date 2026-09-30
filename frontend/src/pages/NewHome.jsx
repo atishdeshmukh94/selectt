@@ -2364,7 +2364,7 @@ const NewHome = () => {
       </section>
 
       {/* 6. BRAND EXPLORER (LIGHT BLUE-GRAY BACKGROUND - Carousel/Grid style with Real Admin Uploads) */}
-      <section className="py-4 px-4 sm:px-6 md:px-12 bg-[#fff] relative z-10">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 md:px-12 bg-[#fff] relative z-10">
         <div className="w-full max-w-[1440px] mx-auto bg-slate-50/80 border border-slate-200/90 rounded-3xl p-5 sm:p-7 shadow-xs">
 
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
@@ -2497,7 +2497,7 @@ const NewHome = () => {
       </section>
 
       {/* 7. HOW IT WORKS SECTION (LIGHT PREMIUM DESIGN) */}
-      <section className="py-12 px-6 md:px-12 bg-[#0C1B33]/30 backdrop-blur-md text-white border-t border-white/5 relative overflow-hidden z-10">
+      <section className="pt-14 sm:pt-20 pb-12 px-6 md:px-12 bg-[#0C1B33]/40 backdrop-blur-md text-white border-t border-white/5 relative overflow-hidden z-10">
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_60%_60%_at_50%_50%,rgba(0,196,175,0.05)_0%,transparent_60%)]"></div>
         </div>
