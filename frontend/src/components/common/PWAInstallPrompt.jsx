@@ -136,11 +136,11 @@ const PWAInstallPrompt = () => {
           </button>
 
           {/* App Icon */}
-          <div className="relative mx-auto mb-4 w-16 h-16 rounded-2xl bg-[#E6FAF7] border border-[#00C9AF]/30 p-2.5 shadow-sm flex items-center justify-center">
+          <div className="relative mx-auto mb-4 w-16 h-16 rounded-2xl bg-[#12273F] border border-[#12273F] p-2 shadow-md shadow-[#12273F]/25 flex items-center justify-center">
             <img
               src="/pwa-icon-192.png"
               alt="Selectt App"
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain rounded-xl"
               onError={(e) => { e.currentTarget.src = '/favicon.png'; }}
             />
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#00C9AF] rounded-full border-2 border-white flex items-center justify-center shadow-xs">
