@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
-import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, X, FileText, ArrowDown, ArrowRight, Check } from 'lucide-react';
+import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
@@ -93,6 +93,7 @@ const CheckoutPage = () => {
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [interestedInLoan, setInterestedInLoan] = useState(false);
   const [mobileLoanPromptVisible, setMobileLoanPromptVisible] = useState(true);
+  const [isPriceSummaryOpen, setIsPriceSummaryOpen] = useState(false);
   const [isTestDriveOpen, setIsTestDriveOpen] = useState(false);
   const [scheduledTestDrive, setScheduledTestDrive] = useState(null);
   const [steps, setSteps] = useState(DEFAULT_BUY_STEPS);
@@ -388,6 +389,28 @@ const CheckoutPage = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Price summary - Total on-road price trigger */}
+              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-[#0C1B33] text-base mb-3">Price summary</h3>
+                <button
+                  type="button"
+                  onClick={() => setIsPriceSummaryOpen(true)}
+                  className="w-full flex items-center justify-between p-4 rounded-xl border border-purple-200 hover:border-purple-600 bg-white hover:bg-purple-50/40 transition-all duration-200 cursor-pointer shadow-xs group"
+                >
+                  <div className="flex items-center gap-3 text-[#0C1B33] font-bold text-sm sm:text-base">
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700">
+                      <FileText size={18} />
+                    </div>
+                    <span>Total on-road price</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[#0C1B33] font-extrabold text-sm sm:text-base">
+                    <span>₹ {(((Number(car?.price) || 550000) + 4000 + 2691) / 100000).toFixed(2)} Lakh</span>
+                    <ChevronRight size={18} className="text-slate-400 group-hover:translate-x-1 group-hover:text-purple-600 transition-all" />
+                  </div>
+                </button>
+              </div>
+
               {/* Pay Action Card */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden transition-all hover:shadow-lg">
                 <div className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 bg-white">
@@ -475,6 +498,13 @@ const CheckoutPage = () => {
                         ₹{((car.price + 22000) / 100000).toFixed(2)} Lakh
                       </span>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsPriceSummaryOpen(true)}
+                      className="text-[11.5px] text-purple-700 font-bold hover:underline cursor-pointer text-left mt-1 inline-block"
+                    >
+                      View breakup
+                    </button>
                   </div>
                 </div>
 
@@ -781,6 +811,212 @@ const CheckoutPage = () => {
             <div className="flex justify-center items-center gap-1 mt-2.5">
               <span className="w-4 h-1 rounded-full bg-slate-200" />
               <span className="w-1.5 h-1 rounded-full bg-slate-300" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Price Summary Breakdown Popup Modal (Matching Spinny Reference UI) */}
+      {isPriceSummaryOpen && car && (
+        <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div 
+            className="fixed inset-0" 
+            onClick={() => setIsPriceSummaryOpen(false)} 
+          />
+          <div className="bg-[#f8f9fa] rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 relative z-10 animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-250 flex flex-col">
+            
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-md px-5 py-4 border-b border-slate-100 flex items-center justify-between z-20">
+              <h3 className="font-heading font-extrabold text-[#0C1B33] text-lg sm:text-xl">
+                Price Summary
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsPriceSummaryOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+                aria-label="Close price summary"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-6 space-y-4">
+              
+              {/* Savings Banner */}
+              <div className="bg-emerald-50 border border-emerald-200/90 rounded-2xl p-3.5 flex items-center gap-2.5 text-emerald-900 text-xs sm:text-sm font-bold shadow-xs">
+                <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <ShieldCheck size={16} />
+                </div>
+                <span>Yay! You are saving ₹{((car.original_price && car.original_price > car.price) ? (car.original_price - car.price) : 22000).toLocaleString()}</span>
+              </div>
+
+              {/* Fixed Price Assured Notice */}
+              <div className="bg-purple-50/90 border border-purple-200/80 rounded-2xl p-3.5 flex items-center gap-2.5 text-purple-900 text-xs sm:text-sm font-bold shadow-xs">
+                <div className="w-7 h-7 rounded-full bg-[#6B21A8] text-white flex items-center justify-center shrink-0 shadow-xs text-xs font-black">
+                  ₹
+                </div>
+                <span>Fixed price assured! To save you time on negotiations</span>
+              </div>
+
+              {/* White Breakdown Box */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3.5 text-xs sm:text-sm">
+                
+                {/* Subtotal / Car Price */}
+                <div className="flex justify-between items-center text-slate-700">
+                  <span className="font-medium">Subtotal</span>
+                  <span className="font-bold text-[#0C1B33] font-price">
+                    ₹{((car.original_price && car.original_price > car.price ? car.original_price : (car.price + 22000))).toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Sale Discount */}
+                <div className="flex justify-between items-center text-emerald-600 font-bold">
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles size={14} className="text-emerald-500" /> Sale Discount
+                  </span>
+                  <span className="font-price">
+                    - ₹{((car.original_price && car.original_price > car.price) ? (car.original_price - car.price) : 22000).toLocaleString()}
+                  </span>
+                </div>
+
+                {/* RC Transfer Facilitation */}
+                <div className="flex justify-between items-center text-slate-700">
+                  <span className="font-medium">RC transfer facilitation</span>
+                  <span className="font-bold text-[#0C1B33] font-price">+ ₹4,000</span>
+                </div>
+
+                {/* Servicing, Cleaning, Fuel */}
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600 font-medium flex items-center gap-1">
+                    Servicing, cleaning, fuel & more <Info size={13} className="text-slate-400" />
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400 line-through font-normal text-xs font-price">₹10,700</span>
+                    <span className="text-emerald-600 font-bold">Included</span>
+                  </div>
+                </div>
+
+                {/* Warranty */}
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600 font-medium flex items-center gap-1">
+                    Warranty (Protect)
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400 line-through font-normal text-xs font-price">₹4,950</span>
+                    <span className="text-emerald-600 font-bold">Included</span>
+                  </div>
+                </div>
+
+                {/* Fixes & Upgrades */}
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600 font-medium flex items-center gap-1">
+                    Fixes & upgrades <Info size={13} className="text-slate-400" />
+                  </span>
+                  <span className="text-emerald-600 font-bold">Included</span>
+                </div>
+
+                {/* GST Taxes */}
+                <div className="flex justify-between items-center text-slate-700">
+                  <span className="font-medium flex items-center gap-1">
+                    GST (govt. taxes) <Info size={13} className="text-slate-400" />
+                  </span>
+                  <span className="font-bold text-[#0C1B33] font-price">₹2,691</span>
+                </div>
+
+                {/* Total On-road Price Divider */}
+                <div className="pt-4 mt-2 border-t border-dashed border-slate-200 flex justify-between items-center">
+                  <span className="font-heading font-extrabold text-[#0C1B33] text-sm sm:text-base">
+                    Total on-road price
+                  </span>
+                  <span className="font-heading font-black text-[#0C1B33] text-lg sm:text-xl font-price">
+                    ₹{((car.price || 550000) + 4000 + 2691).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* Best-in-class values Section */}
+              <div className="pt-2">
+                <div className="flex items-center justify-center gap-3 my-4">
+                  <div className="h-px bg-slate-200 flex-1 max-w-[70px]" />
+                  <span className="font-bold text-[#0C1B33] text-xs sm:text-sm tracking-tight">
+                    Best-in-class values
+                  </span>
+                  <div className="h-px bg-slate-200 flex-1 max-w-[70px]" />
+                </div>
+
+                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex items-center gap-3.5 mb-4">
+                  <p className="text-xs text-slate-600 font-medium leading-relaxed flex-1">
+                    Thorough inspection, expert refurbishment & cleaning has been conducted by our professionals.
+                  </p>
+                  <div className="w-16 h-14 shrink-0 bg-slate-50 rounded-xl border border-slate-150 flex items-center justify-center text-[#00C9AF] shadow-inner">
+                    <Car size={30} strokeWidth={1.7} />
+                  </div>
+                </div>
+
+                {/* SELECTT BENEFITS Grid */}
+                <div className="bg-gradient-to-b from-indigo-50/70 via-purple-50/50 to-white rounded-2xl p-4 border border-purple-100 shadow-sm">
+                  <div className="flex items-center justify-center mb-3.5">
+                    <div className="bg-[#6B21A8] text-white font-black text-[11px] uppercase tracking-wider px-3 py-1 rounded-lg shadow-xs flex items-center gap-1.5">
+                      <Sparkles size={12} className="text-amber-300" />
+                      <span>SELECTT BENEFITS</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    
+                    <div className="bg-white rounded-xl p-3 border border-slate-150 flex flex-col items-center text-center shadow-2xs hover:shadow-sm transition-all">
+                      <span className="font-bold text-[#0C1B33] text-[11px] leading-tight">6 months warranty</span>
+                      <span className="text-[9.5px] text-slate-400 font-medium mt-0.5 mb-2">God promise</span>
+                      <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <ShieldCheck size={17} />
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-3 border border-slate-150 flex flex-col items-center text-center shadow-2xs hover:shadow-sm transition-all">
+                      <span className="font-bold text-[#0C1B33] text-[11px] leading-tight">5-day money back</span>
+                      <span className="text-[9.5px] text-slate-400 font-medium mt-0.5 mb-2">Love it or return it!</span>
+                      <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
+                        <RotateCcw size={17} />
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-3 border border-slate-150 flex flex-col items-center text-center shadow-2xs hover:shadow-sm transition-all">
+                      <span className="font-bold text-[#0C1B33] text-[11px] leading-tight">Lowest EMIs</span>
+                      <span className="text-[9.5px] text-slate-400 font-medium mt-0.5 mb-2">Drive home today</span>
+                      <div className="w-8 h-8 rounded-full bg-cyan-50 text-cyan-600 flex items-center justify-center">
+                        <CreditCard size={17} />
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-3 border border-slate-150 flex flex-col items-center text-center shadow-2xs hover:shadow-sm transition-all">
+                      <span className="font-bold text-[#0C1B33] text-[11px] leading-tight">1 in 20 make cut</span>
+                      <span className="text-[9.5px] text-slate-400 font-medium mt-0.5 mb-2">Cherry picked</span>
+                      <div className="w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
+                        <Car size={17} />
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-3 border border-slate-150 flex flex-col items-center text-center shadow-2xs hover:shadow-sm transition-all">
+                      <span className="font-bold text-[#0C1B33] text-[11px] leading-tight">Quality assured</span>
+                      <span className="text-[9.5px] text-slate-400 font-medium mt-0.5 mb-2">Refurbished</span>
+                      <div className="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
+                        <Sparkles size={17} />
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-3 border border-slate-150 flex flex-col items-center text-center shadow-2xs hover:shadow-sm transition-all">
+                      <span className="font-bold text-[#0C1B33] text-[11px] leading-tight">Buyback guarantee</span>
+                      <span className="text-[9.5px] text-slate-400 font-medium mt-0.5 mb-2">Assured price</span>
+                      <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <Gift size={17} />
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           </div>
         </div>

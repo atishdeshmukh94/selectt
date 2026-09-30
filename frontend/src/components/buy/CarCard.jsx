@@ -266,28 +266,28 @@ const CarCard = ({ car, lightBg = false }) => {
               })()}
             </div>
 
-            {/* Spec pills: KM (full number), Fuel (including Petrol/CNG, Hybrid, EV), Transmission, RTO Code */}
-            <div className="flex flex-wrap gap-1.5 mt-2.5">
-              <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
-                <Gauge size={12} className="text-[#00C9AF]" />
-                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
+            {/* Spec pills: KM, Fuel, Transmission, RTO Code (Compact 4-in-1 single line) */}
+            <div className="flex items-center gap-1 sm:gap-1.5 mt-2.5 flex-nowrap overflow-x-auto no-scrollbar">
+              <div className={`px-1.5 sm:px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0 border whitespace-nowrap ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
+                <Gauge size={11} className="text-[#00C9AF] shrink-0" />
+                <span className={`text-[10px] sm:text-[11px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
                   {(Number(car.km) || 0).toLocaleString('en-IN')} km
                 </span>
               </div>
-              <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
-                <Fuel size={12} className="text-[#00C9AF]" />
-                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
+              <div className={`px-1.5 sm:px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0 border whitespace-nowrap ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
+                <Fuel size={11} className="text-[#00C9AF] shrink-0" />
+                <span className={`text-[10px] sm:text-[11px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
                   {car.fuelType || car.fuel_type || 'Petrol'}
                 </span>
               </div>
-              <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
-                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
+              <div className={`px-1.5 sm:px-2 py-0.5 rounded-full flex items-center shrink-0 border whitespace-nowrap ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
+                <span className={`text-[10px] sm:text-[11px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
                   {car.transmission || 'Manual'}
                 </span>
               </div>
-              <div className={`px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
-                <span className={`text-[11.5px] sm:text-[12px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
-                  {car.rto_code || car.rto || (car.registration_no ? car.registration_no.slice(0, 4).toUpperCase() : (car.regState || 'MH01'))}
+              <div className={`px-1.5 sm:px-2 py-0.5 rounded-full flex items-center shrink-0 border whitespace-nowrap ${lightBg ? 'bg-slate-50 border-slate-200/60' : 'bg-white/5 border-white/[0.08]'}`}>
+                <span className={`text-[10px] sm:text-[11px] font-semibold ${lightBg ? 'text-slate-700' : 'text-slate-200'}`}>
+                  {car.rto_code || car.rto || (car.registration_no ? car.registration_no.slice(0, 4).toUpperCase() : (car.regState === 'Maharashtra' ? 'MH' : car.regState || 'MH01'))}
                 </span>
               </div>
             </div>
