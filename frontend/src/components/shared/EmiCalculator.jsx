@@ -271,10 +271,10 @@ const EmiCalculator = ({
           <div className="mt-4">
             <button
               onClick={() => user ? navigate('/profile?tab=loan') : openLoginModal()}
-              className="w-full px-6 py-2.5 bg-[#18273D] text-[#00D2B6] rounded-2xl font-black text-[10px] md:text-[11px] uppercase tracking-widest cursor-pointer hover:text-black hover:bg-white transition-all shadow-sm flex items-center justify-center gap-2"
+              className="w-full px-6 py-3 bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8] active:scale-[0.99] rounded-2xl font-heading font-semibold text-xs md:text-sm cursor-pointer transition-all shadow-md flex items-center justify-center gap-2"
             >
               <span className="text-base md:text-lg">🏆</span>
-              <span>CHECK YOUR ELIGIBILITY</span>
+              <span>Check your eligibility</span>
             </button>
             <div className={`mt-2.5 pt-2.5 border-t border-dashed ${theme === 'dark' ? 'border-white/10' : 'border-slate-200/80'}`}>
               <p className={`text-[9px] text-left leading-relaxed font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>

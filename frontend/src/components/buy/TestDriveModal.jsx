@@ -148,101 +148,119 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 md:p-6">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={handleClose} />
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Modal Card */}
-      <div className="bg-white rounded-3xl w-full max-w-md relative z-10 shadow-2xl flex flex-col" style={{ maxHeight: 'min(680px, calc(100vh - 100px))' }}>
+      <div className="bg-white rounded-3xl w-full max-w-md md:max-w-3xl lg:max-w-4xl relative z-10 shadow-2xl flex flex-col overflow-hidden" style={{ maxHeight: 'min(720px, calc(100vh - 40px))' }}>
 
         {/* Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-black text-[#0C1B33]">Free Test Drive</h1>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Schedule your visit</p>
+        <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-slate-100 flex items-center justify-between">
+          <div className="text-left">
+            <h1 className="text-lg sm:text-xl font-heading font-extrabold text-[#0C1B33]">Free Test Drive</h1>
+            <p className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Schedule your visit</p>
           </div>
-          <button onClick={handleClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors cursor-pointer">
-            <X size={20} className="text-slate-400" />
+          <button 
+            onClick={handleClose} 
+            className="w-9 h-9 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors cursor-pointer text-slate-400 hover:text-slate-700"
+            aria-label="Close"
+          >
+            <X size={20} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 custom-scrollbar">
           {isSuccess ? (
-            <div className="flex flex-col items-center justify-center py-6 text-center">
-              <div className="w-14 h-14 bg-emerald-50 text-[#00C9AF] rounded-full flex items-center justify-center mb-4 animate-in zoom-in duration-300">
-                <CheckCircle2 size={32} />
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <div className="w-16 h-16 bg-emerald-50 text-[#00C9AF] rounded-full flex items-center justify-center mb-4 animate-in zoom-in duration-300 shadow-sm">
+                <CheckCircle2 size={36} />
               </div>
-              <h2 className="text-xl font-black text-[#0C1B33] mb-1">Test Drive Booked! 🎉</h2>
-              <p className="text-sm text-slate-600 max-w-[260px] mx-auto leading-relaxed mb-4">
-                <span className="font-bold text-slate-800 block">{car.make} {car.model}</span>
-                <span className="font-bold text-[#00C9AF] block">{selectedSlot}</span>
-                <span className="block">{getSelectedDateDisplay()}</span>
+              <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-[#0C1B33] mb-1">Test Drive Booked! 🎉</h2>
+              <p className="text-sm text-slate-600 max-w-sm mx-auto leading-relaxed mb-5">
+                <span className="font-bold text-slate-800 block text-base">{car.year} {car.make} {car.model}</span>
+                <span className="font-bold text-[#008A77] block mt-1">{selectedSlot} • {getSelectedDateDisplay()}</span>
+                {selectedLocation === 'hub' && (
+                  <span className="text-xs text-slate-500 block mt-1">
+                    📍 {hubs.find(h => String(h.id) === String(selectedHubId))?.name || car.hubLocation || 'Selectt Hub'}
+                  </span>
+                )}
               </p>
-              <div className="flex items-center gap-2 px-4 py-2.5 bg-[#00C9AF]/10 rounded-xl border border-[#00C9AF]/25 text-[#00C9AF]">
-                <ShieldCheck size={16} />
-                <span className="text-xs font-bold">Selectt Assured · Team will contact you shortly</span>
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-[#00C9AF]/10 rounded-xl border border-[#00C9AF]/25 text-[#008A77] mb-6">
+                <ShieldCheck size={18} />
+                <span className="text-xs font-bold">Selectt Assured · Our team will contact you shortly</span>
               </div>
+              <button
+                onClick={handleClose}
+                className="w-full max-w-xs py-3.5 bg-[#0C1B33] hover:bg-[#162947] text-white rounded-xl font-heading font-semibold text-sm shadow-md transition-all cursor-pointer"
+              >
+                Done
+              </button>
             </div>
           ) : (
-            <>
-              {/* Simple Car Card */}
-              <div className="flex gap-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-150 mb-6 items-center">
-                <div className="w-20 h-14 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
-                  <img
-                    src={getCarImageUrl(car?.image || car?.images?.[0])}
-                    alt={car?.model || 'Car'}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
-                    }}
-                  />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-7 items-start">
+              
+              {/* LEFT COLUMN: Car summary & Location Selection */}
+              <div className="space-y-4 text-left">
+                {/* Simple Car Card */}
+                <div className="flex gap-3.5 p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 items-center">
+                  <div className="w-20 h-16 rounded-xl overflow-hidden bg-white shrink-0 border border-slate-200/60 shadow-2xs">
+                    <img
+                      src={getCarImageUrl(car?.image || car?.images?.[0])}
+                      alt={car?.model || 'Car'}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                      }}
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-heading font-extrabold text-[#0C1B33] text-sm sm:text-base leading-tight truncate">
+                      {car.year} {car.make} {car.model}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                      {car.km ? car.km.toLocaleString() : '18,200'} Km • {car.fuelType}
+                    </p>
+                    <p className="text-sm sm:text-base font-heading font-black text-[#0C1B33] mt-0.5">
+                      ₹{(car.price / 100000).toFixed(2)} Lakh
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-extrabold text-slate-850 text-base leading-tight truncate">
-                    {car.year} {car.make} {car.model}
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    {car.km.toLocaleString()} Km • {car.fuelType}
-                  </p>
-                  <p className="text-sm font-black text-[#0C1B33] mt-0.5">₹{(car.price / 100000).toFixed(2)} Lakh</p>
-                </div>
-              </div>
 
-              <div className="space-y-6">
                 {/* Location Section */}
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-2.5">
                     <MapPin size={15} className="text-[#00C9AF]" />
                     <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest">Select Location</h2>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2.5">
                     {[
-                      { id: 'hub', label: 'Selectt Hub', icon: <Car size={14} /> },
-                      { id: 'doorstep', label: 'Doorstep', icon: <Navigation size={14} /> }
+                      { id: 'hub', label: 'Selectt Hub', icon: <Car size={15} /> },
+                      { id: 'doorstep', label: 'Doorstep', icon: <Navigation size={15} /> }
                     ].map((loc) => (
                       <button
                         key={loc.id}
                         disabled={isLoading}
                         onClick={() => setSelectedLocation(loc.id)}
-                        className={`flex items-center justify-center gap-2 p-3.5 rounded-xl border transition-all text-xs sm:text-sm font-bold ${selectedLocation === loc.id
-                          ? 'border-[#00C9AF] bg-[#e6faf7] text-[#00C9AF]'
-                          : 'border-slate-100 hover:border-slate-200 text-slate-500'
+                        className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all text-xs sm:text-sm font-heading font-semibold cursor-pointer ${selectedLocation === loc.id
+                          ? 'border-[#00C9AF] bg-[#e6faf7] text-[#008A77] shadow-xs'
+                          : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
                           } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
                         {loc.icon}
-                        {loc.label}
+                        <span>{loc.label}</span>
                       </button>
                     ))}
                   </div>
 
                   {selectedLocation === 'hub' && (
-                    <div className="mt-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-left">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="block text-xs font-extrabold text-slate-600 uppercase tracking-wider">
+                    <div className="mt-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 text-left">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
                           Selectt Spot / Hub Location
                         </label>
                         {hubs.length > 0 && (
-                          <span className="text-xs font-black text-[#00C9AF] bg-[#E6FAF7] px-2.5 py-0.5 rounded-full border border-[#00C9AF]/20">
+                          <span className="text-[11px] font-black text-[#008A77] bg-[#E6FAF7] px-2.5 py-0.5 rounded-full border border-[#00C9AF]/30">
                             {hubs.length} Hubs
                           </span>
                         )}
@@ -254,7 +272,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
                           <button
                             type="button"
                             onClick={() => setIsHubDropdownOpen(!isHubDropdownOpen)}
-                            className="w-full bg-white border border-slate-200 hover:border-[#00C9AF] rounded-xl px-3 py-2 text-xs font-black text-slate-800 shadow-sm flex items-center justify-between transition-all outline-none cursor-pointer active:scale-[0.99]"
+                            className="w-full bg-white border border-slate-200 hover:border-[#00C9AF] rounded-xl px-3 py-2 text-xs font-bold text-slate-800 shadow-2xs flex items-center justify-between transition-all outline-none cursor-pointer active:scale-[0.99]"
                           >
                             <div className="flex items-center gap-2 truncate">
                               <MapPin size={13} className="text-[#00C9AF] shrink-0" />
@@ -272,7 +290,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
                                 className="fixed inset-0 z-40"
                                 onClick={() => setIsHubDropdownOpen(false)}
                               />
-                              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200/90 rounded-2xl shadow-xl z-50 p-1.5 max-h-48 overflow-y-auto divide-y divide-slate-100/80 animate-in fade-in slide-in-from-top-1 duration-150 scrollbar-none">
+                              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200/90 rounded-2xl shadow-xl z-50 p-1.5 max-h-48 overflow-y-auto divide-y divide-slate-100 scrollbar-none">
                                 {hubs.map((h) => {
                                   const isSelected = String(h.id) === String(selectedHubId);
                                   return (
@@ -283,14 +301,14 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
                                         setSelectedHubId(String(h.id));
                                         setIsHubDropdownOpen(false);
                                       }}
-                                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-between cursor-pointer ${isSelected
+                                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${isSelected
                                         ? 'bg-[#E6FAF7] text-[#0C1B33]'
                                         : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
                                       }`}
                                     >
                                       <div className="flex flex-col min-w-0 pr-2">
-                                        <span className="truncate font-black">{h.name}</span>
-                                        <span className="text-xs text-slate-500 font-semibold uppercase">{h.city}</span>
+                                        <span className="truncate font-bold">{h.name}</span>
+                                        <span className="text-[10px] text-slate-400 font-semibold uppercase">{h.city}</span>
                                       </div>
                                       {isSelected && <Check size={14} className="text-[#00C9AF] shrink-0" />}
                                     </button>
@@ -315,137 +333,134 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess }) => {
                               <span>{selectedHub.address}</span>
                             </p>
                             <p className="text-xs text-slate-500 font-bold mt-1">
-                              🕒 {selectedHub.open_hours || '10am - 8pm (Mon - Sun)'}
+                              🕒 {selectedHub.open_hours || '09:30 AM - 08:00 PM (Mon-Sun)'}
                             </p>
                           </div>
                         ) : (
                           <p className="text-xs text-slate-500 font-medium mt-1">
-                            Crystal Plaza, Malad West, Mumbai 400064
+                            Phoenix Marketcity Mall Road, Viman Nagar, Pune, Maharashtra 411014
                           </p>
                         );
                       })()}
                     </div>
                   )}
                 </div>
+              </div>
 
-                {/* Date Section */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Calendar size={14} className="text-[#00C9AF]" />
-                    <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Select Date</h2>
-                  </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    {dates.map((date) => (
+              {/* RIGHT COLUMN: Date & Time Selection & Confirmation */}
+              <div className="space-y-4 text-left flex flex-col justify-between h-full">
+                <div className="space-y-4">
+                  {/* Date Section */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <Calendar size={15} className="text-[#00C9AF]" />
+                      <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest">Select Date</h2>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {dates.map((date) => (
+                        <button
+                          key={date.id}
+                          disabled={isLoading}
+                          onClick={() => { setSelectedDate(date.id); setShowCalendar(false); setCustomDate(''); }}
+                          className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer ${selectedDate === date.id && !showCalendar
+                            ? 'border-[#00C9AF] bg-[#e6faf7] text-[#008A77] shadow-xs'
+                            : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
+                            } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <span className="text-[10px] font-bold uppercase tracking-tight mb-0.5">{date.label}</span>
+                          <span className="text-xs font-extrabold">{date.day}</span>
+                        </button>
+                      ))}
+                      {/* Calendar picker button */}
                       <button
-                        key={date.id}
                         disabled={isLoading}
-                        onClick={() => { setSelectedDate(date.id); setShowCalendar(false); setCustomDate(''); }}
-                        className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${selectedDate === date.id && !showCalendar
-                          ? 'border-[#00C9AF] bg-[#e6faf7] text-[#00C9AF]'
-                          : 'border-slate-100 hover:border-slate-200 text-slate-500'
+                        onClick={() => { setShowCalendar(true); setSelectedDate('custom'); }}
+                        className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer ${showCalendar
+                          ? 'border-[#00C9AF] bg-[#e6faf7] text-[#008A77] shadow-xs'
+                          : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
                           } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
-                        <span className="text-xs font-bold uppercase tracking-tight mb-0.5">{date.label}</span>
-                        <span className="text-xs font-black">{date.day}</span>
+                        <Calendar size={14} className="mb-0.5" />
+                        <span className="text-[10px] font-bold uppercase tracking-tight">Pick</span>
                       </button>
-                    ))}
-                    {/* Calendar picker button */}
-                    <button
-                      disabled={isLoading}
-                      onClick={() => { setShowCalendar(true); setSelectedDate('custom'); }}
-                      className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${showCalendar
-                        ? 'border-[#00C9AF] bg-[#e6faf7] text-[#00C9AF]'
-                        : 'border-slate-100 hover:border-slate-200 text-slate-500'
-                        } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      <Calendar size={14} className="mb-0.5" />
-                      <span className="text-xs font-bold uppercase tracking-tight">Pick</span>
-                    </button>
+                    </div>
+                    {/* Native calendar input shown when Pick is selected */}
+                    {showCalendar && (
+                      <div className="mt-2.5">
+                        <input
+                          type="date"
+                          min={minDate}
+                          value={customDate}
+                          onChange={(e) => setCustomDate(e.target.value)}
+                          className="w-full p-2.5 rounded-xl border border-[#00C9AF] bg-[#e6faf7] text-[#008A77] text-xs font-bold focus:outline-none cursor-pointer"
+                        />
+                      </div>
+                    )}
                   </div>
-                  {/* Native calendar input shown when Pick is selected */}
-                  {showCalendar && (
-                    <div className="mt-3">
-                      <input
-                        type="date"
-                        min={minDate}
-                        value={customDate}
-                        onChange={(e) => setCustomDate(e.target.value)}
-                        className="w-full p-3 rounded-xl border border-[#00C9AF] bg-[#e6faf7] text-[#00C9AF] text-sm font-bold focus:outline-none cursor-pointer"
-                      />
+
+                  {/* Slot Section */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <Clock size={15} className="text-[#00C9AF]" />
+                      <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest">Select Time</h2>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {slots.map((slot) => (
+                        <button
+                          key={slot}
+                          disabled={isLoading}
+                          onClick={() => setSelectedSlot(slot)}
+                          className={`p-2.5 sm:p-3 rounded-xl border transition-all text-xs font-heading font-bold cursor-pointer ${selectedSlot === slot
+                            ? 'bg-[#00C9AF] border-[#00C9AF] text-[#0C1B33] shadow-sm'
+                            : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
+                            } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          {slot}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {error && (
+                    <div className="p-3 bg-red-50 text-red-500 text-xs font-bold rounded-xl text-center border border-red-100">
+                      {error}
                     </div>
                   )}
                 </div>
 
-                {/* Slot Section */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Clock size={14} className="text-[#00C9AF]" />
-                    <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Select Time</h2>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {slots.map((slot) => (
-                      <button
-                        key={slot}
-                        disabled={isLoading}
-                        onClick={() => setSelectedSlot(slot)}
-                        className={`p-3 rounded-xl border transition-all text-xs font-bold ${selectedSlot === slot
-                          ? 'bg-[#00C9AF] border-[#00C9AF] text-[#0A1C3A] shadow-md'
-                          : 'bg-white border-slate-100 text-slate-800 hover:border-slate-200'
-                          } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        {slot}
-                      </button>
-                    ))}
+                {/* Confirm Action Button */}
+                <div className="pt-2">
+                  {car?.status === 'coming_soon' ? (
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs font-semibold text-center">
+                      ⏳ Test drives are currently locked for vehicles with "Coming Soon" status.
+                    </div>
+                  ) : (
+                    <button
+                      disabled={!selectedSlot || isLoading}
+                      onClick={handleConfirm}
+                      className={`w-full py-3.5 rounded-xl font-heading font-semibold text-xs sm:text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${selectedSlot && !isLoading
+                        ? 'bg-[#00C9AF] hover:bg-[#00E5C8] text-[#0C1B33] shadow-lg shadow-[#00C9AF]/25 active:scale-[0.99]'
+                        : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        }`}
+                    >
+                      {isLoading && (
+                        <div className="w-4 h-4 border-2 border-[#0C1B33]/30 border-t-[#0C1B33] rounded-full animate-spin" />
+                      )}
+                      <span>{selectedSlot ? `Confirm Test Drive • ${selectedSlot}` : 'Select a time slot'}</span>
+                    </button>
+                  )}
+                  <div className="mt-2.5 flex items-center justify-center gap-1.5 opacity-60">
+                    <ShieldCheck size={12} className="text-[#00C9AF]" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Secured by Selectt Assured</span>
                   </div>
                 </div>
 
-                {error && (
-                  <div className="p-3 bg-red-50 text-red-500 text-[10px] font-bold uppercase tracking-wider rounded-xl text-center border border-red-100">
-                    {error}
-                  </div>
-                )}
               </div>
-            </>
+
+            </div>
           )}
         </div>
 
-        {/* Footer - always visible at bottom */}
-        <div className="p-5 border-t border-slate-100 bg-white rounded-b-3xl flex-shrink-0">
-          {!isSuccess ? (
-            <>
-              {car?.status === 'coming_soon' ? (
-                <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs font-semibold text-center">
-                  ⏳ Test drives are currently locked for vehicles with "Coming Soon" status.
-                </div>
-              ) : (
-                <button
-                  disabled={!selectedSlot || isLoading}
-                  onClick={handleConfirm}
-                  className={`w-full py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${selectedSlot && !isLoading
-                    ? 'bg-[#00C9AF] text-[#0A1C3A] shadow-lg shadow-[#00C9AF]/10'
-                    : 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                    }`}
-                >
-                  {isLoading ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : null}
-                  {selectedSlot ? `Confirm Test Drive • ${selectedSlot}` : 'Select a time slot'}
-                </button>
-              )}
-              <div className="mt-4 flex items-center justify-center gap-1.5 opacity-50">
-                <ShieldCheck size={10} className="text-green-600" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Secured by Selectt Assured</span>
-              </div>
-            </>
-          ) : (
-            <button
-              onClick={handleClose}
-              className="w-full py-4 bg-slate-800 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-slate-100 transition-all"
-            >
-              Done
-            </button>
-          )}
-        </div>
       </div>
     </div>
   );
