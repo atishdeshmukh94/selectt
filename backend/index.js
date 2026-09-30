@@ -4346,6 +4346,17 @@ app.delete('/api/locations/:id', authMiddleware, isAdmin, (req, res) => {
     });
 });
 
+app.post(['/api/locations/bulk-delete', '/api/admin/locations/bulk-delete'], authMiddleware, isAdmin, (req, res) => {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'No IDs provided' });
+    }
+    db.query('DELETE FROM locations WHERE id IN (?)', [ids], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: 'Selected locations deleted successfully' });
+    });
+});
+
 // ============================================================
 // ADMIN PROFILE & AUTH
 // ============================================================
@@ -5334,6 +5345,17 @@ app.delete('/api/admin/car-hub-locations/:id', authMiddleware, isAdmin, (req, re
     db.query('DELETE FROM car_hub_locations WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true, message: 'Car Hub deleted successfully' });
+    });
+});
+
+app.post(['/api/admin/car-hub-locations/bulk-delete', '/api/car-hub-locations/bulk-delete'], authMiddleware, isAdmin, (req, res) => {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'No IDs provided' });
+    }
+    db.query('DELETE FROM car_hub_locations WHERE id IN (?)', [ids], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, message: 'Selected car hubs deleted successfully' });
     });
 });
 

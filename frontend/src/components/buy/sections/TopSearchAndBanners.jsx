@@ -77,11 +77,37 @@ const TopSearchAndBanners = () => {
   const [banners, setBanners] = useState(FALLBACK_BANNERS);
 
   useEffect(() => {
-    fetch(`${API}/api/banners?page=buy-cars&type=promo`)
-      .then(r => r.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          const mapped = data.map((b, idx) => ({
+    const loadBanners = async () => {
+      try {
+        const [settingsRes, bannersRes] = await Promise.all([
+          fetch(`${API}/api/settings/public`).catch(() => null),
+          fetch(`${API}/api/banners?page=buy-cars&type=promo`).catch(() => null),
+        ]);
+
+        const settings = settingsRes && settingsRes.ok ? await settingsRes.json() : {};
+        const bannerData = bannersRes && bannersRes.ok ? await bannersRes.json() : [];
+
+        if (settings.buy_top_banner_1_img || settings.buy_top_banner_2_img || settings.buy_top_banner_3_img) {
+          const list = [
+            {
+              id: 'top-1',
+              image_url: settings.buy_top_banner_1_img ? (settings.buy_top_banner_1_img.startsWith('/') ? `${API}${settings.buy_top_banner_1_img}` : settings.buy_top_banner_1_img) : FALLBACK_BANNERS[0].image_url,
+              cta_link: settings.buy_top_banner_1_link || '#',
+            },
+            {
+              id: 'top-2',
+              image_url: settings.buy_top_banner_2_img ? (settings.buy_top_banner_2_img.startsWith('/') ? `${API}${settings.buy_top_banner_2_img}` : settings.buy_top_banner_2_img) : FALLBACK_BANNERS[1].image_url,
+              cta_link: settings.buy_top_banner_2_link || '#',
+            },
+            {
+              id: 'top-3',
+              image_url: settings.buy_top_banner_3_img ? (settings.buy_top_banner_3_img.startsWith('/') ? `${API}${settings.buy_top_banner_3_img}` : settings.buy_top_banner_3_img) : FALLBACK_BANNERS[2].image_url,
+              cta_link: settings.buy_top_banner_3_link || '#',
+            },
+          ];
+          setBanners(list);
+        } else if (Array.isArray(bannerData) && bannerData.length > 0) {
+          const mapped = bannerData.map((b, idx) => ({
             ...b,
             image_url: b.image_url?.startsWith('/') ? `${API}${b.image_url}` : b.image_url,
             icon: idx % 3 === 0 ? <Sparkles className="text-[#E5A93B]" size={16} /> :
@@ -91,8 +117,12 @@ const TopSearchAndBanners = () => {
           }));
           setBanners(mapped);
         }
-      })
-      .catch(() => { });
+      } catch (e) {
+        console.error("Failed loading top promo banners", e);
+      }
+    };
+
+    loadBanners();
   }, []);
 
   const mobileScrollRef = useRef(null);

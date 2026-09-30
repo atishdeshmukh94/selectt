@@ -22,7 +22,12 @@
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   font-family: var(--font-body);
   color: var(--color-text-white);
-  transition: background-color 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+  will-change: transform;
+}
+
+.headerHidden {
+  transform: translateY(-100%) !important;
 }
 
 /* Top Bar Styling */

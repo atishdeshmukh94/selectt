@@ -13,7 +13,6 @@ import {
   Smartphone,
   CheckCircle2,
   X,
-  Layers,
   Tag,
   Type,
   AlignLeft,
@@ -24,6 +23,22 @@ import PageBreadCrumb from "../components/common/PageBreadCrumb";
 import { API_URL } from "../config/api";
 
 const API = API_URL;
+
+const resolveImgUrl = (url: string) => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+  const cleanPath = url.startsWith("/") ? url : `/${url}`;
+  if (cleanPath.startsWith("/uploads/")) {
+    if (API && !API.includes("localhost")) {
+      return `${API.replace(/\/$/, "")}${cleanPath}`;
+    }
+    return `https://api.selectt.in${cleanPath}`;
+  }
+  if (API && !API.includes("localhost")) {
+    return `${API.replace(/\/$/, "")}${cleanPath}`;
+  }
+  return `https://selectt.in${cleanPath}`;
+};
 
 interface MobileHeroSlideConfig {
   slideNumber: number;
@@ -104,7 +119,7 @@ interface ImageSlotConfig {
   visibilityKey?: string;
 }
 
-// 1. BRAND LOGOS & IDENTITY
+// 1. BRAND LOGOS & IDENTITY (Includes Login Modal Left Banner)
 const BRANDING_SLOTS: ImageSlotConfig[] = [
   {
     key: "header_logo",
@@ -143,6 +158,15 @@ const BRANDING_SLOTS: ImageSlotConfig[] = [
     defaultPlaceholder: "/img/light-logo.svg",
   },
   {
+    key: "login_modal_banner",
+    type: "site_setting",
+    title: "Login / Signup Modal Left Side Illustration",
+    placement: "Customer Authentication Popup > Left Side Visual",
+    recommendedSize: "450 × 535 px (5:6)",
+    description: "Visual banner illustration displayed on the left side of customer login and signup popup modal.",
+    defaultPlaceholder: "/login-banner-left-sdie.png",
+  },
+  {
     key: "admin_logo",
     type: "site_setting",
     title: "Admin Panel Logo (Light Sidebar)",
@@ -162,8 +186,47 @@ const BRANDING_SLOTS: ImageSlotConfig[] = [
   },
 ];
 
-// 2. BUY CARS IN-GRID BANNERS
+// 2. BUY CARS PAGE BANNERS (Top 3 Banners + In-Grid 3 Banners)
 const BUY_CARS_SLOTS: ImageSlotConfig[] = [
+  // ── Top 3 Promo Banners (Above Grid) ──
+  {
+    key: "buy_top_banner_1_img",
+    type: "site_setting",
+    title: "Top Promo Banner #1 (e.g. Instant Cash / Loan)",
+    placement: "Buy Cars Page > Top Header Strip > Slot 1",
+    recommendedSize: "400 × 200 px (2:1)",
+    description: "First promotional glass banner card displayed above the inventory catalog.",
+    defaultPlaceholder: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&auto=format&fit=crop&q=60",
+    hasLink: true,
+    linkKey: "buy_top_banner_1_link",
+    defaultLink: "/used-car-loan",
+  },
+  {
+    key: "buy_top_banner_2_img",
+    type: "site_setting",
+    title: "Top Promo Banner #2 (e.g. Kavach+ Warranty)",
+    placement: "Buy Cars Page > Top Header Strip > Slot 2",
+    recommendedSize: "400 × 200 px (2:1)",
+    description: "Second promotional glass banner card displayed above the inventory catalog.",
+    defaultPlaceholder: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&auto=format&fit=crop&q=60",
+    hasLink: true,
+    linkKey: "buy_top_banner_2_link",
+    defaultLink: "/selectt-assured",
+  },
+  {
+    key: "buy_top_banner_3_img",
+    type: "site_setting",
+    title: "Top Promo Banner #3 (e.g. Less Hassle / Scrap)",
+    placement: "Buy Cars Page > Top Header Strip > Slot 3",
+    recommendedSize: "400 × 200 px (2:1)",
+    description: "Third promotional glass banner card displayed above the inventory catalog.",
+    defaultPlaceholder: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=400&auto=format&fit=crop&q=60",
+    hasLink: true,
+    linkKey: "buy_top_banner_3_link",
+    defaultLink: "/sell-car",
+  },
+
+  // ── In-Grid 3 Promo Banners (Inside Grid) ──
   {
     key: "extra_card_logo_url",
     type: "site_setting",
@@ -257,17 +320,8 @@ const HOME_SELL_SLOTS: ImageSlotConfig[] = [
   },
 ];
 
-// 4. CAR DETAILS & MODALS
+// 4. CAR DETAILS PAGE VISUALS
 const CAR_DETAILS_SLOTS: ImageSlotConfig[] = [
-  {
-    key: "login_modal_banner",
-    type: "site_setting",
-    title: "Login / Signup Modal Left Side Illustration",
-    placement: "Authentication Popup > Left Side Visual",
-    recommendedSize: "450 × 535 px (5:6)",
-    description: "Visual banner shown on the left of customer login and signup modal.",
-    defaultPlaceholder: "/login-banner-left-sdie.png",
-  },
   {
     key: "car_details_sidebar_banner",
     type: "site_content",
@@ -554,9 +608,9 @@ export default function ImageSettings() {
         <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 border-b border-gray-200 dark:border-gray-800 scrollbar-none">
           {[
             { id: "mobile-hero", label: "📱 Mobile Hero (3 Slides & Texts)", count: 3 },
-            { id: "buy-cars", label: "🚗 Buy Cars In-Grid Banners", count: BUY_CARS_SLOTS.length },
+            { id: "buy-cars", label: "🚗 Buy Cars Page Banners", count: BUY_CARS_SLOTS.length },
             { id: "home-sell", label: "🏠 Home Features & Badges", count: HOME_SELL_SLOTS.length },
-            { id: "car-details", label: "📄 Car Details & Modal Visuals", count: CAR_DETAILS_SLOTS.length },
+            { id: "car-details", label: "📄 Car Details Page Visuals", count: CAR_DETAILS_SLOTS.length },
             { id: "services", label: "🛡️ Services & Policy Banners", count: SERVICE_POLICY_SLOTS.length },
             { id: "branding", label: "🎨 Brand Logos & Identity", count: BRANDING_SLOTS.length },
           ].map((tab) => (
@@ -603,6 +657,7 @@ export default function ImageSettings() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {MOBILE_HERO_SLIDES_CONFIG.map((slide) => {
                     const currentImg = siteContent[slide.imageKey] || slide.defaultImage;
+                    const resolvedImg = resolveImgUrl(currentImg);
                     const isUploading = uploadingKey === slide.imageKey;
 
                     return (
@@ -634,7 +689,7 @@ export default function ImageSettings() {
 
                             <div className="relative group w-full h-44 rounded-xl bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 overflow-hidden flex items-center justify-center mb-2.5">
                               <img
-                                src={currentImg}
+                                src={resolvedImg}
                                 alt={`Slide ${slide.slideNumber}`}
                                 className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                                 onError={(e) => {
@@ -644,7 +699,7 @@ export default function ImageSettings() {
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                 <button
                                   type="button"
-                                  onClick={() => setPreviewImgModal({ url: currentImg, title: `Mobile Slide #${slide.slideNumber}` })}
+                                  onClick={() => setPreviewImgModal({ url: resolvedImg, title: `Mobile Slide #${slide.slideNumber}` })}
                                   className="p-2 rounded-lg bg-white/90 text-slate-900 hover:bg-white transition-colors shadow-sm cursor-pointer"
                                   title="View Full Preview"
                                 >
@@ -786,6 +841,7 @@ export default function ImageSettings() {
                   activeTab === "services" ? SERVICE_POLICY_SLOTS : BRANDING_SLOTS
                 ).map((slot) => {
                   const currentVal = getSlotValue(slot);
+                  const resolvedVal = resolveImgUrl(currentVal);
                   const isUploading = uploadingKey === slot.key;
 
                   return (
@@ -819,9 +875,9 @@ export default function ImageSettings() {
                         <div className="flex flex-col sm:flex-row gap-4 mb-4">
                           {/* Image Thumbnail Box */}
                           <div className="relative group w-full sm:w-44 h-32 rounded-xl bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 overflow-hidden flex items-center justify-center shrink-0">
-                            {currentVal ? (
+                            {resolvedVal ? (
                               <img
-                                src={currentVal}
+                                src={resolvedVal}
                                 alt={slot.title}
                                 className="w-full h-full object-contain p-1.5 transition-transform duration-200 group-hover:scale-105"
                                 onError={(e) => {
@@ -839,14 +895,14 @@ export default function ImageSettings() {
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                               <button
                                 type="button"
-                                onClick={() => setPreviewImgModal({ url: currentVal, title: slot.title })}
+                                onClick={() => setPreviewImgModal({ url: resolvedVal, title: slot.title })}
                                 className="p-2 rounded-lg bg-white/90 text-slate-900 hover:bg-white transition-colors shadow-sm cursor-pointer"
                                 title="View Full Preview"
                               >
                                 <Eye size={16} />
                               </button>
                               <a
-                                href={currentVal}
+                                href={resolvedVal}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-2 rounded-lg bg-white/90 text-slate-900 hover:bg-white transition-colors shadow-sm"

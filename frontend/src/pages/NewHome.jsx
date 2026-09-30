@@ -845,6 +845,8 @@ const NewHome = () => {
   const [mobileHeroHovered, setMobileHeroHovered] = useState(false);
   const [mobileTouchStart, setMobileTouchStart] = useState(null);
   const [mobileTouchEnd, setMobileTouchEnd] = useState(null);
+  const [scrollDirection, setScrollDirection] = useState('up');
+  const lastScrollYRef = useRef(0);
 
   const mobileHeroSlides = [
     {
@@ -883,8 +885,19 @@ const NewHome = () => {
   useEffect(() => {
     // scroll listener for back-to-top button and mobile search header
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
-      setIsScrolled(window.scrollY > 60);
+      const currentScrollY = window.scrollY;
+      setShowScrollTop(currentScrollY > 400);
+      setIsScrolled(currentScrollY > 60);
+
+      if (currentScrollY <= 60) {
+        setScrollDirection('up');
+      } else if (currentScrollY > lastScrollYRef.current + 6 && currentScrollY > 90) {
+        setScrollDirection('down');
+      } else if (currentScrollY < lastScrollYRef.current - 6) {
+        setScrollDirection('up');
+      }
+
+      lastScrollYRef.current = currentScrollY;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
 
