@@ -427,7 +427,7 @@ const CheckoutPage = () => {
   return (
     <>
       <PageMeta title={`Checkout - Reserve ${car.year} ${car.make} ${car.model} | Selectt`} description={`Complete booking deposit for your ${car.year} ${car.make} ${car.model}.`} />
-      <div className="bg-[#f9f9f9] min-h-screen pt-0 md:pt-4 lg:pt-8 pb-12 font-sans text-slate-800 relative">
+      <div className="bg-[#f9f9f9] min-h-screen pt-0 md:pt-4 lg:pt-8 pb-56 sm:pb-64 lg:pb-20 font-sans text-slate-800 relative">
         {/* Mobile Top Navigation with Bold Back Arrow */}
         <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 flex items-center justify-between shadow-2xs mb-4">
           <button
@@ -514,7 +514,7 @@ const CheckoutPage = () => {
             <div className="lg:col-span-7 space-y-5">
 
               {/* 1. Interested in Car Loan? (Screenshot 1 top card) */}
-              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-slate-300">
+              <div className="hidden md:block bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-slate-300">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h3 className="font-extrabold text-[#0F172A] text-base mb-1">
@@ -529,14 +529,14 @@ const CheckoutPage = () => {
                   <button
                     type="button"
                     onClick={() => setInterestedInLoan(!interestedInLoan)}
-                    className={`w-6 h-6 rounded-md flex items-center justify-center transition-all cursor-pointer shrink-0 mt-1 ${
+                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 mt-0.5 ${
                       interestedInLoan
-                        ? 'bg-[#00C9AF] text-[#0C1B33] shadow-xs'
+                        ? 'bg-[#00C9AF] text-[#0C1B33] shadow-sm ring-2 ring-[#00C9AF]/30'
                         : 'border-2 border-slate-300 bg-white hover:border-slate-400'
                     }`}
                     aria-label="Toggle car loan interest"
                   >
-                    {interestedInLoan && <Check size={16} strokeWidth={3} />}
+                    {interestedInLoan && <Check size={16} strokeWidth={3.5} />}
                   </button>
                 </div>
               </div>
@@ -1009,6 +1009,8 @@ const CheckoutPage = () => {
               );
             })}
           </div>
+          {/* Mobile spacing spacer so content never gets hidden behind sticky footer prompts */}
+          <div className="h-20 lg:hidden" />
         </div>
       </div>
       <TestDriveModal
