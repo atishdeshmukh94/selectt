@@ -5269,6 +5269,84 @@ app.post('/api/admin/2fa/test-whatsapp', authMiddleware, isAdmin, async (req, re
     }
 });
 
+// ============================================================
+// PER-USER PROFILE 2FA (GOOGLE AUTHENTICATOR APP)
+// ============================================================
+
+// User/Staff/Admin: Generate personal Google Authenticator Secret Key & QR Code
+app.post(['/api/user/2fa/generate-secret', '/api/profile/2fa/generate-secret'], authMiddleware, async (req, res) => {
+    try {
+        let targetUserId = req.user.id;
+        if (req.body.userId && (req.user.role === 'admin' || req.user.id === parseInt(req.body.userId))) {
+            targetUserId = parseInt(req.body.userId);
+        }
+        const [targetUser] = await queryAsync('SELECT id, email, first_name, last_name, totp_secret, two_factor_enabled FROM users WHERE id = ?', [targetUserId]);
+        if (!targetUser) return res.status(404).json({ success: false, message: 'User not found' });
+
+        const secret = generateBase32Secret(24);
+        const issuer = 'Selectt';
+        const account = targetUser.email || `user${targetUser.id}@selectt.in`;
+        const otpauthUrl = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(account)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
+
+        res.json({
+            success: true,
+            secret,
+            otpauthUrl,
+            qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(otpauthUrl)}`
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// User/Staff/Admin: Verify 6-digit code & Enable Google Authenticator for Profile
+app.post(['/api/user/2fa/enable', '/api/profile/2fa/enable'], authMiddleware, async (req, res) => {
+    try {
+        const { secret, code } = req.body;
+        let targetUserId = req.user.id;
+        if (req.body.userId && (req.user.role === 'admin' || req.user.id === parseInt(req.body.userId))) {
+            targetUserId = parseInt(req.body.userId);
+        }
+
+        if (!secret || !code) {
+            return res.status(400).json({ success: false, message: 'Secret key and 6-digit code are required.' });
+        }
+
+        const isValid = verifyTOTP(code, secret);
+        if (!isValid) {
+            return res.status(400).json({ success: false, message: 'Invalid 6-digit verification code. Check time synchronization on your phone and try again.' });
+        }
+
+        await queryAsync('UPDATE users SET totp_secret = ?, two_factor_enabled = 1 WHERE id = ?', [secret, targetUserId]);
+
+        res.json({
+            success: true,
+            message: '✅ Google Authenticator (2FA) successfully activated for this profile!'
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// User/Staff/Admin: Disable Google Authenticator for Profile
+app.post(['/api/user/2fa/disable', '/api/profile/2fa/disable'], authMiddleware, async (req, res) => {
+    try {
+        let targetUserId = req.user.id;
+        if (req.body.userId && (req.user.role === 'admin' || req.user.id === parseInt(req.body.userId))) {
+            targetUserId = parseInt(req.body.userId);
+        }
+
+        await queryAsync('UPDATE users SET totp_secret = NULL, two_factor_enabled = 0 WHERE id = ?', [targetUserId]);
+
+        res.json({
+            success: true,
+            message: 'Google Authenticator (2FA) disabled for this profile.'
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // ==================== BANNER MANAGEMENT ====================
 
 // Public: Get banners by page (home, buy-cars) and optionally type
