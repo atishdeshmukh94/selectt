@@ -2141,7 +2141,7 @@ const CheckoutPage = () => {
               <button
                 type="button"
                 onClick={() => setActiveBreakdownModal(null)}
-                className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#0C1B33] to-[#00A38D] hover:from-[#0a1628] hover:to-[#008975] text-white rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all cursor-pointer"
+                className="w-full sm:w-auto px-6 py-2.5 bg-black hover:bg-slate-900 text-white rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all cursor-pointer"
               >
                 Got It
               </button>
