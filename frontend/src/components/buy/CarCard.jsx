@@ -217,13 +217,14 @@ const CarCard = ({ car, lightBg = false }) => {
           {/* Heart Wishlist Icon with Spring Animation */}
           <motion.button
             disabled={isWishlisting}
-            whileHover={{ scale: 1.2, rotate: 5 }}
-            whileTap={{ scale: 0.85 }}
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.88 }}
             transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            className={`backdrop-blur-md rounded-full p-2 absolute top-2.5 right-2.5 transition-colors z-20 border cursor-pointer ${heartBtnClass}`}
+            className={`w-8 h-8 aspect-square rounded-full flex items-center justify-center absolute top-2.5 right-2.5 transition-colors z-20 border cursor-pointer shrink-0 shadow-xs ${heartBtnClass}`}
             onClick={handleWishlistToggle}
+            aria-label="Wishlist"
           >
-            <Heart size={13} strokeWidth={2} fill={isWishlisted ? 'currentColor' : 'none'} />
+            <Heart size={14} strokeWidth={2.2} fill={isWishlisted ? 'currentColor' : 'none'} className="shrink-0" />
           </motion.button>
         </div>
 
