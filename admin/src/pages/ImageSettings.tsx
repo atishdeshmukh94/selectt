@@ -489,53 +489,13 @@ const CAR_DETAILS_SLOTS: ImageSlotConfig[] = [
   },
 ];
 
-// 5. SERVICES & POLICIES
-const SERVICE_POLICY_SLOTS: ImageSlotConfig[] = [
-  {
-    key: "loan_banner",
-    type: "site_content",
-    title: "Used Car Loan Page Hero Banner",
-    placement: "Used Car Loan Page > Top Banner",
-    recommendedSize: "1200 × 400 px (3:1)",
-    description: "Header banner displayed on the Used Car Loan application page.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop",
-  },
-  {
-    key: "insurance_banner",
-    type: "site_content",
-    title: "Car Insurance Page Hero Banner",
-    placement: "Car Insurance Page > Top Banner",
-    recommendedSize: "1200 × 400 px (3:1)",
-    description: "Header banner displayed on the Car Insurance quotes page.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&auto=format&fit=crop",
-  },
-  {
-    key: "warranty_banner",
-    type: "site_content",
-    title: "Selectt Assured Warranty Page Banner",
-    placement: "Selectt Assured Quality Page > Top Header",
-    recommendedSize: "1200 × 400 px (3:1)",
-    description: "Header banner displayed on the Selectt Assured guarantee page.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=1200&auto=format&fit=crop",
-  },
-  {
-    key: "buyback_banner",
-    type: "site_content",
-    title: "Selectt Buyback Guarantee Banner",
-    placement: "Selectt Buyback Assurance Page > Top Header",
-    recommendedSize: "1200 × 400 px (3:1)",
-    description: "Header banner on the Buyback Assurance information page.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=1200&auto=format&fit=crop",
-  },
-];
-
-type ActiveTabType = "mobile-hero" | "step-sliders" | "buy-cars" | "home-sell" | "car-details" | "services" | "branding";
+type ActiveTabType = "step-sliders" | "mobile-hero" | "buy-cars" | "home-sell" | "car-details" | "branding";
 
 export default function ImageSettings() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = (searchParams.get("tab") as ActiveTabType) || "mobile-hero";
+  const initialTab = (searchParams.get("tab") as ActiveTabType) || "step-sliders";
   const [activeTab, setActiveTab] = useState<ActiveTabType>(
-    ["mobile-hero", "step-sliders", "buy-cars", "home-sell", "car-details", "services", "branding"].includes(initialTab) ? initialTab : "mobile-hero"
+    ["step-sliders", "mobile-hero", "buy-cars", "home-sell", "car-details", "branding"].includes(initialTab) ? initialTab : "step-sliders"
   );
 
   const [stepSubTab, setStepSubTab] = useState<"sell" | "buy">("sell");
@@ -1017,7 +977,6 @@ export default function ImageSettings() {
             { id: "buy-cars", label: "🚗 Buy Cars Page Banners", count: BUY_CARS_SLOTS.length },
             { id: "home-sell", label: "🏠 Home Features & Badges", count: HOME_SELL_SLOTS.length },
             { id: "car-details", label: "📄 Car Details Page Visuals", count: CAR_DETAILS_SLOTS.length },
-            { id: "services", label: "🛡️ Services & Policy Banners", count: SERVICE_POLICY_SLOTS.length },
             { id: "branding", label: "🎨 Brand Logos & Identity", count: BRANDING_SLOTS.length },
           ].map((tab) => (
             <button
@@ -1519,7 +1478,7 @@ export default function ImageSettings() {
               </div>
             )}
 
-            {/* 2. OTHER TABS (BUY CARS, HOME FEATURES, CAR DETAILS, SERVICES, BRANDING) */}
+            {/* 2. OTHER TABS (BUY CARS, HOME FEATURES, CAR DETAILS, BRANDING) */}
             {activeTab !== "mobile-hero" && activeTab !== "step-sliders" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {(activeTab === "buy-cars"
@@ -1528,8 +1487,6 @@ export default function ImageSettings() {
                   ? HOME_SELL_SLOTS
                   : activeTab === "car-details"
                   ? CAR_DETAILS_SLOTS
-                  : activeTab === "services"
-                  ? SERVICE_POLICY_SLOTS
                   : BRANDING_SLOTS
                 ).map((slot) => {
                   const currentValue = getSlotValue(slot);
