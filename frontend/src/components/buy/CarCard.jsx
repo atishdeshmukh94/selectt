@@ -240,11 +240,9 @@ const CarCard = ({ car, lightBg = false }) => {
                   <MapPin size={12} className="text-[#00C9AF] shrink-0" />
                   <span className="truncate" title={car.location || car.hub || 'Mumbai'}>
                     {(() => {
-                      const loc = (car.location || car.hub || 'Mumbai').trim();
-                      if (loc.toLowerCase().startsWith('hub') || loc.toLowerCase().startsWith('selectt hub')) {
-                        return loc;
-                      }
-                      return `HUB • ${loc}`;
+                      let loc = (car.location || car.hub || 'Mumbai').trim();
+                      loc = loc.replace(/^(selectt\s+hub|hub)\s*[\-•:]\s*/i, '').trim();
+                      return loc || 'Mumbai';
                     })()}
                   </span>
                 </div>
