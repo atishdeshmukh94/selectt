@@ -56,6 +56,12 @@ export default function CouponsPage() {
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
   const [saving, setSaving] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [createdCouponSuccess, setCreatedCouponSuccess] = useState<{
+    code: string;
+    title?: string | null;
+    discount_type: string;
+    discount_value: number | string;
+  } | null>(null);
 
   // Form State
   const [form, setForm] = useState({
@@ -192,7 +198,17 @@ export default function CouponsPage() {
         throw new Error(resData.error || resData.message || "Failed to save coupon");
       }
 
-      toast.success(editingCoupon ? "Coupon updated successfully!" : "Coupon created successfully!");
+      if (!editingCoupon) {
+        setCreatedCouponSuccess({
+          code: payload.code,
+          title: payload.title,
+          discount_type: payload.discount_type,
+          discount_value: payload.discount_value
+        });
+        toast.success("Coupon created successfully!");
+      } else {
+        toast.success("Coupon updated successfully!");
+      }
       setModalOpen(false);
       fetchCoupons();
     } catch (err: any) {
@@ -715,7 +731,7 @@ export default function CouponsPage() {
                         }`}
                       >
                         <Percent className="w-3.5 h-3.5" />
-                        <span>Percentage %</span>
+                        <span>Percentage</span>
                       </button>
                     </div>
                   </div>
@@ -737,22 +753,8 @@ export default function CouponsPage() {
                   </div>
                 </div>
 
-                {/* Applies To & Max Cap */}
+                {/* Min Order Value & Usage Limit */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                      Applies Discount On
-                    </label>
-                    <select
-                      value={form.applies_to}
-                      onChange={(e) => setForm({ ...form, applies_to: e.target.value as any })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#00A38D]/20 focus:border-[#00A38D] cursor-pointer"
-                    >
-                      <option value="booking_amount">Booking Deposit (Paid Now at Checkout)</option>
-                      <option value="car_price">Car Total Price (Vehicle Total Amount)</option>
-                    </select>
-                  </div>
-
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                       Min Order Value (₹)
@@ -766,27 +768,6 @@ export default function CouponsPage() {
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#00A38D]/20 focus:border-[#00A38D]"
                     />
                   </div>
-                </div>
-
-                {/* Percentage cap & Usage Limit */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {form.discount_type === "percentage" ? (
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                        Max Discount Cap (₹)
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={form.max_discount_amount}
-                        onChange={(e) => setForm({ ...form, max_discount_amount: e.target.value })}
-                        placeholder="e.g. 1000 (Optional limit)"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#00A38D]/20 focus:border-[#00A38D]"
-                      />
-                    </div>
-                  ) : (
-                    <div />
-                  )}
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
@@ -802,6 +783,23 @@ export default function CouponsPage() {
                     />
                   </div>
                 </div>
+
+                {/* Percentage Max Discount Cap (Only when percentage discount) */}
+                {form.discount_type === "percentage" && (
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                      Max Discount Cap (₹)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={form.max_discount_amount}
+                      onChange={(e) => setForm({ ...form, max_discount_amount: e.target.value })}
+                      placeholder="e.g. 1000 (Optional limit)"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#00A38D]/20 focus:border-[#00A38D]"
+                    />
+                  </div>
+                )}
 
                 {/* Validity Dates */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
@@ -865,6 +863,118 @@ export default function CouponsPage() {
                 </div>
 
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Success Popup Screen on Coupon Creation */}
+        {createdCouponSuccess && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div 
+              className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 text-center relative overflow-hidden animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Background decorative glow */}
+              <div className="absolute -top-16 -right-16 w-36 h-36 bg-[#00A38D]/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-16 -left-16 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+
+              <button
+                type="button"
+                onClick={() => setCreatedCouponSuccess(null)}
+                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Animated checkmark icon */}
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-lg shadow-emerald-500/10">
+                <CheckCircle2 className="w-9 h-9" />
+              </div>
+
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1.5">
+                Coupon Created Successfully!
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                Your new discount coupon is now active and ready for customers at checkout.
+              </p>
+
+              {/* Coupon Code Box */}
+              <div className="bg-slate-50 dark:bg-slate-800/80 border-2 border-dashed border-[#00A38D]/40 rounded-2xl p-4 mb-5 relative group">
+                <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
+                  Coupon Code
+                </span>
+                <div className="flex items-center justify-center gap-3">
+                  <span className="font-mono text-2xl font-black tracking-widest text-[#00A38D] select-all">
+                    {createdCouponSuccess.code}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(createdCouponSuccess.code);
+                      setCopiedCode(createdCouponSuccess.code);
+                      toast.success("Coupon code copied!");
+                      setTimeout(() => setCopiedCode(null), 2500);
+                    }}
+                    className="p-2 rounded-xl bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 hover:border-[#00A38D] text-slate-600 dark:text-slate-200 hover:text-[#00A38D] transition-all cursor-pointer"
+                    title="Copy Code"
+                  >
+                    {copiedCode === createdCouponSuccess.code ? (
+                      <Check className="w-4 h-4 text-emerald-500" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Summary Details */}
+              <div className="bg-slate-50/70 dark:bg-slate-800/50 rounded-xl p-3.5 mb-6 text-left border border-slate-100 dark:border-slate-800 text-xs space-y-1.5">
+                <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
+                  <span className="font-medium text-slate-400 dark:text-slate-500">Discount Benefit:</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-100">
+                    {createdCouponSuccess.discount_type === "percentage"
+                      ? `${createdCouponSuccess.discount_value}% Off`
+                      : `₹${Number(createdCouponSuccess.discount_value).toLocaleString("en-IN")} Flat Off`}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
+                  <span className="font-medium text-slate-400 dark:text-slate-500">Applies To:</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">
+                    Booking Deposit
+                  </span>
+                </div>
+                {createdCouponSuccess.title && (
+                  <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
+                    <span className="font-medium text-slate-400 dark:text-slate-500">Title:</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-200 truncate max-w-[200px]">
+                      {createdCouponSuccess.title}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(createdCouponSuccess.code);
+                    toast.success("Coupon code copied!");
+                    setCreatedCouponSuccess(null);
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 font-bold text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy & Close</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCreatedCouponSuccess(null)}
+                  className="flex-1 py-3 px-4 bg-[#00A38D] hover:bg-[#008f7b] text-white rounded-xl text-xs font-bold shadow-md shadow-[#00A38D]/25 transition-all cursor-pointer"
+                >
+                  Done
+                </button>
+              </div>
             </div>
           </div>
         )}
