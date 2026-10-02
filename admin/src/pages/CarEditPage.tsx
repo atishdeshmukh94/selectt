@@ -467,6 +467,33 @@ const CarEditPage = () => {
         features = { "Comfort & Convenience": [], "Safety": [], "Exterior": [] };
       }
 
+      // Feature name migration for existing cars (e.g. car 41)
+      if (features && typeof features === 'object') {
+        const featureNameMap: Record<string, string> = {
+          "Anti-Lock Braking System": "ABS System",
+          "Brake Assist": "Hill Assist",
+          "Tyre Pressure Monitor": "TPMS Monitoring",
+          "Rear Camera": "360° Camera",
+          "Child Safety Locks": "Cruise Control",
+        };
+
+        if (Array.isArray(features["Safety"])) {
+          features["Safety"] = features["Safety"].map((item: string) => featureNameMap[item] || item);
+        }
+
+        if (Array.isArray(features["Comfort & Convenience"])) {
+          features["Comfort & Convenience"] = features["Comfort & Convenience"].map((item: string) => {
+            if (item === "Cruise Control") {
+              if (Array.isArray(features["Safety"]) && !features["Safety"].includes("Cruise Control")) {
+                features["Safety"].push("Cruise Control");
+              }
+              return "Wireless Charging";
+            }
+            return item;
+          });
+        }
+      }
+
       let moreImages = data.moreImages || [];
       if (data.videoUrl && !moreImages.includes(data.videoUrl)) {
         moreImages = [data.videoUrl, ...moreImages];
@@ -1075,7 +1102,7 @@ const CarEditPage = () => {
                     </label>
                     <select className={inpClass} value={formData.bodyType || ""} onChange={e => setFormData({...formData, bodyType: e.target.value})}>
                       <option value="">Select Body Type...</option>
-                      {["Hatchback", "Sedan", "SUV", "MUV", "Luxury Sedan", "Luxury SUV"].map(b => <option key={b} value={b}>{b}</option>)}
+                      {["Hatchback", "Sedan", "SUV", "Compact SUV", "MUV", "Luxury Sedan", "Luxury SUV"].map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
                   </div>
 
@@ -1610,11 +1637,35 @@ const CarEditPage = () => {
           <div className="max-w-5xl mx-auto">
             <FeatureCategory 
               title="Comfort & Convenience" 
-              options={["Air Conditioner", "Power Windows", "Adjustable Seats", "Keyless Entry", "Cruise Control", "Sunroof", "Panoramic Sunroof", "Ventilated Seats", "Rear AC Vents", "Automatic Climate Control"]} 
+              options={[
+                "Air Conditioner", 
+                "Power Windows", 
+                "Adjustable Seats", 
+                "Keyless Entry", 
+                "Wireless Charging", 
+                "Air Purifier", 
+                "Seat Massager", 
+                "Sunroof", 
+                "Panoramic Sunroof", 
+                "Ventilated Seats", 
+                "Rear AC Vents", 
+                "Automatic Climate Control"
+              ]} 
             />
             <FeatureCategory 
               title="Safety" 
-              options={["Anti-Lock Braking System", "Brake Assist", "Central Locking", "Child Safety Locks", "Airbags", "EBD", "Tyre Pressure Monitor", "Rear Camera"]} 
+              options={[
+                "ABS System", 
+                "Hill Assist", 
+                "Auto Hold", 
+                "ADAS Level 2", 
+                "Cruise Control", 
+                "360° Camera", 
+                "TPMS Monitoring", 
+                "Central Locking", 
+                "Airbags", 
+                "EBD"
+              ]} 
             />
             <FeatureCategory 
               title="Exterior" 
