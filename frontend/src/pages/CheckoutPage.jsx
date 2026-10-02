@@ -1279,27 +1279,43 @@ const CheckoutPage = () => {
 
                   {/* CTA Proceed to Pay inside right card */}
                   <div className="mt-4 pt-3.5 border-t border-slate-100 space-y-3">
+                    <style>{`
+                      @keyframes btnShine {
+                        0%   { transform: translateX(-100%) skewX(-15deg); }
+                        100% { transform: translateX(250%) skewX(-15deg); }
+                      }
+                      .btn-shine::after {
+                        content: '';
+                        position: absolute;
+                        top: 0; left: 0;
+                        width: 40%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+                        animation: btnShine 2.2s ease-in-out infinite;
+                        pointer-events: none;
+                      }
+                    `}</style>
                     <button
                       onClick={handleBooking}
                       disabled={isBooking}
-                      className={`relative overflow-hidden w-full bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-black py-3.5 px-5 rounded-xl transition-all duration-300 shadow-md shadow-[#00C9AF]/25 flex items-center justify-between cursor-pointer text-sm uppercase tracking-wider ${isBooking ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      className={`btn-shine relative overflow-hidden w-full bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-black py-3.5 px-5 rounded-2xl transition-all duration-300 shadow-lg shadow-[#00C9AF]/30 hover:shadow-xl hover:shadow-[#00C9AF]/40 flex items-center justify-between cursor-pointer text-sm uppercase tracking-wider ${isBooking ? 'opacity-70 cursor-not-allowed' : 'active:scale-[0.99]'}`}
                     >
                       {isBooking ? (
-                        <div className="flex items-center justify-center gap-2 w-full">
+                        <div className="flex items-center justify-center gap-2.5 w-full py-0.5">
                           <div className="w-4 h-4 border-2 border-[#0C1B33] border-t-transparent rounded-full animate-spin" />
                           <span>Processing...</span>
                         </div>
                       ) : (
                         <>
-                          <span>PROCEED TO PAY</span>
-                          <div className="flex items-center gap-1.5 font-price">
+                          <span className="font-black text-sm tracking-wider">PROCEED TO PAY</span>
+                          <div className="flex items-center gap-2 font-price">
                             {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
                               <span className="line-through text-slate-700/70 text-xs font-bold">
                                 ₹{rawBookingAmount.toLocaleString('en-IN')}
                               </span>
                             )}
-                            <span className="font-black">
-                              ₹{finalPayableBookingAmount.toLocaleString('en-IN')} →
+                            <span className="bg-[#0C1B33] text-white px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-sm tracking-tight">
+                              ₹{finalPayableBookingAmount.toLocaleString('en-IN')}
                             </span>
                           </div>
                         </>
@@ -1492,21 +1508,21 @@ const CheckoutPage = () => {
             className={`btn-shine relative overflow-hidden w-full py-3.5 px-5 bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] text-[#0C1B33] font-black text-sm rounded-2xl shadow-lg shadow-[#00C9AF]/30 flex items-center justify-between transition-all cursor-pointer uppercase tracking-wider ${isBooking ? 'opacity-70 cursor-not-allowed' : 'hover:from-[#00b4a0] hover:to-[#009170] active:scale-[0.99]'}`}
           >
             {isBooking ? (
-              <div className="flex items-center justify-center gap-2 w-full">
+              <div className="flex items-center justify-center gap-2.5 w-full py-0.5">
                 <div className="w-4 h-4 border-2 border-[#0C1B33] border-t-transparent rounded-full animate-spin" />
                 <span>Processing...</span>
               </div>
             ) : (
               <>
-                <span>PROCEED TO PAY</span>
-                <div className="flex items-center gap-1.5 font-price">
+                <span className="font-black text-[13px] tracking-wider">PROCEED TO PAY</span>
+                <div className="flex items-center gap-2 font-price">
                   {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
                     <span className="line-through text-slate-700/70 text-xs font-bold">
                       ₹{rawBookingAmount.toLocaleString('en-IN')}
                     </span>
                   )}
-                  <span className="font-black">
-                    ₹{finalPayableBookingAmount.toLocaleString('en-IN')} →
+                  <span className="bg-[#0C1B33] text-white px-3.5 py-1.5 rounded-xl text-xs font-extrabold shadow-sm tracking-tight">
+                    ₹{finalPayableBookingAmount.toLocaleString('en-IN')}
                   </span>
                 </div>
               </>
