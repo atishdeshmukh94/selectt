@@ -123,6 +123,48 @@ const DEFAULT_STEPS = [
   }
 ];
 
+// Step Card Image with Semantic UI Placeholder Shimmer and Circular Preloader
+const StepCardImage = ({ src, alt }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [imgSrc, setImgSrc] = useState(src);
+
+  useEffect(() => {
+    setIsLoaded(false);
+    setImgSrc(src);
+  }, [src]);
+
+  return (
+    <>
+      {/* Semantic UI Placeholder Shimmer & Spinner when image is not yet loaded */}
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-[#F0F2F5] z-0 overflow-hidden flex items-center justify-center">
+          <div className="ui placeholder fluid !h-full !w-full !rounded-none">
+            <div className="square image !h-full !pb-0" />
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <div className="w-9 h-9 rounded-full border-[3px] border-slate-300/80 border-t-slate-500 animate-spin" />
+          </div>
+        </div>
+      )}
+
+      <img
+        src={imgSrc}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setIsLoaded(true)}
+        onError={() => {
+          setImgSrc('/img/step-1.webp');
+          setIsLoaded(true);
+        }}
+        className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-700 hover:scale-105 ${
+          isLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
+      />
+    </>
+  );
+};
+
 const calculateEstimate = (formData) => {
   if (!formData) {
     return {
@@ -607,15 +649,30 @@ const SellCarPage = () => {
                 <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
                   {loadingBanners ? (
                     <>
-                      {/* Left Skeleton Card */}
-                      <div className="absolute inset-y-0 left-4 m-auto w-[300px] md:w-[380px] h-[300px] md:h-[380px] rounded-[1.75rem] bg-slate-200 animate-pulse border border-slate-300 scale-75 opacity-40 shrink-0 hidden md:block" />
-                      {/* Active Skeleton Card */}
-                      <div className="absolute inset-0 m-auto w-[300px] md:w-[380px] h-[300px] md:h-[380px] rounded-[1.75rem] bg-slate-200 animate-pulse border border-slate-350 shadow-xl flex flex-col justify-end p-7">
-                        <div className="w-1/3 h-5 bg-slate-300 rounded mb-2.5" />
-                        <div className="w-2/3 h-4 bg-slate-300 rounded" />
+                      {/* Left Skeleton Card with Semantic UI Placeholder */}
+                      <div className="absolute inset-y-0 left-4 m-auto w-[300px] md:w-[380px] h-[300px] md:h-[380px] rounded-[1.75rem] bg-white border border-slate-200/80 scale-75 opacity-40 shrink-0 hidden md:block overflow-hidden shadow-md">
+                        <div className="ui placeholder fluid !h-full !w-full">
+                          <div className="square image !h-full !pb-0" />
+                        </div>
                       </div>
-                      {/* Right Skeleton Card */}
-                      <div className="absolute inset-y-0 right-4 m-auto w-[300px] md:w-[380px] h-[300px] md:h-[380px] rounded-[1.75rem] bg-slate-200 animate-pulse border border-slate-300 scale-75 opacity-40 shrink-0 hidden md:block" />
+                      {/* Active Skeleton Card with Semantic UI Placeholder */}
+                      <div className="absolute inset-0 m-auto w-[300px] md:w-[380px] h-[300px] md:h-[380px] rounded-[1.75rem] bg-white border border-slate-200/80 shadow-2xl overflow-hidden flex flex-col justify-end p-7">
+                        <div className="absolute inset-0">
+                          <div className="ui placeholder fluid !h-full !w-full">
+                            <div className="square image !h-full !pb-0" />
+                          </div>
+                        </div>
+                        <div className="relative z-10 space-y-2">
+                          <div className="w-1/3 h-5 bg-white/80 backdrop-blur-sm rounded-md" />
+                          <div className="w-2/3 h-4 bg-white/70 backdrop-blur-sm rounded-md" />
+                        </div>
+                      </div>
+                      {/* Right Skeleton Card with Semantic UI Placeholder */}
+                      <div className="absolute inset-y-0 right-4 m-auto w-[300px] md:w-[380px] h-[300px] md:h-[380px] rounded-[1.75rem] bg-white border border-slate-200/80 scale-75 opacity-40 shrink-0 hidden md:block overflow-hidden shadow-md">
+                        <div className="ui placeholder fluid !h-full !w-full">
+                          <div className="square image !h-full !pb-0" />
+                        </div>
+                      </div>
                     </>
                   ) : (
                     steps.map((step, idx) => {
@@ -635,11 +692,10 @@ const SellCarPage = () => {
                             }
                           }}
                         >
-                          {/* Background Image — full image shown, no crop */}
-                          <img
+                          {/* Background Image with Semantic UI Placeholder while loading */}
+                          <StepCardImage
                             src={step.imageUrl}
                             alt={step.title}
-                            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                           />
 
                           {/* Dark gradient overlay */}

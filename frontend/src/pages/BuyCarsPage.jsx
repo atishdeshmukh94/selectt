@@ -13,6 +13,7 @@ import SelecttBenefitsGrid from '../components/buy/sections/SelecttBenefitsGrid'
 import { PromoBanner, ExtraPromoCard } from '../components/buy/sections/InListingBanners';
 import TopSearchAndBanners from '../components/buy/sections/TopSearchAndBanners';
 import PageMeta from '../components/common/PageMeta';
+import { SemanticCarCardSkeleton, SemanticBannerSkeleton } from '../components/common/SemanticPlaceholderCard';
 import { API_URL } from '../config/api';
 
 const API = API_URL;
@@ -199,31 +200,19 @@ const BuyCarsSkeleton = () => {
 
         {/* Main Content Area Skeleton */}
         <main className="flex-1 min-w-0 space-y-6">
-          {/* Top Banner Skeleton */}
-          <div className="w-full h-[180px] bg-slate-200 rounded-3xl" />
+          {/* Top Banner Skeleton with Semantic UI Placeholder */}
+          <SemanticBannerSkeleton />
 
           {/* Results Bar Skeleton */}
           <div className="flex justify-between items-center py-2">
-            <div className="w-28 h-5 bg-slate-200 rounded-lg" />
-            <div className="w-36 h-9 bg-slate-200 rounded-xl" />
+            <div className="w-28 h-5 bg-slate-200 rounded-lg animate-pulse" />
+            <div className="w-36 h-9 bg-slate-200 rounded-xl animate-pulse" />
           </div>
 
-          {/* Car Grid Skeleton */}
+          {/* Car Grid Skeleton using Semantic UI Placeholder */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
             {Array(6).fill(0).map((_, i) => (
-              <div key={i} className="bg-white rounded-[20px] border border-slate-200/80 p-3 h-[380px] flex flex-col justify-between">
-                {/* Image Placeholder with circular spinner */}
-                <div className="h-[160px] bg-[#F0F2F5] rounded-[14px] flex items-center justify-center relative overflow-hidden">
-                  <div className="w-8 h-8 rounded-full border-[3px] border-slate-300/80 border-t-slate-500 animate-spin" />
-                </div>
-
-                {/* Content details placeholder */}
-                <div className="space-y-3 flex-1 mt-4 px-2">
-                  <div className="w-3/4 h-4 bg-slate-200 rounded-lg" />
-                  <div className="w-1/2 h-3 bg-slate-200 rounded-lg" />
-                  <div className="w-1/3 h-5 bg-slate-200 rounded-lg" />
-                </div>
-              </div>
+              <SemanticCarCardSkeleton key={i} />
             ))}
           </div>
         </main>
