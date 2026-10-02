@@ -68,6 +68,53 @@ const DEFAULT_BUY_STEPS = [
   }
 ];
 
+const FREEBET_CONFETTI_COLORS = [
+  '#ffc600', // gold yellow
+  '#159b36', // green
+  '#00C9AF', // turquoise brand
+  '#FF4757', // coral red
+  '#8B5CF6', // purple
+  '#3B82F6', // sky blue
+  '#EC4899', // pink
+  '#FFA502', // warm orange
+];
+
+const GENERATED_FREEBET_CONFETTI = Array.from({ length: 38 }, (_, i) => {
+  const rnd1 = ((i * 13 + 7) % 100) / 100;
+  const rnd2 = ((i * 29 + 11) % 100) / 100;
+  const rnd3 = ((i * 37 + 19) % 100) / 100;
+  const rnd4 = ((i * 43 + 23) % 100) / 100;
+  
+  // top between 15% and 65%
+  const top = 15 + rnd1 * 50;
+  // spread across middle and right area: 28% to 96%
+  const left = 28 + rnd2 * 68;
+  // width: 6 to 9px
+  const width = 6 + Math.floor(rnd3 * 4);
+  // height: 3 to 5px
+  const height = 3 + Math.floor(rnd4 * 3);
+  // animation-delay: 0 to 2.8s
+  const delay = (rnd1 * 2.8).toFixed(2);
+  // animation-duration: 1.8s to 2.4s
+  const duration = (1.8 + rnd2 * 0.6).toFixed(2);
+  // color
+  const color = FREEBET_CONFETTI_COLORS[i % FREEBET_CONFETTI_COLORS.length];
+  // some are circles
+  const isCircle = i % 5 === 0;
+
+  return {
+    id: i,
+    top: `${top.toFixed(1)}%`,
+    left: `${left.toFixed(1)}%`,
+    width: `${width}px`,
+    height: `${isCircle ? width : height}px`,
+    color,
+    borderRadius: isCircle ? '50%' : '1px',
+    animationDelay: `${delay}s`,
+    animationDuration: `${duration}s`,
+  };
+});
+
 export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) => {
   const canvasRef = React.useRef(null);
   const confettiInstanceRef = React.useRef(null);
@@ -83,12 +130,12 @@ export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) 
       const shoot = () => {
         if (!confettiInstanceRef.current) return;
         confettiInstanceRef.current({
-          particleCount: 26,
-          spread: 75,
+          particleCount: 22,
+          spread: 70,
           origin: { x: 0.85, y: 0.5 },
-          colors: ['#00C9AF', '#FFA502', '#FF4757', '#8B5CF6', '#3B82F6', '#EC4899', '#10B981'],
-          scalar: 0.65,
-          ticks: 90,
+          colors: ['#ffc600', '#159b36', '#00C9AF', '#FFA502', '#FF4757', '#8B5CF6'],
+          scalar: 0.6,
+          ticks: 80,
           gravity: 0.65,
           drift: -0.3,
           disableForReducedMotion: true
@@ -96,11 +143,8 @@ export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) 
       };
 
       const timer = setTimeout(shoot, 250);
-      const interval = setInterval(shoot, 4500);
-
       return () => {
         clearTimeout(timer);
-        clearInterval(interval);
         if (confettiInstanceRef.current) {
           try {
             confettiInstanceRef.current.reset();
@@ -117,14 +161,14 @@ export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) 
   const triggerPop = () => {
     if (confettiInstanceRef.current) {
       confettiInstanceRef.current({
-        particleCount: 40,
-        spread: 90,
+        particleCount: 35,
+        spread: 85,
         origin: { x: 0.8, y: 0.5 },
-        colors: ['#00C9AF', '#FFA502', '#FF4757', '#8B5CF6', '#3B82F6', '#EC4899', '#10B981', '#FFD700'],
+        colors: ['#ffc600', '#159b36', '#00C9AF', '#FFA502', '#FF4757', '#8B5CF6', '#3B82F6', '#EC4899'],
         scalar: 0.75,
-        ticks: 110,
-        gravity: 0.75,
-        drift: -0.4,
+        ticks: 100,
+        gravity: 0.7,
+        drift: -0.3,
         disableForReducedMotion: true
       });
     }
@@ -145,26 +189,33 @@ export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) 
       {/* Shimmer light sweep */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent saving-banner-shimmer pointer-events-none" />
 
-      {/* Persistent Animated Confetti Cluster on the right */}
-      <div className="absolute right-0 top-0 bottom-0 w-48 pointer-events-none overflow-hidden select-none z-0">
-        {/* Floating party dots with staggered floating animations */}
-        <span className="absolute top-2.5 right-6 w-2 h-2 rounded-full bg-[#8B5CF6] opacity-85 animate-confetti-float [animation-delay:0.2s]" />
-        <span className="absolute bottom-2.5 right-12 w-2 h-2 rounded-full bg-[#FF4757] opacity-85 animate-confetti-pulse [animation-delay:0.5s]" />
-        <span className="absolute top-3 right-20 w-2.5 h-2.5 rounded-full bg-[#FFA502] opacity-85 animate-confetti-float [animation-delay:0.9s]" />
-        <span className="absolute bottom-3 right-28 w-1.5 h-1.5 rounded-full bg-[#00C9AF] opacity-85 animate-particle-1 [animation-delay:0.3s]" />
-        <span className="absolute top-2 right-34 w-2 h-2 rounded-full bg-[#3B82F6] opacity-80 animate-confetti-float [animation-delay:1.1s]" />
-        <span className="absolute bottom-2 right-40 w-1.5 h-1.5 rounded-full bg-[#EC4899] opacity-80 animate-particle-2 [animation-delay:0.7s]" />
+      {/* User-requested Confetti Pop & Fall Particles */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl select-none z-1">
+        {GENERATED_FREEBET_CONFETTI.map((p) => (
+          <span
+            key={p.id}
+            className="freebet-confetti-particle"
+            style={{
+              top: p.top,
+              left: p.left,
+              width: p.width,
+              height: p.height,
+              backgroundColor: p.color,
+              borderRadius: p.borderRadius,
+              animationDelay: p.animationDelay,
+              animationDuration: p.animationDuration,
+            }}
+          />
+        ))}
+      </div>
 
-        {/* Confetti party ribbons/rectangles */}
-        <span className="absolute top-2 right-14 w-2.5 h-1 rounded-sm bg-[#00C9AF] opacity-85 animate-confetti-ribbon [animation-delay:0.4s]" />
-        <span className="absolute bottom-2.5 right-22 w-2 h-1 rounded-sm bg-[#FFA502] opacity-80 animate-confetti-ribbon [animation-delay:1.2s]" />
-        <span className="absolute top-3.5 right-30 w-2 h-1 rounded-sm bg-[#8B5CF6] opacity-80 animate-confetti-ribbon [animation-delay:1.8s]" />
-
+      {/* Persistent Celebratory Vector Stars & Accents on the right */}
+      <div className="absolute right-0 top-0 bottom-0 w-44 pointer-events-none overflow-hidden select-none z-0">
         {/* Confetti party cross `+` symbols */}
-        <span className="absolute bottom-2.5 right-16 text-[#00C9AF] text-[13px] font-black leading-none opacity-85 animate-party-spin [animation-delay:0.2s]">
+        <span className="absolute bottom-2.5 right-14 text-[#00C9AF] text-[13px] font-black leading-none opacity-85 animate-party-spin [animation-delay:0.2s]">
           +
         </span>
-        <span className="absolute top-2 right-24 text-[#FF4757] text-[11px] font-black leading-none opacity-75 animate-party-spin [animation-delay:1s]">
+        <span className="absolute top-2 right-22 text-[#FF4757] text-[11px] font-black leading-none opacity-75 animate-party-spin [animation-delay:1s]">
           +
         </span>
 
@@ -172,10 +223,10 @@ export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) 
         <svg className="absolute top-1.5 right-8 w-3.5 h-3.5 text-[#FFA502] animate-particle-twinkle" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
         </svg>
-        <svg className="absolute bottom-1.5 right-26 w-3 h-3 text-[#8B5CF6] animate-particle-twinkle [animation-delay:0.7s]" viewBox="0 0 24 24" fill="currentColor">
+        <svg className="absolute bottom-1.5 right-24 w-3 h-3 text-[#8B5CF6] animate-particle-twinkle [animation-delay:0.7s]" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
         </svg>
-        <svg className="absolute top-2.5 right-36 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:1.3s]" viewBox="0 0 24 24" fill="currentColor">
+        <svg className="absolute top-2.5 right-34 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:1.3s]" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
         </svg>
       </div>

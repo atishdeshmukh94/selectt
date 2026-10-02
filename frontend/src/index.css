@@ -1053,4 +1053,36 @@ div[class*="chatty"],
 .animate-confetti-pulse {
   animation: confetti-pulse-scale 1.8s ease-in-out infinite;
 }
+
+/* User-requested Confetti Pop & Fall Animation */
+@keyframes freebet-confetti {
+  0% {
+    opacity: 0;
+    transform: translateY(0%) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  35% {
+    transform: translateY(-800%) rotate(270deg);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(1800%) rotate(1440deg);
+  }
+}
+
+.freebet-confetti-particle {
+  opacity: 0;
+  position: absolute;
+  animation-name: freebet-confetti;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-iteration-count: infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
 
