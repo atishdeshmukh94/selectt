@@ -464,6 +464,7 @@ const CheckoutPage = () => {
   const [isMaintenanceDetailsOpen, setIsMaintenanceDetailsOpen] = useState(false);
   const [showCelebrationToast, setShowCelebrationToast] = useState(false);
   const [expandedFeature, setExpandedFeature] = useState(null); // 'warranty' | 'periodic' | 'rsa' | null (collapsed by default)
+  const [openFaqIndex, setOpenFaqIndex] = useState(-1);
   const [activeBreakdownModal, setActiveBreakdownModal] = useState(null); // 'servicing' | 'fixes' | 'gst' | null
   const [isRefundPolicyOpen, setIsRefundPolicyOpen] = useState(false);
 
