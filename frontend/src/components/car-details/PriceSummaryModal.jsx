@@ -141,10 +141,12 @@ const PriceSummaryModal = ({ isOpen, onClose, carPrice }) => {
               <p className="text-xs font-medium text-[#0C1B33] leading-relaxed max-w-[190px]">
                 Thorough inspection, expert refurbishment & cleaning has been conducted by our professionals.
               </p>
-              <div className="relative w-20 h-20 shrink-0">
-                <div className="absolute inset-0 bg-[#e6dbf5] opacity-20 rounded-2xl"></div>
-                <div className="absolute inset-0 border-2 border-dashed border-[#e6dbf5] rounded-2xl scale-90"></div>
-                <Shield className="absolute inset-0 m-auto w-10 h-10 text-[#512da8] opacity-20" strokeWidth={1.5} />
+              <div className="shrink-0 flex items-center justify-center">
+                <img 
+                  src="/img/car-wash.gif" 
+                  alt="Car inspection, cleaning and refurbishment" 
+                  className="w-20 h-20 object-contain" 
+                />
               </div>
             </div>
           </div>

@@ -2622,8 +2622,12 @@ const CheckoutPage = () => {
                   <p className="text-xs text-slate-600 font-medium leading-relaxed flex-1">
                     Thorough inspection, expert refurbishment & cleaning has been conducted by our professionals.
                   </p>
-                  <div className="w-16 h-14 shrink-0 bg-slate-50 rounded-xl border border-slate-150 flex items-center justify-center text-[#00C9AF] shadow-inner">
-                    <Car size={30} strokeWidth={1.7} />
+                  <div className="shrink-0 flex items-center justify-center">
+                    <img 
+                      src="/img/car-wash.gif" 
+                      alt="Car inspection, cleaning and refurbishment" 
+                      className="w-18 h-18 sm:w-20 sm:h-20 object-contain" 
+                    />
                   </div>
                 </div>
 
