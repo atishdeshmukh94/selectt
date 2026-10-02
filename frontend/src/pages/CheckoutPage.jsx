@@ -938,12 +938,12 @@ const CheckoutPage = () => {
 
                 <div className="flex items-center justify-between gap-4">
                   {/* Left Icon & Info */}
-                  <div className="flex items-start gap-3.5 min-w-0">
-                    <div className="w-12 h-12 rounded-2xl bg-teal-50/60 border border-teal-100/80 flex items-center justify-center p-1 shrink-0 shadow-sm shadow-[#00C9AF]/15">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="shrink-0 flex items-center justify-center">
                       <img 
                         src="/img/doodle-outline-903-car-service.gif" 
                         alt="1-Year Complete Maintenance Package" 
-                        className="w-10 h-10 object-contain" 
+                        className="w-16 h-16 sm:w-18 sm:h-18 object-contain" 
                       />
                     </div>
                     <div className="min-w-0">
@@ -1879,11 +1879,11 @@ const CheckoutPage = () => {
             <div className="p-6 pt-5 space-y-3">
               {/* Central 3D Graphic */}
               <div className="relative inline-flex items-center justify-center mx-auto my-2">
-                <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center p-1.5 shadow-xl shadow-[#00C9AF]/25 transform -rotate-3">
+                <div className="w-20 h-20 flex items-center justify-center">
                   <img 
                     src="/img/doodle-outline-903-car-service.gif" 
                     alt="Complete Maintenance Package" 
-                    className="w-12 h-12 object-contain" 
+                    className="w-18 h-18 object-contain" 
                   />
                 </div>
                 <span className="absolute -top-1 -right-1 text-lg animate-bounce">✨</span>
