@@ -1131,7 +1131,13 @@ const CheckoutPage = () => {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setIsPriceSummaryOpen(true)}
+                      onClick={() => {
+                        if (window.innerWidth < 1024) {
+                          setIsPriceSummaryOpen(true);
+                        } else {
+                          document.getElementById('price-summary-section')?.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
                       className="text-xs font-semibold text-slate-500 hover:text-[#00A38D] underline decoration-dotted underline-offset-2 flex items-center gap-1 cursor-pointer mt-1.5 transition-colors"
                     >
                       <span>View breakup</span>
@@ -1159,32 +1165,186 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                {/* Price Summary Section (Dropdown & Popup Trigger) */}
-                <div className="p-4 sm:p-5 pt-3">
+                {/* Price Summary Section */}
+                <div id="price-summary-section" className="p-4 sm:p-5 pt-3">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-heading font-extrabold text-[#0F172A] text-[15px] sm:text-[16px]">
                       Price summary
                     </h4>
                   </div>
 
-                  {/* Total on-road price trigger card: opens full breakdown popup modal directly */}
-                  <button
-                    type="button"
-                    onClick={() => setIsPriceSummaryOpen(true)}
-                    className="w-full p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 bg-white hover:border-[#00C9AF] hover:shadow-xs transition-all flex items-center justify-between cursor-pointer group shadow-2xs text-left mb-2.5"
-                    title="Open full price breakdown"
-                  >
-                    <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#0F172A]">
-                      <FileText size={16} className="text-[#00A38D] group-hover:scale-110 transition-transform" />
-                      <span>Total on-road price</span>
+                  {/* Mobile Trigger Button: opens full breakdown popup modal on mobile */}
+                  <div className="lg:hidden">
+                    <button
+                      type="button"
+                      onClick={() => setIsPriceSummaryOpen(true)}
+                      className="w-full p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 bg-white hover:border-[#00C9AF] hover:shadow-xs transition-all flex items-center justify-between cursor-pointer group shadow-2xs text-left mb-2.5"
+                      title="Open full price breakdown"
+                    >
+                      <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#0F172A]">
+                        <FileText size={16} className="text-[#00A38D] group-hover:scale-110 transition-transform" />
+                        <span>Total on-road price</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-price font-extrabold text-sm sm:text-base text-[#0C1B33]">
+                          ₹{(totalOnRoadPrice / 100000).toFixed(2)} Lakh
+                        </span>
+                        <ChevronDown size={17} className="text-slate-400 group-hover:text-[#00A38D] transition-transform" />
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Desktop Inline Full Breakdown: displays directly without opening popup on desktop */}
+                  <div className="hidden lg:block mb-3">
+                    <div className="rounded-2xl p-4.5 bg-slate-50/70 border border-slate-200/90 shadow-2xs space-y-3.5 text-xs sm:text-sm">
+                      {/* Car Price */}
+                      <div className="flex justify-between items-center text-slate-700">
+                        <span className="font-medium">Car price</span>
+                        <span className="font-bold text-[#0C1B33] font-price">
+                          ₹{originalCarPrice.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+
+                      {/* Sale Discount */}
+                      <div className="flex justify-between items-center text-emerald-600 font-bold">
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles size={14} className="text-emerald-500" /> Sale Discount
+                        </span>
+                        <span className="font-price">
+                          - ₹{saleDiscount.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+
+                      {/* RC Transfer Facilitation */}
+                      <div className="flex justify-between items-center text-slate-700">
+                        <span className="font-medium">RC transfer facilitation</span>
+                        <span className="font-bold text-[#0C1B33] font-price">+ ₹{rcTransferFee.toLocaleString('en-IN')}</span>
+                      </div>
+
+                      {/* TCS (Tax Collected at Source) */}
+                      <div className="flex justify-between items-start text-slate-700">
+                        <div>
+                          <div className="font-medium flex items-center gap-1.5">
+                            <span>TCS (Tax Collected at Source)</span>
+                            <PriceInfoPopover 
+                              title="TCS (Tax Collected at Source)"
+                              content="As per Section 206C(1F) of the Income Tax Act, 1% TCS is legally collected on car transactions. The entire amount is 100% credited to your PAN and can be claimed back as a tax credit when filing your annual ITR."
+                              badge="100% Tax Credit in ITR"
+                              tag="Sec 206C(1F)"
+                            />
+                          </div>
+                          <p className="text-[11px] text-slate-400 font-medium">
+                            This amount will come back to you as a tax credit
+                          </p>
+                        </div>
+                        <span className="font-bold text-[#0C1B33] font-price">
+                          + ₹{tcsAmount.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+
+                      {/* Servicing, Cleaning, Fuel */}
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                          <span>Servicing, cleaning, fuel & more</span>
+                          <PriceInfoPopover 
+                            title="Servicing, Cleaning & Prep"
+                            content="Includes periodic comprehensive servicing (engine oil & synthetic filter replacement), deep multi-stage detailing, anti-bacterial ozone AC treatment, and 5L fuel for your drive home."
+                            badge="₹0 (₹8,700 Value Included)"
+                            tag="Pre-Delivery Care"
+                            onViewDetails={() => setActiveBreakdownModal('servicing')}
+                          />
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-400 line-through font-normal text-xs font-price">₹8,700</span>
+                          <span className="text-emerald-600 font-bold">Included</span>
+                        </div>
+                      </div>
+
+                      {/* Warranty */}
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                          <span>Warranty (Protect)</span>
+                          <PriceInfoPopover 
+                            title="Selectt Warranty (Protect)"
+                            content="Comprehensive 6-month warranty covering engine, transmission, steering, and electrical components with zero deductible, plus 24/7 pan-India roadside assistance."
+                            badge="100% Included Free"
+                            tag="₹5,500 Value"
+                          />
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-400 line-through font-normal text-xs font-price">₹5,500</span>
+                          <span className="text-emerald-600 font-bold">Included</span>
+                        </div>
+                      </div>
+
+                      {/* Fixes & Upgrades */}
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                          <span>Fixes & upgrades</span>
+                          <PriceInfoPopover 
+                            title="Fixes & Quality Upgrades"
+                            content="All minor mechanical wear, cosmetic blemishes, fluid top-ups, and electrical system tuning identified during our 200-checkpoint inspection are fixed by professionals."
+                            badge="Certified Refurbishment"
+                            tag="200 Checkpoints"
+                            onViewDetails={() => setActiveBreakdownModal('fixes')}
+                          />
+                        </span>
+                        <span className="text-emerald-600 font-bold">Included</span>
+                      </div>
+
+                      {/* GST Taxes */}
+                      <div className="flex justify-between items-center text-slate-700">
+                        <span className="font-medium flex items-center gap-1.5">
+                          <span>GST (govt. taxes)</span>
+                          <PriceInfoPopover 
+                            title="GST (Statutory Taxes)"
+                            content="18% Goods & Services Tax levied strictly on facilitation and legal documentation services in compliance with Govt of India regulations. Car margin tax is covered by Selectt."
+                            badge="Official Tax Invoice"
+                            tag="18% Statutory Rate"
+                            onViewDetails={() => setActiveBreakdownModal('gst')}
+                          />
+                        </span>
+                        <span className="font-bold text-[#0C1B33] font-price">₹{gstTax.toLocaleString('en-IN')}</span>
+                      </div>
+
+                      {maintenancePackageAdded && (
+                        <div className="flex justify-between items-center text-[#00A38D] font-bold pt-1 border-t border-slate-200/80">
+                          <span>1-Year Complete Maintenance ({maintenancePaymentType === 'full' ? 'Paid in Full' : 'Monthly'})</span>
+                          <span className="font-price">
+                            {maintenancePaymentType === 'full' ? '+ ₹11,287' : '+ ₹990/m'}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Special Discount for you (Coupon Discount) */}
+                      {appliedCoupon && couponDiscount > 0 && (
+                        <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-slate-200/80">
+                          <span className="flex items-center gap-1.5">
+                            <Sparkles size={14} className="text-emerald-500" />
+                            <span>Special Discount for you</span>
+                            {appliedCoupon.code && (
+                              <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black">
+                                {appliedCoupon.code}
+                              </span>
+                            )}
+                          </span>
+                          <span className="font-price font-extrabold text-emerald-600">
+                            - ₹{couponDiscount.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Total On-road Price Divider */}
+                      <div className="pt-3.5 mt-1 border-t border-dashed border-slate-300 flex justify-between items-center">
+                        <span className="font-heading font-extrabold text-[#0C1B33] text-sm sm:text-base">
+                          Total on-road price
+                        </span>
+                        <span className="font-heading font-black text-[#0C1B33] text-base sm:text-lg font-price">
+                          ₹{totalOnRoadPrice.toLocaleString('en-IN')}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-price font-extrabold text-sm sm:text-base text-[#0C1B33]">
-                        ₹{(totalOnRoadPrice / 100000).toFixed(2)} Lakh
-                      </span>
-                      <ChevronDown size={17} className="text-slate-400 group-hover:text-[#00A38D] transition-transform" />
-                    </div>
-                  </button>
+                  </div>
 
                   {/* Coupon Code Input & Applied Card (Aligned properly as requested) */}
                   <div className="mt-3.5 pt-3 border-t border-slate-100">
@@ -2223,9 +2383,9 @@ const CheckoutPage = () => {
         </div>
       )}
 
-      {/* Price Summary Breakdown Popup Modal */}
+      {/* Price Summary Breakdown Popup Modal (Mobile Only) */}
       {isPriceSummaryOpen && car && (
-        <div className="fixed inset-0 z-[99999] bg-black/65 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+        <div className="lg:hidden fixed inset-0 z-[99999] bg-black/65 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
           <div 
             className="fixed inset-0" 
             onClick={() => setIsPriceSummaryOpen(false)} 
