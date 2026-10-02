@@ -1022,4 +1022,35 @@ div[class*="chatty"],
 
 .submit-btn:hover {
   background-color: #2ca893;
-}
+}
+
+/* Savings Banner Confetti & Micro-Animations */
+@keyframes confetti-ribbon {
+  0% { transform: translateY(0) rotate(0deg) scaleX(1); }
+  50% { transform: translateY(-7px) rotate(180deg) scaleX(-1); }
+  100% { transform: translateY(0) rotate(360deg) scaleX(1); }
+}
+
+@keyframes confetti-float-particle {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(18deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes confetti-pulse-scale {
+  0%, 100% { transform: scale(0.9); opacity: 0.75; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+.animate-confetti-ribbon {
+  animation: confetti-ribbon 3.2s ease-in-out infinite;
+}
+
+.animate-confetti-float {
+  animation: confetti-float-particle 2.4s ease-in-out infinite;
+}
+
+.animate-confetti-pulse {
+  animation: confetti-pulse-scale 1.8s ease-in-out infinite;
+}
+

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
 import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil, Building2, Tag, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
 import TestDriveModal from '../components/buy/TestDriveModal';
@@ -68,35 +69,120 @@ const DEFAULT_BUY_STEPS = [
 ];
 
 export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) => {
+  const canvasRef = React.useRef(null);
+  const confettiInstanceRef = React.useRef(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    try {
+      confettiInstanceRef.current = confetti.create(canvasRef.current, {
+        resize: true,
+        useWorker: true
+      });
+
+      const shoot = () => {
+        if (!confettiInstanceRef.current) return;
+        confettiInstanceRef.current({
+          particleCount: 26,
+          spread: 75,
+          origin: { x: 0.85, y: 0.5 },
+          colors: ['#00C9AF', '#FFA502', '#FF4757', '#8B5CF6', '#3B82F6', '#EC4899', '#10B981'],
+          scalar: 0.65,
+          ticks: 90,
+          gravity: 0.65,
+          drift: -0.3,
+          disableForReducedMotion: true
+        });
+      };
+
+      const timer = setTimeout(shoot, 250);
+      const interval = setInterval(shoot, 4500);
+
+      return () => {
+        clearTimeout(timer);
+        clearInterval(interval);
+        if (confettiInstanceRef.current) {
+          try {
+            confettiInstanceRef.current.reset();
+          } catch {
+            // ignore
+          }
+        }
+      };
+    } catch (e) {
+      console.error('Confetti init error:', e);
+    }
+  }, []);
+
+  const triggerPop = () => {
+    if (confettiInstanceRef.current) {
+      confettiInstanceRef.current({
+        particleCount: 40,
+        spread: 90,
+        origin: { x: 0.8, y: 0.5 },
+        colors: ['#00C9AF', '#FFA502', '#FF4757', '#8B5CF6', '#3B82F6', '#EC4899', '#10B981', '#FFD700'],
+        scalar: 0.75,
+        ticks: 110,
+        gravity: 0.75,
+        drift: -0.4,
+        disableForReducedMotion: true
+      });
+    }
+  };
+
   return (
     <div 
-      className={`relative overflow-hidden bg-gradient-to-r from-[#e8faf5] via-[#f0fdf9] to-[#e8faf5] border border-[#a1ebd9] rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs select-none min-h-[46px] ${className}`}
+      onClick={triggerPop}
+      className={`relative overflow-hidden bg-gradient-to-r from-[#e8faf5] via-[#f0fdf9] to-[#e8faf5] border border-[#a1ebd9] rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs select-none min-h-[46px] cursor-pointer hover:shadow-sm hover:border-[#00C9AF]/60 transition-all ${className}`}
+      title="Click for celebration confetti!"
     >
-      {/* Celebratory confetti particles across the banner */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent saving-banner-shimmer pointer-events-none" />
+      {/* Scoped Canvas Confetti Shower */}
+      <canvas 
+        ref={canvasRef} 
+        className="absolute inset-0 w-full h-full pointer-events-none z-10" 
+      />
 
-        {/* Clean, colorful party confetti dots matching reference screenshot */}
-        <span className="absolute top-2.5 right-6 w-2 h-2 rounded-full bg-[#8B5CF6] opacity-80" />
-        <span className="absolute bottom-2.5 right-12 w-2 h-2 rounded-full bg-[#FF4757] opacity-80" />
-        <span className="absolute top-3 right-20 w-2.5 h-2.5 rounded-full bg-[#FFA502] opacity-85" />
-        <span className="absolute bottom-3 right-28 w-1.5 h-1.5 rounded-full bg-[#00C9AF] opacity-80" />
-        <span className="absolute top-2 right-36 w-1.5 h-1.5 rounded-full bg-[#3B82F6] opacity-75" />
-        <span className="absolute bottom-2.5 right-44 w-2 h-2 rounded-full bg-[#EC4899] opacity-80" />
-        <span className="absolute top-3 right-52 w-1.5 h-1.5 rounded-full bg-[#10B981] opacity-70" />
+      {/* Shimmer light sweep */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent saving-banner-shimmer pointer-events-none" />
 
-        {/* Crisp twinkling vector stars */}
+      {/* Persistent Animated Confetti Cluster on the right */}
+      <div className="absolute right-0 top-0 bottom-0 w-48 pointer-events-none overflow-hidden select-none z-0">
+        {/* Floating party dots with staggered floating animations */}
+        <span className="absolute top-2.5 right-6 w-2 h-2 rounded-full bg-[#8B5CF6] opacity-85 animate-confetti-float [animation-delay:0.2s]" />
+        <span className="absolute bottom-2.5 right-12 w-2 h-2 rounded-full bg-[#FF4757] opacity-85 animate-confetti-pulse [animation-delay:0.5s]" />
+        <span className="absolute top-3 right-20 w-2.5 h-2.5 rounded-full bg-[#FFA502] opacity-85 animate-confetti-float [animation-delay:0.9s]" />
+        <span className="absolute bottom-3 right-28 w-1.5 h-1.5 rounded-full bg-[#00C9AF] opacity-85 animate-particle-1 [animation-delay:0.3s]" />
+        <span className="absolute top-2 right-34 w-2 h-2 rounded-full bg-[#3B82F6] opacity-80 animate-confetti-float [animation-delay:1.1s]" />
+        <span className="absolute bottom-2 right-40 w-1.5 h-1.5 rounded-full bg-[#EC4899] opacity-80 animate-particle-2 [animation-delay:0.7s]" />
+
+        {/* Confetti party ribbons/rectangles */}
+        <span className="absolute top-2 right-14 w-2.5 h-1 rounded-sm bg-[#00C9AF] opacity-85 animate-confetti-ribbon [animation-delay:0.4s]" />
+        <span className="absolute bottom-2.5 right-22 w-2 h-1 rounded-sm bg-[#FFA502] opacity-80 animate-confetti-ribbon [animation-delay:1.2s]" />
+        <span className="absolute top-3.5 right-30 w-2 h-1 rounded-sm bg-[#8B5CF6] opacity-80 animate-confetti-ribbon [animation-delay:1.8s]" />
+
+        {/* Confetti party cross `+` symbols */}
+        <span className="absolute bottom-2.5 right-16 text-[#00C9AF] text-[13px] font-black leading-none opacity-85 animate-party-spin [animation-delay:0.2s]">
+          +
+        </span>
+        <span className="absolute top-2 right-24 text-[#FF4757] text-[11px] font-black leading-none opacity-75 animate-party-spin [animation-delay:1s]">
+          +
+        </span>
+
+        {/* Twinkling 4-point golden/violet stars */}
         <svg className="absolute top-1.5 right-8 w-3.5 h-3.5 text-[#FFA502] animate-particle-twinkle" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
         </svg>
-        <svg className="absolute bottom-1.5 right-16 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:0.6s]" viewBox="0 0 24 24" fill="currentColor">
+        <svg className="absolute bottom-1.5 right-26 w-3 h-3 text-[#8B5CF6] animate-particle-twinkle [animation-delay:0.7s]" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+        </svg>
+        <svg className="absolute top-2.5 right-36 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:1.3s]" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
         </svg>
       </div>
 
       {/* Banner Text with Rupee Badge */}
       <div className="flex items-center gap-2.5 relative z-10">
-        <span className="w-5.5 h-5.5 rounded-full bg-[#00A38D] text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs">
+        <span className="w-5.5 h-5.5 rounded-full bg-[#00A38D] text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs animate-confetti-pulse">
           ₹
         </span>
         <span className="font-extrabold text-[#007a68] text-[13.5px] sm:text-[14.5px] tracking-tight">
@@ -563,9 +649,6 @@ const CheckoutPage = () => {
                 </button>
               </div>
             </div>
-            <div className="hidden md:block">
-              <img src="/img/illustration-relax.svg" alt="Relax" className="h-24 opacity-80 mix-blend-multiply" onError={(e) => e.target.style.display = 'none'} />
-            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -758,34 +841,11 @@ const CheckoutPage = () => {
             {/* Right Column: Order Summary & Price Breakdown (5 cols on desktop) */}
             <div className="lg:col-span-5 space-y-4">
 
-              {/* Savings Banner with Subtle Celebration Accent */}
-              <div className="relative overflow-hidden bg-gradient-to-r from-emerald-50 via-teal-50/90 to-emerald-50 border border-emerald-300/90 rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs">
-                {/* Subtle celebratory shimmer & minimal particles strictly on the far right */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent saving-banner-shimmer pointer-events-none" />
-
-                  {/* Clean, subtle party dots on far right */}
-                  <span className="absolute top-2.5 right-4 w-2 h-2 rounded-full bg-[#00C9AF] animate-particle-1" />
-                  <span className="absolute bottom-2.5 right-8 w-1.5 h-1.5 rounded-full bg-[#FF4757] animate-particle-2 [animation-delay:0.4s]" />
-                  <span className="absolute top-2 right-12 w-2 h-2 rounded-full bg-[#FFA502] animate-particle-1 [animation-delay:0.8s]" />
-
-                  {/* 2 crisp twinkling vector stars */}
-                  <svg className="absolute top-1.5 right-6 w-3.5 h-3.5 text-[#FFA502] animate-particle-twinkle" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                  </svg>
-                  <svg className="absolute bottom-1.5 right-14 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:0.6s]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                  </svg>
-                </div>
-
-                {/* Banner Text */}
-                <div className="flex items-center gap-2.5 relative z-10">
-                  <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs">
-                    ₹
-                  </span>
-                  <span className="font-extrabold text-emerald-900 tracking-tight">Yay! You are saving ₹5,000</span>
-                </div>
-              </div>
+              {/* Savings Banner with Confetti Effect */}
+              <ConfettiSavingsBanner 
+                savingAmount={savingsAmount} 
+                className="w-full shadow-2xs" 
+              />
 
               {/* Order Summary & Breakdown Card */}
               <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
