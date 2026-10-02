@@ -66,8 +66,37 @@ const CarEditPage = () => {
     carPrice: string;
     carImage: string;
     carId?: string | number;
+    make?: string;
+    model?: string;
+    variant?: string;
   } | null>(null);
   const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
+
+  const slugify = (text: string) => {
+    return (text || '')
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+      .replace(/\-\-+/g, '-');
+  };
+
+  const resolveAdminImgUrl = (url?: string) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+    const cleanPath = url.startsWith("/") ? url : `/${url}`;
+    if (cleanPath.startsWith("/uploads/")) return `https://api.selectt.in${cleanPath}`;
+    return `https://selectt.in${cleanPath}`;
+  };
+
+  const getCarLiveUrl = (carId?: string | number, make?: string, model?: string, variant?: string) => {
+    if (!carId) return 'https://selectt.in/buy-cars';
+    const sMake = slugify(make || 'car');
+    const sModel = slugify(model || 'model');
+    const sVariant = slugify(variant || 'details');
+    return `https://selectt.in/car/${sMake}/${sModel}/${sVariant}/${carId}`;
+  };
 
   useEffect(() => {
     if (redirectCountdown === null || redirectCountdown <= 0 || !successModal?.isOpen) {
@@ -650,7 +679,10 @@ const CarEditPage = () => {
         carTitle: finalTitle,
         carPrice: String(formData.price || 0),
         carImage: primaryCover,
-        carId
+        carId,
+        make: formData.make,
+        model: formData.model,
+        variant: formData.variant || formData.title,
       });
 
       if (!isEdit) {
@@ -834,11 +866,11 @@ const CarEditPage = () => {
       {/* Step Progress & Tab Bar */}
       <div className="bg-white dark:bg-gray-900 rounded-3xl p-5 border border-slate-200/80 dark:border-gray-800 mb-8 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <div>
+          <div className="space-y-2">
             <span className="text-[11px] font-black text-[#155DFC] uppercase tracking-wider block">
               Step {currentStepIndex + 1} of 4 Form Guide
             </span>
-            <h2 className="text-base font-black text-slate-900 dark:text-white">
+            <h2 className="text-base font-black text-slate-900 dark:text-white leading-snug">
               {STEPS[currentStepIndex].title} — <span className="text-slate-500 dark:text-gray-400 font-medium">{STEPS[currentStepIndex].desc}</span>
             </h2>
           </div>
@@ -868,7 +900,7 @@ const CarEditPage = () => {
                 onClick={() => setActiveTab(s.id)}
                 className={`p-3.5 rounded-2xl text-left border transition-all cursor-pointer flex items-center gap-3 ${
                   isActive 
-                    ? "bg-slate-900 text-white border-slate-900 dark:bg-gray-800 dark:border-gray-700 shadow-md scale-[1.02]" 
+                    ? "bg-[#155DFC] text-white border-[#155DFC] shadow-lg shadow-blue-500/25 scale-[1.02]" 
                     : isCompleted 
                       ? "bg-emerald-50/70 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/20 dark:text-emerald-300 dark:border-emerald-800/40"
                       : "bg-slate-50 dark:bg-gray-900/60 text-slate-500 border-slate-200/80 dark:border-gray-800 hover:bg-slate-100 dark:hover:bg-gray-800"
@@ -876,7 +908,7 @@ const CarEditPage = () => {
               >
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-black text-xs ${
                   isActive 
-                    ? "bg-[#155DFC] text-white" 
+                    ? "bg-white text-[#155DFC] shadow-xs" 
                     : isCompleted 
                       ? "bg-emerald-600 text-white" 
                       : "bg-slate-200 dark:bg-gray-800 text-slate-600 dark:text-gray-400"
@@ -884,8 +916,8 @@ const CarEditPage = () => {
                   {isCompleted ? <CheckCircle2 size={16} /> : idx + 1}
                 </div>
                 <div className="min-w-0">
-                  <div className="font-extrabold text-xs truncate leading-tight">{s.title.split('. ')[1]}</div>
-                  <div className="text-[10px] opacity-75 truncate">{s.desc}</div>
+                  <div className={`font-extrabold text-xs truncate leading-tight ${isActive ? "text-white" : ""}`}>{s.title.split('. ')[1]}</div>
+                  <div className={`text-[10px] truncate ${isActive ? "text-blue-100 font-medium" : "opacity-75"}`}>{s.desc}</div>
                 </div>
               </button>
             );
@@ -2352,7 +2384,7 @@ const CarEditPage = () => {
                 <div className="w-16 h-14 rounded-xl overflow-hidden bg-slate-200 dark:bg-gray-700 shrink-0 flex items-center justify-center">
                   {successModal.carImage ? (
                     <img
-                      src={successModal.carImage}
+                      src={resolveAdminImgUrl(successModal.carImage)}
                       alt={successModal.carTitle}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -2427,7 +2459,7 @@ const CarEditPage = () => {
                   )}
                   {successModal.carId && (
                     <a
-                      href={`https://selectt.in/buy-cars/${successModal.carId}`}
+                      href={getCarLiveUrl(successModal.carId, successModal.make, successModal.model, successModal.variant)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 font-bold text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-center cursor-pointer flex items-center justify-center gap-1"

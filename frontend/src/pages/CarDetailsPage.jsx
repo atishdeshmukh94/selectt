@@ -837,6 +837,7 @@ const CarDetailsPage = () => {
                       { icon: <ShieldCheck size={18} />, label: 'Insurance', value: car.insuranceStatus || 'Active' },
                       { icon: <Key size={18} />, label: 'Spare key', value: car.spareKey || 'Yes' },
                       { icon: <MapPin size={18} />, label: 'Reg State', value: car.regState || 'Delhi' },
+                      { icon: <FileText size={18} />, label: 'RTO Code', value: car.rto_code || car.rto || car.registration_no || car.registrationNo || '-' },
                     ].map((item, idx) => (
                       <div key={idx} className="flex gap-3 group">
                         <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200/50 flex items-center justify-center shrink-0 text-[#00C9AF] group-hover:bg-[#00C9AF] group-hover:text-[#0C1B33] transition-colors duration-300">
