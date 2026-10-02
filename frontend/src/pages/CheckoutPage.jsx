@@ -25,9 +25,7 @@ export const RupeeSignIcon = ({ className = "w-3 h-3 fill-current", ...props }) 
 
 export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate }) => {
   const { getSiteImage, settings } = useSiteSettings();
-  const siteLogo = getSiteImage('header_logo_light', '') 
-    || getSiteImage('admin_logo_dark', '') 
-    || '/img/dark-logo.svg';
+  const siteLogo = getSiteImage('header_logo_light', '') || '/img/dark-logo.svg';
   const supportPhone = settings?.contact_phone || settings?.maintenance_phone || '+91 85746 67466';
   const supportPhoneClean = supportPhone.replace(/[^0-9+]/g, '');
 
