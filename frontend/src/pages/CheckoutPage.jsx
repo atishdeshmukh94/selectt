@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
-import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil, Building2, Tag, AlertCircle, Copy } from 'lucide-react';
+import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil, Building2, Tag, AlertCircle, Copy, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
@@ -12,14 +12,14 @@ import carLoanIcon from '../assets/car-loan-icon.png';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 
 export const RupeeSignIcon = ({ className = "w-3 h-3 fill-current", ...props }) => (
-  <svg 
-    viewBox="40 -1 170 250" 
+  <svg
+    viewBox="40 -1 170 250"
     fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
     {...props}
   >
-    <path fill="currentColor" d="M153 23h41l15-23H55L40 23h26c27 0 52 2 62 25H55L40 71h91v1c0 17-14 43-60 43H48v22l90 113h41L85 133c39-2 75-24 80-62h29l15-23h-45c-1-9-5-18-11-25z"/>
+    <path fill="currentColor" d="M153 23h41l15-23H55L40 23h26c27 0 52 2 62 25H55L40 71h91v1c0 17-14 43-60 43H48v22l90 113h41L85 133c39-2 75-24 80-62h29l15-23h-45c-1-9-5-18-11-25z" />
   </svg>
 );
 
@@ -39,9 +39,9 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate,
         {/* Left: Logo */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link to="/" className="flex items-center gap-2 group">
-            <img 
-              src={siteLogo} 
-              alt="Selectt" 
+            <img
+              src={siteLogo}
+              alt="Selectt"
               className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-102"
               onError={(e) => {
                 e.target.onerror = null;
@@ -69,11 +69,10 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate,
 
             {/* Step 2: Test drive preferences */}
             <div className="flex items-center gap-2 shrink-0">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs transition-all ${
-                currentStep > 2 
-                  ? 'bg-[#00A38D] text-white' 
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs transition-all ${currentStep > 2
+                  ? 'bg-[#00A38D] text-white'
                   : 'bg-[#00A38D] text-white ring-4 ring-[#00A38D]/20'
-              }`}>
+                }`}>
                 {currentStep > 2 ? <Check size={13} strokeWidth={3.2} /> : '2'}
               </div>
               <span className="text-[13.5px] font-semibold text-[#1E293B] whitespace-nowrap">
@@ -82,22 +81,19 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate,
             </div>
 
             {/* Connecting Line 2 -> 3 (Grey / Brand Teal if step 3) */}
-            <div className={`flex-1 max-w-[120px] min-w-[36px] h-[2px] mx-3 lg:mx-4 shrink-0 rounded-full transition-colors ${
-              currentStep >= 3 ? 'bg-[#00A38D]' : 'bg-slate-300'
-            }`} />
+            <div className={`flex-1 max-w-[120px] min-w-[36px] h-[2px] mx-3 lg:mx-4 shrink-0 rounded-full transition-colors ${currentStep >= 3 ? 'bg-[#00A38D]' : 'bg-slate-300'
+              }`} />
 
             {/* Step 3: Payment */}
             <div className="flex items-center gap-2 shrink-0">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs transition-all ${
-                currentStep >= 3 
-                  ? 'bg-[#00A38D] text-white ring-4 ring-[#00A38D]/20' 
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs transition-all ${currentStep >= 3
+                  ? 'bg-[#00A38D] text-white ring-4 ring-[#00A38D]/20'
                   : 'bg-slate-300 text-white'
-              }`}>
+                }`}>
                 3
               </div>
-              <span className={`text-[13.5px] whitespace-nowrap transition-colors ${
-                currentStep >= 3 ? 'text-[#1E293B] font-semibold' : 'text-slate-400 font-medium'
-              }`}>
+              <span className={`text-[13.5px] whitespace-nowrap transition-colors ${currentStep >= 3 ? 'text-[#1E293B] font-semibold' : 'text-slate-400 font-medium'
+                }`}>
                 Payment
               </span>
             </div>
@@ -323,7 +319,7 @@ const GENERATED_FREEBET_CONFETTI = Array.from({ length: 38 }, (_, i) => {
   const rnd2 = ((i * 29 + 11) % 100) / 100;
   const rnd3 = ((i * 37 + 19) % 100) / 100;
   const rnd4 = ((i * 43 + 23) % 100) / 100;
-  
+
   // top between 15% and 65%
   const top = 15 + rnd1 * 50;
   // spread across middle and right area: 28% to 96%
@@ -414,15 +410,15 @@ export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) 
   };
 
   return (
-    <div 
+    <div
       onClick={triggerPop}
       className={`relative overflow-hidden bg-gradient-to-r from-[#e8faf5] via-[#f0fdf9] to-[#e8faf5] border border-[#a1ebd9] rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs select-none min-h-[46px] cursor-pointer hover:shadow-sm hover:border-[#00C9AF]/60 transition-all ${className}`}
       title="Click for celebration confetti!"
     >
       {/* Scoped Canvas Confetti Shower */}
-      <canvas 
-        ref={canvasRef} 
-        className="absolute inset-0 w-full h-full pointer-events-none z-10" 
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none z-10"
       />
 
       {/* Shimmer light sweep */}
@@ -481,7 +477,7 @@ export const CelebrationConfettiShower = () => {
 
     const confettiColors = ['#EF2964', '#00C09D', '#2D87B0', '#48485E', '#EFFF1D', '#F59E0B', '#8B5CF6', '#EC4899'];
     const confettiAnimations = ['slow', 'medium', 'fast'];
-    
+
     let confettiContainer = el.querySelector('.confetti-container');
     if (!confettiContainer) {
       confettiContainer = document.createElement('div');
@@ -491,7 +487,7 @@ export const CelebrationConfettiShower = () => {
 
     const interval = setInterval(() => {
       if (!confettiContainer || !el) return;
-      
+
       const confettiEl = document.createElement('div');
       const confettiSize = Math.floor(Math.random() * 4) + 7 + 'px';
       const confettiBg = confettiColors[Math.floor(Math.random() * confettiColors.length)];
@@ -520,7 +516,7 @@ export const CelebrationConfettiShower = () => {
   }, []);
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="js-container fixed inset-0 pointer-events-none z-[9999999] overflow-hidden"
       style={{ top: '0px' }}
@@ -528,11 +524,11 @@ export const CelebrationConfettiShower = () => {
   );
 };
 
-export const PriceInfoPopover = ({ 
-  title, 
-  content, 
-  badge, 
-  tag, 
+export const PriceInfoPopover = ({
+  title,
+  content,
+  badge,
+  tag,
   onViewDetails,
   onOpenModal
 }) => {
@@ -747,7 +743,7 @@ const CheckoutPage = () => {
           }
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const loadScript = (src) => {
@@ -865,10 +861,12 @@ const CheckoutPage = () => {
                   spread: 80,
                   origin: { y: 0.6 }
                 });
-              } catch (_) {}
+              } catch (_) { }
 
               setPaymentSuccessData({
-                bookingId: bookingData?.booking_no || bookingId,
+                bookingPk: bookingId,
+                bookingNo: bookingData?.booking_no || `BK-${bookingId}`,
+                bookingId: bookingData?.booking_no || `BK-${bookingId}`,
                 paymentId: response.razorpay_payment_id,
                 orderId: response.razorpay_order_id,
                 amount: finalPayableBookingAmount,
@@ -936,7 +934,7 @@ const CheckoutPage = () => {
   return (
     <>
       <PageMeta title={`Checkout - Reserve ${car.year} ${car.make} ${car.model} | Selectt`} description={`Complete booking deposit for your ${car.year} ${car.make} ${car.model}.`} />
-      
+
       {/* Dedicated Checkout Header with Logo (left), 3-step Stepper (center), Phone Support (right) */}
       <CheckoutDedicatedHeader
         currentStep={scheduledTestDrive || isTestDriveSkipped ? 3 : 2}
@@ -994,10 +992,10 @@ const CheckoutPage = () => {
                   {/* Left Icon & Info */}
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div className="shrink-0 flex items-center justify-center">
-                      <img 
-                        src="/img/doodle-outline-903-car-service.gif" 
-                        alt="1-Year Complete Maintenance Package" 
-                        className="w-16 h-16 sm:w-18 sm:h-18 object-contain" 
+                      <img
+                        src="/img/doodle-outline-903-car-service.gif"
+                        alt="1-Year Complete Maintenance Package"
+                        className="w-16 h-16 sm:w-18 sm:h-18 object-contain"
                       />
                     </div>
                     <div className="min-w-0">
@@ -1068,11 +1066,10 @@ const CheckoutPage = () => {
                   <button
                     type="button"
                     onClick={() => setInterestedInLoan(false)}
-                    className={`py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer text-center ${
-                      !interestedInLoan
+                    className={`py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer text-center ${!interestedInLoan
                         ? 'border-slate-400 bg-white text-slate-800 shadow-2xs font-extrabold'
                         : 'border-slate-200 bg-slate-50/70 text-slate-400 hover:bg-white'
-                    }`}
+                      }`}
                   >
                     Not Interested
                   </button>
@@ -1083,11 +1080,10 @@ const CheckoutPage = () => {
                       setInterestedInLoan(true);
                       setShowLoanBoxOnMobile(true);
                     }}
-                    className={`py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                      interestedInLoan
+                    className={`py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${interestedInLoan
                         ? 'border-[#00A38D] bg-teal-50/70 text-[#008975] ring-2 ring-[#00A38D]/25 shadow-xs font-black'
                         : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
-                    }`}
+                      }`}
                   >
                     {interestedInLoan && (
                       <Check size={15} strokeWidth={3} className="text-[#00A38D] shrink-0" />
@@ -1109,7 +1105,7 @@ const CheckoutPage = () => {
                     </span>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => openTestDrive(scheduledTestDrive.location || 'hub')}
                     className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 hover:border-[#00C9AF] shadow-sm space-y-3 cursor-pointer transition-all group"
                   >
@@ -1191,9 +1187,9 @@ const CheckoutPage = () => {
 
               {/* Savings Banner with Confetti Effect (Desktop only, mobile has it at the top) */}
               <div className="hidden lg:block">
-                <ConfettiSavingsBanner 
-                  savingAmount={savingsAmount} 
-                  className="w-full shadow-2xs" 
+                <ConfettiSavingsBanner
+                  savingAmount={savingsAmount}
+                  className="w-full shadow-2xs"
                 />
               </div>
 
@@ -1342,7 +1338,7 @@ const CheckoutPage = () => {
                         <div>
                           <div className="font-medium flex items-center gap-1.5">
                             <span>TCS (Tax Collected at Source)</span>
-                            <PriceInfoPopover 
+                            <PriceInfoPopover
                               title="TCS (Tax Collected at Source)"
                               onOpenModal={() => setActiveBreakdownModal('tcs')}
                             />
@@ -1360,7 +1356,7 @@ const CheckoutPage = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-slate-600 font-medium flex items-center gap-1.5">
                           <span>Servicing, cleaning, fuel & more</span>
-                          <PriceInfoPopover 
+                          <PriceInfoPopover
                             title="Servicing, cleaning, fuel & more"
                             onOpenModal={() => setActiveBreakdownModal('servicing')}
                           />
@@ -1375,7 +1371,7 @@ const CheckoutPage = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-slate-600 font-medium flex items-center gap-1.5">
                           <span>Warranty (Protect)</span>
-                          <PriceInfoPopover 
+                          <PriceInfoPopover
                             title="Warranty (Protect)"
                             onOpenModal={() => setActiveBreakdownModal('warranty')}
                           />
@@ -1390,7 +1386,7 @@ const CheckoutPage = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-slate-600 font-medium flex items-center gap-1.5">
                           <span>Fixes & upgrades</span>
-                          <PriceInfoPopover 
+                          <PriceInfoPopover
                             title="Fixes & upgrades"
                             onOpenModal={() => setActiveBreakdownModal('fixes')}
                           />
@@ -1402,7 +1398,7 @@ const CheckoutPage = () => {
                       <div className="flex justify-between items-center text-slate-700">
                         <span className="font-medium flex items-center gap-1.5">
                           <span>GST (govt. taxes)</span>
-                          <PriceInfoPopover 
+                          <PriceInfoPopover
                             title="GST (govt. taxes)"
                             onOpenModal={() => setActiveBreakdownModal('gst')}
                           />
@@ -1794,7 +1790,7 @@ const CheckoutPage = () => {
         <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="fixed inset-0" onClick={() => setIsMaintenanceModalOpen(false)} />
           <div className="bg-white rounded-t-[28px] sm:rounded-3xl w-full max-w-md relative z-10 shadow-2xl p-5 sm:p-6 space-y-4 animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-200 border border-slate-200/90">
-            
+
             {/* Header */}
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-black text-[#0F172A]">
@@ -1816,11 +1812,10 @@ const CheckoutPage = () => {
               <button
                 type="button"
                 onClick={() => setMaintenancePaymentType('full')}
-                className={`p-3.5 pt-4 rounded-2xl border-2 text-center transition-all cursor-pointer relative ${
-                  maintenancePaymentType === 'full'
+                className={`p-3.5 pt-4 rounded-2xl border-2 text-center transition-all cursor-pointer relative ${maintenancePaymentType === 'full'
                     ? 'border-[#00C9AF] bg-[#00C9AF]/10 text-[#008975] shadow-xs ring-1 ring-[#00C9AF]/30'
                     : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-                }`}
+                  }`}
               >
                 <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-[#00C9AF] text-[#0C1B33] text-[9px] font-black uppercase px-2 py-0.5 rounded-full whitespace-nowrap shadow-2xs">
                   SAVE EXTRA ₹594
@@ -1837,11 +1832,10 @@ const CheckoutPage = () => {
               <button
                 type="button"
                 onClick={() => setMaintenancePaymentType('monthly')}
-                className={`p-3.5 pt-4 rounded-2xl border-2 text-center transition-all cursor-pointer ${
-                  maintenancePaymentType === 'monthly'
+                className={`p-3.5 pt-4 rounded-2xl border-2 text-center transition-all cursor-pointer ${maintenancePaymentType === 'monthly'
                     ? 'border-[#00C9AF] bg-[#00C9AF]/10 text-[#008975] shadow-xs ring-1 ring-[#00C9AF]/30'
                     : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-                }`}
+                  }`}
               >
                 <span className="block text-xs font-black uppercase tracking-wider mb-0.5">
                   Pay monthly
@@ -1924,46 +1918,46 @@ const CheckoutPage = () => {
         <>
           <CelebrationConfettiShower />
           <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-250 text-center border border-slate-100">
-            {/* Green Top Wave Banner */}
-            <div className="bg-[#00C9AF] text-[#0C1B33] px-4 py-2.5 text-xs font-black flex items-center justify-center gap-1.5 shadow-xs">
-              <span>🎉 Saving ₹1,320 on package + upto ₹30,000 on upgrade</span>
-            </div>
+            <div className="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-250 text-center border border-slate-100">
+              {/* Green Top Wave Banner */}
+              <div className="bg-[#00C9AF] text-[#0C1B33] px-4 py-2.5 text-xs font-black flex items-center justify-center gap-1.5 shadow-xs">
+                <span>🎉 Saving ₹1,320 on package + upto ₹30,000 on upgrade</span>
+              </div>
 
-            <div className="p-6 pt-5 space-y-3">
-              {/* Central 3D Graphic */}
-              <div className="relative inline-flex items-center justify-center mx-auto my-2">
-                <div className="w-20 h-20 flex items-center justify-center">
-                  <img 
-                    src="/img/doodle-outline-903-car-service.gif" 
-                    alt="Complete Maintenance Package" 
-                    className="w-18 h-18 object-contain" 
-                  />
+              <div className="p-6 pt-5 space-y-3">
+                {/* Central 3D Graphic */}
+                <div className="relative inline-flex items-center justify-center mx-auto my-2">
+                  <div className="w-20 h-20 flex items-center justify-center">
+                    <img
+                      src="/img/doodle-outline-903-car-service.gif"
+                      alt="Complete Maintenance Package"
+                      className="w-18 h-18 object-contain"
+                    />
+                  </div>
+                  <span className="absolute -top-1 -right-1 text-lg animate-bounce">✨</span>
+                  <span className="absolute -bottom-1 -left-1 text-lg animate-pulse">🎊</span>
                 </div>
-                <span className="absolute -top-1 -right-1 text-lg animate-bounce">✨</span>
-                <span className="absolute -bottom-1 -left-1 text-lg animate-pulse">🎊</span>
-              </div>
 
-              <div>
-                <h4 className="font-black text-[#0F172A] text-base sm:text-lg leading-tight">
-                  1-Year complete maintenance package added
-                </h4>
-                <p className="text-xs text-slate-500 font-medium mt-1">
-                  Enjoy complete ownership package for 1-Year
-                </p>
-              </div>
+                <div>
+                  <h4 className="font-black text-[#0F172A] text-base sm:text-lg leading-tight">
+                    1-Year complete maintenance package added
+                  </h4>
+                  <p className="text-xs text-slate-500 font-medium mt-1">
+                    Enjoy complete ownership package for 1-Year
+                  </p>
+                </div>
 
-              <button
-                type="button"
-                onClick={() => setShowCelebrationToast(false)}
-                className="w-full py-2.5 bg-[#00C9AF] hover:bg-[#00b29a] text-[#0C1B33] font-black text-xs rounded-xl shadow-md cursor-pointer transition-all mt-2"
-              >
-                Great!
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCelebrationToast(false)}
+                  className="w-full py-2.5 bg-[#00C9AF] hover:bg-[#00b29a] text-[#0C1B33] font-black text-xs rounded-xl shadow-md cursor-pointer transition-all mt-2"
+                >
+                  Great!
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </>
+        </>
       )}
 
       {/* Full-Fidelity Complete Maintenance Package Details Modal / Drawer (Matching Screenshots 1, 2, 3, 4, 5) */}
@@ -1971,7 +1965,7 @@ const CheckoutPage = () => {
         <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="fixed inset-0" onClick={() => setIsMaintenanceDetailsOpen(false)} />
           <div className="bg-[#F8FAFC] w-full max-w-lg h-full sm:h-[92vh] sm:rounded-3xl relative z-10 shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-250 border border-slate-200">
-            
+
             {/* Top Navigation Bar */}
             <div className="bg-white px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 shadow-2xs z-20">
               <button
@@ -1993,7 +1987,7 @@ const CheckoutPage = () => {
 
             {/* Scrollable Content Container */}
             <div className="flex-1 overflow-y-auto pb-28">
-              
+
               {/* Hero Dark Teal Header Card */}
               <div className="bg-gradient-to-br from-[#0C1B33] via-[#1E293B] to-[#04433d] text-white p-5 pt-6 relative overflow-hidden">
                 <div className="flex items-start justify-between relative z-10">
@@ -2013,10 +2007,10 @@ const CheckoutPage = () => {
 
                   {/* 3D Toolbox Graphic Card */}
                   <div className="w-24 h-24 sm:w-28 sm:h-28 relative flex items-center justify-center shrink-0">
-                    <img 
-                      src="/images/maintenance-package-icon.png" 
-                      alt="Complete Maintenance Package" 
-                      className="w-20 h-20 sm:w-22 sm:h-22 rounded-3xl object-cover shadow-2xl border border-white/20 transform rotate-2" 
+                    <img
+                      src="/images/maintenance-package-icon.png"
+                      alt="Complete Maintenance Package"
+                      className="w-20 h-20 sm:w-22 sm:h-22 rounded-3xl object-cover shadow-2xl border border-white/20 transform rotate-2"
                     />
                   </div>
                 </div>
@@ -2029,10 +2023,10 @@ const CheckoutPage = () => {
 
               {/* Main Content Area */}
               <div className="p-4 sm:p-5 space-y-4">
-                
+
                 {/* 1. Warranty - Super Protect Card (Expandable) */}
                 <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
-                  <div 
+                  <div
                     onClick={() => setExpandedFeature(expandedFeature === 'warranty' ? null : 'warranty')}
                     className="p-4 flex items-start justify-between cursor-pointer hover:bg-slate-50/50 transition-colors"
                   >
@@ -2063,7 +2057,7 @@ const CheckoutPage = () => {
                   {/* Expanded Accordion Body (Matching Screenshot 5) */}
                   {expandedFeature === 'warranty' && (
                     <div className="px-4 pb-4 pt-2 border-t border-slate-100 space-y-3.5 text-xs animate-in fade-in duration-150">
-                      
+
                       {/* Powertrain coverage */}
                       <div>
                         <div className="text-xs font-black text-[#0F172A] mb-1.5">
@@ -2128,7 +2122,7 @@ const CheckoutPage = () => {
 
                 {/* 2. Periodic Service Card (Expandable) */}
                 <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
-                  <div 
+                  <div
                     onClick={() => setExpandedFeature(expandedFeature === 'periodic' ? null : 'periodic')}
                     className="p-4 flex items-start justify-between cursor-pointer hover:bg-slate-50/50 transition-colors"
                   >
@@ -2202,7 +2196,7 @@ const CheckoutPage = () => {
 
                 {/* 3. Roadside Assistance 24x7 Card (Expandable) */}
                 <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all">
-                  <div 
+                  <div
                     onClick={() => setExpandedFeature(expandedFeature === 'rsa' ? null : 'rsa')}
                     className="p-4 flex items-start justify-between cursor-pointer hover:bg-slate-50/50 transition-colors"
                   >
@@ -2370,8 +2364,8 @@ const CheckoutPage = () => {
             {/* Sticky Bottom Bar */}
             <div className="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-4 border-t border-slate-200/90 shadow-[0_-8px_25px_rgba(0,0,0,0.08)] z-30 text-center space-y-2">
               <p className="text-xs font-black text-[#0F172A]">
-                {maintenancePaymentType === 'full' 
-                  ? 'You are paying in full ₹11,287' 
+                {maintenancePaymentType === 'full'
+                  ? 'You are paying in full ₹11,287'
                   : 'You are paying monthly ₹990/m for 12 months'}
               </p>
               <button
@@ -2397,10 +2391,10 @@ const CheckoutPage = () => {
             {mobilePromptStep === 1 ? (
               <div className="animate-in fade-in duration-200">
                 <div className="flex items-start gap-3 mb-3.5">
-                  <img 
-                    src={carLoanIcon} 
-                    alt="Car Loan" 
-                    className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0 drop-shadow-sm" 
+                  <img
+                    src={carLoanIcon}
+                    alt="Car Loan"
+                    className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0 drop-shadow-sm"
                   />
                   <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-[#0C1B33] text-[15px] leading-tight mb-1">
@@ -2491,12 +2485,12 @@ const CheckoutPage = () => {
       {/* Price Summary Breakdown Popup Modal (Mobile Only) */}
       {isPriceSummaryOpen && car && (
         <div className="lg:hidden fixed inset-0 z-[99999] bg-black/65 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-          <div 
-            className="fixed inset-0" 
-            onClick={() => setIsPriceSummaryOpen(false)} 
+          <div
+            className="fixed inset-0"
+            onClick={() => setIsPriceSummaryOpen(false)}
           />
           <div className="bg-[#f8f9fa] rounded-t-3xl sm:rounded-3xl max-w-xl sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 relative z-10 animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-250 flex flex-col">
-            
+
             {/* Modal Sticky Header with Title and Confetti Savings Banner */}
             <div className="sticky top-0 bg-white/95 backdrop-blur-md z-30 border-b border-slate-200/80 shadow-2xs">
               <div className="px-5 py-3.5 sm:py-4 flex items-center justify-between">
@@ -2515,7 +2509,7 @@ const CheckoutPage = () => {
 
               {/* Fixed / Sticky Confetti Savings Banner with CSS & Canvas Animation */}
               <div className="px-4 pb-3.5 sm:px-6 sm:pb-4">
-                <ConfettiSavingsBanner 
+                <ConfettiSavingsBanner
                   savingAmount={savingsAmount}
                   className="w-full shadow-xs"
                 />
@@ -2523,10 +2517,10 @@ const CheckoutPage = () => {
             </div>
 
             <div className="p-4 sm:p-6 space-y-4">
-              
+
               {/* White Breakdown Box */}
               <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3.5 text-xs sm:text-sm">
-                
+
                 {/* Subtotal / Car Price */}
                 <div className="flex justify-between items-center text-slate-700">
                   <span className="font-medium">Car price</span>
@@ -2556,7 +2550,7 @@ const CheckoutPage = () => {
                   <div>
                     <div className="font-medium flex items-center gap-1.5">
                       <span>TCS (Tax Collected at Source)</span>
-                      <PriceInfoPopover 
+                      <PriceInfoPopover
                         title="TCS (Tax Collected at Source)"
                         onOpenModal={() => setActiveBreakdownModal('tcs')}
                       />
@@ -2574,7 +2568,7 @@ const CheckoutPage = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600 font-medium flex items-center gap-1.5">
                     <span>Servicing, cleaning, fuel & more</span>
-                    <PriceInfoPopover 
+                    <PriceInfoPopover
                       title="Servicing, cleaning, fuel & more"
                       onOpenModal={() => setActiveBreakdownModal('servicing')}
                     />
@@ -2589,7 +2583,7 @@ const CheckoutPage = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600 font-medium flex items-center gap-1.5">
                     <span>Warranty (Protect)</span>
-                    <PriceInfoPopover 
+                    <PriceInfoPopover
                       title="Warranty (Protect)"
                       onOpenModal={() => setActiveBreakdownModal('warranty')}
                     />
@@ -2604,7 +2598,7 @@ const CheckoutPage = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600 font-medium flex items-center gap-1.5">
                     <span>Fixes & upgrades</span>
-                    <PriceInfoPopover 
+                    <PriceInfoPopover
                       title="Fixes & upgrades"
                       onOpenModal={() => setActiveBreakdownModal('fixes')}
                     />
@@ -2616,7 +2610,7 @@ const CheckoutPage = () => {
                 <div className="flex justify-between items-center text-slate-700">
                   <span className="font-medium flex items-center gap-1.5">
                     <span>GST (govt. taxes)</span>
-                    <PriceInfoPopover 
+                    <PriceInfoPopover
                       title="GST (govt. taxes)"
                       onOpenModal={() => setActiveBreakdownModal('gst')}
                     />
@@ -2677,10 +2671,10 @@ const CheckoutPage = () => {
                     Thorough inspection, expert refurbishment & cleaning has been conducted by our professionals.
                   </p>
                   <div className="shrink-0 flex items-center justify-center">
-                    <img 
-                      src="/img/car-wash.gif" 
-                      alt="Car inspection, cleaning and refurbishment" 
-                      className="w-18 h-18 sm:w-20 sm:h-20 object-contain" 
+                    <img
+                      src="/img/car-wash.gif"
+                      alt="Car inspection, cleaning and refurbishment"
+                      className="w-18 h-18 sm:w-20 sm:h-20 object-contain"
                     />
                   </div>
                 </div>
@@ -2763,11 +2757,10 @@ const CheckoutPage = () => {
                         style={{ minHeight: 'unset', height: 'auto', padding: '4px' }}
                       >
                         <span
-                          className={`block h-1.5 rounded-full transition-all duration-300 ${
-                            benefitSlide === i
+                          className={`block h-1.5 rounded-full transition-all duration-300 ${benefitSlide === i
                               ? 'w-6 bg-[#00C9AF] opacity-100 shadow-sm shadow-[#00C9AF]/50'
                               : 'w-2 bg-slate-500/60 hover:bg-slate-400'
-                          }`}
+                            }`}
                           style={{
                             height: '6px',
                             minHeight: '6px',
@@ -2787,11 +2780,11 @@ const CheckoutPage = () => {
 
       {/* 5 Price Breakdown Info Modals (TCS, Servicing, Warranty, Fixes, GST) */}
       {activeBreakdownModal && (
-        <div 
+        <div
           className="fixed inset-0 z-[100000] flex items-center justify-center p-3.5 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
           onClick={() => setActiveBreakdownModal(null)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-lg sm:max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200 p-5 sm:p-7 relative text-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
@@ -3220,9 +3213,9 @@ const CheckoutPage = () => {
       {showPaymentSuccessModal && (
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in duration-200">
           <CelebrationConfettiShower />
-          
+
           <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative border border-slate-100 animate-in zoom-in-95 duration-250 flex flex-col max-h-[92vh]">
-            
+
             {/* Top Banner with Selectt Branding & Glowing Checkmark */}
             <div className="bg-gradient-to-r from-[#0C1B33] via-[#092e27] to-[#0C1B33] text-white p-6 pb-7 text-center relative overflow-hidden shrink-0">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#00C9AF]/20 rounded-full blur-2xl pointer-events-none" />
@@ -3260,7 +3253,7 @@ const CheckoutPage = () => {
 
             {/* Scrollable Details Body */}
             <div className="p-5 sm:p-6 overflow-y-auto space-y-4">
-              
+
               {/* 1. Car Details Summary Card */}
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 flex items-center gap-3.5">
                 <div className="w-20 h-16 sm:w-24 sm:h-20 bg-slate-200 rounded-xl overflow-hidden shrink-0 relative border border-slate-200">
@@ -3357,33 +3350,52 @@ const CheckoutPage = () => {
                 )}
               </div>
 
-              {/* 3. WhatsApp Notification Note */}
+              {/* 3. WhatsApp Notification Note (Zero 3rd party vendor mentions) */}
               <div className="bg-emerald-50/70 border border-emerald-100 rounded-2xl p-3.5 flex items-start gap-2.5">
                 <ShieldCheck size={20} className="text-[#00A38D] shrink-0 mt-0.5" />
                 <div className="text-xs text-slate-600 leading-relaxed">
                   <strong className="text-[#0C1B33] block mb-0.5">WhatsApp Confirmation Sent!</strong>
-                  Your booking receipt and verification details have been dispatched to your WhatsApp via Gallabox. Our Selectt Relationship Manager will call you shortly to assist with next steps.
+                  Your booking receipt and verification details have been dispatched to your registered WhatsApp number. Our Selectt Relationship Manager will call you shortly to assist with next steps.
                 </div>
               </div>
 
-              {/* 4. Action CTA Buttons */}
-              <div className="pt-2 space-y-2">
-                <button
-                  type="button"
-                  onClick={() => navigate('/profile?tab=bookings&payment=success')}
-                  className="w-full py-3.5 px-6 bg-[#00A38D] hover:bg-[#008f7b] text-white font-extrabold text-sm rounded-xl shadow-lg shadow-[#00A38D]/25 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-95"
-                >
-                  <span>Click to See Booking Details</span>
-                  <ArrowRight size={16} />
-                </button>
+              {/* 4. Action CTA Buttons (Two buttons in one line: 1st is Download Receipt, 2nd is See Booking Details) */}
+              <div className="pt-2">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                  {/* Button 1: Download Receipt */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const id = paymentSuccessData?.bookingPk || paymentSuccessData?.bookingId || bookingId;
+                      const token = localStorage.getItem('customerToken') || '';
+                      window.open(`${API_URL}/api/bookings/${id}/receipt?token=${token}`, '_blank');
+                    }}
+                    className="py-3 px-2 sm:px-4 rounded-xl border-2 border-[#00A38D]/30 hover:border-[#00A38D] bg-teal-50/60 hover:bg-teal-50 text-[#0C1B33] font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-xs transition-all cursor-pointer active:scale-95"
+                  >
+                    <Download size={15} className="text-[#00A38D] shrink-0" />
+                    <span className="truncate">Download Receipt</span>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setShowPaymentSuccessModal(false)}
-                  className="w-full py-2.5 text-xs text-slate-500 hover:text-slate-800 font-bold text-center cursor-pointer transition-colors"
-                >
-                  Stay on this page
-                </button>
+                  {/* Button 2: See Booking Details */}
+                  <button
+                    type="button"
+                    onClick={() => navigate('/profile?tab=bookings&payment=success')}
+                    className="py-3 px-2 sm:px-4 bg-[#00A38D] hover:bg-[#008f7b] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md shadow-[#00A38D]/25 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-95"
+                  >
+                    <span className="truncate">See Booking Details</span>
+                    <ArrowRight size={15} className="shrink-0" />
+                  </button>
+                </div>
+
+                <div className="mt-2.5 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowPaymentSuccessModal(false)}
+                    className="text-xs text-slate-400 hover:text-slate-700 font-semibold cursor-pointer transition-colors"
+                  >
+                    Stay on this page
+                  </button>
+                </div>
               </div>
 
             </div>
