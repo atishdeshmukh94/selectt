@@ -967,11 +967,11 @@ const CheckoutPage = () => {
                   {/* Right Price & Add/Added Button */}
                   <div className="flex flex-col items-end shrink-0 gap-3">
                     <div className="text-right flex flex-col items-end space-y-1">
-                      <span className="text-base sm:text-lg font-semibold text-[#0C1B33] tracking-tight leading-snug">
+                      <span className="text-base sm:text-lg font-bold text-[#0C1B33] tracking-tight leading-snug">
                         ₹10,801
                       </span>
                       <span className="text-xs text-slate-500 font-medium leading-normal tracking-normal">
-                        or <span className="font-semibold text-slate-700">₹947</span>/m
+                        or <span className="font-bold text-slate-700">₹947</span>/m
                       </span>
                     </div>
 
