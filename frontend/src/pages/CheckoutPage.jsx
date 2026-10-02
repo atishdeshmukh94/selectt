@@ -209,7 +209,7 @@ export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) 
         ))}
       </div>
 
-      {/* Persistent Celebratory Vector Stars & Accents on the right */}
+      {/* Persistent Celebratory Accents on the right */}
       <div className="absolute right-0 top-0 bottom-0 w-44 pointer-events-none overflow-hidden select-none z-0">
         {/* Confetti party cross `+` symbols */}
         <span className="absolute bottom-2.5 right-14 text-[#00C9AF] text-[13px] font-black leading-none opacity-85 animate-party-spin [animation-delay:0.2s]">
@@ -218,17 +218,6 @@ export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) 
         <span className="absolute top-2 right-22 text-[#FF4757] text-[11px] font-black leading-none opacity-75 animate-party-spin [animation-delay:1s]">
           +
         </span>
-
-        {/* Twinkling 4-point golden/violet stars */}
-        <svg className="absolute top-1.5 right-8 w-3.5 h-3.5 text-[#FFA502] animate-particle-twinkle" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-        </svg>
-        <svg className="absolute bottom-1.5 right-24 w-3 h-3 text-[#8B5CF6] animate-particle-twinkle [animation-delay:0.7s]" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-        </svg>
-        <svg className="absolute top-2.5 right-34 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:1.3s]" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-        </svg>
       </div>
 
       {/* Banner Text with Rupee Badge */}
@@ -892,11 +881,13 @@ const CheckoutPage = () => {
             {/* Right Column: Order Summary & Price Breakdown (5 cols on desktop) */}
             <div className="lg:col-span-5 space-y-4">
 
-              {/* Savings Banner with Confetti Effect */}
-              <ConfettiSavingsBanner 
-                savingAmount={savingsAmount} 
-                className="w-full shadow-2xs" 
-              />
+              {/* Savings Banner with Confetti Effect (Desktop only, mobile has it at the top) */}
+              <div className="hidden lg:block">
+                <ConfettiSavingsBanner 
+                  savingAmount={savingsAmount} 
+                  className="w-full shadow-2xs" 
+                />
+              </div>
 
               {/* Order Summary & Breakdown Card */}
               <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
