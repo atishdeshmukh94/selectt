@@ -67,38 +67,40 @@ const DEFAULT_BUY_STEPS = [
   }
 ];
 
-export const ConfettiSavingsBanner = ({ savingAmount = 5000, className = "" }) => {
-  const containerRef = React.useRef(null);
-
+export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) => {
   return (
     <div 
-      className={`relative overflow-hidden bg-gradient-to-r from-emerald-50 via-teal-50/90 to-emerald-50 border border-emerald-300/90 rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs select-none min-h-[46px] ${className}`}
+      className={`relative overflow-hidden bg-gradient-to-r from-[#e8faf5] via-[#f0fdf9] to-[#e8faf5] border border-[#a1ebd9] rounded-2xl px-4 py-3 flex items-center justify-between text-emerald-900 text-[14px] font-bold shadow-xs select-none min-h-[46px] ${className}`}
     >
-      {/* Subtle celebratory shimmer & minimal particles strictly on the far right */}
+      {/* Celebratory confetti particles across the banner */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent saving-banner-shimmer pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent saving-banner-shimmer pointer-events-none" />
 
-        {/* Clean, subtle party dots on far right */}
-        <span className="absolute top-2.5 right-4 w-2 h-2 rounded-full bg-[#00C9AF] animate-particle-1" />
-        <span className="absolute bottom-2.5 right-8 w-1.5 h-1.5 rounded-full bg-[#FF4757] animate-particle-2 [animation-delay:0.4s]" />
-        <span className="absolute top-2 right-12 w-2 h-2 rounded-full bg-[#FFA502] animate-particle-1 [animation-delay:0.8s]" />
+        {/* Clean, colorful party confetti dots matching reference screenshot */}
+        <span className="absolute top-2.5 right-6 w-2 h-2 rounded-full bg-[#8B5CF6] opacity-80" />
+        <span className="absolute bottom-2.5 right-12 w-2 h-2 rounded-full bg-[#FF4757] opacity-80" />
+        <span className="absolute top-3 right-20 w-2.5 h-2.5 rounded-full bg-[#FFA502] opacity-85" />
+        <span className="absolute bottom-3 right-28 w-1.5 h-1.5 rounded-full bg-[#00C9AF] opacity-80" />
+        <span className="absolute top-2 right-36 w-1.5 h-1.5 rounded-full bg-[#3B82F6] opacity-75" />
+        <span className="absolute bottom-2.5 right-44 w-2 h-2 rounded-full bg-[#EC4899] opacity-80" />
+        <span className="absolute top-3 right-52 w-1.5 h-1.5 rounded-full bg-[#10B981] opacity-70" />
 
-        {/* 2 crisp twinkling vector stars */}
-        <svg className="absolute top-1.5 right-6 w-3.5 h-3.5 text-[#FFA502] animate-particle-twinkle" viewBox="0 0 24 24" fill="currentColor">
+        {/* Crisp twinkling vector stars */}
+        <svg className="absolute top-1.5 right-8 w-3.5 h-3.5 text-[#FFA502] animate-particle-twinkle" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
         </svg>
-        <svg className="absolute bottom-1.5 right-14 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:0.6s]" viewBox="0 0 24 24" fill="currentColor">
+        <svg className="absolute bottom-1.5 right-16 w-2.5 h-2.5 text-[#00C9AF] animate-particle-twinkle [animation-delay:0.6s]" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
         </svg>
       </div>
 
-      {/* Banner Text with Rupee Icon */}
+      {/* Banner Text with Rupee Badge */}
       <div className="flex items-center gap-2.5 relative z-10">
-        <span className="w-5 h-5 rounded-full bg-[#00C09D] text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs">
+        <span className="w-5.5 h-5.5 rounded-full bg-[#00A38D] text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs">
           ₹
         </span>
-        <span className="font-extrabold text-emerald-900 text-[14px] sm:text-[15px] tracking-tight">
-          Yay! You are saving ₹{Number(savingAmount).toLocaleString()}
+        <span className="font-extrabold text-[#007a68] text-[13.5px] sm:text-[14.5px] tracking-tight">
+          Yay! You are saving ₹{Number(savingAmount).toLocaleString('en-IN')}
         </span>
       </div>
     </div>
@@ -215,6 +217,7 @@ const CheckoutPage = () => {
   const [showCelebrationToast, setShowCelebrationToast] = useState(false);
   const [expandedFeature, setExpandedFeature] = useState(null); // 'warranty' | 'periodic' | 'rsa' | null (collapsed by default)
   const [activeBreakdownModal, setActiveBreakdownModal] = useState(null); // 'servicing' | 'fixes' | 'gst' | null
+  const [isRefundPolicyOpen, setIsRefundPolicyOpen] = useState(false);
 
   // Coupon Code State
   const [couponInput, setCouponInput] = useState('');
@@ -222,13 +225,27 @@ const CheckoutPage = () => {
   const [couponError, setCouponError] = useState(null);
   const [couponSuccess, setCouponSuccess] = useState(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [isPriceBreakdownExpanded, setIsPriceBreakdownExpanded] = useState(false);
 
   const rawBookingAmount = getBookingAmount(car?.price);
   const bookingDiscount = (appliedCoupon && appliedCoupon.applies_to === 'booking_amount') ? appliedCoupon.discount_amount : 0;
   const finalPayableBookingAmount = Math.max(1, rawBookingAmount - bookingDiscount);
 
+  const carPrice = Number(car?.price) || 0;
+  const originalCarPrice = Number(car?.original_price || car?.originalPrice) || (carPrice > 0 ? carPrice + 5000 : 0);
+  const saleDiscount = originalCarPrice > carPrice ? (originalCarPrice - carPrice) : 5000;
+  const rcTransferFee = 4000;
+  // TCS (Tax Collected at Source): 1% of vehicle price
+  const tcsAmount = Math.round(carPrice * 0.01);
+  const gstTax = 2430;
+
+  const savingsAmount = (car?.original_price && Number(car.original_price) > Number(car?.price))
+    ? (Number(car.original_price) - Number(car.price))
+    : 15000;
+
   const carDiscount = (appliedCoupon && appliedCoupon.applies_to === 'car_price') ? appliedCoupon.discount_amount : 0;
-  const totalVehicleAmount = Math.max(0, (Number(car?.price) || 0) + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - carDiscount);
+  const totalVehicleAmount = Math.max(0, carPrice + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - carDiscount);
+  const totalOnRoadPrice = Math.max(0, carPrice + rcTransferFee + tcsAmount + gstTax + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - carDiscount);
 
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) {
@@ -449,31 +466,60 @@ const CheckoutPage = () => {
     <>
       <PageMeta title={`Checkout - Reserve ${car.year} ${car.make} ${car.model} | Selectt`} description={`Complete booking deposit for your ${car.year} ${car.make} ${car.model}.`} />
       <div className="bg-[#f9f9f9] min-h-screen pt-0 md:pt-4 lg:pt-8 pb-56 sm:pb-64 lg:pb-20 font-sans text-slate-800 relative">
-        {/* Mobile Top Navigation with Bold Back Arrow */}
-        <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 flex items-center justify-between shadow-2xs mb-4">
-          <button
-            type="button"
-            onClick={() => {
-              if (window.history.length > 1) {
-                navigate(-1);
-              } else {
-                navigate(`/car/${car?.id || carId}`);
-              }
-            }}
-            className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 text-[#0C1B33] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
-            aria-label="Back"
-          >
-            <ArrowLeft size={22} strokeWidth={3} className="text-[#0C1B33]" />
-          </button>
-
-          <div className="text-center flex-1 pr-9">
-            <span className="text-xs font-black text-[#0C1B33] uppercase tracking-wider block">
+        {/* Mobile Top Navigation with Back Arrow, Checkout Title & Top-Right Call Button */}
+        <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 flex items-center justify-between shadow-2xs mb-2">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate(`/car/${car?.id || carId}`);
+                }
+              }}
+              className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 text-[#0C1B33] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+              aria-label="Back"
+            >
+              <ArrowLeft size={20} strokeWidth={2.5} className="text-[#0C1B33]" />
+            </button>
+            <span className="text-base font-extrabold text-[#0C1B33]">
               Checkout
             </span>
-            <span className="text-[11px] font-bold text-slate-500 truncate block max-w-[200px] mx-auto">
-              {car?.year} {car?.make} {car?.model}
-            </span>
           </div>
+
+          <a
+            href="tel:+918574667466"
+            className="w-9 h-9 rounded-full bg-slate-50 hover:bg-purple-50 active:scale-90 text-[#4A154B] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+            aria-label="Call Support at +91-857466-7466"
+            title="Call Support"
+          >
+            <Phone size={19} className="text-[#4A154B] fill-[#4A154B]" />
+          </a>
+        </div>
+
+        {/* Mobile-Only Top Trust & Savings Section (Circled in reference screenshot) */}
+        <div className="md:hidden px-4 pt-1 pb-3 space-y-2.5">
+          {/* 1. Booking amount is 100% refundable ⌵ */}
+          <div className="flex items-center justify-center text-center">
+            <button
+              type="button"
+              onClick={() => setIsRefundPolicyOpen(true)}
+              className="inline-flex items-center gap-1 text-[13px] sm:text-sm font-semibold text-slate-700 hover:text-[#0C1B33] transition-colors cursor-pointer group"
+            >
+              <span>Booking amount is</span>
+              <span className="text-[#0C1B33] font-bold underline decoration-slate-400 underline-offset-4 group-hover:text-[#00A38D] group-hover:decoration-[#00A38D]">
+                100% refundable
+              </span>
+              <ChevronDown size={14} className="text-slate-500 group-hover:text-[#00A38D] transition-transform group-hover:translate-y-0.5 ml-0.5" />
+            </button>
+          </div>
+
+          {/* 2. Yay! You are saving Banner with Confetti */}
+          <ConfettiSavingsBanner 
+            savingAmount={savingsAmount}
+            className="w-full shadow-2xs"
+          />
         </div>
 
         <div className="max-w-5xl mx-auto px-4 relative z-10">
@@ -521,12 +567,36 @@ const CheckoutPage = () => {
           <div className="flex items-end justify-between mb-8">
             <div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-[#0F172A] mb-2 leading-tight">
-                Reserve this car for <span className="text-[#00C9AF] font-bold font-price">₹5,000</span>
+                Reserve this car for <span className="text-[#00C9AF] font-bold font-price">₹{rawBookingAmount.toLocaleString('en-IN')}</span>
               </h1>
-              <p className="text-sm sm:text-base text-slate-600 font-normal">and find out if it's your perfect match</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-sm sm:text-base text-slate-600 font-normal">and find out if it's your perfect match</p>
+                <span className="text-slate-300 hidden sm:inline">•</span>
+                <button
+                  type="button"
+                  onClick={() => setIsRefundPolicyOpen(true)}
+                  className="hidden sm:inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#00A38D] cursor-pointer group"
+                >
+                  <span>Booking amount is</span>
+                  <span className="font-bold underline decoration-slate-400 group-hover:decoration-[#00A38D]">100% refundable</span>
+                  <ChevronDown size={14} className="text-slate-400 group-hover:text-[#00A38D]" />
+                </button>
+              </div>
             </div>
-            <div className="hidden md:block">
-              <img src="/img/illustration-relax.svg" alt="Relax" className="h-24 opacity-80 mix-blend-multiply" onError={(e) => e.target.style.display = 'none'} />
+            <div className="hidden md:flex items-center gap-3">
+              <a
+                href="tel:+918574667466"
+                className="px-4 py-2.5 rounded-xl border border-slate-200 hover:border-[#00C9AF] bg-white shadow-xs hover:shadow-sm text-xs font-bold text-[#0C1B33] flex items-center gap-2.5 transition-all cursor-pointer group"
+                title="Call Support: +91-857466-7466"
+              >
+                <div className="w-8 h-8 rounded-lg bg-purple-50 text-[#4A154B] flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Phone size={16} className="fill-current text-[#4A154B]" />
+                </div>
+                <div>
+                  <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Need Help?</span>
+                  <span className="block font-black text-slate-800 group-hover:text-[#00A38D]">+91-857466-7466</span>
+                </div>
+              </a>
             </div>
           </div>
 
@@ -772,12 +842,22 @@ const CheckoutPage = () => {
                     </div>
                     <div className="flex items-baseline gap-2">
                       <span className="font-price font-extrabold text-[#0F172A] text-lg sm:text-xl whitespace-nowrap leading-none">
-                        ₹{(car.price / 100000).toFixed(2)} Lakh
+                        ₹{(carPrice / 100000).toFixed(2)} Lakh
                       </span>
-                      <span className="text-xs sm:text-[13px] text-slate-400 line-through font-normal font-price whitespace-nowrap">
-                        ₹{((car.price + 5000) / 100000).toFixed(2)} Lakh
-                      </span>
+                      {originalCarPrice > carPrice && (
+                        <span className="text-xs sm:text-[13px] text-slate-400 line-through font-normal font-price whitespace-nowrap">
+                          ₹{(originalCarPrice / 100000).toFixed(2)} Lakh
+                        </span>
+                      )}
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsPriceSummaryOpen(true)}
+                      className="text-xs font-semibold text-slate-500 hover:text-[#00A38D] underline decoration-dotted underline-offset-2 flex items-center gap-1 cursor-pointer mt-1.5 transition-colors"
+                    >
+                      <span>View breakup</span>
+                      <ChevronDown size={13} className="text-slate-400" />
+                    </button>
                   </div>
                 </div>
 
@@ -812,120 +892,177 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                {/* Price Breakdown */}
+                {/* Price Summary Section (Dropdown & Popup Trigger) */}
                 <div className="p-4 sm:p-5 pt-3">
-                  <h4 className="font-heading font-extrabold text-[#0F172A] text-[15px] sm:text-[16px] mb-3.5">
-                    Price breakdown
-                  </h4>
-
-                  <div className="space-y-2.5 text-xs sm:text-[13px]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-normal">Car price</span>
-                      <span className="text-[#0F172A] font-bold font-price">₹{(car.price + 5000).toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-emerald-600">
-                      <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-                        <Sparkles size={13} className="text-emerald-500" /> Sale Discount
-                      </span>
-                      <span className="font-bold font-price text-emerald-600">- ₹5,000</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-normal">RC transfer facilitation</span>
-                      <span className="text-[#0F172A] font-bold font-price">+ ₹4,000</span>
-                    </div>
-                    
-                    {/* Servicing, cleaning, fuel & more (Interactive Info Trigger) */}
-                    <div className="flex justify-between items-center">
-                      <button
-                        type="button"
-                        onClick={() => setActiveBreakdownModal('servicing')}
-                        className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
-                      >
-                        <span>Servicing, cleaning, fuel & more</span>
-                        <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
-                      </button>
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-400 line-through text-[11px] font-semibold font-price">₹8,700</span>
-                        <span className="text-emerald-600 font-bold">Included</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-normal">Warranty (Protect)</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-400 line-through text-[11px] font-semibold font-price">₹5,500</span>
-                        <span className="text-emerald-600 font-bold">Included</span>
-                      </div>
-                    </div>
-
-                    {/* Fixes & upgrades (Interactive Info Trigger) */}
-                    <div className="flex justify-between items-center">
-                      <button
-                        type="button"
-                        onClick={() => setActiveBreakdownModal('fixes')}
-                        className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
-                      >
-                        <span>Fixes & upgrades</span>
-                        <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
-                      </button>
-                      <span className="text-emerald-600 font-bold">Included</span>
-                    </div>
-
-                    {/* GST govt taxes (Interactive Info Trigger) */}
-                    <div className="flex justify-between items-center">
-                      <button
-                        type="button"
-                        onClick={() => setActiveBreakdownModal('gst')}
-                        className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
-                      >
-                        <span>GST (govt. taxes)</span>
-                        <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
-                      </button>
-                      <span className="text-[#0F172A] font-bold font-price">₹2,430</span>
-                    </div>
-
-                    {maintenancePackageAdded && (
-                      <div className="flex justify-between items-center text-[#00A38D] font-bold pt-1 border-t border-slate-100">
-                        <span>1-Year Complete Maintenance ({maintenancePaymentType === 'full' ? 'Paid in Full' : 'Monthly'})</span>
-                        <span className="font-price">
-                          {maintenancePaymentType === 'full' ? '+ ₹11,287' : '+ ₹990/m'}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Applied Coupon Discounts */}
-                    {appliedCoupon && appliedCoupon.applies_to === 'car_price' && (
-                      <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-dashed border-emerald-300">
-                        <span className="flex items-center gap-1.5 text-emerald-700">
-                          <Tag size={13} className="text-emerald-500 shrink-0" />
-                          Coupon Discount ({appliedCoupon.code})
-                        </span>
-                        <span className="font-price font-bold text-emerald-600">
-                          - ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    )}
-
-                    {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
-                      <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-dashed border-emerald-300">
-                        <span className="flex items-center gap-1.5 text-emerald-700">
-                          <Tag size={13} className="text-emerald-500 shrink-0" />
-                          Deposit Discount ({appliedCoupon.code})
-                        </span>
-                        <span className="font-price font-bold text-emerald-600">
-                          - ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    )}
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-heading font-extrabold text-[#0F172A] text-[15px] sm:text-[16px]">
+                      Price summary
+                    </h4>
                   </div>
 
-                  {/* Coupon Code Input & Applied Card (Positioned exactly as requested) */}
+                  {/* Total on-road price trigger card matching user screenshot */}
+                  <button
+                    type="button"
+                    onClick={() => setIsPriceBreakdownExpanded(!isPriceBreakdownExpanded)}
+                    className="w-full p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 bg-white hover:border-[#00C9AF] hover:shadow-xs transition-all flex items-center justify-between cursor-pointer group shadow-2xs text-left mb-2.5"
+                  >
+                    <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#0F172A]">
+                      <FileText size={16} className="text-[#00A38D] group-hover:scale-110 transition-transform" />
+                      <span>Total on-road price</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-price font-extrabold text-sm sm:text-base text-[#0C1B33]">
+                        ₹{(totalOnRoadPrice / 100000).toFixed(2)} Lakh
+                      </span>
+                      {isPriceBreakdownExpanded ? (
+                        <ChevronUp size={17} className="text-[#00A38D] transition-transform" />
+                      ) : (
+                        <ChevronDown size={17} className="text-slate-400 group-hover:text-[#00A38D] transition-transform" />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Collapsible Dropdown Breakdown with TCS */}
+                  {isPriceBreakdownExpanded && (
+                    <div className="space-y-2.5 text-xs sm:text-[13px] bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 mb-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600 font-normal">Car price</span>
+                        <span className="text-[#0F172A] font-bold font-price">₹{originalCarPrice.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-emerald-600">
+                        <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+                          <Sparkles size={13} className="text-emerald-500" /> Sale Discount
+                        </span>
+                        <span className="font-bold font-price text-emerald-600">- ₹{saleDiscount.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600 font-normal">RC transfer facilitation</span>
+                        <span className="text-[#0F172A] font-bold font-price">+ ₹{rcTransferFee.toLocaleString('en-IN')}</span>
+                      </div>
+
+                      {/* TCS (Tax Collected at Source) */}
+                      <div className="flex justify-between items-start text-slate-700">
+                        <div>
+                          <div className="font-normal flex items-center gap-1 text-slate-700">
+                            <span>TCS (Tax Collected at Source)</span>
+                            <Info size={13} className="text-slate-400" />
+                          </div>
+                          <p className="text-[10px] text-slate-400 font-medium">
+                            This amount will come back to you as a tax credit
+                          </p>
+                        </div>
+                        <span className="font-bold text-[#0F172A] font-price">
+                          + ₹{tcsAmount.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+
+                      {/* Servicing, cleaning, fuel & more */}
+                      <div className="flex justify-between items-center">
+                        <button
+                          type="button"
+                          onClick={() => setActiveBreakdownModal('servicing')}
+                          className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
+                        >
+                          <span>Servicing, cleaning, fuel & more</span>
+                          <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
+                        </button>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-400 line-through text-[11px] font-semibold font-price">₹8,700</span>
+                          <span className="text-emerald-600 font-bold">Included</span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600 font-normal">Warranty (Protect)</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-400 line-through text-[11px] font-semibold font-price">₹5,500</span>
+                          <span className="text-emerald-600 font-bold">Included</span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <button
+                          type="button"
+                          onClick={() => setActiveBreakdownModal('fixes')}
+                          className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
+                        >
+                          <span>Fixes & upgrades</span>
+                          <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
+                        </button>
+                        <span className="text-emerald-600 font-bold">Included</span>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <button
+                          type="button"
+                          onClick={() => setActiveBreakdownModal('gst')}
+                          className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
+                        >
+                          <span>GST (govt. taxes)</span>
+                          <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
+                        </button>
+                        <span className="text-[#0F172A] font-bold font-price">₹{gstTax.toLocaleString('en-IN')}</span>
+                      </div>
+
+                      {maintenancePackageAdded && (
+                        <div className="flex justify-between items-center text-[#00A38D] font-bold pt-1 border-t border-slate-200">
+                          <span>1-Year Complete Maintenance ({maintenancePaymentType === 'full' ? 'Paid in Full' : 'Monthly'})</span>
+                          <span className="font-price">
+                            {maintenancePaymentType === 'full' ? '+ ₹11,287' : '+ ₹990/m'}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Applied Coupon Discounts */}
+                      {appliedCoupon && appliedCoupon.applies_to === 'car_price' && (
+                        <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-dashed border-emerald-300">
+                          <span className="flex items-center gap-1.5 text-emerald-700">
+                            <Tag size={13} className="text-emerald-500 shrink-0" />
+                            Coupon Discount ({appliedCoupon.code})
+                          </span>
+                          <span className="font-price font-bold text-emerald-600">
+                            - ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      )}
+
+                      {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
+                        <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-dashed border-emerald-300">
+                          <span className="flex items-center gap-1.5 text-emerald-700">
+                            <Tag size={13} className="text-emerald-500 shrink-0" />
+                            Deposit Discount ({appliedCoupon.code})
+                          </span>
+                          <span className="font-price font-bold text-emerald-600">
+                            - ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="pt-2 border-t border-slate-200 flex justify-between items-center font-bold text-xs sm:text-sm">
+                        <span className="text-slate-800">Total on-road price</span>
+                        <span className="text-[#0C1B33] font-extrabold font-price">
+                          ₹{totalOnRoadPrice.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsPriceSummaryOpen(true)}
+                        className="w-full text-center text-xs font-bold text-[#00A38D] hover:underline pt-2 cursor-pointer flex items-center justify-center gap-1"
+                      >
+                        <span>Open full breakdown popup</span>
+                        <ChevronRight size={13} />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Coupon Code Input & Applied Card (Aligned properly as requested) */}
                   <div className="mt-3.5 pt-3 border-t border-slate-100">
                     {!appliedCoupon ? (
                       <div className="space-y-1.5">
-                        <div className="relative flex items-center">
-                          <div className="absolute left-3 text-slate-400 pointer-events-none">
-                            <Tag size={14} />
+                        <div className="flex items-center rounded-xl border border-slate-200 focus-within:border-[#00A38D] focus-within:ring-2 focus-within:ring-[#00A38D]/20 bg-slate-50/70 focus-within:bg-white transition-all overflow-hidden p-1 shadow-2xs">
+                          <div className="pl-3 pr-2 text-slate-400 flex items-center justify-center shrink-0">
+                            <Tag size={15} />
                           </div>
                           <input
                             type="text"
@@ -940,19 +1077,19 @@ const CheckoutPage = () => {
                                 handleApplyCoupon();
                               }
                             }}
-                            placeholder="Enter coupon code"
-                            className="w-full pl-8 pr-20 py-2.5 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-[#00A38D] rounded-xl text-xs font-bold tracking-wider placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00A38D]/20 text-[#0C1B33] uppercase transition-all shadow-2xs"
+                            placeholder="ENTER COUPON CODE"
+                            className="w-full py-2 bg-transparent text-xs font-bold uppercase tracking-wider placeholder:tracking-normal placeholder:font-semibold placeholder:text-slate-400 text-[#0C1B33] focus:outline-none"
                           />
                           <button
                             type="button"
                             onClick={handleApplyCoupon}
                             disabled={isApplyingCoupon || !couponInput.trim()}
-                            className="absolute right-1.5 top-1.5 bottom-1.5 px-3 bg-[#0C1B33] hover:bg-[#00A38D] disabled:opacity-35 disabled:hover:bg-[#0C1B33] text-white rounded-lg text-[11px] font-black uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center min-w-[58px]"
+                            className="px-4 py-2 bg-[#0C1B33] hover:bg-[#00A38D] disabled:opacity-35 disabled:hover:bg-[#0C1B33] text-white rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center shrink-0 min-w-[70px]"
                           >
                             {isApplyingCoupon ? (
                               <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                             ) : (
-                              'Apply'
+                              'APPLY'
                             )}
                           </button>
                         </div>
@@ -1888,7 +2025,7 @@ const CheckoutPage = () => {
                 <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
                   <ShieldCheck size={16} />
                 </div>
-                <span>Yay! You are saving ₹{((car.original_price && car.original_price > car.price) ? (car.original_price - car.price) : 22000).toLocaleString()}</span>
+                <span>Yay! You are saving ₹{savingsAmount.toLocaleString('en-IN')}</span>
               </div>
 
               {/* Fixed Price Assured Notice */}
@@ -1904,9 +2041,9 @@ const CheckoutPage = () => {
                 
                 {/* Subtotal / Car Price */}
                 <div className="flex justify-between items-center text-slate-700">
-                  <span className="font-medium">Subtotal</span>
+                  <span className="font-medium">Car price</span>
                   <span className="font-bold text-[#0C1B33] font-price">
-                    ₹{((car.original_price && car.original_price > car.price ? car.original_price : (car.price + 22000))).toLocaleString()}
+                    ₹{originalCarPrice.toLocaleString('en-IN')}
                   </span>
                 </div>
 
@@ -1916,14 +2053,30 @@ const CheckoutPage = () => {
                     <Sparkles size={14} className="text-emerald-500" /> Sale Discount
                   </span>
                   <span className="font-price">
-                    - ₹{((car.original_price && car.original_price > car.price) ? (car.original_price - car.price) : 22000).toLocaleString()}
+                    - ₹{saleDiscount.toLocaleString('en-IN')}
                   </span>
                 </div>
 
                 {/* RC Transfer Facilitation */}
                 <div className="flex justify-between items-center text-slate-700">
                   <span className="font-medium">RC transfer facilitation</span>
-                  <span className="font-bold text-[#0C1B33] font-price">+ ₹4,000</span>
+                  <span className="font-bold text-[#0C1B33] font-price">+ ₹{rcTransferFee.toLocaleString('en-IN')}</span>
+                </div>
+
+                {/* TCS (Tax Collected at Source) - Circled in reference screenshot */}
+                <div className="flex justify-between items-start text-slate-700">
+                  <div>
+                    <div className="font-medium flex items-center gap-1">
+                      <span>TCS (Tax Collected at Source)</span>
+                      <Info size={13} className="text-slate-400" />
+                    </div>
+                    <p className="text-[11px] text-slate-400 font-medium">
+                      This amount will come back to you as a tax credit
+                    </p>
+                  </div>
+                  <span className="font-bold text-[#0C1B33] font-price">
+                    + ₹{tcsAmount.toLocaleString('en-IN')}
+                  </span>
                 </div>
 
                 {/* Servicing, Cleaning, Fuel */}
@@ -1932,7 +2085,7 @@ const CheckoutPage = () => {
                     Servicing, cleaning, fuel & more <Info size={13} className="text-slate-400" />
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 line-through font-normal text-xs font-price">₹10,700</span>
+                    <span className="text-slate-400 line-through font-normal text-xs font-price">₹8,700</span>
                     <span className="text-emerald-600 font-bold">Included</span>
                   </div>
                 </div>
@@ -1943,7 +2096,7 @@ const CheckoutPage = () => {
                     Warranty (Protect)
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 line-through font-normal text-xs font-price">₹4,950</span>
+                    <span className="text-slate-400 line-through font-normal text-xs font-price">₹5,500</span>
                     <span className="text-emerald-600 font-bold">Included</span>
                   </div>
                 </div>
@@ -1961,8 +2114,17 @@ const CheckoutPage = () => {
                   <span className="font-medium flex items-center gap-1">
                     GST (govt. taxes) <Info size={13} className="text-slate-400" />
                   </span>
-                  <span className="font-bold text-[#0C1B33] font-price">₹2,691</span>
+                  <span className="font-bold text-[#0C1B33] font-price">₹{gstTax.toLocaleString('en-IN')}</span>
                 </div>
+
+                {maintenancePackageAdded && (
+                  <div className="flex justify-between items-center text-[#00A38D] font-bold pt-1 border-t border-slate-100">
+                    <span>1-Year Complete Maintenance ({maintenancePaymentType === 'full' ? 'Paid in Full' : 'Monthly'})</span>
+                    <span className="font-price">
+                      {maintenancePaymentType === 'full' ? '+ ₹11,287' : '+ ₹990/m'}
+                    </span>
+                  </div>
+                )}
 
                 {/* Total On-road Price Divider */}
                 <div className="pt-4 mt-2 border-t border-dashed border-slate-200 flex justify-between items-center">
@@ -1970,7 +2132,7 @@ const CheckoutPage = () => {
                     Total on-road price
                   </span>
                   <span className="font-heading font-black text-[#0C1B33] text-lg sm:text-xl font-price">
-                    ₹{((car.price || 550000) + 4000 + 2691).toLocaleString()}
+                    ₹{totalOnRoadPrice.toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>
@@ -2363,6 +2525,68 @@ const CheckoutPage = () => {
                 Got It
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 100% Refundable Guarantee Policy Modal */}
+      {isRefundPolicyOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="fixed inset-0" onClick={() => setIsRefundPolicyOpen(false)} />
+          <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md relative z-10 shadow-2xl p-6 space-y-4 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-200">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+                  <ShieldCheck size={22} />
+                </div>
+                <div>
+                  <h3 className="font-heading font-extrabold text-base sm:text-lg text-[#0F172A]">
+                    100% Refundable Guarantee
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">Zero risk car reservation</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsRefundPolicyOpen(false)}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center cursor-pointer transition-colors"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 text-xs sm:text-sm text-emerald-950 font-medium space-y-2">
+              <p>
+                Your booking token deposit of <strong className="font-extrabold text-emerald-900 font-price">₹{rawBookingAmount.toLocaleString('en-IN')}</strong> holds this car exclusively for you for up to 3 days.
+              </p>
+              <p className="text-slate-600 text-xs">
+                If you decide not to proceed with the purchase for any reason prior to vehicle delivery, you receive a <strong className="text-slate-900">100% full refund</strong> with zero questions asked and zero cancellation fees.
+              </p>
+            </div>
+
+            <div className="space-y-2.5 text-xs text-slate-600 pt-1">
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                <span>Instant automated refund back to your original payment method</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                <span>No cancellation penalty or deduction whatsoever</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                <span>Vehicle is reserved exclusively for you</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsRefundPolicyOpen(false)}
+              className="w-full py-3 bg-[#00A38D] hover:bg-[#008f7b] text-white rounded-xl font-bold text-sm shadow-md shadow-[#00A38D]/20 transition-all cursor-pointer"
+            >
+              Got it, thanks
+            </button>
           </div>
         </div>
       )}
