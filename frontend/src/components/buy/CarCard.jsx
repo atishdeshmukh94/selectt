@@ -229,7 +229,7 @@ const CarCard = ({ car, lightBg = false }) => {
         </div>
 
         {/* Content details */}
-        <div className="px-4.5 sm:px-5 pb-4.5 sm:pb-5 pt-1 flex-grow flex flex-col justify-between gap-2.5">
+        <div className="px-4.5 sm:px-3.5 md:px-4 pb-4.5 sm:pb-4 md:pb-5 pt-1 flex-grow flex flex-col justify-between gap-2.5">
           <div>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
@@ -271,27 +271,27 @@ const CarCard = ({ car, lightBg = false }) => {
               })()}
             </div>
 
-            {/* Spec pills: KM, Fuel, Transmission, RTO Code (Enhanced readability & comfortable sizing) */}
-            <div className="flex items-center gap-1.5 sm:gap-2 mt-3 flex-nowrap overflow-x-auto no-scrollbar">
-              <div className={`px-2.5 sm:px-3 py-1 rounded-lg sm:rounded-xl flex items-center gap-1.5 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <Gauge size={13} className="text-[#00C9AF] shrink-0" />
-                <span className="text-[11.5px] sm:text-[12.5px] font-bold">
+            {/* Spec pills: KM, Fuel, Transmission, RTO Code (Perfect mobile size, compact desktop size to prevent clipping) */}
+            <div className="flex items-center gap-1.5 sm:gap-1 md:gap-1.5 mt-3 flex-nowrap overflow-x-auto no-scrollbar">
+              <div className={`px-2.5 sm:px-1.5 md:px-2 py-1 sm:py-0.5 rounded-lg flex items-center gap-1.5 sm:gap-1 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <Gauge size={13} className="text-[#00C9AF] shrink-0 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3" />
+                <span className="text-[11.5px] sm:text-[10px] md:text-[10.5px] lg:text-[11px] font-bold">
                   {(Number(car.km) || 0).toLocaleString('en-IN')} km
                 </span>
               </div>
-              <div className={`px-2.5 sm:px-3 py-1 rounded-lg sm:rounded-xl flex items-center gap-1.5 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <Fuel size={13} className="text-[#00C9AF] shrink-0" />
-                <span className="text-[11.5px] sm:text-[12.5px] font-bold">
+              <div className={`px-2.5 sm:px-1.5 md:px-2 py-1 sm:py-0.5 rounded-lg flex items-center gap-1.5 sm:gap-1 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <Fuel size={13} className="text-[#00C9AF] shrink-0 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3" />
+                <span className="text-[11.5px] sm:text-[10px] md:text-[10.5px] lg:text-[11px] font-bold">
                   {car.fuelType || car.fuel_type || 'Petrol'}
                 </span>
               </div>
-              <div className={`px-2.5 sm:px-3 py-1 rounded-lg sm:rounded-xl flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <span className="text-[11.5px] sm:text-[12.5px] font-bold">
+              <div className={`px-2.5 sm:px-1.5 md:px-2 py-1 sm:py-0.5 rounded-lg flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <span className="text-[11.5px] sm:text-[10px] md:text-[10.5px] lg:text-[11px] font-bold">
                   {car.transmission || 'Manual'}
                 </span>
               </div>
-              <div className={`px-2.5 sm:px-3 py-1 rounded-lg sm:rounded-xl flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <span className="text-[11.5px] sm:text-[12.5px] font-bold">
+              <div className={`px-2.5 sm:px-1.5 md:px-2 py-1 sm:py-0.5 rounded-lg flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <span className="text-[11.5px] sm:text-[10px] md:text-[10.5px] lg:text-[11px] font-bold">
                   {car.rto_code || car.rto || (car.registration_no ? car.registration_no.slice(0, 4).toUpperCase() : (car.regState === 'Maharashtra' ? 'MH' : car.regState || 'MH01'))}
                 </span>
               </div>
