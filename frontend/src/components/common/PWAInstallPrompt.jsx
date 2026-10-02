@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, X, Smartphone, Sparkles, Share, PlusSquare, ShieldCheck, Zap, Bell } from 'lucide-react';
+import { Download, X, Smartphone, Sparkles, Share, PlusSquare, ShieldCheck, Zap, Bell, MoreVertical } from 'lucide-react';
 
 const PWAInstallPrompt = () => {
   const location = useLocation();
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [deferredPrompt, setDeferredPrompt] = useState(() => {
+    if (typeof window !== 'undefined' && window.__pwaInstallPrompt) {
+      return window.__pwaInstallPrompt;
+    }
+    return null;
+  });
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [showManualGuide, setShowManualGuide] = useState(false);
   const [isInstalled, setIsInstalled] = useState(() => {
     if (typeof window === 'undefined') return false;
     const isStandalone =
@@ -43,35 +49,48 @@ const PWAInstallPrompt = () => {
 
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
+      window.__pwaInstallPrompt = e;
       setDeferredPrompt(e);
+      console.log('[PWA] beforeinstallprompt captured successfully');
+    };
+
+    const handlePwaReady = () => {
+      if (window.__pwaInstallPrompt) {
+        setDeferredPrompt(window.__pwaInstallPrompt);
+      }
     };
 
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setShowPrompt(false);
       setDeferredPrompt(null);
+      if (typeof window !== 'undefined') window.__pwaInstallPrompt = null;
       localStorage.setItem('selectt_pwa_installed', 'true');
       console.log('[PWA] App successfully installed');
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('selectt-pwa-ready', handlePwaReady);
     window.addEventListener('appinstalled', handleAppInstalled);
+
+    if (window.__pwaInstallPrompt) {
+      setDeferredPrompt(window.__pwaInstallPrompt);
+    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('selectt-pwa-ready', handlePwaReady);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
   // Trigger 15-second timer on page open (only once per session/page, respected by 30-min cooldown)
   useEffect(() => {
-    // 1. Check if already installed or in 30-minute cooldown
     if (isInstalledOrCooldown()) {
       setShowPrompt(false);
       return;
     }
 
-    // 2. Wait 15 seconds before showing popup
     const timer = setTimeout(() => {
       if (!isInstalledOrCooldown()) {
         setShowPrompt(true);
@@ -82,31 +101,37 @@ const PWAInstallPrompt = () => {
   }, [location.pathname]);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) {
-      if (isIOS) {
+    const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? window.__pwaInstallPrompt : null);
+
+    if (promptEvent && typeof promptEvent.prompt === 'function') {
+      try {
+        promptEvent.prompt();
+        const choice = await promptEvent.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          console.log('[PWA] User accepted the install prompt');
+          setIsInstalled(true);
+          localStorage.setItem('selectt_pwa_installed', 'true');
+          setShowPrompt(false);
+        } else {
+          console.log('[PWA] User dismissed native install prompt');
+          handleDismiss();
+        }
+        setDeferredPrompt(null);
+        if (typeof window !== 'undefined') window.__pwaInstallPrompt = null;
         return;
+      } catch (err) {
+        console.warn('[PWA] Native prompt execution error:', err);
       }
-      handleDismiss();
-      return;
     }
-    // Show browser native install prompt
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      console.log('[PWA] User accepted the install prompt');
-      setIsInstalled(true);
-      localStorage.setItem('selectt_pwa_installed', 'true');
-      setShowPrompt(false);
-    } else {
-      console.log('[PWA] User dismissed native install prompt');
-      // Set 30 minute cooldown if user dismisses prompt
-      handleDismiss();
-    }
-    setDeferredPrompt(null);
+
+    // If native prompt is not available (e.g. Brave, Chrome without active event, iOS, etc.):
+    // DO NOT CLOSE! Switch to guided installation view right in the modal.
+    setShowManualGuide(true);
   };
 
   const handleDismiss = () => {
     setShowPrompt(false);
+    setShowManualGuide(false);
     // 30 minute cooldown across all pages for this visitor
     const thirtyMinutesLater = Date.now() + 30 * 60 * 1000;
     localStorage.setItem('selectt_pwa_dismissed_until', String(thirtyMinutesLater));
@@ -161,41 +186,76 @@ const PWAInstallPrompt = () => {
             Lightning-fast browsing, test drive bookings, and real-time price-drop alerts.
           </p>
 
-          {/* Feature Highlights Grid */}
-          <div className="grid grid-cols-2 gap-2.5 mb-6 text-left">
-            <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
-              <Zap size={15} className="text-[#00C9AF] shrink-0" />
-              <span className="text-xs text-slate-700 font-semibold leading-tight">Fast 1-Click Access</span>
-            </div>
-            <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
-              <ShieldCheck size={15} className="text-[#00C9AF] shrink-0" />
-              <span className="text-xs text-slate-700 font-semibold leading-tight">Verified History</span>
-            </div>
-            <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
-              <Bell size={15} className="text-[#00C9AF] shrink-0" />
-              <span className="text-xs text-slate-700 font-semibold leading-tight">Deal Alerts</span>
-            </div>
-            <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
-              <Smartphone size={15} className="text-[#00C9AF] shrink-0" />
-              <span className="text-xs text-slate-700 font-semibold leading-tight">Zero Storage</span>
-            </div>
-          </div>
-
-          {/* iOS Safari Instructions */}
-          {isIOS && !deferredPrompt ? (
-            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 mb-4 text-left">
-              <p className="text-xs text-slate-800 font-bold mb-1.5 flex items-center gap-1.5">
-                <Smartphone size={13} className="text-[#00C9AF]" /> Install on iPhone / iPad:
-              </p>
-              <div className="flex items-center gap-2 text-slate-600 text-xs">
-                <span>1. Tap Share</span>
-                <Share size={12} className="text-[#00C9AF]" />
-                <span>2. Tap "Add to Home Screen"</span>
-                <PlusSquare size={12} className="text-[#00C9AF]" />
+          {/* Step-by-Step Instructions when native prompt is unavailable or manual guide triggered */}
+          {(showManualGuide || (isIOS && !deferredPrompt)) ? (
+            isIOS ? (
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-5 text-left animate-in fade-in duration-200">
+                <p className="text-xs text-slate-800 font-bold mb-2 flex items-center gap-1.5">
+                  <Smartphone size={14} className="text-[#00C9AF]" /> Install on iPhone / iPad:
+                </p>
+                <div className="space-y-2 text-slate-600 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center font-bold text-[10px] shrink-0">1</span>
+                    <span>Tap the <strong>Share</strong> button <Share size={12} className="inline text-[#00C9AF] mx-0.5" /> in Safari</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center font-bold text-[10px] shrink-0">2</span>
+                    <span>Scroll and tap <strong>"Add to Home Screen"</strong> <PlusSquare size={12} className="inline text-[#00C9AF] mx-0.5" /></span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 mb-5 text-left animate-in fade-in duration-200">
+                <p className="text-xs text-slate-900 font-bold mb-2 flex items-center gap-1.5">
+                  <Smartphone size={14} className="text-[#00C9AF]" /> How to Install on your Phone:
+                </p>
+                <div className="space-y-2 text-slate-700 text-xs">
+                  <div className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-black text-[10px] shrink-0 mt-0.5">1</span>
+                    <span>Tap browser menu (<strong><MoreVertical size={13} className="inline text-slate-800 -mt-0.5 mx-0.5" /></strong>) at top or bottom right</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-black text-[10px] shrink-0 mt-0.5">2</span>
+                    <span>Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-black text-[10px] shrink-0 mt-0.5">3</span>
+                    <span>Tap <strong>"Install"</strong> to confirm</span>
+                  </div>
+                </div>
+              </div>
+            )
+          ) : (
+            /* Feature Highlights Grid */
+            <div className="grid grid-cols-2 gap-2.5 mb-6 text-left">
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
+                <Zap size={15} className="text-[#00C9AF] shrink-0" />
+                <span className="text-xs text-slate-700 font-semibold leading-tight">Fast 1-Click Access</span>
+              </div>
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
+                <ShieldCheck size={15} className="text-[#00C9AF] shrink-0" />
+                <span className="text-xs text-slate-700 font-semibold leading-tight">Verified History</span>
+              </div>
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
+                <Bell size={15} className="text-[#00C9AF] shrink-0" />
+                <span className="text-xs text-slate-700 font-semibold leading-tight">Deal Alerts</span>
+              </div>
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
+                <Smartphone size={15} className="text-[#00C9AF] shrink-0" />
+                <span className="text-xs text-slate-700 font-semibold leading-tight">Zero Storage</span>
               </div>
             </div>
+          )}
+
+          {/* Action Buttons */}
+          {(showManualGuide || (isIOS && !deferredPrompt)) ? (
+            <button
+              onClick={handleDismiss}
+              className="w-full py-3 px-5 rounded-xl bg-[#00C9AF] hover:bg-[#00B4A0] text-[#0C1B33] font-button font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 shadow-md shadow-[#00C9AF]/20 active:scale-95 cursor-pointer"
+            >
+              Got It, Thanks!
+            </button>
           ) : (
-            /* Action Buttons */
             <div className="flex flex-col sm:flex-row gap-3 pt-1">
               <button
                 onClick={handleInstallClick}
@@ -212,16 +272,6 @@ const PWAInstallPrompt = () => {
                 Later
               </button>
             </div>
-          )}
-
-          {/* Close link under iOS instructions */}
-          {isIOS && !deferredPrompt && (
-            <button
-              onClick={handleDismiss}
-              className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-button font-bold text-xs transition-all cursor-pointer mt-2"
-            >
-              Got It
-            </button>
           )}
 
         </motion.div>

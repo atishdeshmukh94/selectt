@@ -9,11 +9,18 @@ const STATIC_ASSETS = [
   '/pwa-icon-512.png'
 ];
 
-// Install Event
+// Install Event - Resiliently cache essential assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const asset of STATIC_ASSETS) {
+        try {
+          await cache.add(asset);
+        } catch (e) {
+          // Continue caching remaining assets even if one fails
+          console.warn('[PWA SW] Pre-cache skipped for:', asset);
+        }
+      }
     })
   );
   self.skipWaiting();

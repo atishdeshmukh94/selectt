@@ -73,6 +73,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Selectt" />
     <meta name="application-name" content="Selectt" />
+    <script>
+      window.__pwaInstallPrompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.__pwaInstallPrompt = e;
+        window.dispatchEvent(new CustomEvent('selectt-pwa-ready'));
+      });
+    </script>
 
     <!-- Theme -->
     <meta name="theme-color" content="#0C1B33" />
