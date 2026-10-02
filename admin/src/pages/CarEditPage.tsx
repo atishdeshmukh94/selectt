@@ -24,7 +24,9 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  UploadCloud
+  UploadCloud,
+  Car,
+  ExternalLink
 } from "lucide-react";
 
 import { API_URL } from "../config/api";
@@ -57,6 +59,28 @@ const CarEditPage = () => {
   const [libraryTarget, setLibraryTarget] = useState<'main' | 'gallery'>('main');
   const [librarySearch, setLibrarySearch] = useState("");
   const [selectedLibraryUrls, setSelectedLibraryUrls] = useState<string[]>([]);
+  const [successModal, setSuccessModal] = useState<{
+    isOpen: boolean;
+    type: 'create' | 'edit';
+    carTitle: string;
+    carPrice: string;
+    carImage: string;
+    carId?: string | number;
+  } | null>(null);
+  const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (redirectCountdown === null || redirectCountdown <= 0 || !successModal?.isOpen) {
+      if (redirectCountdown === 0 && successModal?.isOpen) {
+        navigate("/cars");
+      }
+      return;
+    }
+    const timer = setTimeout(() => {
+      setRedirectCountdown((prev) => (prev !== null ? prev - 1 : null));
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [redirectCountdown, successModal, navigate]);
 
   const getYouTubeId = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -588,8 +612,23 @@ const CarEditPage = () => {
         throw new Error(errData.error || errData.message || `Failed to save car (HTTP ${response.status})`);
       }
 
-      toast.success(isEdit ? "Car listing updated successfully!" : "New car listing published successfully!");
-      navigate("/cars");
+      const resData = await response.json().catch(() => ({}));
+      const carId = isEdit ? id : (resData.id || resData.insertId || resData.carId || "");
+
+      toast.success(isEdit ? "Listing saved successfully!" : "New car listed successfully!");
+
+      setSuccessModal({
+        isOpen: true,
+        type: isEdit ? 'edit' : 'create',
+        carTitle: finalTitle,
+        carPrice: String(formData.price || 0),
+        carImage: primaryCover,
+        carId
+      });
+
+      if (!isEdit) {
+        setRedirectCountdown(4);
+      }
     } catch (error: any) {
       console.error("Error saving car:", error);
       toast.error(error.message || "Error saving car");
@@ -2223,6 +2262,135 @@ const CarEditPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Success Notification Popup Modal */}
+      {successModal?.isOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-md w-full border border-gray-100 dark:border-gray-800 overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Top Header */}
+            <div className="p-6 text-center bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-950/30 dark:to-gray-900 border-b border-gray-100 dark:border-gray-800 relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setRedirectCountdown(null);
+                  setSuccessModal(null);
+                  if (successModal.type === 'create') navigate("/cars");
+                }}
+                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/30">
+                <CheckCircle2 size={36} />
+              </div>
+
+              <h2 className="text-xl font-black text-gray-900 dark:text-white">
+                {successModal.type === 'create' ? 'Car Listed Successfully!' : 'Listing Saved Successfully!'}
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {successModal.type === 'create'
+                  ? 'Your new vehicle has been published to inventory and is now active.'
+                  : 'Your vehicle listing details and changes have been saved.'}
+              </p>
+            </div>
+
+            {/* Car Summary Card */}
+            <div className="p-5 space-y-4">
+              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 dark:bg-gray-800/60 border border-slate-100 dark:border-gray-800">
+                <div className="w-16 h-14 rounded-xl overflow-hidden bg-slate-200 dark:bg-gray-700 shrink-0 flex items-center justify-center">
+                  {successModal.carImage ? (
+                    <img
+                      src={successModal.carImage}
+                      alt={successModal.carTitle}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <Car size={22} className="text-gray-400" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                    {successModal.carTitle}
+                  </div>
+                  <div className="text-xs font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
+                    ₹{Number(successModal.carPrice || 0).toLocaleString('en-IN')}
+                  </div>
+                  <div className="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span>Status: Active in Inventory</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Countdown notification */}
+              {redirectCountdown !== null && redirectCountdown > 0 && (
+                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 bg-blue-50/60 dark:bg-blue-950/30 px-3 py-2 rounded-xl border border-blue-100 dark:border-blue-900/40">
+                  <span>Redirecting to inventory list...</span>
+                  <span className="font-extrabold text-blue-600 dark:text-blue-400">{redirectCountdown}s</span>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRedirectCountdown(null);
+                    setSuccessModal(null);
+                    navigate("/cars");
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                >
+                  <span>Go to Cars List (Inventory)</span>
+                  <ChevronRight size={14} />
+                </button>
+
+                <div className="flex gap-2">
+                  {successModal.type === 'create' ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRedirectCountdown(null);
+                        setSuccessModal(null);
+                        window.location.href = "/cars/add";
+                      }}
+                      className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 font-bold text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                    >
+                      + Add Another Car
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRedirectCountdown(null);
+                        setSuccessModal(null);
+                      }}
+                      className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 font-bold text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                    >
+                      Stay on Edit Page
+                    </button>
+                  )}
+                  {successModal.carId && (
+                    <a
+                      href={`https://selectt.in/buy-cars/${successModal.carId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 font-bold text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-center cursor-pointer flex items-center justify-center gap-1"
+                    >
+                      <span>View Live</span>
+                      <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </>
   );

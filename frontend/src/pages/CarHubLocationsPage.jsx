@@ -24,7 +24,7 @@ const DEFAULT_HUBS = [
     address: 'Phoenix Marketcity Mall Road, Viman Nagar, Pune, Maharashtra 411014',
     open_hours: '09:30 AM - 08:00 PM (All 7 Days)',
     phone: '+91-857466-7466',
-    image_path: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=60',
+    image_path: null,
     car_count: 60,
     maps_query: 'Phoenix Marketcity Mall Viman Nagar Pune'
   },
@@ -35,7 +35,7 @@ const DEFAULT_HUBS = [
     address: 'Kalyani Nagar Road, near KP Mall, Pune, Maharashtra 411001',
     open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
     phone: '+91-857466-7466',
-    image_path: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&auto=format&fit=crop&q=60',
+    image_path: null,
     car_count: 78,
     maps_query: 'Koregaon Park Kalyani Nagar Pune'
   },
@@ -46,7 +46,7 @@ const DEFAULT_HUBS = [
     address: 'Baner Road, Near Balewadi High Street, Baner, Pune, Maharashtra 411045',
     open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
     phone: '+91-857466-7466',
-    image_path: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&auto=format&fit=crop&q=60',
+    image_path: null,
     car_count: 45,
     maps_query: 'Balewadi High Street Baner Pune'
   },
@@ -57,7 +57,7 @@ const DEFAULT_HUBS = [
     address: 'Infinity Mall Link Road, Next to Oshiwara Metro, Andheri West, Mumbai, Maharashtra 400053',
     open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
     phone: '+91-857466-7466',
-    image_path: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=600&auto=format&fit=crop&q=60',
+    image_path: null,
     car_count: 85,
     maps_query: 'Infinity Mall Link Road Oshiwara Andheri West Mumbai'
   },
@@ -68,7 +68,7 @@ const DEFAULT_HUBS = [
     address: 'G Block, Bandra Kurla Complex, Bandra East, Mumbai, Maharashtra 400051',
     open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
     phone: '+91-857466-7466',
-    image_path: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=600&auto=format&fit=crop&q=60',
+    image_path: null,
     car_count: 92,
     maps_query: 'Bandra Kurla Complex BKC Bandra East Mumbai'
   },
@@ -79,7 +79,7 @@ const DEFAULT_HUBS = [
     address: 'Near Inorbit Mall, Sector 30A, Vashi, Navi Mumbai, Maharashtra 400703',
     open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
     phone: '+91-857466-7466',
-    image_path: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop&q=60',
+    image_path: null,
     car_count: 65,
     maps_query: 'Inorbit Mall Sector 30A Vashi Navi Mumbai'
   },
@@ -90,7 +90,7 @@ const DEFAULT_HUBS = [
     address: 'Eastern Express Highway, Near Viviana Mall, Majiwada, Thane West, Maharashtra 400601',
     open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
     phone: '+91-857466-7466',
-    image_path: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=60',
+    image_path: null,
     car_count: 58,
     maps_query: 'Viviana Mall Eastern Express Highway Thane West'
   },
@@ -101,7 +101,7 @@ const DEFAULT_HUBS = [
     address: 'Mantri Commercio Parking, Tower-A, Outer Ring Rd, Bellandur, Bengaluru, Karnataka 560103',
     open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
     phone: '+91-857466-7466',
-    image_path: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=600&auto=format&fit=crop&q=60',
+    image_path: null,
     car_count: 67,
     maps_query: 'Mantri Commercio Outer Ring Road Bellandur Bangalore'
   },
@@ -112,7 +112,7 @@ const DEFAULT_HUBS = [
     address: 'VR Bengaluru, Floor L2, Whitefield Main Road, Mahadevapura, Bengaluru, Karnataka 560048',
     open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
     phone: '+91-857466-7466',
-    image_path: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&auto=format&fit=crop&q=60',
+    image_path: null,
     car_count: 56,
     maps_query: 'VR Bengaluru Whitefield Main Road Mahadevapura Bangalore'
   },
@@ -123,7 +123,7 @@ const DEFAULT_HUBS = [
     address: 'Phase 1, Hosur Main Road, Near Infosys Gate 1, Electronic City, Bengaluru, Karnataka 560100',
     open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
     phone: '+91-857466-7466',
-    image_path: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=60',
+    image_path: null,
     car_count: 48,
     maps_query: 'Infosys Gate 1 Electronic City Bangalore'
   }
@@ -351,16 +351,27 @@ export default function CarHubLocationsPage() {
                         className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden hover:border-slate-300 transition-all flex flex-col justify-between group text-left"
                       >
                         {/* Hub Photo */}
-                        <div className="h-44 overflow-hidden bg-slate-100 relative">
+                        <div className="h-44 overflow-hidden bg-slate-100 dark:bg-slate-800 relative flex items-center justify-center">
                           {hub.image_path ? (
                             <img
                               src={hub.image_path}
                               alt={hub.name}
                               className="w-full h-full object-cover group-hover:scale-103 transition-all duration-500"
+                              onError={(e) => {
+                                (e.target).style.display = 'none';
+                                const parent = (e.target).parentElement;
+                                if (parent && !parent.querySelector('.hub-fallback-placeholder')) {
+                                  const placeholder = document.createElement('div');
+                                  placeholder.className = 'hub-fallback-placeholder w-full h-full flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-300 gap-1.5';
+                                  placeholder.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span class="text-[11px] font-semibold text-slate-400 tracking-wide">Selectt Hub</span>';
+                                  parent.appendChild(placeholder);
+                                }
+                              }}
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-300">
-                              <MapPin size={32} />
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-300 gap-1.5">
+                              <MapPin size={32} className="text-slate-400" />
+                              <span className="text-[11px] font-semibold text-slate-400 tracking-wide">Selectt Hub</span>
                             </div>
                           )}
                           <span className="absolute bottom-3 right-3 bg-[#0C1B33]/90 backdrop-blur-md text-[#00C9AF] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-sm border border-white/10">

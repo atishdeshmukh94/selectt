@@ -114,7 +114,7 @@ export default function RecentTestDrives({ testDrives = [] }: { testDrives: any[
                           className="h-full w-full object-cover"
                           alt={`${td.make} ${td.model}`}
                           onError={(e: any) => {
-                            e.target.src = "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=200";
+                            e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75" fill="%23F1F5F9"><rect width="100" height="75" fill="%23F1F5F9"/><circle cx="50" cy="37" r="10" fill="%23CBD5E1"/></svg>';
                           }}
                         />
                       </div>

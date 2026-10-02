@@ -591,17 +591,42 @@ export default function CarHubs() {
                 </div>
               </div>
 
-              {/* Preview image if present */}
-              {form.image_path && (
-                <div className="w-full h-24 rounded-xl overflow-hidden bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700">
+              {/* Preview image if present OR neutral grey blank placeholder */}
+              {form.image_path ? (
+                <div className="relative w-full h-28 rounded-xl overflow-hidden bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 group shadow-xs">
                   <img
                     src={resolveImgUrl(form.image_path)}
                     alt="Hub Preview"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/favicon.png";
+                      (e.target as HTMLImageElement).style.display = "none";
                     }}
                   />
+                  {/* Overlay Remove Button (matches user request & red circle) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForm((f: any) => ({ ...f, image_path: "" }));
+                      toast.success("Hub photo removed. Click 'Save' to apply changes.");
+                    }}
+                    title="Remove Photo"
+                    className="absolute top-2 right-2 bg-red-600/95 hover:bg-red-700 text-white px-2.5 py-1.5 rounded-lg shadow-md transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer hover:scale-105 active:scale-95 z-10"
+                  >
+                    <X size={15} />
+                    <span>Remove Photo</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="w-full h-24 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/40 flex flex-col items-center justify-center gap-1.5 text-gray-400 dark:text-gray-500">
+                  <div className="w-8 h-8 rounded-full bg-gray-200/80 dark:bg-gray-700/80 flex items-center justify-center text-gray-400 dark:text-gray-300">
+                    <MapPin size={16} />
+                  </div>
+                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    No Hub Photo Selected
+                  </span>
+                  <span className="text-[11px] text-gray-400 dark:text-gray-500">
+                    A clean neutral grey placeholder will be displayed (no stock photos)
+                  </span>
                 </div>
               )}
 

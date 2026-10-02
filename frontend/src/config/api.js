@@ -1,7 +1,8 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 export const API_URL = API_BASE_URL;
 
-export const DEFAULT_CAR_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=600';
+// Neutral grey blank placeholder (No 3rd-party stock images)
+export const DEFAULT_CAR_FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400" fill="none"><rect width="600" height="400" fill="%23F1F5F9"/><g transform="translate(250, 160)" stroke="%2394A3B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M14 16H86L76 6H24L14 16Z"/><circle cx="30" cy="24" r="6"/><circle cx="70" cy="24" r="6"/><path d="M6 16H94V24H6V16Z"/></g><text x="300" y="225" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif" font-size="13" font-weight="600" fill="%2394A3B8" text-anchor="middle">Image Not Available</text></svg>';
 
 export const getCarImageUrl = (img, fallback = DEFAULT_CAR_FALLBACK_IMAGE) => {
   if (!img || typeof img !== 'string' || img.trim() === '') return fallback;
