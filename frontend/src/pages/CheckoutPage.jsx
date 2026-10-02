@@ -533,119 +533,29 @@ export const PriceInfoPopover = ({
   content, 
   badge, 
   tag, 
-  onViewDetails 
+  onViewDetails,
+  onOpenModal
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = React.useRef(null);
-  const timeoutRef = React.useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    };
-    if (isOpen) {
-      document.addEventListener('pointerdown', handleClickOutside);
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onOpenModal) {
+      onOpenModal();
+    } else if (onViewDetails) {
+      onViewDetails();
     }
-    return () => {
-      document.removeEventListener('pointerdown', handleClickOutside);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [isOpen]);
-
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setIsOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, 200);
   };
 
   return (
-    <div 
-      ref={containerRef}
-      className="relative inline-flex items-center align-middle"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <button
+      type="button"
+      onClick={handleClick}
+      className="w-5 h-5 rounded-full text-slate-400 hover:text-[#00A38D] hover:bg-[#00A38D]/10 active:scale-90 inline-flex items-center justify-center transition-all cursor-pointer focus:outline-none"
+      aria-label={`View details about ${title}`}
+      title={`Click for ${title} details`}
     >
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsOpen(prev => !prev);
-        }}
-        className="w-4.5 h-4.5 rounded-full text-slate-400 hover:text-[#00A38D] hover:bg-teal-50 active:scale-90 flex items-center justify-center transition-all cursor-pointer focus:outline-none"
-        aria-label={`More information about ${title}`}
-      >
-        <Info size={13} className="shrink-0" />
-      </button>
-
-      {isOpen && (
-        <div 
-          onClick={(e) => e.stopPropagation()}
-          className="absolute z-50 bottom-full left-[-20px] sm:left-1/2 sm:-translate-x-1/2 mb-2 w-64 sm:w-72 bg-white/98 backdrop-blur-md rounded-2xl p-3.5 shadow-2xl border border-slate-200/90 text-left animate-in fade-in zoom-in-95 duration-150 pointer-events-auto"
-        >
-          {/* Arrow pointing directly to icon */}
-          <div className="absolute top-full left-[24px] sm:left-1/2 sm:-translate-x-1/2 -mt-1 w-2.5 h-2.5 bg-white border-r border-b border-slate-200/90 transform rotate-45" />
-
-          {/* Header */}
-          <div className="flex items-start justify-between gap-2 mb-1.5">
-            <div className="flex items-center gap-1.5">
-              <span className="w-5 h-5 rounded-md bg-[#00A38D]/15 text-[#008975] flex items-center justify-center shrink-0">
-                <Info size={11} strokeWidth={2.5} />
-              </span>
-              <h5 className="font-heading font-extrabold text-[#0C1B33] text-xs sm:text-[13px] leading-tight">
-                {title}
-              </h5>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
-              aria-label="Close tooltip"
-            >
-              <X size={13} />
-            </button>
-          </div>
-
-          {/* Content */}
-          <p className="text-[11px] sm:text-[11.5px] text-slate-600 font-medium leading-relaxed mb-2.5">
-            {content}
-          </p>
-
-          {/* Footer Badge & Optional Details Link */}
-          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-            {badge && (
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full leading-tight">
-                {badge}
-              </span>
-            )}
-            {tag && (
-              <span className="text-[10px] font-semibold text-slate-400 ml-2">
-                {tag}
-              </span>
-            )}
-            {onViewDetails && (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOpen(false);
-                  onViewDetails();
-                }}
-                className="text-[10.5px] text-[#00A38D] font-bold hover:underline ml-auto flex items-center gap-0.5 cursor-pointer leading-tight"
-              >
-                <span>Details</span>
-                <ChevronRight size={10} />
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+      <Info size={13.5} className="shrink-0" />
+    </button>
   );
 };
 
@@ -1029,11 +939,13 @@ const CheckoutPage = () => {
                 <div className="flex items-center justify-between gap-4">
                   {/* Left Icon & Info */}
                   <div className="flex items-start gap-3.5 min-w-0">
-                    <img 
-                      src="/images/maintenance-package-icon.png" 
-                      alt="Complete Maintenance Package" 
-                      className="w-12 h-12 rounded-2xl object-cover shrink-0 shadow-md shadow-[#00C9AF]/20" 
-                    />
+                    <div className="w-12 h-12 rounded-2xl bg-teal-50/60 border border-teal-100/80 flex items-center justify-center p-1 shrink-0 shadow-sm shadow-[#00C9AF]/15">
+                      <img 
+                        src="/img/doodle-outline-903-car-service.gif" 
+                        alt="1-Year Complete Maintenance Package" 
+                        className="w-10 h-10 object-contain" 
+                      />
+                    </div>
                     <div className="min-w-0">
                       <h3 className="font-extrabold text-[#0C1B33] text-sm sm:text-base leading-snug">
                         1-Year complete maintenance package
@@ -1055,11 +967,11 @@ const CheckoutPage = () => {
                   {/* Right Price & Add/Added Button */}
                   <div className="flex flex-col items-end shrink-0 gap-3">
                     <div className="text-right flex flex-col items-end space-y-1">
-                      <span className="text-base sm:text-lg font-black text-[#0C1B33] font-price tracking-tight leading-snug">
+                      <span className="text-base sm:text-lg font-semibold text-[#0C1B33] tracking-tight leading-snug">
                         ₹10,801
                       </span>
                       <span className="text-xs text-slate-500 font-medium leading-normal tracking-normal">
-                        or <span className="font-bold text-slate-700 font-price">₹947</span>/m
+                        or <span className="font-semibold text-slate-700">₹947</span>/m
                       </span>
                     </div>
 
@@ -1378,9 +1290,7 @@ const CheckoutPage = () => {
                             <span>TCS (Tax Collected at Source)</span>
                             <PriceInfoPopover 
                               title="TCS (Tax Collected at Source)"
-                              content="As per Section 206C(1F) of the Income Tax Act, 1% TCS is legally collected on car transactions. The entire amount is 100% credited to your PAN and can be claimed back as a tax credit when filing your annual ITR."
-                              badge="100% Tax Credit in ITR"
-                              tag="Sec 206C(1F)"
+                              onOpenModal={() => setActiveBreakdownModal('tcs')}
                             />
                           </div>
                           <p className="text-[11px] text-slate-400 font-medium">
@@ -1397,11 +1307,8 @@ const CheckoutPage = () => {
                         <span className="text-slate-600 font-medium flex items-center gap-1.5">
                           <span>Servicing, cleaning, fuel & more</span>
                           <PriceInfoPopover 
-                            title="Servicing, Cleaning & Prep"
-                            content="Includes periodic comprehensive servicing (engine oil & synthetic filter replacement), deep multi-stage detailing, anti-bacterial ozone AC treatment, and 5L fuel for your drive home."
-                            badge="₹0 (₹8,700 Value Included)"
-                            tag="Pre-Delivery Care"
-                            onViewDetails={() => setActiveBreakdownModal('servicing')}
+                            title="Servicing, cleaning, fuel & more"
+                            onOpenModal={() => setActiveBreakdownModal('servicing')}
                           />
                         </span>
                         <div className="flex items-center gap-2">
@@ -1415,10 +1322,8 @@ const CheckoutPage = () => {
                         <span className="text-slate-600 font-medium flex items-center gap-1.5">
                           <span>Warranty (Protect)</span>
                           <PriceInfoPopover 
-                            title="Selectt Warranty (Protect)"
-                            content="Comprehensive 6-month warranty covering engine, transmission, steering, and electrical components with zero deductible, plus 24/7 pan-India roadside assistance."
-                            badge="100% Included Free"
-                            tag="₹5,500 Value"
+                            title="Warranty (Protect)"
+                            onOpenModal={() => setActiveBreakdownModal('warranty')}
                           />
                         </span>
                         <div className="flex items-center gap-2">
@@ -1432,11 +1337,8 @@ const CheckoutPage = () => {
                         <span className="text-slate-600 font-medium flex items-center gap-1.5">
                           <span>Fixes & upgrades</span>
                           <PriceInfoPopover 
-                            title="Fixes & Quality Upgrades"
-                            content="All minor mechanical wear, cosmetic blemishes, fluid top-ups, and electrical system tuning identified during our 200-checkpoint inspection are fixed by professionals."
-                            badge="Certified Refurbishment"
-                            tag="200 Checkpoints"
-                            onViewDetails={() => setActiveBreakdownModal('fixes')}
+                            title="Fixes & upgrades"
+                            onOpenModal={() => setActiveBreakdownModal('fixes')}
                           />
                         </span>
                         <span className="text-emerald-600 font-bold">Included</span>
@@ -1447,11 +1349,8 @@ const CheckoutPage = () => {
                         <span className="font-medium flex items-center gap-1.5">
                           <span>GST (govt. taxes)</span>
                           <PriceInfoPopover 
-                            title="GST (Statutory Taxes)"
-                            content="18% Goods & Services Tax levied strictly on facilitation and legal documentation services in compliance with Govt of India regulations. Car margin tax is covered by Selectt."
-                            badge="Official Tax Invoice"
-                            tag="18% Statutory Rate"
-                            onViewDetails={() => setActiveBreakdownModal('gst')}
+                            title="GST (govt. taxes)"
+                            onOpenModal={() => setActiveBreakdownModal('gst')}
                           />
                         </span>
                         <span className="font-bold text-[#0C1B33] font-price">₹{gstTax.toLocaleString('en-IN')}</span>
@@ -1979,12 +1878,14 @@ const CheckoutPage = () => {
 
             <div className="p-6 pt-5 space-y-3">
               {/* Central 3D Graphic */}
-              <div className="w-20 h-20 mx-auto relative flex items-center justify-center">
-                <img 
-                  src="/images/maintenance-package-icon.png" 
-                  alt="Complete Maintenance Package" 
-                  className="w-16 h-16 rounded-2xl object-cover shadow-xl shadow-[#00C9AF]/25 transform -rotate-3" 
-                />
+              <div className="relative inline-flex items-center justify-center mx-auto my-2">
+                <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center p-1.5 shadow-xl shadow-[#00C9AF]/25 transform -rotate-3">
+                  <img 
+                    src="/img/doodle-outline-903-car-service.gif" 
+                    alt="Complete Maintenance Package" 
+                    className="w-12 h-12 object-contain" 
+                  />
+                </div>
                 <span className="absolute -top-1 -right-1 text-lg animate-bounce">✨</span>
                 <span className="absolute -bottom-1 -left-1 text-lg animate-pulse">🎊</span>
               </div>
@@ -2603,9 +2504,7 @@ const CheckoutPage = () => {
                       <span>TCS (Tax Collected at Source)</span>
                       <PriceInfoPopover 
                         title="TCS (Tax Collected at Source)"
-                        content="As per Section 206C(1F) of the Income Tax Act, 1% TCS is legally collected on car transactions. The entire amount is 100% credited to your PAN and can be claimed back as a tax credit when filing your annual ITR."
-                        badge="100% Tax Credit in ITR"
-                        tag="Sec 206C(1F)"
+                        onOpenModal={() => setActiveBreakdownModal('tcs')}
                       />
                     </div>
                     <p className="text-[11px] text-slate-400 font-medium">
@@ -2622,11 +2521,8 @@ const CheckoutPage = () => {
                   <span className="text-slate-600 font-medium flex items-center gap-1.5">
                     <span>Servicing, cleaning, fuel & more</span>
                     <PriceInfoPopover 
-                      title="Servicing, Cleaning & Prep"
-                      content="Includes periodic comprehensive servicing (engine oil & synthetic filter replacement), deep multi-stage detailing, anti-bacterial ozone AC treatment, and 5L fuel for your drive home."
-                      badge="₹0 (₹8,700 Value Included)"
-                      tag="Pre-Delivery Care"
-                      onViewDetails={() => setActiveBreakdownModal('servicing')}
+                      title="Servicing, cleaning, fuel & more"
+                      onOpenModal={() => setActiveBreakdownModal('servicing')}
                     />
                   </span>
                   <div className="flex items-center gap-2">
@@ -2640,10 +2536,8 @@ const CheckoutPage = () => {
                   <span className="text-slate-600 font-medium flex items-center gap-1.5">
                     <span>Warranty (Protect)</span>
                     <PriceInfoPopover 
-                      title="Selectt Warranty (Protect)"
-                      content="Comprehensive 6-month warranty covering engine, transmission, steering, and electrical components with zero deductible, plus 24/7 pan-India roadside assistance."
-                      badge="100% Included Free"
-                      tag="₹5,500 Value"
+                      title="Warranty (Protect)"
+                      onOpenModal={() => setActiveBreakdownModal('warranty')}
                     />
                   </span>
                   <div className="flex items-center gap-2">
@@ -2657,11 +2551,8 @@ const CheckoutPage = () => {
                   <span className="text-slate-600 font-medium flex items-center gap-1.5">
                     <span>Fixes & upgrades</span>
                     <PriceInfoPopover 
-                      title="Fixes & Quality Upgrades"
-                      content="All minor mechanical wear, cosmetic blemishes, fluid top-ups, and electrical system tuning identified during our 200-checkpoint inspection are fixed by professionals."
-                      badge="Certified Refurbishment"
-                      tag="200 Checkpoints"
-                      onViewDetails={() => setActiveBreakdownModal('fixes')}
+                      title="Fixes & upgrades"
+                      onOpenModal={() => setActiveBreakdownModal('fixes')}
                     />
                   </span>
                   <span className="text-emerald-600 font-bold">Included</span>
@@ -2672,11 +2563,8 @@ const CheckoutPage = () => {
                   <span className="font-medium flex items-center gap-1.5">
                     <span>GST (govt. taxes)</span>
                     <PriceInfoPopover 
-                      title="GST (Statutory Taxes)"
-                      content="18% Goods & Services Tax levied strictly on facilitation and legal documentation services in compliance with Govt of India regulations. Car margin tax is covered by Selectt."
-                      badge="Official Tax Invoice"
-                      tag="18% Statutory Rate"
-                      onViewDetails={() => setActiveBreakdownModal('gst')}
+                      title="GST (govt. taxes)"
+                      onOpenModal={() => setActiveBreakdownModal('gst')}
                     />
                   </span>
                   <span className="font-bold text-[#0C1B33] font-price">₹{gstTax.toLocaleString('en-IN')}</span>
@@ -2828,229 +2716,365 @@ const CheckoutPage = () => {
         </div>
       )}
 
-      {/* 3 Price Breakdown Info Modals (Servicing, Fixes, GST) */}
+      {/* 5 Price Breakdown Info Modals (TCS, Servicing, Warranty, Fixes, GST) */}
       {activeBreakdownModal && (
         <div 
-          className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn"
+          className="fixed inset-0 z-[100000] flex items-center justify-center p-3.5 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
           onClick={() => setActiveBreakdownModal(null)}
         >
           <div 
-            className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-slate-200 animate-slideUp flex flex-col max-h-[90vh]"
+            className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-lg sm:max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200 p-5 sm:p-7 relative text-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 via-white to-slate-50">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-[#00C9AF]/15 text-[#008975] flex items-center justify-center font-black">
-                  <Info size={20} />
-                </div>
-                <div>
-                  <h3 className="font-heading font-extrabold text-[#0C1B33] text-base sm:text-lg capitalize">
-                    {activeBreakdownModal === 'servicing' && 'Servicing, cleaning, fuel & more'}
-                    {activeBreakdownModal === 'fixes' && 'Fixes & upgrades'}
-                    {activeBreakdownModal === 'gst' && 'GST (govt. taxes)'}
+            {/* 1. Servicing, cleaning, fuel & more Modal (Screenshot 3) */}
+            {activeBreakdownModal === 'servicing' && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#0C1B33]">
+                    Servicing, cleaning, fuel & more
                   </h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
-                    {activeBreakdownModal === 'servicing' && 'Selectt Assured Pre-Delivery Care • ₹8,700 Value'}
-                    {activeBreakdownModal === 'fixes' && 'Complete Quality Restoration & Refurbishment'}
-                    {activeBreakdownModal === 'gst' && '18% Statutory Tax on Facilitation Services'}
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveBreakdownModal(null)}
+                    className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                    aria-label="Close"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                {/* Card with border */}
+                <div className="rounded-2xl border border-slate-200 divide-y divide-slate-100 bg-white">
+                  <div className="p-3.5 sm:p-4 flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="font-bold text-sm sm:text-base text-[#0C1B33]">Car cleaning & dry cleaning</h4>
+                      <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">Upon delivery</p>
+                    </div>
+                    <span className="font-bold text-sm sm:text-base text-[#0C1B33] font-price shrink-0">₹4,000</span>
+                  </div>
+
+                  <div className="p-3.5 sm:p-4 flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="font-bold text-sm sm:text-base text-[#0C1B33]">Pre delivery servicing cost</h4>
+                      <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">Oil and air filter change, wheel balancing and alignment</p>
+                    </div>
+                    <span className="font-bold text-sm sm:text-base text-[#0C1B33] font-price shrink-0">₹8,000</span>
+                  </div>
+
+                  <div className="p-3.5 sm:p-4 flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="font-bold text-sm sm:text-base text-[#0C1B33]">Fuel top-up</h4>
+                      <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">At the time of delivery</p>
+                    </div>
+                    <span className="font-bold text-sm sm:text-base text-[#0C1B33] font-price shrink-0">₹500</span>
+                  </div>
+                </div>
+
+                {/* Highlight banner */}
+                <div className="mt-3.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-between text-xs sm:text-sm font-semibold text-emerald-800">
+                  <span>Pre-Delivery Total Value (₹12,500)</span>
+                  <span className="font-bold text-emerald-700 uppercase">100% Included Free</span>
+                </div>
+
+                {/* Centered OKAY Button */}
+                <div className="mt-6 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setActiveBreakdownModal(null)}
+                    className="px-12 py-2.5 bg-[#00A38D] hover:bg-[#008f7b] text-white font-extrabold tracking-wider uppercase text-sm rounded-xl shadow-md shadow-[#00A38D]/25 transition-all cursor-pointer active:scale-95"
+                  >
+                    OKAY
+                  </button>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveBreakdownModal(null)}
-                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
+            )}
 
-            {/* Modal Body (Scrollable) */}
-            <div className="p-5 overflow-y-auto space-y-4">
-              
-              {/* 1. Servicing Details */}
-              {activeBreakdownModal === 'servicing' && (
-                <>
-                  <div className="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-3.5 text-xs text-emerald-900 font-semibold flex items-center gap-2.5">
-                    <Sparkles size={18} className="text-emerald-600 shrink-0" />
-                    <span>Every Selectt vehicle undergoes premium servicing, multi-stage detailing, and fuel top-up at zero extra cost to you!</span>
+            {/* 2. Fixes & upgrades Modal (Screenshot 4) */}
+            {activeBreakdownModal === 'fixes' && (
+              <div>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#0C1B33]">
+                    Fixes & upgrades
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    {/* Car inspection graphic illustration */}
+                    <div className="w-16 h-11 bg-slate-50 border border-slate-200/90 rounded-xl flex items-center justify-center p-1 shadow-2xs">
+                      <svg className="w-12 h-9 text-[#00A38D]" viewBox="0 0 52 36" fill="none">
+                        <rect x="2" y="14" width="36" height="18" rx="4" fill="#F8FAFC" stroke="#94A3B8" strokeWidth="1.5" />
+                        <path d="M6 14l5-8h16l5 8" stroke="#94A3B8" strokeWidth="1.5" fill="#E2E8F0" />
+                        <circle cx="10" cy="32" r="3.5" fill="#334155" />
+                        <circle cx="30" cy="32" r="3.5" fill="#334155" />
+                        <circle cx="39" cy="15" r="9" fill="white" stroke="#00A38D" strokeWidth="2.2" />
+                        <path d="M35 15l3 3 5-5" stroke="#00A38D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M45 21l5 5" stroke="#00A38D" strokeWidth="2.5" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveBreakdownModal(null)}
+                      className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                      aria-label="Close"
+                    >
+                      <X size={18} />
+                    </button>
                   </div>
+                </div>
 
-                  <div className="space-y-3">
-                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-3">
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-bold text-[#0C1B33]">Comprehensive Periodic Servicing</h4>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                          Engine oil flush & replacement, synthetic filter change, spark plugs cleaning, brake fluid & coolant top-up.
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <span className="text-slate-400 line-through text-[11px] font-semibold block font-price">₹4,200</span>
-                        <span className="text-xs font-extrabold text-emerald-600 uppercase">FREE</span>
-                      </div>
+                <div className="border-t border-dashed border-slate-200 my-3" />
+
+                <div className="space-y-3 text-xs sm:text-[13px] text-slate-600 leading-relaxed">
+                  <p>
+                    Every Selectt vehicle undergoes a rigorous <strong>200-point physical and mechanical inspection</strong> before delivery. All mechanical wear, paint/scratch buffing, suspension calibration, and electrical tuning are completed by expert technicians.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                      <span className="font-bold text-[#0C1B33] block mb-0.5">Mechanical Tuning</span>
+                      <span className="text-[11px] text-slate-500">Brakes, clutch, suspension, and steering calibrated to OEM specs.</span>
                     </div>
-
-                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-3">
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-bold text-[#0C1B33]">Deep Interior & Exterior Detailing</h4>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                          Full interior upholstery shampooing, seat dry clean, dashboard UV dressing, and 3-step high-gloss exterior buffing.
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <span className="text-slate-400 line-through text-[11px] font-semibold block font-price">₹2,800</span>
-                        <span className="text-xs font-extrabold text-emerald-600 uppercase">FREE</span>
-                      </div>
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                      <span className="font-bold text-[#0C1B33] block mb-0.5">Diagnostics & AC</span>
+                      <span className="text-[11px] text-slate-500">OBD scanner check, battery health, AC cooling & electrical systems.</span>
                     </div>
-
-                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-3">
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-bold text-[#0C1B33]">Complimentary Fuel & Fluids</h4>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                          5 Litres pre-delivery fuel in the tank so you can drive home smoothly from delivery hub, plus windshield wiper fluid.
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <span className="text-slate-400 line-through text-[11px] font-semibold block font-price">₹1,200</span>
-                        <span className="text-xs font-extrabold text-emerald-600 uppercase">FREE</span>
-                      </div>
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                      <span className="font-bold text-[#0C1B33] block mb-0.5">Paint & Body Polish</span>
+                      <span className="text-[11px] text-slate-500">Minor scratches touched up, high-grade sealant & dent removal.</span>
                     </div>
-
-                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-3">
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-bold text-[#0C1B33]">Anti-Bacterial Ozone Cabin Treatment</h4>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                          Complete AC duct disinfectant & 99.9% germ elimination treatment for healthy cabin air.
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <span className="text-slate-400 line-through text-[11px] font-semibold block font-price">₹500</span>
-                        <span className="text-xs font-extrabold text-emerald-600 uppercase">FREE</span>
-                      </div>
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                      <span className="font-bold text-[#0C1B33] block mb-0.5">Tires & Wheel Alignment</span>
+                      <span className="text-[11px] text-slate-500">Laser balancing & 70%+ tread life assured across all wheels.</span>
                     </div>
                   </div>
 
-                  <div className="bg-slate-100/90 rounded-2xl p-3.5 flex items-center justify-between font-bold text-xs sm:text-sm">
-                    <span className="text-slate-700">Total Pre-Delivery Value</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-400 line-through text-xs font-price">₹8,700</span>
-                      <span className="text-emerald-700 font-extrabold text-sm">₹0 (100% Included)</span>
-                    </div>
+                  <div className="mt-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-between text-xs sm:text-sm font-semibold text-emerald-800">
+                    <span>Refurbishment Cost to Customer</span>
+                    <span className="font-bold text-emerald-700 uppercase">₹0 (100% Included)</span>
                   </div>
-                </>
-              )}
+                </div>
 
-              {/* 2. Fixes & Upgrades Details */}
-              {activeBreakdownModal === 'fixes' && (
-                <>
-                  <div className="bg-indigo-50/90 border border-indigo-200 rounded-2xl p-3.5 text-xs text-indigo-950 font-semibold flex items-center gap-2.5">
-                    <ShieldCheck size={18} className="text-indigo-600 shrink-0" />
-                    <span>Every car is thoroughly tested across 200 checkpoints. All mechanical wear and minor cosmetic blemishes are fixed before delivery.</span>
+                {/* Centered OKAY Button */}
+                <div className="mt-6 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setActiveBreakdownModal(null)}
+                    className="px-12 py-2.5 bg-[#00A38D] hover:bg-[#008f7b] text-white font-extrabold tracking-wider uppercase text-sm rounded-xl shadow-md shadow-[#00A38D]/25 transition-all cursor-pointer active:scale-95"
+                  >
+                    OKAY
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 3. GST (govt. taxes) Modal (Screenshot 5) */}
+            {activeBreakdownModal === 'gst' && (
+              <div>
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#0C1B33]">
+                      GST (govt. taxes)
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Selectt has no role to play in taxes levied by the govt.
+                    </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveBreakdownModal(null)}
+                    className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                    aria-label="Close"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-[#0C1B33]">Mechanical Tuning</span>
-                        <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-sm">COMPLETED</span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 leading-snug">
-                        Brake pad tuning, suspension alignment, clutch calibration & smooth gear shifting.
-                      </p>
-                    </div>
-
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-[#0C1B33]">Electrical & AC Diagnostics</span>
-                        <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-sm">TESTED</span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 leading-snug">
-                        AC cooling efficiency verified, sensor check, infotainment & speakers functional check.
-                      </p>
-                    </div>
-
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-[#0C1B33]">Paint & Dent Restoration</span>
-                        <span className="text-[9px] bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded-sm">RESTORED</span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 leading-snug">
-                        Minor paint scratch touch-up, high-grade paint sealant, and headlight lens buffing.
-                      </p>
-                    </div>
-
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-[#0C1B33]">Tires & Wheel Balancing</span>
-                        <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-sm">BALANCED</span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 leading-snug">
-                        Tire tread life &gt;70% assured, laser wheel alignment, and accurate pressure balancing.
-                      </p>
-                    </div>
+                <div className="mt-3 rounded-2xl border border-slate-200 p-4 sm:p-5 bg-white space-y-3.5">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-slate-700 font-medium">GST on car cleaning & dry cleaning</span>
+                    <span className="font-bold text-[#0C1B33] font-price">₹720</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-slate-700 font-medium">GST on pre-delivery servicing cost</span>
+                    <span className="font-bold text-[#0C1B33] font-price">₹1,440</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-slate-700 font-medium">GST on warranty plan</span>
+                    <span className="font-bold text-[#0C1B33] font-price">₹2,588</span>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-slate-100 flex items-center justify-between text-xs font-bold">
-                    <span className="text-slate-700">Refurbishment Cost to Customer</span>
-                    <span className="text-emerald-700 font-extrabold text-sm font-price">₹0 (Included in Price)</span>
+                  <div className="pt-3 border-t border-dashed border-slate-200 flex items-center justify-between text-xs sm:text-sm font-bold">
+                    <span className="text-slate-800">Total</span>
+                    <span className="text-base sm:text-lg font-black text-[#0C1B33] font-price">₹4,748</span>
                   </div>
-                </>
-              )}
+                </div>
 
-              {/* 3. GST Details */}
-              {activeBreakdownModal === 'gst' && (
-                <>
-                  <div className="bg-amber-50/90 border border-amber-200 rounded-2xl p-3.5 text-xs text-amber-950 font-semibold flex items-center gap-2.5">
-                    <Info size={18} className="text-amber-600 shrink-0" />
-                    <span>GST (Goods & Services Tax) is charged strictly at 18% on facilitation and documentation service charges in compliance with Govt of India regulations.</span>
-                  </div>
+                <p className="mt-2.5 text-[11px] text-slate-400 text-center">
+                  * Statutory taxes under GST Act applied on professional facilitation services
+                </p>
 
-                  <div className="space-y-2.5">
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
-                      <div>
-                        <h4 className="font-bold text-[#0C1B33]">18% GST on RC Facilitation</h4>
-                        <p className="text-[11px] text-slate-500">18% tax on ₹4,000 RC transfer service</p>
-                      </div>
-                      <span className="font-extrabold text-[#0C1B33] font-price">₹720</span>
+                {/* Centered OKAY Button */}
+                <div className="mt-6 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setActiveBreakdownModal(null)}
+                    className="px-12 py-2.5 bg-[#00A38D] hover:bg-[#008f7b] text-white font-extrabold tracking-wider uppercase text-sm rounded-xl shadow-md shadow-[#00A38D]/25 transition-all cursor-pointer active:scale-95"
+                  >
+                    OKAY
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 4. Warranty & Insurance Breakup Modal (Screenshot 2) */}
+            {activeBreakdownModal === 'warranty' && (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#0C1B33]">
+                    Insurance breakup
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setActiveBreakdownModal(null)}
+                    className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                    aria-label="Close"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 p-4 sm:p-5 bg-white space-y-3">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <div>
+                      <div className="font-bold text-[#0C1B33]">Third party premium</div>
+                      <div className="text-[11px] text-slate-500">By Digit</div>
                     </div>
+                    <span className="font-bold text-[#0C1B33] font-price">₹7,897</span>
+                  </div>
 
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
-                      <div>
-                        <h4 className="font-bold text-[#0C1B33]">18% GST on Documentation & Inspection</h4>
-                        <p className="text-[11px] text-slate-500">Processing, background check & legal paperwork</p>
-                      </div>
-                      <span className="font-extrabold text-[#0C1B33] font-price">₹1,710</span>
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <div>
+                      <div className="font-bold text-[#0C1B33]">Personal accident cover</div>
+                      <div className="text-[11px] text-slate-500">Cover by Digit</div>
                     </div>
+                    <span className="font-bold text-[#0C1B33] font-price">₹330</span>
+                  </div>
 
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
-                      <div>
-                        <h4 className="font-bold text-[#0C1B33]">GST on Pre-Owned Car Margin</h4>
-                        <p className="text-[11px] text-slate-500">Pre-owned vehicle tax under margin scheme</p>
-                      </div>
-                      <span className="font-bold text-emerald-600 uppercase text-[11px]">Covered by Selectt</span>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm">
+                    <div>
+                      <div className="font-bold text-[#0C1B33]">Total Premium</div>
+                      <div className="text-[11px] text-slate-500">GST@18%</div>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-bold text-[#0C1B33] font-price">₹8,227</span>
+                      <span className="block text-[11px] text-slate-500">+ ₹1,482</span>
                     </div>
                   </div>
 
-                  <div className="bg-slate-100/90 rounded-2xl p-3.5 flex items-center justify-between font-bold text-xs sm:text-sm">
-                    <span className="text-slate-700">Total Statutory Govt. Taxes</span>
-                    <span className="text-[#0C1B33] font-extrabold text-sm font-price">₹2,430</span>
+                  <div className="pt-3 border-t border-dashed border-slate-200 flex items-center justify-between text-xs sm:text-sm font-bold">
+                    <span className="text-slate-800">Total amount</span>
+                    <span className="text-base sm:text-lg font-black text-[#0C1B33] font-price">₹9,709</span>
                   </div>
-                </>
-              )}
+                </div>
 
-            </div>
+                <div className="mt-3.5 space-y-2 text-[11.5px] sm:text-xs text-slate-600 leading-relaxed">
+                  <div className="flex items-start gap-2">
+                    <span className="text-[#00A38D] font-bold">•</span>
+                    <span>Third-party insurance is mandatory by law.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-[#00A38D] font-bold">•</span>
+                    <span>Compulsory Personal Accident Cover for owner-driver under motor insurance policy is provided by GoDigit General Insurance vide product. UIN No- IRDAN158RP0038V03201819 <span className="text-[#00A38D]">T&C applied</span>.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-[#00A38D] font-bold">•</span>
+                    <span>This does not cover damage or loss to your own car due to accident, fire, or theft.</span>
+                  </div>
+                </div>
 
-            {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/80 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setActiveBreakdownModal(null)}
-                className="w-full sm:w-auto px-6 py-2.5 bg-black hover:bg-slate-900 text-white rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all cursor-pointer"
-              >
-                Got It
-              </button>
-            </div>
+                <div className="mt-3.5 p-3 rounded-2xl bg-teal-50/80 border border-teal-200/70 text-xs text-teal-900 font-semibold text-center">
+                  Upgrade to comprehensive insurance to fully protect your car.
+                </div>
+
+                <div className="mt-2 text-center text-[11px] text-slate-400">
+                  Powered by <strong className="text-slate-600">Digit Insurance</strong> • T&C applied
+                </div>
+
+                {/* Centered OKAY Button */}
+                <div className="mt-6 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setActiveBreakdownModal(null)}
+                    className="px-12 py-2.5 bg-[#00A38D] hover:bg-[#008f7b] text-white font-extrabold tracking-wider uppercase text-sm rounded-xl shadow-md shadow-[#00A38D]/25 transition-all cursor-pointer active:scale-95"
+                  >
+                    OKAY
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 5. TCS (Tax Collected at Source) Modal */}
+            {activeBreakdownModal === 'tcs' && (
+              <div>
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#0C1B33]">
+                      TCS (Tax Collected at Source)
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      This amount will come back to you as a tax credit
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveBreakdownModal(null)}
+                    className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                    aria-label="Close"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="mt-3 rounded-2xl border border-slate-200 p-4 sm:p-5 bg-white space-y-3">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-slate-700 font-medium">Statutory Tax Rate (Section 206C(1F))</span>
+                    <span className="font-bold text-[#0C1B33]">1%</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-slate-700 font-medium">TCS Collected on this Vehicle</span>
+                    <span className="font-bold text-[#0C1B33] font-price">+ ₹{tcsAmount.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="pt-3 border-t border-dashed border-slate-200 flex items-center justify-between text-xs sm:text-sm font-bold">
+                    <span className="text-slate-800">Claimable Credit in ITR</span>
+                    <span className="text-emerald-700 font-bold uppercase">100% Tax Credit</span>
+                  </div>
+                </div>
+
+                <div className="mt-3.5 space-y-2 text-[11.5px] sm:text-xs text-slate-600 leading-relaxed">
+                  <div className="flex items-start gap-2">
+                    <span className="text-[#00A38D] font-bold">•</span>
+                    <span>As per Section 206C(1F) of the Income Tax Act, 1% TCS is legally collected by the seller on motor vehicle transactions exceeding regulatory thresholds.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-[#00A38D] font-bold">•</span>
+                    <span>The collected tax is deposited directly against your PAN and will be reflected in your <strong>Form 26AS / AIS</strong>.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-[#00A38D] font-bold">•</span>
+                    <span>You can adjust this amount against your annual income tax liability or claim a full refund when filing your annual ITR.</span>
+                  </div>
+                </div>
+
+                {/* Centered OKAY Button */}
+                <div className="mt-6 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setActiveBreakdownModal(null)}
+                    className="px-12 py-2.5 bg-[#00A38D] hover:bg-[#008f7b] text-white font-extrabold tracking-wider uppercase text-sm rounded-xl shadow-md shadow-[#00A38D]/25 transition-all cursor-pointer active:scale-95"
+                  >
+                    OKAY
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
