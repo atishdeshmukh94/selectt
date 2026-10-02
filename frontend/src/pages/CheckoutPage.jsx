@@ -1918,39 +1918,33 @@ const CheckoutPage = () => {
           />
           <div className="bg-[#f8f9fa] rounded-t-3xl sm:rounded-3xl max-w-xl sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 relative z-10 animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-250 flex flex-col">
             
-            {/* Modal Header */}
-            <div className="sticky top-0 bg-white/95 backdrop-blur-md px-5 py-4 border-b border-slate-100 flex items-center justify-between z-20">
-              <h3 className="font-heading font-extrabold text-[#0C1B33] text-lg sm:text-xl">
-                Price Summary
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsPriceSummaryOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
-                aria-label="Close price summary"
-              >
-                <X size={18} />
-              </button>
+            {/* Modal Sticky Header with Title and Confetti Savings Banner */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-md z-30 border-b border-slate-200/80 shadow-2xs">
+              <div className="px-5 py-3.5 sm:py-4 flex items-center justify-between">
+                <h3 className="font-heading font-extrabold text-[#0C1B33] text-lg sm:text-xl">
+                  Price Summary
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsPriceSummaryOpen(false)}
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Close price summary"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Fixed / Sticky Confetti Savings Banner with CSS & Canvas Animation */}
+              <div className="px-4 pb-3.5 sm:px-6 sm:pb-4">
+                <ConfettiSavingsBanner 
+                  savingAmount={savingsAmount}
+                  className="w-full shadow-xs"
+                />
+              </div>
             </div>
 
             <div className="p-4 sm:p-6 space-y-4">
               
-              {/* Savings Banner */}
-              <div className="bg-emerald-50 border border-emerald-200/90 rounded-2xl p-3.5 flex items-center gap-2.5 text-emerald-900 text-xs sm:text-sm font-bold shadow-xs">
-                <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-                  <ShieldCheck size={16} />
-                </div>
-                <span>Yay! You are saving ₹{savingsAmount.toLocaleString('en-IN')}</span>
-              </div>
-
-              {/* Fixed Price Assured Notice */}
-              <div className="bg-teal-50/80 border border-teal-200/80 rounded-2xl p-3.5 flex items-center gap-2.5 text-teal-950 text-xs sm:text-sm font-bold shadow-xs">
-                <div className="w-7 h-7 rounded-full bg-[#00A38D] text-white flex items-center justify-center shrink-0 shadow-xs text-xs font-black">
-                  ₹
-                </div>
-                <span>Fixed price assured! To save you time on negotiations</span>
-              </div>
-
               {/* White Breakdown Box */}
               <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3.5 text-xs sm:text-sm">
                 
