@@ -542,26 +542,6 @@ const CheckoutPage = () => {
             </div>
           </div>
 
-          {/* Mobile Version */}
-          <div className="flex md:hidden flex-col items-center mb-6 w-full px-2">
-            <div className="flex items-center justify-center w-full gap-2">
-              <div className="w-7 h-7 rounded-full bg-[#00C9AF] flex items-center justify-center text-white shadow-md shadow-[#00C9AF]/20">
-                <CheckCircle2 size={14} fill="#00C9AF" className="text-white" />
-              </div>
-              <div className="h-[2px] flex-1 max-w-[80px] bg-[#00C9AF]" />
-              <div className="w-7 h-7 rounded-full bg-[#00C9AF] text-[#0C1B33] font-black text-xs flex items-center justify-center shadow-md ring-4 ring-[#00C9AF]/15">
-                2
-              </div>
-              <div className="h-[2px] flex-1 max-w-[80px] bg-slate-200" />
-              <div className="w-7 h-7 rounded-full bg-white border border-slate-200 text-slate-400 font-bold text-xs flex items-center justify-center">
-                3
-              </div>
-            </div>
-            <div className="text-center mt-3">
-              <span className="text-xs uppercase tracking-widest font-black text-slate-400 block mb-1">Step 2 of 3</span>
-              <h3 className="text-sm sm:text-base font-black text-[#0C1B33] uppercase tracking-wider">Test Drive Preferences</h3>
-            </div>
-          </div>
 
           {/* Main Title Area */}
           <div className="flex items-end justify-between mb-8">
@@ -583,20 +563,8 @@ const CheckoutPage = () => {
                 </button>
               </div>
             </div>
-            <div className="hidden md:flex items-center gap-3">
-              <a
-                href="tel:+918574667466"
-                className="px-4 py-2.5 rounded-xl border border-slate-200 hover:border-[#00C9AF] bg-white shadow-xs hover:shadow-sm text-xs font-bold text-[#0C1B33] flex items-center gap-2.5 transition-all cursor-pointer group"
-                title="Call Support: +91-857466-7466"
-              >
-                <div className="w-8 h-8 rounded-lg bg-purple-50 text-[#4A154B] flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Phone size={16} className="fill-current text-[#4A154B]" />
-                </div>
-                <div>
-                  <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Need Help?</span>
-                  <span className="block font-black text-slate-800 group-hover:text-[#00A38D]">+91-857466-7466</span>
-                </div>
-              </a>
+            <div className="hidden md:block">
+              <img src="/img/illustration-relax.svg" alt="Relax" className="h-24 opacity-80 mix-blend-multiply" onError={(e) => e.target.style.display = 'none'} />
             </div>
           </div>
 
