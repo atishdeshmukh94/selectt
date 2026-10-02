@@ -893,7 +893,7 @@ const CheckoutPage = () => {
                   <span>SAVE ₹31,263</span>
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center justify-between gap-4">
                   {/* Left Icon & Info */}
                   <div className="flex items-start gap-3.5 min-w-0">
                     <img 
@@ -902,16 +902,16 @@ const CheckoutPage = () => {
                       className="w-12 h-12 rounded-2xl object-cover shrink-0 shadow-md shadow-[#00C9AF]/20" 
                     />
                     <div className="min-w-0">
-                      <h3 className="font-black text-[#0F172A] text-sm sm:text-base leading-tight">
+                      <h3 className="font-extrabold text-[#0C1B33] text-sm sm:text-base leading-snug">
                         1-Year complete maintenance package
                       </h3>
-                      <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5">
+                      <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
                         Warranty, service, RSA & buyback
                       </p>
                       <button
                         type="button"
                         onClick={() => setIsMaintenanceDetailsOpen(true)}
-                        className="text-xs text-[#00A38D] font-black flex items-center gap-0.5 mt-1 hover:underline cursor-pointer"
+                        className="text-xs text-[#00A38D] font-bold inline-flex items-center gap-0.5 mt-1.5 hover:underline cursor-pointer"
                       >
                         <span>See details</span>
                         <ChevronRight size={13} />
@@ -920,13 +920,13 @@ const CheckoutPage = () => {
                   </div>
 
                   {/* Right Price & Add/Added Button */}
-                  <div className="flex flex-col items-end shrink-0 gap-1.5">
-                    <div className="text-right">
-                      <span className="text-sm sm:text-base font-black text-[#0F172A] block leading-tight font-price">
+                  <div className="flex flex-col items-end shrink-0 gap-3">
+                    <div className="text-right flex flex-col items-end space-y-1">
+                      <span className="text-base sm:text-lg font-black text-[#0C1B33] font-price tracking-tight leading-snug">
                         ₹10,801
                       </span>
-                      <span className="text-[10px] sm:text-[11px] text-slate-500 font-semibold block leading-tight font-price">
-                        or ₹947/m
+                      <span className="text-xs text-slate-500 font-medium leading-normal tracking-normal">
+                        or <span className="font-bold text-slate-700 font-price">₹947</span>/m
                       </span>
                     </div>
 
@@ -934,18 +934,18 @@ const CheckoutPage = () => {
                       <button
                         type="button"
                         onClick={() => setIsMaintenanceModalOpen(true)}
-                        className="py-1.5 px-4 rounded-xl border-2 border-[#00A38D] bg-[#00A38D]/10 text-[#00A38D] font-black text-xs flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+                        className="py-1.5 px-4.5 rounded-xl border border-[#00A38D] bg-emerald-50 text-[#00A38D] font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs hover:bg-emerald-100/60"
                       >
-                        <Check size={14} strokeWidth={3} />
+                        <Check size={14} strokeWidth={2.5} />
                         <span>Added</span>
                       </button>
                     ) : (
                       <button
                         type="button"
                         onClick={() => setIsMaintenanceModalOpen(true)}
-                        className="py-1.5 px-4 rounded-xl border-2 border-[#00C9AF] text-[#008975] hover:bg-[#00C9AF]/10 bg-[#00C9AF]/5 font-black text-xs flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-2xs"
+                        className="py-1.5 px-5 rounded-xl border border-[#00C9AF] text-[#00A38D] hover:bg-[#00C9AF]/10 bg-teal-50/40 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
                       >
-                        <Plus size={14} strokeWidth={3} />
+                        <Plus size={14} strokeWidth={2.5} />
                         <span>Add</span>
                       </button>
                     )}
