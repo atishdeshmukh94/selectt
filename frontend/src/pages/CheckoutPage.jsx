@@ -2694,19 +2694,30 @@ const CheckoutPage = () => {
                   </div>
 
                   {/* Auto-slide indicator dots (clickable) */}
-                  <div className="flex justify-center items-center gap-1.5 mt-2.5 relative z-10">
+                  <div className="flex justify-center items-center gap-1.5 mt-3 relative z-10">
                     {[0, 1, 2].map((i) => (
                       <button
                         key={i}
                         type="button"
                         onClick={() => setBenefitSlide(i)}
                         aria-label={`Slide ${i + 1}`}
-                        className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                          benefitSlide === i
-                            ? 'w-5 bg-[#00C9AF] opacity-100 shadow-sm shadow-[#00C9AF]/50'
-                            : 'w-1.5 bg-[#00C9AF]/40 hover:bg-[#00C9AF]/70'
-                        }`}
-                      />
+                        className="p-1 !min-h-0 !border-0 bg-transparent flex items-center justify-center cursor-pointer transition-all focus:outline-none"
+                        style={{ minHeight: 'unset', height: 'auto', padding: '4px' }}
+                      >
+                        <span
+                          className={`block h-1.5 rounded-full transition-all duration-300 ${
+                            benefitSlide === i
+                              ? 'w-6 bg-[#00C9AF] opacity-100 shadow-sm shadow-[#00C9AF]/50'
+                              : 'w-2 bg-slate-500/60 hover:bg-slate-400'
+                          }`}
+                          style={{
+                            height: '6px',
+                            minHeight: '6px',
+                            maxHeight: '6px',
+                            width: benefitSlide === i ? '24px' : '8px',
+                          }}
+                        />
+                      </button>
                     ))}
                   </div>
                 </div>

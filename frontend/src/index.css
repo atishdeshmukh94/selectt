@@ -745,7 +745,7 @@ div[class*="chatty"],
   }
 
   /* Buttons & CTAs Tap Targets */
-  button, a.btn, input[type="button"], input[type="submit"] {
+  button:not([aria-label*="Slide"]):not([data-no-min-h]):not(.\!min-h-0), a.btn, input[type="button"], input[type="submit"] {
     min-height: 40px;
     font-weight: 700;
   }
