@@ -658,7 +658,7 @@ const CheckoutPage = () => {
 
   const supportPhone = settings?.contact_phone || settings?.maintenance_phone || '+91 85746 67466';
   const supportPhoneClean = supportPhone.replace(/[^0-9+]/g, '');
-  const supportEmail = settings?.contact_email || 'support@selectt.in';
+  const supportEmail = settings?.contact_email || 'contact@selectt.in';
 
   useEffect(() => {
     // If not logged in, redirect home or login
@@ -3059,7 +3059,7 @@ const CheckoutPage = () => {
       {isRefundPolicyOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="fixed inset-0" onClick={() => setIsRefundPolicyOpen(false)} />
-          <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-lg relative z-10 shadow-2xl p-6 sm:p-7 space-y-4 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-200">
+          <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-lg relative z-10 shadow-2xl p-6 sm:p-7 space-y-4 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-200 max-h-[90vh] overflow-y-auto">
             {/* Top Drag Handle for Mobile */}
             <div className="w-12 h-1 bg-slate-300 rounded-full mx-auto sm:hidden -mt-1 mb-2" />
 
@@ -3077,7 +3077,7 @@ const CheckoutPage = () => {
               </div>
             </div>
 
-            {/* Body paragraphs matching Spinny / Selectt refund guarantee contract */}
+            {/* Body paragraphs matching Selectt refund guarantee contract */}
             <div className="space-y-3.5 text-xs sm:text-[13.5px] text-slate-700 leading-relaxed font-normal pt-1">
               <p>
                 For any payment you make to book the car is 100% refundable till the car delivery date.
@@ -3090,11 +3090,11 @@ const CheckoutPage = () => {
               <p>
                 You can avail a 100% refund by requesting return from Selectt app or by visiting your nearest Selectt Car Hub or requesting a home pick-up by calling us on our after sales support helpline number{' '}
                 <a href={`tel:${supportPhoneClean}`} className="text-[#00A38D] font-bold hover:underline">
-                  {supportPhone}
+                  +91 85746 67466
                 </a>{' '}
                 or writing to us at{' '}
-                <a href={`mailto:${supportEmail}`} className="text-[#00A38D] font-bold hover:underline">
-                  {supportEmail}
+                <a href="mailto:contact@selectt.in" className="text-[#00A38D] font-bold hover:underline">
+                  contact@selectt.in
                 </a>.
               </p>
 
