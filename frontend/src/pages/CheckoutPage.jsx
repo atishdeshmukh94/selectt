@@ -1169,7 +1169,7 @@ const CheckoutPage = () => {
                 <div id="price-summary-section" className="p-4 sm:p-5 pt-3">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-heading font-extrabold text-[#0F172A] text-[15px] sm:text-[16px]">
-                      Price summary
+                      Price breakdown
                     </h4>
                   </div>
 
@@ -2396,7 +2396,7 @@ const CheckoutPage = () => {
             <div className="sticky top-0 bg-white/95 backdrop-blur-md z-30 border-b border-slate-200/80 shadow-2xs">
               <div className="px-5 py-3.5 sm:py-4 flex items-center justify-between">
                 <h3 className="font-heading font-extrabold text-[#0C1B33] text-lg sm:text-xl">
-                  Price Summary
+                  Price Breakdown
                 </h3>
                 <button
                   type="button"
