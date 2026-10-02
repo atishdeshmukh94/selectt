@@ -379,14 +379,14 @@ export const PriceInfoPopover = ({
           </p>
 
           {/* Footer Badge & Optional Details Link */}
-          <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[10.5px]">
+          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
             {badge && (
-              <span className="font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full leading-tight">
                 {badge}
               </span>
             )}
             {tag && (
-              <span className="font-semibold text-slate-400 ml-auto">
+              <span className="text-[10px] font-semibold text-slate-400 ml-2">
                 {tag}
               </span>
             )}
@@ -397,10 +397,10 @@ export const PriceInfoPopover = ({
                   setIsOpen(false);
                   onViewDetails();
                 }}
-                className="text-[#00A38D] font-bold hover:underline ml-auto flex items-center gap-0.5 cursor-pointer"
+                className="text-[10.5px] text-[#00A38D] font-bold hover:underline ml-auto flex items-center gap-0.5 cursor-pointer leading-tight"
               >
                 <span>Details</span>
-                <ChevronRight size={11} />
+                <ChevronRight size={10} />
               </button>
             )}
           </div>
