@@ -56,12 +56,12 @@ const TopFeatures = ({ features, theme = 'dark' }) => {
     : 'text-[11px] md:text-[12.5px] font-extrabold text-slate-400 uppercase tracking-[0.18em]';
 
   const featureIconClasses = theme === 'light'
-    ? 'w-5 h-5 md:w-6 md:h-6 rounded-full bg-white flex items-center justify-center text-[#00C9AF] shadow-xs shrink-0 border border-slate-200/90 group-hover:bg-[#00C9AF] group-hover:text-[#0A1C3A] transition-colors duration-300'
-    : 'w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#0C1B33] flex items-center justify-center text-[#00C9AF] shadow-xs shrink-0 border border-slate-800 group-hover:bg-[#00C9AF] group-hover:text-[#0A1C3A] transition-colors duration-300';
+    ? 'w-5 h-5 rounded-full bg-white flex items-center justify-center text-[#00C9AF] shadow-xs shrink-0 border border-slate-200/90 group-hover:bg-[#00C9AF] group-hover:text-[#0A1C3A] transition-colors duration-300'
+    : 'w-5 h-5 rounded-full bg-[#0C1B33] flex items-center justify-center text-[#00C9AF] shadow-xs shrink-0 border border-slate-800 group-hover:bg-[#00C9AF] group-hover:text-[#0A1C3A] transition-colors duration-300';
 
   const featureTextClasses = theme === 'light'
-    ? 'text-[13px] md:text-[15px] font-semibold text-[#0C1B33] leading-snug'
-    : 'text-[13px] md:text-[15px] font-semibold text-slate-100 leading-snug';
+    ? 'text-[13px] md:text-[13px] font-semibold text-[#0C1B33] leading-snug'
+    : 'text-[13px] md:text-[13px] font-semibold text-slate-100 leading-snug';
 
   return (
     <div className={outerContainerClasses}>
