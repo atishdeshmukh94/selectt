@@ -8,7 +8,7 @@ export default function BenefitsAddons() {
     {
       id: 'warranty',
       icon: <span className="font-black text-xl inline-block -translate-y-[1px]">1</span>,
-      title: "1 year\nwarranty",
+      title: "1 Year\nWarranty",
       subtitle: "Comprehensive Coverage",
       details: "Full 1-Year / 15,000 km warranty covering engine, gearbox, steering, and key electrical components with zero deductible.",
       colorClass: "text-amber-400 border-amber-400/80 bg-amber-500/20 shadow-[0_0_25px_rgba(251,191,36,0.6)]",
@@ -18,7 +18,7 @@ export default function BenefitsAddons() {
     {
       id: 'inspection',
       icon: <CheckSquare size={22} strokeWidth={2.5} />,
-      title: "200-points\ninspected",
+      title: "200-Points\nInspected",
       subtitle: "Engineer Certified",
       details: "Certified by master automotive engineers. Thorough 200-point inspection covering engine health, chassis structure, and road testing.",
       colorClass: "text-emerald-400 border-emerald-400/80 bg-emerald-500/20 shadow-[0_0_25px_rgba(52,211,153,0.6)]",
@@ -28,7 +28,7 @@ export default function BenefitsAddons() {
     {
       id: 'moneyback',
       icon: <RotateCcw size={22} strokeWidth={2.5} />,
-      title: "5-day\nmoney back",
+      title: "5-Day\nMoney Back",
       subtitle: "No Questions Asked",
       details: "Not completely satisfied? Return the car within 5 days or 300 km for a 100% full refund with instant processing.",
       colorClass: "text-cyan-400 border-cyan-400/80 bg-cyan-500/20 shadow-[0_0_25px_rgba(34,211,238,0.6)]",
@@ -38,7 +38,7 @@ export default function BenefitsAddons() {
     {
       id: 'buyback',
       icon: <RefreshCw size={22} strokeWidth={2.5} />,
-      title: "Buyback\nguarantee",
+      title: "Buyback\nGuarantee",
       subtitle: "Guaranteed Residual Value",
       details: "Assured buyback price lock for up to 3 years. Trade in or upgrade to another vehicle effortlessly whenever you choose.",
       colorClass: "text-indigo-400 border-indigo-400/80 bg-indigo-500/20 shadow-[0_0_25px_rgba(129,140,248,0.6)]",
@@ -48,7 +48,7 @@ export default function BenefitsAddons() {
     {
       id: 'fixedprice',
       icon: <BadgeIndianRupee size={22} strokeWidth={2.5} />,
-      title: "Fixed price\nassurance",
+      title: "Fixed Price\nAssurance",
       subtitle: "Fair Data-Driven Rate",
       details: "Transparent, non-negotiable fair pricing calculated with AI market analysis. No hidden dealer markups or extra fees.",
       colorClass: "text-[#00FFDC] border-[#00C9AF]/80 bg-[#00C9AF]/20 shadow-[0_0_25px_rgba(0,201,175,0.6)]",
@@ -58,7 +58,7 @@ export default function BenefitsAddons() {
     {
       id: 'rsa',
       icon: <AlertTriangle size={22} strokeWidth={2.5} />,
-      title: "Roadside\nassistance",
+      title: "Roadside\nAssistance",
       subtitle: "24x7 Support Across India",
       details: "Round-the-clock nationwide emergency support including towing, flat tire replacement, fuel delivery, and battery jumpstart.",
       colorClass: "text-rose-400 border-rose-400/80 bg-rose-500/20 shadow-[0_0_25px_rgba(244,63,94,0.6)]",
@@ -101,11 +101,11 @@ export default function BenefitsAddons() {
         <div className="flex items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-2.5">
             <h2 className="text-lg md:text-xl font-bold text-white">Benefits &amp; Add-Ons</h2>
-            <span className="bg-[#00C9AF] text-[#0C1B33] text-[9px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded flex items-center gap-1 shadow-sm">
-              <Shield size={9} fill="currentColor" className="text-[#0C1B33]" /> Assured
+            <span className="bg-[#00C9AF] text-[#0A1C3A] text-[11px] uppercase tracking-wider font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1.5 shadow-sm">
+              <Shield size={11} fill="currentColor" className="text-[#0A1C3A]" /> Assured
             </span>
           </div>
-          <span className="text-[10px] text-slate-400 font-semibold hidden sm:inline-block">Tap any benefit to learn more</span>
+          <span className="text-xs text-slate-400 font-semibold hidden sm:inline-block">Tap any benefit to learn more</span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -130,7 +130,7 @@ export default function BenefitsAddons() {
                   {item.icon}
                 </div>
               </div>
-              <div className="text-xs font-black text-slate-100 whitespace-pre-line leading-tight text-center group-hover:text-[#00C9AF] transition-colors tracking-tight">
+              <div className="text-[13px] md:text-[13.5px] font-semibold text-white whitespace-pre-line leading-[1.35] text-center group-hover:text-[#00C9AF] transition-colors tracking-normal">
                 {item.title}
               </div>
             </button>
