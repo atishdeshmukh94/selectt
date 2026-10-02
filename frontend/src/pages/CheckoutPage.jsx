@@ -2055,11 +2055,11 @@ const CheckoutPage = () => {
               {/* Best-in-class values Section */}
               <div className="pt-2">
                 <div className="flex items-center justify-center gap-3 my-4">
-                  <div className="h-px bg-slate-200 flex-1 max-w-[70px]" />
-                  <span className="font-bold text-[#0C1B33] text-xs sm:text-sm tracking-tight">
+                  <div className="h-px bg-slate-200 flex-1 max-w-[80px]" />
+                  <span className="font-extrabold text-[#0C1B33] text-base sm:text-lg tracking-tight">
                     Best-in-class values
                   </span>
-                  <div className="h-px bg-slate-200 flex-1 max-w-[70px]" />
+                  <div className="h-px bg-slate-200 flex-1 max-w-[80px]" />
                 </div>
 
                 <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex items-center gap-3.5 mb-4">
