@@ -2252,13 +2252,17 @@ app.get('/api/customers/profile', customerAuth, (req, res) => {
 });
 
 app.put('/api/customers/profile', customerAuth, (req, res) => {
-    const { first_name, last_name, alt_phone, email, address, area, city, state, pincode } = req.body;
+    const { first_name, last_name, phone, alt_phone, email, address, area, city, state, pincode } = req.body;
     const data = { first_name, last_name, alt_phone, email, address, area, city, state, pincode };
+    if (phone && phone.trim()) {
+        data.phone = phone.trim().replace(/\D/g, '').slice(-10);
+    }
     db.query('UPDATE customers SET ? WHERE id = ?', [data, req.user.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'Profile updated successfully' });
     });
 });
+
 
 // Customer: Upload profile picture
 app.post('/api/customers/avatar', customerAuth, upload.single('avatar'), convertRequestImagesToWebp, (req, res) => {

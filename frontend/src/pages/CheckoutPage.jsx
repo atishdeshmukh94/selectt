@@ -68,6 +68,75 @@ const DEFAULT_BUY_STEPS = [
   }
 ];
 
+const ASSURED_BENEFIT_PAIRS = [
+  [
+    {
+      id: 'warranty',
+      icon: ShieldCheck,
+      iconGrad: 'from-emerald-600 to-teal-400',
+      title: '6 Months Warranty',
+      badge: 'Comprehensive',
+      badgeColor: 'bg-emerald-100 text-emerald-800',
+      desc: 'Engine, transmission & electrical coverage. Zero deductible.',
+      border: 'border-emerald-200/80',
+    },
+    {
+      id: 'moneyback',
+      icon: RotateCcw,
+      iconGrad: 'from-amber-500 to-yellow-400',
+      title: '5-Day Money Back',
+      badge: 'No Risk',
+      badgeColor: 'bg-amber-100 text-amber-900',
+      desc: 'Return within 5 days / 250 km for 100% full refund.',
+      border: 'border-amber-200/80',
+    },
+  ],
+  [
+    {
+      id: 'loans',
+      icon: CreditCard,
+      iconGrad: 'from-cyan-600 to-blue-400',
+      title: 'Lowest EMIs & Loans',
+      badge: 'From 8.9% ROI',
+      badgeColor: 'bg-cyan-100 text-cyan-900',
+      desc: 'Top bank approvals, 12–84 months tenure.',
+      border: 'border-cyan-200/80',
+    },
+    {
+      id: 'selection',
+      icon: Car,
+      iconGrad: 'from-rose-500 to-pink-500',
+      title: '1 in 20 Selection',
+      badge: 'Top 5% Only',
+      badgeColor: 'bg-rose-100 text-rose-900',
+      desc: '200-point check. Non-accidental, verified odometer.',
+      border: 'border-rose-200/80',
+    },
+  ],
+  [
+    {
+      id: 'refurbished',
+      icon: Sparkles,
+      iconGrad: 'from-indigo-600 to-sky-400',
+      title: 'Quality Assured',
+      badge: 'Refurbished',
+      badgeColor: 'bg-indigo-100 text-indigo-900',
+      desc: 'Mechanical restoration, paint polish & ozone sanitization.',
+      border: 'border-indigo-200/80',
+    },
+    {
+      id: 'buyback',
+      icon: Gift,
+      iconGrad: 'from-[#0C1B33] to-[#00C9AF]',
+      title: 'Buyback Guarantee',
+      badge: 'Assured Price',
+      badgeColor: 'bg-[#00C9AF]/20 text-teal-900',
+      desc: 'Locked valuation up to 12 months + ₹30,000 upgrade bonus.',
+      border: 'border-teal-200/80',
+    },
+  ],
+];
+
 const FREEBET_CONFETTI_COLORS = [
   '#ffc600', // gold yellow
   '#159b36', // green
@@ -467,6 +536,18 @@ const CheckoutPage = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(-1);
   const [activeBreakdownModal, setActiveBreakdownModal] = useState(null); // 'servicing' | 'fixes' | 'gst' | null
   const [isRefundPolicyOpen, setIsRefundPolicyOpen] = useState(false);
+
+  // Auto-sliding Selectt Assured Benefits carousel state
+  const [benefitSlide, setBenefitSlide] = useState(0);
+  const [pauseBenefitSlide, setPauseBenefitSlide] = useState(false);
+
+  useEffect(() => {
+    if (!isPriceSummaryOpen || pauseBenefitSlide) return;
+    const timer = setInterval(() => {
+      setBenefitSlide((prev) => (prev + 1) % 3);
+    }, 2800);
+    return () => clearInterval(timer);
+  }, [isPriceSummaryOpen, pauseBenefitSlide]);
 
   // Coupon Code State
   const [couponInput, setCouponInput] = useState('');
@@ -1396,7 +1477,7 @@ const CheckoutPage = () => {
             </p>
             <button
               type="button"
-              onClick={() => setIsRefundPolicyOpen(true)}
+              onClick={() => navigate('/profile?edit=phone')}
               className="text-[10px] font-bold text-[#00A38D] uppercase tracking-wider cursor-pointer hover:underline"
             >
               EDIT
@@ -2339,112 +2420,71 @@ const CheckoutPage = () => {
                     <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest hidden sm:inline-block">100% Peace of Mind</span>
                   </div>
 
-                  {/* Scroll Carousel — 2 cards visible */}
+                  {/* Auto-Slide Carousel Container — 2 cards visible */}
                   <div
-                    className="relative z-10 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-1"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    className="relative z-10 overflow-hidden"
+                    onMouseEnter={() => setPauseBenefitSlide(true)}
+                    onMouseLeave={() => setPauseBenefitSlide(false)}
+                    onTouchStart={() => setPauseBenefitSlide(true)}
+                    onTouchEnd={() => setPauseBenefitSlide(false)}
                   >
-                    {/* Card 1: Warranty */}
-                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-emerald-200/80 shadow-sm">
-                      <div className="flex items-start gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-400 text-white flex items-center justify-center shrink-0">
-                          <ShieldCheck size={14} />
+                    <div
+                      className="flex transition-transform duration-500 ease-in-out"
+                      style={{ transform: `translateX(-${benefitSlide * 100}%)` }}
+                    >
+                      {ASSURED_BENEFIT_PAIRS.map((pair, pIdx) => (
+                        <div key={pIdx} className="w-full shrink-0 grid grid-cols-2 gap-2.5 pb-1">
+                          {pair.map((card) => {
+                            const Icon = card.icon;
+                            return (
+                              <div
+                                key={card.id}
+                                className={`bg-white/95 rounded-xl p-2.5 border ${card.border} shadow-sm flex flex-col justify-between`}
+                              >
+                                <div className="flex items-start gap-2">
+                                  <div
+                                    className={`w-7 h-7 rounded-lg bg-gradient-to-tr ${card.iconGrad} text-white flex items-center justify-center shrink-0 shadow-xs`}
+                                  >
+                                    <Icon size={14} className={card.id === 'buyback' ? 'text-amber-300' : ''} />
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-1 mb-0.5 flex-wrap">
+                                      <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">
+                                        {card.title}
+                                      </h4>
+                                      <span
+                                        className={`text-[7px] ${card.badgeColor} font-black px-1 py-0.5 rounded uppercase whitespace-nowrap`}
+                                      >
+                                        {card.badge}
+                                      </span>
+                                    </div>
+                                    <p className="text-[9px] text-slate-500 font-medium leading-snug">
+                                      {card.desc}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
-                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">6 Months Warranty</h4>
-                            <span className="text-[7px] bg-emerald-100 text-emerald-800 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">Comprehensive</span>
-                          </div>
-                          <p className="text-[9px] text-slate-500 font-medium leading-snug">Engine, transmission & electrical coverage. Zero deductible.</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card 2: Money Back */}
-                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-amber-200/80 shadow-sm">
-                      <div className="flex items-start gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center shrink-0">
-                          <RotateCcw size={14} />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
-                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">5-Day Money Back</h4>
-                            <span className="text-[7px] bg-amber-100 text-amber-900 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">No Risk</span>
-                          </div>
-                          <p className="text-[9px] text-slate-500 font-medium leading-snug">Return within 5 days / 250 km for 100% full refund.</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card 3: Lowest EMI */}
-                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-cyan-200/80 shadow-sm">
-                      <div className="flex items-start gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-400 text-white flex items-center justify-center shrink-0">
-                          <CreditCard size={14} />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
-                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">Lowest EMIs & Loans</h4>
-                            <span className="text-[7px] bg-cyan-100 text-cyan-900 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">From 8.9% ROI</span>
-                          </div>
-                          <p className="text-[9px] text-slate-500 font-medium leading-snug">Top bank approvals, 12–84 months tenure.</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card 4: 1 in 20 Selection */}
-                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-rose-200/80 shadow-sm">
-                      <div className="flex items-start gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center shrink-0">
-                          <Car size={14} />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
-                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">1 in 20 Selection</h4>
-                            <span className="text-[7px] bg-rose-100 text-rose-900 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">Top 5% Only</span>
-                          </div>
-                          <p className="text-[9px] text-slate-500 font-medium leading-snug">200-point check. Non-accidental, verified odometer.</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card 5: Quality Assured */}
-                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-indigo-200/80 shadow-sm">
-                      <div className="flex items-start gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-sky-400 text-white flex items-center justify-center shrink-0">
-                          <Sparkles size={14} />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
-                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">Quality Assured</h4>
-                            <span className="text-[7px] bg-indigo-100 text-indigo-900 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">Refurbished</span>
-                          </div>
-                          <p className="text-[9px] text-slate-500 font-medium leading-snug">Mechanical restoration, paint polish & ozone sanitization.</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card 6: Buyback */}
-                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-teal-200/80 shadow-sm">
-                      <div className="flex items-start gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#0C1B33] to-[#00C9AF] text-white flex items-center justify-center shrink-0">
-                          <Gift size={14} className="text-amber-300" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
-                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">Buyback Guarantee</h4>
-                            <span className="text-[7px] bg-[#00C9AF]/20 text-teal-900 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">Assured Price</span>
-                          </div>
-                          <p className="text-[9px] text-slate-500 font-medium leading-snug">Locked valuation up to 12 months + ₹30,000 upgrade bonus.</p>
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Scroll hint dots */}
-                  <div className="flex justify-center gap-1 mt-2.5 relative z-10">
-                    {[0,1,2].map(i => (
-                      <div key={i} className={`h-1 rounded-full bg-[#00C9AF] ${i === 0 ? 'w-4 opacity-100' : 'w-1.5 opacity-40'}`} />
+                  {/* Auto-slide indicator dots (clickable) */}
+                  <div className="flex justify-center items-center gap-1.5 mt-2.5 relative z-10">
+                    {[0, 1, 2].map((i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setBenefitSlide(i)}
+                        aria-label={`Slide ${i + 1}`}
+                        className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                          benefitSlide === i
+                            ? 'w-5 bg-[#00C9AF] opacity-100 shadow-sm shadow-[#00C9AF]/50'
+                            : 'w-1.5 bg-[#00C9AF]/40 hover:bg-[#00C9AF]/70'
+                        }`}
+                      />
                     ))}
                   </div>
                 </div>

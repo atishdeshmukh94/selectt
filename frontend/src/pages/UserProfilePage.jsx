@@ -94,6 +94,7 @@ const UserProfilePage = () => {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [cropSrc, setCropSrc] = useState(null);
   const avatarInputRef = useRef(null);
+  const phoneInputRef = useRef(null);
 
   // Step 1: user picks a file → read it as data URL → open cropper
   const handleFileSelect = (e) => {
@@ -202,6 +203,15 @@ const UserProfilePage = () => {
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab) setActiveTab(tab);
+
+    const edit = searchParams.get('edit');
+    if (edit === 'phone') {
+      setActiveTab('profile');
+      setTimeout(() => {
+        phoneInputRef.current?.focus();
+        phoneInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 350);
+    }
   }, [searchParams]);
 
   const profileFetched = useRef(false);
@@ -446,7 +456,7 @@ const UserProfilePage = () => {
         body: JSON.stringify(profile)
       });
       if (!res.ok) throw new Error('Failed to save');
-      updateUser({ ...user, first_name: profile.first_name, last_name: profile.last_name, email: profile.email });
+      updateUser({ ...user, first_name: profile.first_name, last_name: profile.last_name, phone: profile.phone, email: profile.email });
       setProfileMsg('Profile saved successfully!');
     } catch {
       setProfileMsg('Failed to save profile. Please try again.');
@@ -573,10 +583,29 @@ const UserProfilePage = () => {
                         <input type="text" value={profile.last_name} onChange={e => setProfile(p => ({ ...p, last_name: e.target.value }))} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF]" placeholder="Last Name" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mobile Number</label>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Mobile Number</label>
+                          {searchParams.get('edit') === 'phone' && (
+                            <span className="text-[10px] font-bold text-[#00A38D] bg-teal-50 px-2 py-0.5 rounded-full border border-[#00C9AF]/30 animate-pulse">
+                              Editing Mobile Number
+                            </span>
+                          )}
+                        </div>
                         <div className="relative">
                           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">+91</span>
-                          <input type="tel" className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 text-slate-500 font-bold rounded-xl focus:outline-none" value={profile.phone} readOnly />
+                          <input
+                            ref={phoneInputRef}
+                            type="tel"
+                            maxLength={10}
+                            value={profile.phone}
+                            onChange={e => setProfile(p => ({ ...p, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                            className={`w-full pl-12 pr-4 py-3 border rounded-xl font-bold text-[#0C1B33] focus:outline-none transition-all ${
+                              searchParams.get('edit') === 'phone'
+                                ? 'border-[#00C9AF] ring-2 ring-[#00C9AF]/30 bg-teal-50/20'
+                                : 'border-slate-200 focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] bg-white'
+                            }`}
+                            placeholder="10-digit mobile number"
+                          />
                         </div>
                       </div>
                       <div>
