@@ -25,7 +25,9 @@ export const RupeeSignIcon = ({ className = "w-3 h-3 fill-current", ...props }) 
 
 export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate }) => {
   const { getSiteImage, settings } = useSiteSettings();
-  const siteLogo = getSiteImage('frontend_header_logo', '/img/dark-logo.svg');
+  const siteLogo = getSiteImage('header_logo_light', '') 
+    || getSiteImage('admin_logo_dark', '') 
+    || '/img/dark-logo.svg';
   const supportPhone = settings?.contact_phone || settings?.maintenance_phone || '+91 85746 67466';
   const supportPhoneClean = supportPhone.replace(/[^0-9+]/g, '');
 
@@ -51,23 +53,23 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate 
 
           <Link to="/" className="flex items-center gap-2 group">
             <img 
-              src={siteLogo || "/img/dark-logo.svg"} 
+              src={siteLogo} 
               alt="Selectt" 
               className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-102"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "/img/header-logo.png";
+                e.target.src = "/img/dark-logo.svg";
               }}
             />
           </Link>
         </div>
 
-        {/* Center: 3-Step Stepper (Desktop & Tablet) */}
+        {/* Center: 3-Step Stepper (Desktop & Tablet) in Selectt Brand Color */}
         <div className="hidden md:flex items-center justify-center flex-1 max-w-2xl px-2 lg:px-6">
           <div className="flex items-center w-full justify-center">
             {/* Step 1: Car selected */}
             <div className="flex items-center gap-2 shrink-0">
-              <div className="w-6 h-6 rounded-full bg-[#E53935] text-white flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-6 h-6 rounded-full bg-[#00A38D] text-white flex items-center justify-center shrink-0 shadow-2xs shadow-[#00A38D]/20">
                 <Check size={13} strokeWidth={3.2} />
               </div>
               <span className="text-[13.5px] font-semibold text-[#1E293B] whitespace-nowrap">
@@ -75,15 +77,15 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate 
               </span>
             </div>
 
-            {/* Connecting Line 1 -> 2 (Solid red) */}
-            <div className="flex-1 max-w-[120px] min-w-[36px] h-[2px] bg-[#E53935] mx-3 lg:mx-4 shrink-0 rounded-full" />
+            {/* Connecting Line 1 -> 2 (Solid Brand Teal) */}
+            <div className="flex-1 max-w-[120px] min-w-[36px] h-[2px] bg-[#00A38D] mx-3 lg:mx-4 shrink-0 rounded-full" />
 
             {/* Step 2: Test drive preferences */}
             <div className="flex items-center gap-2 shrink-0">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs transition-colors ${
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs transition-all ${
                 currentStep > 2 
-                  ? 'bg-[#E53935] text-white' 
-                  : 'bg-[#E53935] text-white ring-2 ring-[#E53935]/25'
+                  ? 'bg-[#00A38D] text-white' 
+                  : 'bg-[#00A38D] text-white ring-4 ring-[#00A38D]/20'
               }`}>
                 {currentStep > 2 ? <Check size={13} strokeWidth={3.2} /> : '2'}
               </div>
@@ -92,16 +94,16 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate 
               </span>
             </div>
 
-            {/* Connecting Line 2 -> 3 (Grey / Red if step 3) */}
+            {/* Connecting Line 2 -> 3 (Grey / Brand Teal if step 3) */}
             <div className={`flex-1 max-w-[120px] min-w-[36px] h-[2px] mx-3 lg:mx-4 shrink-0 rounded-full transition-colors ${
-              currentStep >= 3 ? 'bg-[#E53935]' : 'bg-slate-300'
+              currentStep >= 3 ? 'bg-[#00A38D]' : 'bg-slate-300'
             }`} />
 
             {/* Step 3: Payment */}
             <div className="flex items-center gap-2 shrink-0">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs transition-colors ${
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs transition-all ${
                 currentStep >= 3 
-                  ? 'bg-[#E53935] text-white ring-2 ring-[#E53935]/25' 
+                  ? 'bg-[#00A38D] text-white ring-4 ring-[#00A38D]/20' 
                   : 'bg-slate-300 text-white'
               }`}>
                 3
@@ -140,7 +142,7 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate 
         <div className="flex items-center justify-center w-full min-w-max gap-1.5 sm:gap-2">
           {/* Step 1 */}
           <div className="flex items-center gap-1 shrink-0">
-            <div className="w-5 h-5 rounded-full bg-[#E53935] text-white flex items-center justify-center text-[10px] shrink-0 shadow-2xs">
+            <div className="w-5 h-5 rounded-full bg-[#00A38D] text-white flex items-center justify-center text-[10px] shrink-0 shadow-2xs">
               <Check size={11} strokeWidth={3} />
             </div>
             <span className="text-[11px] font-semibold text-[#1E293B]">
@@ -148,12 +150,12 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate 
             </span>
           </div>
 
-          <div className="w-6 sm:w-10 h-[2px] bg-[#E53935] mx-1 shrink-0 rounded-full" />
+          <div className="w-6 sm:w-10 h-[2px] bg-[#00A38D] mx-1 shrink-0 rounded-full" />
 
           {/* Step 2 */}
           <div className="flex items-center gap-1 shrink-0">
             <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 shadow-2xs ${
-              currentStep > 2 ? 'bg-[#E53935] text-white' : 'bg-[#E53935] text-white'
+              currentStep > 2 ? 'bg-[#00A38D] text-white' : 'bg-[#00A38D] text-white'
             }`}>
               {currentStep > 2 ? <Check size={11} strokeWidth={3} /> : '2'}
             </div>
@@ -163,13 +165,13 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate 
           </div>
 
           <div className={`w-6 sm:w-10 h-[2px] mx-1 shrink-0 rounded-full ${
-            currentStep >= 3 ? 'bg-[#E53935]' : 'bg-slate-300'
+            currentStep >= 3 ? 'bg-[#00A38D]' : 'bg-slate-300'
           }`} />
 
           {/* Step 3 */}
           <div className="flex items-center gap-1 shrink-0">
             <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 shadow-2xs ${
-              currentStep >= 3 ? 'bg-[#E53935] text-white' : 'bg-slate-300 text-white'
+              currentStep >= 3 ? 'bg-[#00A38D] text-white' : 'bg-slate-300 text-white'
             }`}>
               3
             </div>
