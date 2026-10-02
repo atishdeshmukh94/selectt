@@ -447,6 +447,7 @@ const CheckoutPage = () => {
   const [isBooking, setIsBooking] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [interestedInLoan, setInterestedInLoan] = useState(false);
+  const [showLoanBoxOnMobile, setShowLoanBoxOnMobile] = useState(false);
   const [mobileLoanPromptVisible, setMobileLoanPromptVisible] = useState(true);
   const [mobilePromptStep, setMobilePromptStep] = useState(1); // 1: Loan prompt, 2: Test drive prompt
   const [isPriceSummaryOpen, setIsPriceSummaryOpen] = useState(false);
@@ -774,7 +775,7 @@ const CheckoutPage = () => {
 
 
           {/* Main Title Area */}
-          <div className="flex items-end justify-between mb-8">
+          <div className="flex items-end justify-between mb-4 sm:mb-8">
             <div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-[#0F172A] mb-2 leading-tight">
                 Reserve this car for <span className="text-[#00C9AF] font-bold font-price">₹{rawBookingAmount.toLocaleString('en-IN')}</span>
@@ -795,9 +796,9 @@ const CheckoutPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-6 lg:gap-8 items-start">
             {/* Left Column: Flow Options (7 cols on desktop) */}
-            <div className="lg:col-span-7 space-y-5">
+            <div className="lg:col-span-7 flex flex-col gap-3.5 sm:gap-5">
 
               {/* 1. 1-Year Complete Maintenance Package (Screenshot 1 middle card) */}
               <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-teal-200">
@@ -868,7 +869,7 @@ const CheckoutPage = () => {
               </div>
 
               {/* 2. Interested in Car Loan? (Matching Spinny Reference Screenshot 1) */}
-              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-slate-300">
+              <div className={`${!showLoanBoxOnMobile && !interestedInLoan ? 'hidden lg:block' : 'block'} bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-slate-300 animate-in fade-in duration-200`}>
                 <h4 className="font-extrabold text-[#0F172A] text-sm sm:text-base mb-1">
                   Interested in car loan?
                 </h4>
@@ -885,8 +886,8 @@ const CheckoutPage = () => {
                     onClick={() => setInterestedInLoan(false)}
                     className={`py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer text-center ${
                       !interestedInLoan
-                        ? 'border-slate-300 bg-white text-slate-700 shadow-2xs hover:border-slate-400'
-                        : 'border-slate-200 bg-slate-50/70 text-slate-500 hover:bg-white'
+                        ? 'border-slate-400 bg-white text-slate-800 shadow-2xs font-extrabold'
+                        : 'border-slate-200 bg-slate-50/70 text-slate-400 hover:bg-white'
                     }`}
                   >
                     Not Interested
@@ -894,14 +895,19 @@ const CheckoutPage = () => {
 
                   <button
                     type="button"
-                    onClick={() => setInterestedInLoan(true)}
+                    onClick={() => {
+                      setInterestedInLoan(true);
+                      setShowLoanBoxOnMobile(true);
+                    }}
                     className={`py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                       interestedInLoan
-                        ? 'border-[#00C9AF] bg-teal-50/70 text-[#008975] ring-1 ring-[#00C9AF]/30 shadow-xs font-black'
+                        ? 'border-[#00A38D] bg-teal-50/70 text-[#008975] ring-2 ring-[#00A38D]/25 shadow-xs font-black'
                         : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
                     }`}
                   >
-                    {interestedInLoan && <Check size={14} strokeWidth={3} className="text-[#00A38D]" />}
+                    {interestedInLoan && (
+                      <Check size={15} strokeWidth={3} className="text-[#00A38D] shrink-0" />
+                    )}
                     <span>Yes, I'm interested</span>
                   </button>
                 </div>
@@ -997,7 +1003,7 @@ const CheckoutPage = () => {
             </div>
 
             {/* Right Column: Order Summary & Price Breakdown (5 cols on desktop) */}
-            <div className="lg:col-span-5 space-y-4">
+            <div className="lg:col-span-5 flex flex-col gap-3.5 sm:gap-4">
 
               {/* Savings Banner with Confetti Effect (Desktop only, mobile has it at the top) */}
               <div className="hidden lg:block">
@@ -1989,6 +1995,7 @@ const CheckoutPage = () => {
                     type="button"
                     onClick={() => {
                       setInterestedInLoan(true);
+                      setShowLoanBoxOnMobile(true);
                       setMobilePromptStep(2);
                     }}
                     className="flex-1 py-2.5 px-3 rounded-xl bg-[#00C9AF] hover:bg-[#00b29a] active:scale-[0.98] text-[#0C1B33] font-black text-xs sm:text-sm shadow-md shadow-[#00C9AF]/25 transition-all duration-150 cursor-pointer"
