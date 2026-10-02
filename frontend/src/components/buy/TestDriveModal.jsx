@@ -187,7 +187,6 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
       const data = await response.json();
 
       if (response.ok) {
-        setIsSuccess(true);
         if (onSuccess) {
           onSuccess({
             location: selectedLocation === 'hub' ? 'hub' : 'doorstep',
@@ -197,6 +196,8 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
             slot: selectedSlot
           });
         }
+        // Auto-close the modal after successful save
+        handleClose();
       } else if (response.status === 401) {
         handleAuthError();
         onClose();
@@ -255,7 +256,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
               <ArrowLeft size={20} strokeWidth={2.5} />
             </button>
             <h2 className="text-base sm:text-lg font-black text-[#0C1B33] tracking-tight">
-              {isEditMode ? 'Edit Test Drive Details' : 'Schedule Free Test Drive'}
+              {isEditMode ? 'Reschedule Your Test Drive' : 'Book Test Drive'}
             </h2>
           </div>
           <button
@@ -636,11 +637,11 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
               {isLoading ? (
                 <div className="flex items-center gap-2 py-1">
                   <div className="w-4 h-4 border-2 border-[#0C1B33]/40 border-t-[#0C1B33] rounded-full animate-spin" />
-                  <span className="text-[#0C1B33]">{isEditMode ? 'Updating Test Drive...' : 'Scheduling Test Drive...'}</span>
+                  <span className="text-[#0C1B33]">Booking Test Drive...</span>
                 </div>
               ) : (
                 <>
-                  <span className="leading-tight">{isEditMode ? 'Save & Update Test Drive' : 'Pick slot & continue'}</span>
+                  <span className="leading-tight">Book Test Drive</span>
                   <span className="text-[11px] font-bold text-[#0C1B33]/75 leading-tight mt-0.5">
                     {selectedLocation === 'hub' ? 'Selectt Hub' : 'Doorstep'} on {getSelectedDateDisplay()} {selectedSlot ? `• ${selectedSlot}` : ''}
                   </span>
