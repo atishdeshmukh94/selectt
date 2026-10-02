@@ -4709,17 +4709,35 @@ app.post('/api/payments/verify', customerAuth, async (req, res) => {
 
                     // Gallabox WhatsApp & Admin Notification
                     db.query(
-                        'SELECT b.*, c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year FROM bookings b JOIN customers c ON b.customer_id = c.id JOIN cars car ON b.car_id = car.id WHERE b.id = ?',
+                        'SELECT b.id AS booking_pk, b.booking_no, b.booking_amount, b.final_amount, c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year FROM bookings b JOIN customers c ON b.customer_id = c.id JOIN cars car ON b.car_id = car.id WHERE b.id = ?',
                         [booking_id],
-                        (bErr, bRows) => {
+                        async (bErr, bRows) => {
                             if (!bErr && bRows.length > 0) {
                                 const info = bRows[0];
-                                sendGallaboxWhatsAppNotification('car_booking', info.phone || req.user.phone, {
-                                    customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
-                                    car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
-                                    amount: `₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')}`,
-                                    booking_id: info.booking_no || `BK-${booking_id}`
-                                });
+                                const recipientPhone = info.phone || req.user.phone;
+                                console.log(`[Payment Verified] Sending Gallabox WhatsApp booking confirmation to ${recipientPhone} for booking #${info.booking_no}...`);
+                                
+                                try {
+                                    await sendGallaboxWhatsAppNotification('car_booking', recipientPhone, {
+                                        customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
+                                        car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
+                                        amount: `₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')}`,
+                                        booking_id: info.booking_no || `BK-${booking_id}`
+                                    });
+                                } catch (wErr) {
+                                    console.error('[Gallabox Send Error on Verify]:', wErr);
+                                }
+
+                                try {
+                                    sendAdminWhatsAppAlert('admin_booking', {
+                                        customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Customer',
+                                        car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
+                                        amount: `₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')}`,
+                                        booking_id: info.booking_no || `BK-${booking_id}`,
+                                        phone: recipientPhone
+                                    }).catch(() => {});
+                                } catch (_) {}
+
                                 createNotification('PAYMENT', `Token payment of ₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')} received for booking #${info.booking_no} (${info.make} ${info.model})`, req.user.id, booking_id);
                             }
                         }
@@ -4734,6 +4752,38 @@ app.post('/api/payments/verify', customerAuth, async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Explicit endpoint to trigger Gallabox WhatsApp notification for a booking
+app.post('/api/bookings/:id/send-whatsapp', customerAuth, async (req, res) => {
+    const bookingId = req.params.id;
+    try {
+        const rows = await queryAsync(
+            `SELECT b.id AS booking_pk, b.booking_no, b.booking_amount, b.final_amount, c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year 
+             FROM bookings b 
+             JOIN customers c ON b.customer_id = c.id 
+             JOIN cars car ON b.car_id = car.id 
+             WHERE b.id = ? AND (b.customer_id = ? OR ? = 'admin')`,
+            [bookingId, req.user.id, req.user.role || '']
+        );
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        const info = rows[0];
+        const recipientPhone = info.phone || req.user.phone;
+        const result = await sendGallaboxWhatsAppNotification('car_booking', recipientPhone, {
+            customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
+            car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
+            amount: `₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')}`,
+            booking_id: info.booking_no || `BK-${bookingId}`
+        });
+
+        res.json({ success: true, result });
+    } catch (err) {
+        console.error('[Manual WhatsApp Trigger Error]:', err);
+        res.status(500).json({ error: err.message });
     }
 });
 

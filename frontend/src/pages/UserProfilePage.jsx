@@ -696,23 +696,27 @@ const UserProfilePage = () => {
                           {b.payment_status}
                         </div>
                       </div>
-                      <div className="p-5 flex-1 flex flex-col">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-bold text-[#0C1B33] text-lg leading-tight uppercase">
-                            {b.year} {b.make} {b.model}
-                          </h3>
-                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                            #{b.booking_no}
+                      <div className="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-start justify-between mb-1.5 gap-2">
+                            <h3 className="font-bold text-[#0C1B33] text-base sm:text-lg leading-tight uppercase line-clamp-1">
+                              {b.year} {b.make} {b.model}
+                            </h3>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter shrink-0">
+                              #{b.booking_no}
+                            </div>
                           </div>
-                        </div>
-                        <p className="text-xs text-slate-500 mb-4 font-bold uppercase">{b.variant || (b.fuel_type + ' • ' + b.transmission)}</p>
+                          <p className="text-xs text-slate-500 mb-2 font-bold uppercase truncate">
+                            {b.variant || (b.fuel_type + ' • ' + b.transmission)}
+                          </p>
 
-                        <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">
-                          <span>{(b.km || 0).toLocaleString()} KM</span>
-                          <span>•</span>
-                          <span>{b.ownership || '1ST OWNER'}</span>
-                          <span>•</span>
-                          <span>{b.reg_state || 'MH-12'}</span>
+                          <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-4 flex-wrap">
+                            <span className="whitespace-nowrap">{(b.km || 0).toLocaleString()} KM</span>
+                            <span className="text-slate-300">•</span>
+                            <span className="whitespace-nowrap">{b.ownership || '1ST OWNER'}</span>
+                            <span className="text-slate-300">•</span>
+                            <span className="whitespace-nowrap">{b.reg_state || 'MH-12'}</span>
+                          </div>
                         </div>
 
                         <div className="mt-auto">

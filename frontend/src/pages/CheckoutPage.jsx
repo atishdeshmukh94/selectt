@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
-import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil, Building2, Tag, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil, Building2, Tag, AlertCircle, Copy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
@@ -622,6 +622,11 @@ const CheckoutPage = () => {
   const [activeBreakdownModal, setActiveBreakdownModal] = useState(null); // 'servicing' | 'fixes' | 'gst' | null
   const [isRefundPolicyOpen, setIsRefundPolicyOpen] = useState(false);
 
+  // Payment Success Modal state
+  const [showPaymentSuccessModal, setShowPaymentSuccessModal] = useState(false);
+  const [paymentSuccessData, setPaymentSuccessData] = useState(null);
+  const [copiedPaymentId, setCopiedPaymentId] = useState(false);
+
   // Auto-sliding Selectt Assured Benefits carousel state
   const [benefitSlide, setBenefitSlide] = useState(0);
   const [pauseBenefitSlide, setPauseBenefitSlide] = useState(false);
@@ -827,25 +832,74 @@ const CheckoutPage = () => {
         image: '/img/payment-logo.png',
         order_id: orderData.id,
         handler: async function (response) {
-          // 5. Verify Payment
-          const verifyResp = await fetch(`${API_URL}/api/payments/verify`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('customerToken')}`
-            },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              booking_id: bookingId
-            })
-          });
+          try {
+            // 5. Verify Payment
+            const verifyResp = await fetch(`${API_URL}/api/payments/verify`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('customerToken')}`
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                booking_id: bookingId
+              })
+            });
 
-          if (verifyResp.ok) {
-            navigate('/profile?tab=bookings&payment=success');
-          } else {
-            alert('Payment verification failed. Please contact support.');
+            if (verifyResp.ok) {
+              // Trigger Gallabox WhatsApp notification
+              fetch(`${API_URL}/api/bookings/${bookingId}/send-whatsapp`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('customerToken')}`
+                }
+              }).catch((e) => console.log('WhatsApp trigger status:', e));
+
+              // Trigger confetti animation
+              try {
+                confetti({
+                  particleCount: 120,
+                  spread: 80,
+                  origin: { y: 0.6 }
+                });
+              } catch (_) {}
+
+              setPaymentSuccessData({
+                bookingId: bookingData?.booking_no || bookingId,
+                paymentId: response.razorpay_payment_id,
+                orderId: response.razorpay_order_id,
+                amount: finalPayableBookingAmount,
+                date: new Date().toLocaleDateString('en-IN', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }),
+                car,
+                customerName: `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Valued Customer',
+                customerPhone: user?.phone,
+                maintenancePackageAdded,
+                testDriveLocation
+              });
+
+              setShowPaymentSuccessModal(true);
+            } else {
+              alert('Payment verification failed. Please contact support.');
+            }
+          } catch (err) {
+            console.error('Payment verification error:', err);
+            alert('Payment verification failed. Please check your bookings tab.');
+          } finally {
+            setIsBooking(false);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setIsBooking(false);
           }
         },
         prefill: {
@@ -3157,6 +3211,181 @@ const CheckoutPage = () => {
               >
                 Got it, thanks
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Success Popup Modal on Same Checkout Page */}
+      {showPaymentSuccessModal && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in duration-200">
+          <CelebrationConfettiShower />
+          
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative border border-slate-100 animate-in zoom-in-95 duration-250 flex flex-col max-h-[92vh]">
+            
+            {/* Top Banner with Selectt Branding & Glowing Checkmark */}
+            <div className="bg-gradient-to-r from-[#0C1B33] via-[#092e27] to-[#0C1B33] text-white p-6 pb-7 text-center relative overflow-hidden shrink-0">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#00C9AF]/20 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none" />
+
+              <button
+                type="button"
+                onClick={() => setShowPaymentSuccessModal(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                aria-label="Close"
+              >
+                <X size={16} />
+              </button>
+
+              <div className="relative inline-flex items-center justify-center mx-auto mb-3">
+                <div className="w-16 h-16 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center shadow-lg shadow-[#00C9AF]/50">
+                  <Check size={32} strokeWidth={3.2} />
+                </div>
+                <span className="absolute -top-1 -right-1 text-xl animate-pulse">✨</span>
+              </div>
+
+              <h2 className="font-heading font-extrabold text-xl sm:text-2xl text-white tracking-tight">
+                Payment Successful!
+              </h2>
+              <div className="inline-flex items-center gap-1.5 bg-[#00C9AF]/15 border border-[#00C9AF]/40 px-3 py-1 rounded-full mt-2">
+                <Sparkles size={11} className="text-[#00DFB8]" />
+                <span className="text-[11px] font-black text-[#00DFB8] uppercase tracking-wider">
+                  Car Booking Confirmed
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 mt-2 max-w-sm mx-auto leading-relaxed">
+                Thank you, <strong className="text-white font-bold">{paymentSuccessData?.customerName || user?.first_name || 'Customer'}</strong>! We have received your booking amount and reserved this car exclusively for you.
+              </p>
+            </div>
+
+            {/* Scrollable Details Body */}
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-4">
+              
+              {/* 1. Car Details Summary Card */}
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 flex items-center gap-3.5">
+                <div className="w-20 h-16 sm:w-24 sm:h-20 bg-slate-200 rounded-xl overflow-hidden shrink-0 relative border border-slate-200">
+                  <img
+                    src={getCarImageUrl(car?.image || car?.images?.[0])}
+                    alt={`${car?.year} ${car?.make} ${car?.model}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                    }}
+                  />
+                  <span className="absolute top-1 left-1 bg-black/70 backdrop-blur-xs text-white text-[9px] font-black px-1.5 py-0.5 rounded">
+                    {car?.year}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-extrabold text-[#0C1B33] text-sm sm:text-base leading-snug truncate">
+                    {car?.year} {car?.make} {car?.model}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-semibold truncate mt-0.5">
+                    {car?.variant || (car?.fuel_type + ' • ' + car?.transmission)}
+                  </p>
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold mt-1.5 flex-wrap">
+                    <span>{Number(car?.km_driven || car?.km || 0).toLocaleString('en-IN')} KM</span>
+                    <span>•</span>
+                    <span>{car?.fuel_type || 'Petrol'}</span>
+                    <span>•</span>
+                    <span>{car?.transmission || 'Manual'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Payment Receipt Details Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5 text-xs">
+                <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                  <span className="text-slate-500 font-medium">Booking Amount Paid</span>
+                  <div className="text-right">
+                    <span className="text-base sm:text-lg font-extrabold text-emerald-600 font-price">
+                      ₹{paymentSuccessData?.amount?.toLocaleString('en-IN') || '5,000'}
+                    </span>
+                    <span className="block text-[9.5px] font-bold text-slate-400">100% Refundable Deposit</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-medium">Payment ID</span>
+                  <div className="flex items-center gap-1.5 font-mono font-bold text-slate-700 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/80">
+                    <span className="text-[11px] truncate max-w-[150px]">{paymentSuccessData?.paymentId || 'pay_confirmed'}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (paymentSuccessData?.paymentId) {
+                          navigator.clipboard?.writeText(paymentSuccessData.paymentId);
+                          setCopiedPaymentId(true);
+                          setTimeout(() => setCopiedPaymentId(false), 2000);
+                        }
+                      }}
+                      className="text-slate-400 hover:text-slate-700 cursor-pointer"
+                      title="Copy Payment ID"
+                    >
+                      {copiedPaymentId ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-medium">Booking Reference</span>
+                  <span className="font-bold text-slate-800 font-mono">
+                    #{paymentSuccessData?.bookingId ? paymentSuccessData.bookingId : 'CONFIRMED'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-medium">Date & Time</span>
+                  <span className="font-semibold text-slate-700">
+                    {paymentSuccessData?.date || new Date().toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-medium">Payment Status</span>
+                  <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full text-[10.5px]">
+                    <CheckCircle2 size={11} />
+                    Verified & Paid
+                  </span>
+                </div>
+
+                {maintenancePackageAdded && (
+                  <div className="flex items-center justify-between pt-2 border-t border-dashed border-slate-100">
+                    <span className="text-slate-500 font-medium">1-Year Maintenance Package</span>
+                    <span className="font-bold text-teal-700">Included</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. WhatsApp Notification Note */}
+              <div className="bg-emerald-50/70 border border-emerald-100 rounded-2xl p-3.5 flex items-start gap-2.5">
+                <ShieldCheck size={20} className="text-[#00A38D] shrink-0 mt-0.5" />
+                <div className="text-xs text-slate-600 leading-relaxed">
+                  <strong className="text-[#0C1B33] block mb-0.5">WhatsApp Confirmation Sent!</strong>
+                  Your booking receipt and verification details have been dispatched to your WhatsApp via Gallabox. Our Selectt Relationship Manager will call you shortly to assist with next steps.
+                </div>
+              </div>
+
+              {/* 4. Action CTA Buttons */}
+              <div className="pt-2 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => navigate('/profile?tab=bookings&payment=success')}
+                  className="w-full py-3.5 px-6 bg-[#00A38D] hover:bg-[#008f7b] text-white font-extrabold text-sm rounded-xl shadow-lg shadow-[#00A38D]/25 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-95"
+                >
+                  <span>Click to See Booking Details</span>
+                  <ArrowRight size={16} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowPaymentSuccessModal(false)}
+                  className="w-full py-2.5 text-xs text-slate-500 hover:text-slate-800 font-bold text-center cursor-pointer transition-colors"
+                >
+                  Stay on this page
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
