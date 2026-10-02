@@ -936,7 +936,6 @@ const CheckoutPage = () => {
                       ) : (
                         <span>₹{rawBookingAmount.toLocaleString('en-IN')}</span>
                       )}
-                      <Pencil size={13} className="text-[#00A38D] cursor-pointer hover:scale-110 transition-transform" />
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium pt-2 pb-1 px-1">
@@ -953,11 +952,12 @@ const CheckoutPage = () => {
                     </h4>
                   </div>
 
-                  {/* Total on-road price trigger card matching user screenshot */}
+                  {/* Total on-road price trigger card: opens full breakdown popup modal directly */}
                   <button
                     type="button"
-                    onClick={() => setIsPriceBreakdownExpanded(!isPriceBreakdownExpanded)}
+                    onClick={() => setIsPriceSummaryOpen(true)}
                     className="w-full p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 bg-white hover:border-[#00C9AF] hover:shadow-xs transition-all flex items-center justify-between cursor-pointer group shadow-2xs text-left mb-2.5"
+                    title="Open full price breakdown"
                   >
                     <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#0F172A]">
                       <FileText size={16} className="text-[#00A38D] group-hover:scale-110 transition-transform" />
@@ -967,147 +967,9 @@ const CheckoutPage = () => {
                       <span className="font-price font-extrabold text-sm sm:text-base text-[#0C1B33]">
                         ₹{(totalOnRoadPrice / 100000).toFixed(2)} Lakh
                       </span>
-                      {isPriceBreakdownExpanded ? (
-                        <ChevronUp size={17} className="text-[#00A38D] transition-transform" />
-                      ) : (
-                        <ChevronDown size={17} className="text-slate-400 group-hover:text-[#00A38D] transition-transform" />
-                      )}
+                      <ChevronDown size={17} className="text-slate-400 group-hover:text-[#00A38D] transition-transform" />
                     </div>
                   </button>
-
-                  {/* Collapsible Dropdown Breakdown with TCS */}
-                  {isPriceBreakdownExpanded && (
-                    <div className="space-y-2.5 text-xs sm:text-[13px] bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 mb-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 font-normal">Car price</span>
-                        <span className="text-[#0F172A] font-bold font-price">₹{originalCarPrice.toLocaleString('en-IN')}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-emerald-600">
-                        <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-                          <Sparkles size={13} className="text-emerald-500" /> Sale Discount
-                        </span>
-                        <span className="font-bold font-price text-emerald-600">- ₹{saleDiscount.toLocaleString('en-IN')}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 font-normal">RC transfer facilitation</span>
-                        <span className="text-[#0F172A] font-bold font-price">+ ₹{rcTransferFee.toLocaleString('en-IN')}</span>
-                      </div>
-
-                      {/* TCS (Tax Collected at Source) */}
-                      <div className="flex justify-between items-start text-slate-700">
-                        <div>
-                          <div className="font-normal flex items-center gap-1 text-slate-700">
-                            <span>TCS (Tax Collected at Source)</span>
-                            <Info size={13} className="text-slate-400" />
-                          </div>
-                          <p className="text-[10px] text-slate-400 font-medium">
-                            This amount will come back to you as a tax credit
-                          </p>
-                        </div>
-                        <span className="font-bold text-[#0F172A] font-price">
-                          + ₹{tcsAmount.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-
-                      {/* Servicing, cleaning, fuel & more */}
-                      <div className="flex justify-between items-center">
-                        <button
-                          type="button"
-                          onClick={() => setActiveBreakdownModal('servicing')}
-                          className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
-                        >
-                          <span>Servicing, cleaning, fuel & more</span>
-                          <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
-                        </button>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-400 line-through text-[11px] font-semibold font-price">₹8,700</span>
-                          <span className="text-emerald-600 font-bold">Included</span>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 font-normal">Warranty (Protect)</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-400 line-through text-[11px] font-semibold font-price">₹5,500</span>
-                          <span className="text-emerald-600 font-bold">Included</span>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between items-center">
-                        <button
-                          type="button"
-                          onClick={() => setActiveBreakdownModal('fixes')}
-                          className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
-                        >
-                          <span>Fixes & upgrades</span>
-                          <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
-                        </button>
-                        <span className="text-emerald-600 font-bold">Included</span>
-                      </div>
-
-                      <div className="flex justify-between items-center">
-                        <button
-                          type="button"
-                          onClick={() => setActiveBreakdownModal('gst')}
-                          className="text-slate-600 font-normal flex items-center gap-1 hover:text-[#0F172A] transition-colors cursor-pointer group text-left"
-                        >
-                          <span>GST (govt. taxes)</span>
-                          <Info size={13} className="text-slate-400 group-hover:text-[#00A38D] transition-colors shrink-0" />
-                        </button>
-                        <span className="text-[#0F172A] font-bold font-price">₹{gstTax.toLocaleString('en-IN')}</span>
-                      </div>
-
-                      {maintenancePackageAdded && (
-                        <div className="flex justify-between items-center text-[#00A38D] font-bold pt-1 border-t border-slate-200">
-                          <span>1-Year Complete Maintenance ({maintenancePaymentType === 'full' ? 'Paid in Full' : 'Monthly'})</span>
-                          <span className="font-price">
-                            {maintenancePaymentType === 'full' ? '+ ₹11,287' : '+ ₹990/m'}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Applied Coupon Discounts */}
-                      {appliedCoupon && appliedCoupon.applies_to === 'car_price' && (
-                        <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-dashed border-emerald-300">
-                          <span className="flex items-center gap-1.5 text-emerald-700">
-                            <Tag size={13} className="text-emerald-500 shrink-0" />
-                            Coupon Discount ({appliedCoupon.code})
-                          </span>
-                          <span className="font-price font-bold text-emerald-600">
-                            - ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')}
-                          </span>
-                        </div>
-                      )}
-
-                      {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
-                        <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-dashed border-emerald-300">
-                          <span className="flex items-center gap-1.5 text-emerald-700">
-                            <Tag size={13} className="text-emerald-500 shrink-0" />
-                            Deposit Discount ({appliedCoupon.code})
-                          </span>
-                          <span className="font-price font-bold text-emerald-600">
-                            - ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')}
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="pt-2 border-t border-slate-200 flex justify-between items-center font-bold text-xs sm:text-sm">
-                        <span className="text-slate-800">Total on-road price</span>
-                        <span className="text-[#0C1B33] font-extrabold font-price">
-                          ₹{totalOnRoadPrice.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => setIsPriceSummaryOpen(true)}
-                        className="w-full text-center text-xs font-bold text-[#00A38D] hover:underline pt-2 cursor-pointer flex items-center justify-center gap-1"
-                      >
-                        <span>Open full breakdown popup</span>
-                        <ChevronRight size={13} />
-                      </button>
-                    </div>
-                  )}
 
                   {/* Coupon Code Input & Applied Card (Aligned properly as requested) */}
                   <div className="mt-3.5 pt-3 border-t border-slate-100">
@@ -2054,7 +1916,7 @@ const CheckoutPage = () => {
             className="fixed inset-0" 
             onClick={() => setIsPriceSummaryOpen(false)} 
           />
-          <div className="bg-[#f8f9fa] rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 relative z-10 animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-250 flex flex-col">
+          <div className="bg-[#f8f9fa] rounded-t-3xl sm:rounded-3xl max-w-xl sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 relative z-10 animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-250 flex flex-col">
             
             {/* Modal Header */}
             <div className="sticky top-0 bg-white/95 backdrop-blur-md px-5 py-4 border-b border-slate-100 flex items-center justify-between z-20">
@@ -2233,16 +2095,18 @@ const CheckoutPage = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
                     
                     {/* Card 1: Warranty */}
-                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-emerald-200/80 shadow-sm hover:shadow-md transition-all hover:scale-[1.01] group">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/25 group-hover:scale-105 transition-transform">
-                          <ShieldCheck size={20} />
+                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-emerald-200/80 shadow-sm hover:shadow-md transition-all group">
+                      <div className="flex items-start gap-2.5 sm:gap-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/25 group-hover:scale-105 transition-transform">
+                          <ShieldCheck size={19} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1 mb-0.5">
-                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-sm">6 Months Warranty</h4>
-                            <span className="text-[9px] bg-emerald-100 text-emerald-800 font-black px-1.5 py-0.5 rounded-md uppercase">
-                              COMPREHENSIVE
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-[13px] leading-tight truncate">
+                              6 Months Warranty
+                            </h4>
+                            <span className="text-[8px] sm:text-[8.5px] bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded-md uppercase shrink-0 whitespace-nowrap tracking-tight leading-none">
+                              Comprehensive
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-600 font-medium leading-snug">
@@ -2253,16 +2117,18 @@ const CheckoutPage = () => {
                     </div>
 
                     {/* Card 2: 5-Day Money Back */}
-                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-amber-200/80 shadow-sm hover:shadow-md transition-all hover:scale-[1.01] group">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/25 group-hover:scale-105 transition-transform">
-                          <RotateCcw size={19} />
+                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-amber-200/80 shadow-sm hover:shadow-md transition-all group">
+                      <div className="flex items-start gap-2.5 sm:gap-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/25 group-hover:scale-105 transition-transform">
+                          <RotateCcw size={18} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1 mb-0.5">
-                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-sm">5-Day Money Back</h4>
-                            <span className="text-[9px] bg-amber-100 text-amber-900 font-black px-1.5 py-0.5 rounded-md uppercase">
-                              NO RISK
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-[13px] leading-tight truncate">
+                              5-Day Money Back
+                            </h4>
+                            <span className="text-[8px] sm:text-[8.5px] bg-amber-100 text-amber-900 font-extrabold px-1.5 py-0.5 rounded-md uppercase shrink-0 whitespace-nowrap tracking-tight leading-none">
+                              No Risk
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-600 font-medium leading-snug">
@@ -2273,16 +2139,18 @@ const CheckoutPage = () => {
                     </div>
 
                     {/* Card 3: Lowest EMI */}
-                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-cyan-200/80 shadow-sm hover:shadow-md transition-all hover:scale-[1.01] group">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-cyan-500/25 group-hover:scale-105 transition-transform">
-                          <CreditCard size={19} />
+                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-cyan-200/80 shadow-sm hover:shadow-md transition-all group">
+                      <div className="flex items-start gap-2.5 sm:gap-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-cyan-500/25 group-hover:scale-105 transition-transform">
+                          <CreditCard size={18} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1 mb-0.5">
-                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-sm">Lowest EMIs & Loans</h4>
-                            <span className="text-[9px] bg-cyan-100 text-cyan-900 font-black px-1.5 py-0.5 rounded-md uppercase">
-                              FROM 8.9% ROI
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-[13px] leading-tight truncate">
+                              Lowest EMIs & Loans
+                            </h4>
+                            <span className="text-[8px] sm:text-[8.5px] bg-cyan-100 text-cyan-900 font-extrabold px-1.5 py-0.5 rounded-md uppercase shrink-0 whitespace-nowrap tracking-tight leading-none">
+                              From 8.9% ROI
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-600 font-medium leading-snug">
@@ -2293,16 +2161,18 @@ const CheckoutPage = () => {
                     </div>
 
                     {/* Card 4: Strict 200-Point Selection */}
-                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-rose-200/80 shadow-sm hover:shadow-md transition-all hover:scale-[1.01] group">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-500/25 group-hover:scale-105 transition-transform">
-                          <Car size={19} />
+                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-rose-200/80 shadow-sm hover:shadow-md transition-all group">
+                      <div className="flex items-start gap-2.5 sm:gap-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-500/25 group-hover:scale-105 transition-transform">
+                          <Car size={18} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1 mb-0.5">
-                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-sm">1 in 20 Selection</h4>
-                            <span className="text-[9px] bg-rose-100 text-rose-900 font-black px-1.5 py-0.5 rounded-md uppercase">
-                              TOP 5% ONLY
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-[13px] leading-tight truncate">
+                              1 in 20 Selection
+                            </h4>
+                            <span className="text-[8px] sm:text-[8.5px] bg-rose-100 text-rose-900 font-extrabold px-1.5 py-0.5 rounded-md uppercase shrink-0 whitespace-nowrap tracking-tight leading-none">
+                              Top 5% Only
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-600 font-medium leading-snug">
@@ -2313,16 +2183,18 @@ const CheckoutPage = () => {
                     </div>
 
                     {/* Card 5: Showroom Refurbished */}
-                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-indigo-200/80 shadow-sm hover:shadow-md transition-all hover:scale-[1.01] group">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/25 group-hover:scale-105 transition-transform">
-                          <Sparkles size={19} />
+                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-indigo-200/80 shadow-sm hover:shadow-md transition-all group">
+                      <div className="flex items-start gap-2.5 sm:gap-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/25 group-hover:scale-105 transition-transform">
+                          <Sparkles size={18} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1 mb-0.5">
-                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-sm">Quality Assured</h4>
-                            <span className="text-[9px] bg-indigo-100 text-indigo-900 font-black px-1.5 py-0.5 rounded-md uppercase">
-                              REFURBISHED
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-[13px] leading-tight truncate">
+                              Quality Assured
+                            </h4>
+                            <span className="text-[8px] sm:text-[8.5px] bg-indigo-100 text-indigo-900 font-extrabold px-1.5 py-0.5 rounded-md uppercase shrink-0 whitespace-nowrap tracking-tight leading-none">
+                              Refurbished
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-600 font-medium leading-snug">
@@ -2333,16 +2205,18 @@ const CheckoutPage = () => {
                     </div>
 
                     {/* Card 6: Assured Buyback */}
-                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-teal-200/80 shadow-sm hover:shadow-md transition-all hover:scale-[1.01] group">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0C1B33] to-[#00C9AF] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#00C9AF]/25 group-hover:scale-105 transition-transform">
-                          <Gift size={19} className="text-amber-300" />
+                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-teal-200/80 shadow-sm hover:shadow-md transition-all group">
+                      <div className="flex items-start gap-2.5 sm:gap-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-[#0C1B33] to-[#00C9AF] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#00C9AF]/25 group-hover:scale-105 transition-transform">
+                          <Gift size={18} className="text-amber-300" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1 mb-0.5">
-                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-sm">Buyback Guarantee</h4>
-                            <span className="text-[9px] bg-[#00C9AF]/20 text-teal-900 font-black px-1.5 py-0.5 rounded-md uppercase">
-                              ASSURED PRICE
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <h4 className="font-extrabold text-[#0C1B33] text-xs sm:text-[13px] leading-tight truncate">
+                              Buyback Guarantee
+                            </h4>
+                            <span className="text-[8px] sm:text-[8.5px] bg-[#00C9AF]/20 text-teal-900 font-extrabold px-1.5 py-0.5 rounded-md uppercase shrink-0 whitespace-nowrap tracking-tight leading-none">
+                              Assured Price
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-600 font-medium leading-snug">
