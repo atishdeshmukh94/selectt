@@ -52,16 +52,16 @@ const TopFeatures = ({ features, theme = 'dark' }) => {
     : 'bg-white/5 rounded-2xl md:rounded-[1.5rem] border border-white/5 p-4 md:p-6 relative overflow-hidden';
 
   const groupTitleClasses = theme === 'light'
-    ? 'text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]'
-    : 'text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]';
+    ? 'text-[11px] md:text-[12.5px] font-extrabold text-slate-500 uppercase tracking-[0.18em]'
+    : 'text-[11px] md:text-[12.5px] font-extrabold text-slate-400 uppercase tracking-[0.18em]';
 
   const featureIconClasses = theme === 'light'
-    ? 'w-[18px] h-[18px] rounded-full bg-white flex items-center justify-center text-[#00C9AF] shadow-sm shrink-0 border border-slate-200 group-hover:bg-[#00C9AF] group-hover:text-[#0A1C3A] transition-colors duration-300'
-    : 'w-[18px] h-[18px] rounded-full bg-[#0C1B33] flex items-center justify-center text-[#00C9AF] shadow-sm shrink-0 border border-slate-800 group-hover:bg-[#00C9AF] group-hover:text-[#0A1C3A] transition-colors duration-300';
+    ? 'w-5 h-5 md:w-6 md:h-6 rounded-full bg-white flex items-center justify-center text-[#00C9AF] shadow-xs shrink-0 border border-slate-200/90 group-hover:bg-[#00C9AF] group-hover:text-[#0A1C3A] transition-colors duration-300'
+    : 'w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#0C1B33] flex items-center justify-center text-[#00C9AF] shadow-xs shrink-0 border border-slate-800 group-hover:bg-[#00C9AF] group-hover:text-[#0A1C3A] transition-colors duration-300';
 
   const featureTextClasses = theme === 'light'
-    ? 'text-xs md:text-sm font-book text-[#0C1B33]'
-    : 'text-xs md:text-sm font-book text-slate-200';
+    ? 'text-[13px] md:text-[15px] font-semibold text-[#0C1B33] leading-snug'
+    : 'text-[13px] md:text-[15px] font-semibold text-slate-100 leading-snug';
 
   return (
     <div className={outerContainerClasses}>
@@ -71,17 +71,17 @@ const TopFeatures = ({ features, theme = 'dark' }) => {
         {/* Decorative background */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#00C9AF]/5 rounded-full -mr-16 -mt-16 blur-xl" />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 relative">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8 relative">
           {displaySections.map((section, idx) => (
             <div key={idx} className="space-y-3 md:space-y-4">
               <h3 className={groupTitleClasses}>
                 {section.title}
               </h3>
-              <div className="space-y-2 md:space-y-3">
+              <div className="space-y-2.5 md:space-y-3.5">
                 {section.features.map((featureName, fIdx) => (
-                  <div key={fIdx} className="flex items-center gap-2.5 group">
+                  <div key={fIdx} className="flex items-center gap-2.5 md:gap-3 group">
                     <div className={featureIconClasses}>
-                      <Check size={10} strokeWidth={3.5} />
+                      <Check size={11} strokeWidth={3} className="md:w-3.5 md:h-3.5" />
                     </div>
                     <span className={featureTextClasses}>
                       {featureName}
@@ -95,7 +95,7 @@ const TopFeatures = ({ features, theme = 'dark' }) => {
 
         {/* View All Button */}
         <div className="flex justify-start mt-6 md:mt-8 relative">
-          <button className="w-full sm:w-auto px-6 py-2.5 bg-[#00C9AF] text-black rounded-2xl font-bold text-[10px] md:text-[11px] uppercase tracking-widest cursor-pointer hover:text-white hover:bg-black  transition-all shadow-sm focus:ring-2 focus:ring-[#0C1B33]/20 outline-none">
+          <button className="w-full sm:w-auto px-6 py-3 bg-[#00C9AF] text-[#0C1B33] rounded-xl font-black text-xs uppercase tracking-wider cursor-pointer hover:bg-[#00B4A0] transition-all shadow-md shadow-[#00C9AF]/20 focus:ring-2 focus:ring-[#0C1B33]/20 outline-none active:scale-95">
             View all features
           </button>
         </div>
