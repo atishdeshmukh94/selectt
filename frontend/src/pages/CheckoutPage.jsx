@@ -1362,59 +1362,82 @@ const CheckoutPage = () => {
         initialData={scheduledTestDrive}
       />
 
-      {/* Mobile-Only Sticky Bottom CTA Bar — PROCEED TO PAY */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200/80 shadow-[0_-6px_24px_rgba(0,0,0,0.10)] px-4 pt-2.5 pb-4 space-y-2">
-        {/* Phone Line */}
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] text-slate-500 font-medium">
-            This car will be booked on{' '}
-            <a href="tel:+918574667466" className="text-[#0C1B33] font-bold hover:underline">
-              8574667466
-            </a>
-          </p>
+
+      {/* Mobile-Only Sticky Bottom CTA Bar — only after loan/test-drive steps dismissed */}
+      {!mobileLoanPromptVisible && (
+        <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200/80 shadow-[0_-6px_24px_rgba(0,0,0,0.10)] px-4 pt-2.5 pb-4 space-y-2">
+          <style>{`
+            @keyframes btnShine {
+              0%   { transform: translateX(-100%) skewX(-15deg); }
+              100% { transform: translateX(250%) skewX(-15deg); }
+            }
+            .btn-shine::after {
+              content: '';
+              position: absolute;
+              top: 0; left: 0;
+              width: 40%;
+              height: 100%;
+              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+              animation: btnShine 2.2s ease-in-out infinite;
+              pointer-events: none;
+            }
+          `}</style>
+
+          {/* Phone Line */}
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] text-slate-500 font-medium">
+              This car will be booked on{' '}
+              <a
+                href={`tel:+91${user?.phone || '8574667466'}`}
+                className="text-[#0C1B33] font-bold hover:underline"
+              >
+                {user?.phone || '8574667466'}
+              </a>
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsRefundPolicyOpen(true)}
+              className="text-[10px] font-bold text-[#00A38D] uppercase tracking-wider cursor-pointer hover:underline"
+            >
+              EDIT
+            </button>
+          </div>
+
+          {/* PROCEED TO PAY Button — with shimmer shine */}
           <button
             type="button"
-            onClick={() => setIsRefundPolicyOpen(true)}
-            className="text-[10px] font-bold text-[#00A38D] uppercase tracking-wider cursor-pointer hover:underline"
+            onClick={handleBooking}
+            disabled={isBooking}
+            className={`btn-shine relative overflow-hidden w-full py-3.5 px-5 bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] text-[#0C1B33] font-black text-sm rounded-2xl shadow-lg shadow-[#00C9AF]/30 flex items-center justify-between transition-all cursor-pointer uppercase tracking-wider ${isBooking ? 'opacity-70 cursor-not-allowed' : 'hover:from-[#00b4a0] hover:to-[#009170] active:scale-[0.99]'}`}
           >
-            EDIT
-          </button>
-        </div>
-
-        {/* PROCEED TO PAY Button */}
-        <button
-          type="button"
-          onClick={handleBooking}
-          disabled={isBooking}
-          className={`w-full py-3.5 px-5 bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-black text-sm rounded-2xl shadow-md shadow-[#00C9AF]/25 flex items-center justify-between transition-all cursor-pointer uppercase tracking-wider ${isBooking ? 'opacity-70 cursor-not-allowed' : 'active:scale-[0.99]'}`}
-        >
-          {isBooking ? (
-            <div className="flex items-center justify-center gap-2 w-full">
-              <div className="w-4 h-4 border-2 border-[#0C1B33] border-t-transparent rounded-full animate-spin" />
-              <span>Processing...</span>
-            </div>
-          ) : (
-            <>
-              <span>PROCEED TO PAY</span>
-              <div className="flex items-center gap-1.5 font-price">
-                {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
-                  <span className="line-through text-slate-700/70 text-xs font-bold">
-                    ₹{rawBookingAmount.toLocaleString('en-IN')}
-                  </span>
-                )}
-                <span className="font-black">
-                  ₹{finalPayableBookingAmount.toLocaleString('en-IN')} →
-                </span>
+            {isBooking ? (
+              <div className="flex items-center justify-center gap-2 w-full">
+                <div className="w-4 h-4 border-2 border-[#0C1B33] border-t-transparent rounded-full animate-spin" />
+                <span>Processing...</span>
               </div>
-            </>
-          )}
-        </button>
+            ) : (
+              <>
+                <span>PROCEED TO PAY</span>
+                <div className="flex items-center gap-1.5 font-price">
+                  {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
+                    <span className="line-through text-slate-700/70 text-xs font-bold">
+                      ₹{rawBookingAmount.toLocaleString('en-IN')}
+                    </span>
+                  )}
+                  <span className="font-black">
+                    ₹{finalPayableBookingAmount.toLocaleString('en-IN')} →
+                  </span>
+                </div>
+              </>
+            )}
+          </button>
 
-        {/* Refundable note */}
-        <p className="text-center text-[10px] text-slate-400 font-semibold">
-          100% refundable
-        </p>
-      </div>
+          {/* Refundable note */}
+          <p className="text-center text-[10px] text-slate-400 font-semibold">
+            100% refundable
+          </p>
+        </div>
+      )}
 
 
       {isMaintenanceModalOpen && (
