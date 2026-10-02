@@ -774,90 +774,114 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              {/* 3. Test Drive Preferences (Screenshot 1 bottom card) */}
-              {scheduledTestDrive ? (
-                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-teal-100 flex items-center justify-center text-[#00A38D]">
-                        <Calendar size={16} />
-                      </div>
-                      <span className="font-black text-[#0F172A] text-sm sm:text-base">
-                        {scheduledTestDrive.date_day || 'Wed, 30 Sep'} • {scheduledTestDrive.slot || '4pm - 5pm'}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => openTestDrive(scheduledTestDrive.location || 'hub')}
-                      className="text-[#00A38D] font-bold text-xs hover:underline cursor-pointer"
-                    >
-                      View Details
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold pl-1">
-                    <MapPin size={14} className="text-[#00A38D] shrink-0" />
-                    <span>{scheduledTestDrive.location === 'hub' ? (scheduledTestDrive.hub_name || 'Selectt Car Hub, Pune') : 'Your Location (Doorstep)'}</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 font-medium leading-relaxed border-t border-slate-100 pt-2">
-                    We'll assign an agent during your test drive. If you can't make it for any reason, feel free to walk-in anytime.
-                  </p>
-                </div>
-              ) : !isTestDriveSkipped ? (
-                <div className="hidden md:block bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-3.5 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                      You haven’t taken a test drive yet.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setIsTestDriveSkipped(true)}
-                      className="text-xs font-bold text-slate-400 hover:text-slate-700 underline cursor-pointer"
-                    >
-                      Skip
-                    </button>
-                  </div>
-                  <h4 className="font-black text-[#0F172A] text-base sm:text-lg">
-                    Where would you prefer to take it?
+              {/* 3. Test Drive Preferences & Details (Screenshot 2 & Spinny Reference Screenshot 3) */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-heading font-extrabold text-[#0C1B33] text-sm sm:text-base">
+                    Test drive details
                   </h4>
-                  <div className="grid grid-cols-2 gap-3 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => openTestDrive('doorstep')}
-                      className="py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#00A38D] to-[#00BFA5] hover:from-[#008f7b] hover:to-[#00aa93] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#00A38D]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 group"
-                    >
-                      <MapPin size={15} className="text-white shrink-0 group-hover:scale-110 transition-transform" />
-                      <span>YOUR LOCATION</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openTestDrive('hub')}
-                      className="py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#008975] to-[#00A38D] hover:from-[#007362] hover:to-[#008f7b] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#008975]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 group"
-                    >
-                      <Building2 size={15} className="text-white shrink-0 group-hover:scale-110 transition-transform" />
-                      <span>AT SELECTT HUB</span>
-                    </button>
-                  </div>
+                  {scheduledTestDrive && (
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 rounded-full">
+                      ✓ Scheduled
+                    </span>
+                  )}
                 </div>
-              ) : (
-                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-600 font-semibold">
-                    <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                      <Car size={14} />
-                    </div>
-                    <span>Test drive skipped</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsTestDriveSkipped(false);
-                      openTestDrive('hub');
-                    }}
-                    className="text-xs text-[#00A38D] font-bold hover:underline cursor-pointer"
+
+                {scheduledTestDrive ? (
+                  <div 
+                    onClick={() => openTestDrive(scheduledTestDrive.location || 'hub')}
+                    className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 hover:border-[#00C9AF] shadow-sm space-y-3 cursor-pointer transition-all group"
                   >
-                    Schedule now
-                  </button>
-                </div>
-              )}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-[#00A38D] shrink-0">
+                          <Calendar size={17} />
+                        </div>
+                        <span className="font-black text-[#0F172A] text-sm sm:text-base">
+                          {scheduledTestDrive.date_day || 'Wed, 30 Sep'} • {scheduledTestDrive.slot || '4pm - 5pm'}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openTestDrive(scheduledTestDrive.location || 'hub');
+                        }}
+                        className="text-[#00A38D] group-hover:text-[#008f7b] font-bold text-xs sm:text-sm flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-50/80 group-hover:bg-teal-100/70 border border-teal-200/80 transition-all cursor-pointer shadow-2xs"
+                      >
+                        <Pencil size={12} />
+                        <span>Change / Edit</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-slate-600 font-semibold pl-1">
+                      <MapPin size={15} className="text-[#00A38D] shrink-0" />
+                      <span>{scheduledTestDrive.location === 'hub' ? (scheduledTestDrive.hub_name || 'Selectt Car Hub, Pune') : (scheduledTestDrive.hub_address || 'Your Location (Doorstep)')}</span>
+                    </div>
+
+                    <div className="border-t border-slate-100 pt-2.5 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                      <span>We'll assign an agent during your test drive. Tap to change date, time, or location.</span>
+                      <ChevronRight size={14} className="text-slate-400 group-hover:translate-x-1 group-hover:text-[#00A38D] shrink-0 ml-2 transition-all" />
+                    </div>
+                  </div>
+                ) : !isTestDriveSkipped ? (
+                  <div className="hidden md:block bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-3.5 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                        You haven’t taken a test drive yet.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsTestDriveSkipped(true)}
+                        className="text-xs font-bold text-slate-400 hover:text-slate-700 underline cursor-pointer"
+                      >
+                        Skip
+                      </button>
+                    </div>
+                    <h4 className="font-black text-[#0F172A] text-base sm:text-lg">
+                      Where would you prefer to take it?
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => openTestDrive('doorstep')}
+                        className="py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#00A38D] to-[#00BFA5] hover:from-[#008f7b] hover:to-[#00aa93] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#00A38D]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 group"
+                      >
+                        <MapPin size={15} className="text-white shrink-0 group-hover:scale-110 transition-transform" />
+                        <span>YOUR LOCATION</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openTestDrive('hub')}
+                        className="py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#008975] to-[#00A38D] hover:from-[#007362] hover:to-[#008f7b] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#008975]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 group"
+                      >
+                        <Building2 size={15} className="text-white shrink-0 group-hover:scale-110 transition-transform" />
+                        <span>AT SELECTT HUB</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-600 font-semibold">
+                      <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                        <Car size={14} />
+                      </div>
+                      <span>Test drive skipped / not scheduled</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsTestDriveSkipped(false);
+                        openTestDrive('hub');
+                      }}
+                      className="text-xs text-[#00A38D] font-bold hover:underline cursor-pointer flex items-center gap-1"
+                    >
+                      <span>Find a slot</span>
+                      <ChevronRight size={13} />
+                    </button>
+                  </div>
+                )}
+              </div>
 
             </div>
 
@@ -1210,7 +1234,12 @@ const CheckoutPage = () => {
         car={car}
         isOpen={isTestDriveOpen}
         onClose={() => setIsTestDriveOpen(false)}
-        onSuccess={(details) => setScheduledTestDrive(details)}
+        onSuccess={(details) => {
+          setScheduledTestDrive(details);
+          setMobileLoanPromptVisible(false);
+        }}
+        initialLocation={testDriveLocation}
+        initialData={scheduledTestDrive}
       />
 
       {/* 1-Year Complete Maintenance Package Payment Selection Modal / Bottom Sheet (Screenshots 2 & 3) */}

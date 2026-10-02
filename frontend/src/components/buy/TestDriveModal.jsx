@@ -5,8 +5,9 @@ import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../../confi
 
 const API = API_URL;
 
-const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hub' }) => {
+const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hub', initialData = null }) => {
   const { token, user, openLoginModal, handleAuthError } = useAuth();
+  const isEditMode = Boolean(initialData);
   const [selectedLocation, setSelectedLocation] = useState('hub');
   const [selectedDate, setSelectedDate] = useState('day0');
   const [customDate, setCustomDate] = useState('');
@@ -21,27 +22,6 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
   const [hubs, setHubs] = useState([]);
   const [selectedHubId, setSelectedHubId] = useState('');
   const [isHubDropdownOpen, setIsHubDropdownOpen] = useState(false);
-
-  useEffect(() => {
-    if (initialLocation) {
-      setSelectedLocation(initialLocation === 'doorstep' ? 'doorstep' : 'hub');
-    }
-  }, [initialLocation, isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    fetch(`${API}/api/car-hub-locations`)
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setHubs(data);
-          const carLoc = (car?.location || '').toLowerCase();
-          const matched = data.find(h => h.city?.toLowerCase() === carLoc || carLoc.includes(h.city?.toLowerCase()));
-          setSelectedHubId(matched ? String(matched.id) : String(data[0].id));
-        }
-      })
-      .catch(console.error);
-  }, [isOpen, car]);
 
   // Generate real 3 upcoming days (Today, Tomorrow, Day 3)
   const generateDates = () => {
@@ -63,6 +43,78 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
   };
 
   const dates = generateDates();
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsSuccess(false);
+      setError('');
+      setIsLoading(false);
+
+      if (initialData) {
+        if (initialData.location) {
+          setSelectedLocation(initialData.location === 'doorstep' ? 'doorstep' : 'hub');
+        }
+        if (initialData.slot) {
+          setSelectedSlot(initialData.slot);
+        }
+        if (initialData.doorstep_address) {
+          setDoorstepAddress(initialData.doorstep_address);
+        }
+        if (initialData.doorstep_pincode) {
+          setDoorstepPincode(initialData.doorstep_pincode);
+        }
+        if (initialData.date_day) {
+          const matched = dates.find(d => 
+            d.day.toLowerCase() === initialData.date_day.toLowerCase() || 
+            initialData.date_day.toLowerCase().includes(d.day.toLowerCase())
+          );
+          if (matched) {
+            setSelectedDate(matched.id);
+            setShowCalendar(false);
+          } else {
+            setSelectedDate('custom');
+            setShowCalendar(true);
+            try {
+              const parsed = new Date(initialData.date_day);
+              if (!isNaN(parsed.getTime())) {
+                setCustomDate(parsed.toISOString().split('T')[0]);
+              }
+            } catch (e) {
+              // ignore
+            }
+          }
+        }
+      } else if (initialLocation) {
+        setSelectedLocation(initialLocation === 'doorstep' ? 'doorstep' : 'hub');
+      }
+    }
+  }, [isOpen, initialData, initialLocation]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    fetch(`${API}/api/car-hub-locations`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setHubs(data);
+          if (initialData?.hub_name) {
+            const matchedHub = data.find(h => 
+              h.name?.toLowerCase() === initialData.hub_name?.toLowerCase() ||
+              initialData.hub_name?.toLowerCase().includes(h.name?.toLowerCase()) ||
+              h.city?.toLowerCase() === initialData.hub_name?.toLowerCase()
+            );
+            if (matchedHub) {
+              setSelectedHubId(String(matchedHub.id));
+              return;
+            }
+          }
+          const carLoc = (car?.location || '').toLowerCase();
+          const matched = data.find(h => h.city?.toLowerCase() === carLoc || carLoc.includes(h.city?.toLowerCase()));
+          setSelectedHubId(matched ? String(matched.id) : String(data[0].id));
+        }
+      })
+      .catch(console.error);
+  }, [isOpen, car, initialData]);
 
   if (!isOpen) return null;
 
@@ -184,7 +236,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
     : Math.round(((car?.price || 550000) * 0.017)).toLocaleString();
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       {/* Backdrop overlay */}
       <div className="fixed inset-0" onClick={handleClose} />
 
@@ -203,7 +255,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
               <ArrowLeft size={20} strokeWidth={2.5} />
             </button>
             <h2 className="text-base sm:text-lg font-black text-[#0C1B33] tracking-tight">
-              Schedule Free Test Drive
+              {isEditMode ? 'Edit Test Drive Details' : 'Schedule Free Test Drive'}
             </h2>
           </div>
           <button
@@ -224,7 +276,7 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
                 <CheckCircle2 size={40} />
               </div>
               <h3 className="text-xl sm:text-2xl font-black text-[#0C1B33] mb-1">
-                Test Drive Scheduled! 🎉
+                {isEditMode ? 'Test Drive Updated! 🎉' : 'Test Drive Scheduled! 🎉'}
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 max-w-sm mx-auto leading-relaxed mb-6">
                 <span className="font-bold text-slate-900 block text-base mt-1">
@@ -584,11 +636,11 @@ const TestDriveModal = ({ car, isOpen, onClose, onSuccess, initialLocation = 'hu
               {isLoading ? (
                 <div className="flex items-center gap-2 py-1">
                   <div className="w-4 h-4 border-2 border-[#0C1B33]/40 border-t-[#0C1B33] rounded-full animate-spin" />
-                  <span className="text-[#0C1B33]">Scheduling Test Drive...</span>
+                  <span className="text-[#0C1B33]">{isEditMode ? 'Updating Test Drive...' : 'Scheduling Test Drive...'}</span>
                 </div>
               ) : (
                 <>
-                  <span className="leading-tight">Pick slot & continue</span>
+                  <span className="leading-tight">{isEditMode ? 'Save & Update Test Drive' : 'Pick slot & continue'}</span>
                   <span className="text-[11px] font-bold text-[#0C1B33]/75 leading-tight mt-0.5">
                     {selectedLocation === 'hub' ? 'Selectt Hub' : 'Doorstep'} on {getSelectedDateDisplay()} {selectedSlot ? `• ${selectedSlot}` : ''}
                   </span>
