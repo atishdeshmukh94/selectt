@@ -974,38 +974,60 @@ const CarEditPage = () => {
                     <label className={labelClass}>
                       Make (Brand) <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
-                    <select 
-                      className={inpClass} 
-                      value={formData.make} 
-                      onChange={e => {
-                        const newMake = e.target.value;
-                        const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
-                        const nextAuto = `${formData.year || ''} ${newMake || ''}`.replace(/\s+/g, ' ').trim();
-                        const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
-                        setFormData({
-                          ...formData, 
-                          make: newMake, 
-                          model: "",
-                          title: isUntouched ? nextAuto : formData.title
-                        });
-                      }}
-                    >
-                      <option value="">Select Brand...</option>
-                      {brandsList.map(b => (
-                        <option key={b.id} value={b.name}>{b.name}</option>
-                      ))}
-                    </select>
+                    <div className="space-y-1.5">
+                      {brandsList.length > 0 && (
+                        <select 
+                          className={inpClass} 
+                          value={brandsList.some(b => b.name?.toLowerCase() === (formData.make || '').toLowerCase()) ? formData.make : ""} 
+                          onChange={e => {
+                            const newMake = e.target.value;
+                            if (!newMake) return;
+                            const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                            const nextAuto = `${formData.year || ''} ${newMake || ''}`.replace(/\s+/g, ' ').trim();
+                            const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
+                            setFormData({
+                              ...formData, 
+                              make: newMake, 
+                              model: "",
+                              title: isUntouched ? nextAuto : formData.title
+                            });
+                          }}
+                        >
+                          <option value="">Select Brand from Catalog...</option>
+                          {brandsList.map(b => (
+                            <option key={b.id || b.name} value={b.name}>{b.name}</option>
+                          ))}
+                        </select>
+                      )}
+                      <input
+                        type="text"
+                        className={inpClass}
+                        value={formData.make || ''}
+                        onChange={e => {
+                          const newMake = e.target.value;
+                          const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                          const nextAuto = `${formData.year || ''} ${newMake || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                          const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
+                          setFormData({
+                            ...formData,
+                            make: newMake,
+                            title: isUntouched ? nextAuto : formData.title
+                          });
+                        }}
+                        placeholder="Or enter brand name (e.g. Skoda, Hyundai, MG)"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div>
                     <label className={labelClass}>
                       Model <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
-                    <select 
-                      className={inpClass} 
-                      value={formData.model} 
-                      onChange={e => {
-                        const newModel = e.target.value;
+                    {(() => {
+                      const availableModels = brandsList.find(b => b.name?.toLowerCase() === (formData.make || '').toLowerCase())?.models || [];
+
+                      const handleModelChange = (newModel: string) => {
                         const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
                         const nextAuto = `${formData.year || ''} ${formData.make || ''} ${newModel || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
                         const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
@@ -1014,14 +1036,35 @@ const CarEditPage = () => {
                           model: newModel,
                           title: isUntouched ? nextAuto : formData.title
                         });
-                      }}
-                      disabled={!formData.make}
-                    >
-                      <option value="">Select Model...</option>
-                      {brandsList.find(b => b.name === formData.make)?.models?.map((m:any) => (
-                        <option key={m.id} value={m.name}>{m.name}</option>
-                      ))}
-                    </select>
+                      };
+
+                      return (
+                        <div className="space-y-1.5">
+                          {availableModels.length > 0 && (
+                            <select 
+                              className={inpClass} 
+                              value={availableModels.some((m: any) => m.name?.toLowerCase() === (formData.model || '').toLowerCase()) ? formData.model : ""} 
+                              onChange={e => {
+                                if (e.target.value) handleModelChange(e.target.value);
+                              }}
+                            >
+                              <option value="">Select Catalog Model...</option>
+                              {availableModels.map((m: any) => (
+                                <option key={m.id || m.name} value={m.name}>{m.name}</option>
+                              ))}
+                            </select>
+                          )}
+                          <input
+                            type="text"
+                            className={inpClass}
+                            value={formData.model || ''}
+                            onChange={e => handleModelChange(e.target.value)}
+                            placeholder={availableModels.length > 0 ? "Or type / edit model name (e.g. Kylaq / Kushaq)..." : "Enter car model (e.g. Kylaq, Creta, Fortuner, Thar)"}
+                            required
+                          />
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   <div>
