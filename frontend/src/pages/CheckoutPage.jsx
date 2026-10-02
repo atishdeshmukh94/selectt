@@ -289,6 +289,127 @@ export const CelebrationConfettiShower = () => {
   );
 };
 
+export const PriceInfoPopover = ({ 
+  title, 
+  content, 
+  badge, 
+  tag, 
+  onViewDetails 
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = React.useRef(null);
+  const timeoutRef = React.useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('pointerdown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('pointerdown', handleClickOutside);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [isOpen]);
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 200);
+  };
+
+  return (
+    <div 
+      ref={containerRef}
+      className="relative inline-flex items-center align-middle"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(prev => !prev);
+        }}
+        className="w-4.5 h-4.5 rounded-full text-slate-400 hover:text-[#00A38D] hover:bg-teal-50 active:scale-90 flex items-center justify-center transition-all cursor-pointer focus:outline-none"
+        aria-label={`More information about ${title}`}
+      >
+        <Info size={13} className="shrink-0" />
+      </button>
+
+      {isOpen && (
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="absolute z-50 bottom-full left-[-20px] sm:left-1/2 sm:-translate-x-1/2 mb-2 w-64 sm:w-72 bg-white/98 backdrop-blur-md rounded-2xl p-3.5 shadow-2xl border border-slate-200/90 text-left animate-in fade-in zoom-in-95 duration-150 pointer-events-auto"
+        >
+          {/* Arrow pointing directly to icon */}
+          <div className="absolute top-full left-[24px] sm:left-1/2 sm:-translate-x-1/2 -mt-1 w-2.5 h-2.5 bg-white border-r border-b border-slate-200/90 transform rotate-45" />
+
+          {/* Header */}
+          <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="flex items-center gap-1.5">
+              <span className="w-5 h-5 rounded-md bg-[#00A38D]/15 text-[#008975] flex items-center justify-center shrink-0">
+                <Info size={11} strokeWidth={2.5} />
+              </span>
+              <h5 className="font-heading font-extrabold text-[#0C1B33] text-xs sm:text-[13px] leading-tight">
+                {title}
+              </h5>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+              aria-label="Close tooltip"
+            >
+              <X size={13} />
+            </button>
+          </div>
+
+          {/* Content */}
+          <p className="text-[11px] sm:text-[11.5px] text-slate-600 font-medium leading-relaxed mb-2.5">
+            {content}
+          </p>
+
+          {/* Footer Badge & Optional Details Link */}
+          <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[10.5px]">
+            {badge && (
+              <span className="font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full">
+                {badge}
+              </span>
+            )}
+            {tag && (
+              <span className="font-semibold text-slate-400 ml-auto">
+                {tag}
+              </span>
+            )}
+            {onViewDetails && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  onViewDetails();
+                }}
+                className="text-[#00A38D] font-bold hover:underline ml-auto flex items-center gap-0.5 cursor-pointer"
+              >
+                <span>Details</span>
+                <ChevronRight size={11} />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const CheckoutPage = () => {
   const { carId } = useParams();
   const navigate = useNavigate();
@@ -678,35 +799,7 @@ const CheckoutPage = () => {
             {/* Left Column: Flow Options (7 cols on desktop) */}
             <div className="lg:col-span-7 space-y-5">
 
-              {/* 1. Interested in Car Loan? (Screenshot 1 top card) */}
-              <div className="hidden md:block bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-slate-300">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-extrabold text-[#0F172A] text-base mb-1">
-                      Interested in car loan?
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
-                      Get your car financed at attractive interest rates. <a href="/privacy-policy" className="text-[#00A38D] font-bold hover:underline">Learn more</a>
-                    </p>
-                  </div>
-
-                  {/* Checkbox button matching reference screenshot */}
-                  <button
-                    type="button"
-                    onClick={() => setInterestedInLoan(!interestedInLoan)}
-                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 mt-0.5 ${
-                      interestedInLoan
-                        ? 'bg-[#00C9AF] text-[#0C1B33] shadow-sm ring-2 ring-[#00C9AF]/30'
-                        : 'border-2 border-slate-300 bg-white hover:border-slate-400'
-                    }`}
-                    aria-label="Toggle car loan interest"
-                  >
-                    {interestedInLoan && <Check size={16} strokeWidth={3.5} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* 2. 1-Year Complete Maintenance Package (Screenshot 1 middle card) */}
+              {/* 1. 1-Year Complete Maintenance Package (Screenshot 1 middle card) */}
               <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-teal-200">
                 {/* Dark Pill Badge with Light Font */}
                 <div className="inline-flex items-center gap-1.5 bg-[#0C1B33] text-[#00DFB8] border border-[#00C9AF]/30 text-[10.5px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-3 shadow-sm">
@@ -774,20 +867,58 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
+              {/* 2. Interested in Car Loan? (Matching Spinny Reference Screenshot 1) */}
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-slate-300">
+                <h4 className="font-extrabold text-[#0F172A] text-sm sm:text-base mb-1">
+                  Interested in car loan?
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium mb-3">
+                  Get your car financed at attractive interest rates.{' '}
+                  <a href="/used-car-loan" className="text-[#00A38D] font-bold hover:underline">
+                    Learn more
+                  </a>
+                </p>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setInterestedInLoan(false)}
+                    className={`py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer text-center ${
+                      !interestedInLoan
+                        ? 'border-slate-300 bg-white text-slate-700 shadow-2xs hover:border-slate-400'
+                        : 'border-slate-200 bg-slate-50/70 text-slate-500 hover:bg-white'
+                    }`}
+                  >
+                    Not Interested
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setInterestedInLoan(true)}
+                    className={`py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      interestedInLoan
+                        ? 'border-[#00C9AF] bg-teal-50/70 text-[#008975] ring-1 ring-[#00C9AF]/30 shadow-xs font-black'
+                        : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+                    }`}
+                  >
+                    {interestedInLoan && <Check size={14} strokeWidth={3} className="text-[#00A38D]" />}
+                    <span>Yes, I'm interested</span>
+                  </button>
+                </div>
+              </div>
+
               {/* 3. Test Drive Preferences & Details (Screenshot 2 & Spinny Reference Screenshot 3) */}
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-heading font-extrabold text-[#0C1B33] text-sm sm:text-base">
-                    Test drive details
-                  </h4>
-                  {scheduledTestDrive && (
+              {scheduledTestDrive ? (
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-heading font-extrabold text-[#0C1B33] text-sm sm:text-base">
+                      Test drive details
+                    </h4>
                     <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 rounded-full">
                       ✓ Scheduled
                     </span>
-                  )}
-                </div>
+                  </div>
 
-                {scheduledTestDrive ? (
                   <div 
                     onClick={() => openTestDrive(scheduledTestDrive.location || 'hub')}
                     className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 hover:border-[#00C9AF] shadow-sm space-y-3 cursor-pointer transition-all group"
@@ -824,64 +955,44 @@ const CheckoutPage = () => {
                       <ChevronRight size={14} className="text-slate-400 group-hover:translate-x-1 group-hover:text-[#00A38D] shrink-0 ml-2 transition-all" />
                     </div>
                   </div>
-                ) : !isTestDriveSkipped ? (
-                  <div className="hidden md:block bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-3.5 animate-in fade-in duration-300">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                        You haven’t taken a test drive yet.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setIsTestDriveSkipped(true)}
-                        className="text-xs font-bold text-slate-400 hover:text-slate-700 underline cursor-pointer"
-                      >
-                        Skip
-                      </button>
-                    </div>
-                    <h4 className="font-black text-[#0F172A] text-base sm:text-lg">
-                      Where would you prefer to take it?
-                    </h4>
-                    <div className="grid grid-cols-2 gap-3 pt-1">
-                      <button
-                        type="button"
-                        onClick={() => openTestDrive('doorstep')}
-                        className="py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#00A38D] to-[#00BFA5] hover:from-[#008f7b] hover:to-[#00aa93] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#00A38D]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 group"
-                      >
-                        <MapPin size={15} className="text-white shrink-0 group-hover:scale-110 transition-transform" />
-                        <span>YOUR LOCATION</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openTestDrive('hub')}
-                        className="py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#008975] to-[#00A38D] hover:from-[#007362] hover:to-[#008f7b] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#008975]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 group"
-                      >
-                        <Building2 size={15} className="text-white shrink-0 group-hover:scale-110 transition-transform" />
-                        <span>AT SELECTT HUB</span>
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-600 font-semibold">
-                      <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                        <Car size={14} />
-                      </div>
-                      <span>Test drive skipped / not scheduled</span>
-                    </div>
+                </div>
+              ) : !isTestDriveSkipped ? (
+                <div className="hidden md:block bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-3.5 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                      You haven’t taken a test drive yet.
+                    </p>
                     <button
                       type="button"
-                      onClick={() => {
-                        setIsTestDriveSkipped(false);
-                        openTestDrive('hub');
-                      }}
-                      className="text-xs text-[#00A38D] font-bold hover:underline cursor-pointer flex items-center gap-1"
+                      onClick={() => setIsTestDriveSkipped(true)}
+                      className="text-xs font-bold text-slate-400 hover:text-slate-700 underline cursor-pointer"
                     >
-                      <span>Find a slot</span>
-                      <ChevronRight size={13} />
+                      Skip
                     </button>
                   </div>
-                )}
-              </div>
+                  <h4 className="font-black text-[#0F172A] text-base sm:text-lg">
+                    Where would you prefer to take it?
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => openTestDrive('doorstep')}
+                      className="py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#00A38D] to-[#00BFA5] hover:from-[#008f7b] hover:to-[#00aa93] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#00A38D]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 group"
+                    >
+                      <MapPin size={15} className="text-white shrink-0 group-hover:scale-110 transition-transform" />
+                      <span>YOUR LOCATION</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openTestDrive('hub')}
+                      className="py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#008975] to-[#00A38D] hover:from-[#007362] hover:to-[#008f7b] text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 shadow-md shadow-[#008975]/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 group"
+                    >
+                      <Building2 size={15} className="text-white shrink-0 group-hover:scale-110 transition-transform" />
+                      <span>AT SELECTT HUB</span>
+                    </button>
+                  </div>
+                </div>
+              ) : null}
 
             </div>
 
@@ -2004,9 +2115,14 @@ const CheckoutPage = () => {
                 {/* TCS (Tax Collected at Source) - Circled in reference screenshot */}
                 <div className="flex justify-between items-start text-slate-700">
                   <div>
-                    <div className="font-medium flex items-center gap-1">
+                    <div className="font-medium flex items-center gap-1.5">
                       <span>TCS (Tax Collected at Source)</span>
-                      <Info size={13} className="text-slate-400" />
+                      <PriceInfoPopover 
+                        title="TCS (Tax Collected at Source)"
+                        content="As per Section 206C(1F) of the Income Tax Act, 1% TCS is legally collected on car transactions. The entire amount is 100% credited to your PAN and can be claimed back as a tax credit when filing your annual ITR."
+                        badge="100% Tax Credit in ITR"
+                        tag="Sec 206C(1F)"
+                      />
                     </div>
                     <p className="text-[11px] text-slate-400 font-medium">
                       This amount will come back to you as a tax credit
@@ -2019,8 +2135,15 @@ const CheckoutPage = () => {
 
                 {/* Servicing, Cleaning, Fuel */}
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-600 font-medium flex items-center gap-1">
-                    Servicing, cleaning, fuel & more <Info size={13} className="text-slate-400" />
+                  <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                    <span>Servicing, cleaning, fuel & more</span>
+                    <PriceInfoPopover 
+                      title="Servicing, Cleaning & Prep"
+                      content="Includes periodic comprehensive servicing (engine oil & synthetic filter replacement), deep multi-stage detailing, anti-bacterial ozone AC treatment, and 5L fuel for your drive home."
+                      badge="₹0 (₹8,700 Value Included)"
+                      tag="Pre-Delivery Care"
+                      onViewDetails={() => setActiveBreakdownModal('servicing')}
+                    />
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-slate-400 line-through font-normal text-xs font-price">₹8,700</span>
@@ -2030,8 +2153,14 @@ const CheckoutPage = () => {
 
                 {/* Warranty */}
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-600 font-medium flex items-center gap-1">
-                    Warranty (Protect)
+                  <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                    <span>Warranty (Protect)</span>
+                    <PriceInfoPopover 
+                      title="Selectt Warranty (Protect)"
+                      content="Comprehensive 6-month warranty covering engine, transmission, steering, and electrical components with zero deductible, plus 24/7 pan-India roadside assistance."
+                      badge="100% Included Free"
+                      tag="₹5,500 Value"
+                    />
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-slate-400 line-through font-normal text-xs font-price">₹5,500</span>
@@ -2041,16 +2170,30 @@ const CheckoutPage = () => {
 
                 {/* Fixes & Upgrades */}
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-600 font-medium flex items-center gap-1">
-                    Fixes & upgrades <Info size={13} className="text-slate-400" />
+                  <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                    <span>Fixes & upgrades</span>
+                    <PriceInfoPopover 
+                      title="Fixes & Quality Upgrades"
+                      content="All minor mechanical wear, cosmetic blemishes, fluid top-ups, and electrical system tuning identified during our 200-checkpoint inspection are fixed by professionals."
+                      badge="Certified Refurbishment"
+                      tag="200 Checkpoints"
+                      onViewDetails={() => setActiveBreakdownModal('fixes')}
+                    />
                   </span>
                   <span className="text-emerald-600 font-bold">Included</span>
                 </div>
 
                 {/* GST Taxes */}
                 <div className="flex justify-between items-center text-slate-700">
-                  <span className="font-medium flex items-center gap-1">
-                    GST (govt. taxes) <Info size={13} className="text-slate-400" />
+                  <span className="font-medium flex items-center gap-1.5">
+                    <span>GST (govt. taxes)</span>
+                    <PriceInfoPopover 
+                      title="GST (Statutory Taxes)"
+                      content="18% Goods & Services Tax levied strictly on facilitation and legal documentation services in compliance with Govt of India regulations. Car margin tax is covered by Selectt."
+                      badge="Official Tax Invoice"
+                      tag="18% Statutory Rate"
+                      onViewDetails={() => setActiveBreakdownModal('gst')}
+                    />
                   </span>
                   <span className="font-bold text-[#0C1B33] font-price">₹{gstTax.toLocaleString('en-IN')}</span>
                 </div>
@@ -2257,7 +2400,10 @@ const CheckoutPage = () => {
       )}
       {/* 3 Price Breakdown Info Modals (Servicing, Fixes, GST) */}
       {activeBreakdownModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
+        <div 
+          className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn"
+          onClick={() => setActiveBreakdownModal(null)}
+        >
           <div 
             className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-slate-200 animate-slideUp flex flex-col max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
