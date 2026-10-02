@@ -58,10 +58,10 @@ const QualityReport = ({ report, theme = 'white' }) => {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-center gap-0.5">
-                <span className="px-1.5 py-0.5 bg-[#00C9AF] text-[#0C1B33] text-[10px] font-bold rounded">{report?.coreScore || '9.9'}</span>
-                <span className={`text-[10px] font-bold ${scoreLabelClass}`}>Excellent</span>
+                <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.coreScore || '9.9'}</span>
+                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>Excellent</span>
               </div>
-              <ChevronRight size={12} className="text-slate-400" />
+              <ChevronRight size={14} className="text-slate-400" />
             </div>
           </div>
 
@@ -75,10 +75,10 @@ const QualityReport = ({ report, theme = 'white' }) => {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-center gap-0.5">
-                <span className="px-1.5 py-0.5 bg-[#00C9AF] text-[#0C1B33] text-[10px] font-bold rounded">{report?.supportingScore || '9.5'}</span>
-                <span className={`text-[10px] font-bold ${scoreLabelClass}`}>Excellent</span>
+                <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.supportingScore || '9.5'}</span>
+                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>Excellent</span>
               </div>
-              <ChevronRight size={12} className="text-slate-400" />
+              <ChevronRight size={14} className="text-slate-400" />
             </div>
           </div>
 
@@ -92,10 +92,10 @@ const QualityReport = ({ report, theme = 'white' }) => {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-center gap-0.5">
-                <span className="px-1.5 py-0.5 bg-[#00C9AF] text-[#0C1B33] text-[10px] font-bold rounded">{report?.interiorsScore || '9.6'}</span>
-                <span className={`text-[10px] font-bold ${scoreLabelClass}`}>Excellent</span>
+                <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.interiorsScore || '9.6'}</span>
+                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>Excellent</span>
               </div>
-              <ChevronRight size={12} className="text-slate-400" />
+              <ChevronRight size={14} className="text-slate-400" />
             </div>
           </div>
 
@@ -109,10 +109,10 @@ const QualityReport = ({ report, theme = 'white' }) => {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-center gap-0.5">
-                <span className="px-1.5 py-0.5 bg-[#00C9AF] text-[#0C1B33] text-[10px] font-bold rounded">{report?.exteriorsScore || '9.2'}</span>
-                <span className={`text-[10px] font-bold ${scoreLabelClass}`}>Excellent</span>
+                <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.exteriorsScore || '9.2'}</span>
+                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>Excellent</span>
               </div>
-              <ChevronRight size={12} className="text-slate-400" />
+              <ChevronRight size={14} className="text-slate-400" />
             </div>
           </div>
 
@@ -126,10 +126,10 @@ const QualityReport = ({ report, theme = 'white' }) => {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-center gap-0.5">
-                <span className="px-1.5 py-0.5 bg-[#00C9AF] text-[#0C1B33] text-[10px] font-bold rounded">{report?.wearTearScore || '8.7'}</span>
-                <span className={`text-[10px] font-bold ${scoreLabelClass}`}>Good</span>
+                <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.wearTearScore || '8.7'}</span>
+                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>Good</span>
               </div>
-              <ChevronRight size={12} className="text-slate-400" />
+              <ChevronRight size={14} className="text-slate-400" />
             </div>
           </div>
 
