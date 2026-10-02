@@ -9,6 +9,181 @@ import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/a
 import PageMeta from '../components/common/PageMeta';
 import TestDriveModal from '../components/buy/TestDriveModal';
 import carLoanIcon from '../assets/car-loan-icon.png';
+import { useSiteSettings } from '../context/SiteSettingsContext';
+
+export const RupeeSignIcon = ({ className = "w-3 h-3 fill-current", ...props }) => (
+  <svg 
+    viewBox="40 -1 170 250" 
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    {...props}
+  >
+    <path fill="currentColor" d="M153 23h41l15-23H55L40 23h26c27 0 52 2 62 25H55L40 71h91v1c0 17-14 43-60 43H48v22l90 113h41L85 133c39-2 75-24 80-62h29l15-23h-45c-1-9-5-18-11-25z"/>
+  </svg>
+);
+
+export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate }) => {
+  const { getSiteImage, settings } = useSiteSettings();
+  const siteLogo = getSiteImage('frontend_header_logo', '/img/dark-logo.svg');
+  const supportPhone = settings?.contact_phone || settings?.maintenance_phone || '+91 85746 67466';
+  const supportPhoneClean = supportPhone.replace(/[^0-9+]/g, '');
+
+  return (
+    <header className="sticky top-0 z-50 bg-white border-b border-slate-200/90 shadow-2xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-4">
+        {/* Left: Logo + Mobile Back button */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate(`/car/${car?.id || carId}`);
+              }
+            }}
+            className="md:hidden w-8.5 h-8.5 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 text-[#0C1B33] flex items-center justify-center transition-all cursor-pointer shadow-2xs mr-1"
+            aria-label="Back"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} className="text-[#0C1B33]" />
+          </button>
+
+          <Link to="/" className="flex items-center gap-2 group">
+            <img 
+              src={siteLogo || "/img/dark-logo.svg"} 
+              alt="Selectt" 
+              className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-102"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/img/header-logo.png";
+              }}
+            />
+          </Link>
+        </div>
+
+        {/* Center: 3-Step Stepper (Desktop & Tablet) */}
+        <div className="hidden md:flex items-center justify-center flex-1 max-w-2xl px-2 lg:px-6">
+          <div className="flex items-center w-full justify-center">
+            {/* Step 1: Car selected */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="w-6 h-6 rounded-full bg-[#E53935] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                <Check size={13} strokeWidth={3.2} />
+              </div>
+              <span className="text-[13.5px] font-semibold text-[#1E293B] whitespace-nowrap">
+                Car selected
+              </span>
+            </div>
+
+            {/* Connecting Line 1 -> 2 (Solid red) */}
+            <div className="flex-1 max-w-[120px] min-w-[36px] h-[2px] bg-[#E53935] mx-3 lg:mx-4 shrink-0 rounded-full" />
+
+            {/* Step 2: Test drive preferences */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs transition-colors ${
+                currentStep > 2 
+                  ? 'bg-[#E53935] text-white' 
+                  : 'bg-[#E53935] text-white ring-2 ring-[#E53935]/25'
+              }`}>
+                {currentStep > 2 ? <Check size={13} strokeWidth={3.2} /> : '2'}
+              </div>
+              <span className="text-[13.5px] font-semibold text-[#1E293B] whitespace-nowrap">
+                Test drive preferences
+              </span>
+            </div>
+
+            {/* Connecting Line 2 -> 3 (Grey / Red if step 3) */}
+            <div className={`flex-1 max-w-[120px] min-w-[36px] h-[2px] mx-3 lg:mx-4 shrink-0 rounded-full transition-colors ${
+              currentStep >= 3 ? 'bg-[#E53935]' : 'bg-slate-300'
+            }`} />
+
+            {/* Step 3: Payment */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs transition-colors ${
+                currentStep >= 3 
+                  ? 'bg-[#E53935] text-white ring-2 ring-[#E53935]/25' 
+                  : 'bg-slate-300 text-white'
+              }`}>
+                3
+              </div>
+              <span className={`text-[13.5px] whitespace-nowrap transition-colors ${
+                currentStep >= 3 ? 'text-[#1E293B] font-semibold' : 'text-slate-400 font-medium'
+              }`}>
+                Payment
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Phone / Support Number */}
+        <div className="flex items-center shrink-0">
+          <a
+            href={`tel:${supportPhoneClean}`}
+            className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-slate-50 transition-colors group text-slate-700"
+            title={`Call support at ${supportPhone}`}
+          >
+            <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#00C9AF]/15 text-slate-700 group-hover:text-[#00A38D] flex items-center justify-center transition-colors shadow-2xs">
+              <Phone size={15} />
+            </div>
+            <div className="hidden sm:flex flex-col text-right">
+              <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold leading-none">Need help?</span>
+              <span className="text-[13px] font-bold text-[#0F172A] leading-tight font-sans tracking-tight">
+                {supportPhone}
+              </span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      {/* Mobile Stepper Row */}
+      <div className="md:hidden border-t border-slate-100 bg-slate-50/70 px-3 py-2 flex items-center justify-between overflow-x-auto">
+        <div className="flex items-center justify-center w-full min-w-max gap-1.5 sm:gap-2">
+          {/* Step 1 */}
+          <div className="flex items-center gap-1 shrink-0">
+            <div className="w-5 h-5 rounded-full bg-[#E53935] text-white flex items-center justify-center text-[10px] shrink-0 shadow-2xs">
+              <Check size={11} strokeWidth={3} />
+            </div>
+            <span className="text-[11px] font-semibold text-[#1E293B]">
+              Car selected
+            </span>
+          </div>
+
+          <div className="w-6 sm:w-10 h-[2px] bg-[#E53935] mx-1 shrink-0 rounded-full" />
+
+          {/* Step 2 */}
+          <div className="flex items-center gap-1 shrink-0">
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 shadow-2xs ${
+              currentStep > 2 ? 'bg-[#E53935] text-white' : 'bg-[#E53935] text-white'
+            }`}>
+              {currentStep > 2 ? <Check size={11} strokeWidth={3} /> : '2'}
+            </div>
+            <span className="text-[11px] font-semibold text-[#1E293B]">
+              Test drive
+            </span>
+          </div>
+
+          <div className={`w-6 sm:w-10 h-[2px] mx-1 shrink-0 rounded-full ${
+            currentStep >= 3 ? 'bg-[#E53935]' : 'bg-slate-300'
+          }`} />
+
+          {/* Step 3 */}
+          <div className="flex items-center gap-1 shrink-0">
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 shadow-2xs ${
+              currentStep >= 3 ? 'bg-[#E53935] text-white' : 'bg-slate-300 text-white'
+            }`}>
+              3
+            </div>
+            <span className={`text-[11px] ${
+              currentStep >= 3 ? 'text-[#1E293B] font-semibold' : 'text-slate-400 font-medium'
+            }`}>
+              Payment
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
 
 export const getBookingAmount = (price) => {
   const numericPrice = Number(price) || 0;
@@ -291,8 +466,8 @@ export const ConfettiSavingsBanner = ({ savingAmount = 15000, className = "" }) 
 
       {/* Banner Text with Rupee Badge */}
       <div className="flex items-center gap-2.5 relative z-10">
-        <span className="w-5.5 h-5.5 rounded-full bg-[#00A38D] text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs animate-confetti-pulse">
-          ₹
+        <span className="w-6 h-6 rounded-full bg-[#00A38D] text-white flex items-center justify-center p-1 shrink-0 shadow-xs animate-confetti-pulse">
+          <RupeeSignIcon className="w-3.5 h-3.5 fill-white" />
         </span>
         <span className="font-extrabold text-[#007a68] text-[13.5px] sm:text-[14.5px] tracking-tight">
           Yay! You are saving ₹{Number(savingAmount).toLocaleString('en-IN')}
@@ -796,94 +971,50 @@ const CheckoutPage = () => {
   return (
     <>
       <PageMeta title={`Checkout - Reserve ${car.year} ${car.make} ${car.model} | Selectt`} description={`Complete booking deposit for your ${car.year} ${car.make} ${car.model}.`} />
-      <div className="bg-[#f9f9f9] min-h-screen pt-0 md:pt-4 lg:pt-8 pb-56 sm:pb-64 lg:pb-20 font-sans text-slate-800 relative">
-        {/* Mobile Top Navigation — fully sticky including Booking amount is 100% refundable */}
-        <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
-          {/* Row 1: Back + Checkout + Call */}
-          <div className="px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.history.length > 1) {
-                    navigate(-1);
-                  } else {
-                    navigate(`/car/${car?.id || carId}`);
-                  }
-                }}
-                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 text-[#0C1B33] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
-                aria-label="Back"
-              >
-                <ArrowLeft size={20} strokeWidth={2.5} className="text-[#0C1B33]" />
-              </button>
-              <span className="text-base font-extrabold text-[#0C1B33]">
-                Checkout
-              </span>
-            </div>
+      
+      {/* Dedicated Checkout Header with Logo (left), 3-step Stepper (center), Phone Support (right) */}
+      <CheckoutDedicatedHeader
+        currentStep={scheduledTestDrive || isTestDriveSkipped ? 3 : 2}
+        car={car}
+        carId={carId}
+        navigate={navigate}
+      />
 
-            <a
-              href="tel:+918574667466"
-              className="w-9 h-9 rounded-full bg-slate-50 hover:bg-purple-50 active:scale-90 text-[#4A154B] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
-              aria-label="Call Support at +91-857466-7466"
-              title="Call Support"
-            >
-              <Phone size={19} className="text-[#4A154B] fill-[#4A154B]" />
-            </a>
-          </div>
-
-          {/* Row 2: Booking amount is 100% refundable */}
-          <div className="flex items-center justify-center px-4 pb-2.5">
-            <button
-              type="button"
-              onClick={() => setIsRefundPolicyOpen(true)}
-              className="inline-flex items-center gap-1 text-[12px] font-semibold text-slate-600 hover:text-[#0C1B33] transition-colors cursor-pointer group"
-            >
-              <span>Booking amount is</span>
-              <span className="text-[#0C1B33] font-bold underline decoration-slate-400 underline-offset-4 group-hover:text-[#00A38D] group-hover:decoration-[#00A38D]">
-                100% refundable
-              </span>
-              <ChevronDown size={13} className="text-slate-500 group-hover:text-[#00A38D] transition-transform group-hover:translate-y-0.5 ml-0.5" />
-            </button>
-          </div>
-        </div>
-
+      <div className="bg-[#f9f9f9] min-h-screen pt-3 sm:pt-6 pb-56 sm:pb-64 lg:pb-20 font-sans text-slate-800 relative">
         {/* Mobile-Only Savings Banner (non-sticky, scrolls normally) */}
-        <div className="md:hidden px-4 pt-2 pb-3">
+        <div className="md:hidden px-4 pt-1 pb-3">
           <ConfettiSavingsBanner
             savingAmount={savingsAmount}
             className="w-full shadow-2xs"
           />
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 relative z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 items-start">
+            {/* Left Column: Flow Options (7 cols on desktop) - STICKY IN COLUMN ON DESKTOP */}
+            <div className="lg:col-span-7 flex flex-col gap-3.5 sm:gap-5 lg:sticky lg:top-22 lg:self-start lg:max-h-[calc(100vh-6.5rem)] lg:overflow-y-auto lg:scrollbar-none pr-0.5">
 
-
-
-          {/* Main Title Area */}
-          <div className="flex items-end justify-between mb-4 sm:mb-8">
-            <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-[#0F172A] mb-2 leading-tight">
-                Reserve this car for <span className="text-[#00C9AF] font-bold font-price">₹{rawBookingAmount.toLocaleString('en-IN')}</span>
-              </h1>
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-sm sm:text-base text-slate-600 font-normal">and find out if it's your perfect match</p>
-                <span className="text-slate-300 hidden sm:inline">•</span>
-                <button
-                  type="button"
-                  onClick={() => setIsRefundPolicyOpen(true)}
-                  className="hidden sm:inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#00A38D] cursor-pointer group"
-                >
-                  <span>Booking amount is</span>
-                  <span className="font-bold underline decoration-slate-400 group-hover:decoration-[#00A38D]">100% refundable</span>
-                  <ChevronDown size={14} className="text-slate-400 group-hover:text-[#00A38D]" />
-                </button>
+              {/* Main Title Area (Top of left column, side-by-side with savings banner on right) */}
+              <div className="flex items-end justify-between mb-0.5">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl lg:text-[28px] xl:text-3xl font-heading font-bold text-[#0F172A] mb-1.5 leading-tight">
+                    Reserve this car for <span className="text-[#00C9AF] font-bold font-price">₹{rawBookingAmount.toLocaleString('en-IN')}</span>
+                  </h1>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm sm:text-base text-slate-600 font-normal">and find out if it's your perfect match</p>
+                    <span className="text-slate-300 hidden sm:inline">•</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsRefundPolicyOpen(true)}
+                      className="hidden sm:inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#00A38D] cursor-pointer group"
+                    >
+                      <span>Booking amount is</span>
+                      <span className="font-bold underline decoration-slate-400 group-hover:decoration-[#00A38D]">100% refundable</span>
+                      <ChevronDown size={14} className="text-slate-400 group-hover:text-[#00A38D]" />
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-6 lg:gap-8 items-start">
-            {/* Left Column: Flow Options (7 cols on desktop) */}
-            <div className="lg:col-span-7 flex flex-col gap-3.5 sm:gap-5">
 
               {/* 1. 1-Year Complete Maintenance Package (Screenshot 1 middle card) */}
               <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-teal-200">

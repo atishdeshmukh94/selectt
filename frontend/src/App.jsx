@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy, Component } from 'react';
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import { ToastProvider } from './components/animation/ToastSystem';
@@ -112,6 +112,20 @@ class ErrorBoundary extends Component {
 import WhatsAppChatButton from './components/common/WhatsAppChatButton';
 
 function MainLayout() {
+  const location = useLocation();
+  const isCheckout = location.pathname.startsWith('/checkout');
+
+  if (isCheckout) {
+    return (
+      <>
+        <LoginModal />
+        <main>
+          <Outlet />
+        </main>
+      </>
+    );
+  }
+
   return (
     <>
       <LocationPopup />
