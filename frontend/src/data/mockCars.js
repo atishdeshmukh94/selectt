@@ -1,3 +1,5 @@
+import { DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
+
 export const MOCK_CARS = [
   {
     id: 1,
@@ -11,7 +13,7 @@ export const MOCK_CARS = [
     fuelType: "Petrol",
     transmission: "Manual",
     location: "Navi Mumbai",
-    image: "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&auto=format&fit=crop",
+    image: DEFAULT_CAR_FALLBACK_IMAGE,
     isAssured: true,
     tag: "Top Rated",
     hub: "Selectt Hub, Rohini",
@@ -42,7 +44,7 @@ export const MOCK_CARS = [
     fuelType: "Petrol",
     transmission: "Automatic",
     location: "Gurgaon",
-    image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop",
+    image: DEFAULT_CAR_FALLBACK_IMAGE,
     isAssured: true,
     tag: "Trending",
     hub: "Selectt Hub, MG Road",
@@ -60,7 +62,7 @@ export const MOCK_CARS = [
     fuelType: "Diesel",
     transmission: "Manual",
     location: "Noida",
-    image: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=800&auto=format&fit=crop",
+    image: DEFAULT_CAR_FALLBACK_IMAGE,
     isAssured: true,
     hub: "Selectt Hub, Sec 62",
     highlights: ["Excellent condition", "Full service history"]
@@ -77,7 +79,7 @@ export const MOCK_CARS = [
     fuelType: "Petrol",
     transmission: "Automatic",
     location: "Faridabad",
-    image: "https://media.cars24.com/hello-ar/dev/transformed/uploads/m/9126a937-30b4-466b-93f8-d172c399d10d/c05ded9f-59d2-4c5f-9578-719c1279e24a/45dc9c3f-4906-4c33-aac1-1e2e3f61c745/slot/1.jpg?w=690&format=auto",
+    image: DEFAULT_CAR_FALLBACK_IMAGE,
     isAssured: true,
     tag: "Almost New",
     hub: "Selectt Hub, NIT",
@@ -95,7 +97,7 @@ export const MOCK_CARS = [
     fuelType: "Diesel",
     transmission: "Automatic",
     location: "Navi Mumbai",
-    image: "https://cdn-fastly.thetruthaboutcars.com/media/2022/11/09/21051/2022-kia-seltos-review-easy.jpg?size=720x845&nocrop=1",
+    image: DEFAULT_CAR_FALLBACK_IMAGE,
     isAssured: true,
     hub: "Selectt Hub, Dwarka",
     highlights: ["Ventilated seats", "Clean engine"]
@@ -112,7 +114,7 @@ export const MOCK_CARS = [
     fuelType: "Petrol",
     transmission: "Manual",
     location: "Gurgaon",
-    image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&auto=format&fit=crop",
+    image: DEFAULT_CAR_FALLBACK_IMAGE,
     isAssured: true,
     tag: "Performance",
     hub: "Selectt Hub, Cyber City",
@@ -130,7 +132,7 @@ export const MOCK_CARS = [
     fuelType: "Petrol",
     transmission: "Manual",
     location: "Navi Mumbai",
-    image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&auto=format&fit=crop",
+    image: DEFAULT_CAR_FALLBACK_IMAGE,
     isAssured: true,
     hub: "Selectt Hub, Rohini"
   },
@@ -146,7 +148,7 @@ export const MOCK_CARS = [
     fuelType: "Diesel",
     transmission: "Automatic",
     location: "Navi Mumbai",
-    image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop",
+    image: DEFAULT_CAR_FALLBACK_IMAGE,
     isAssured: true,
     hub: "Selectt Hub, South Ext"
   },
@@ -162,7 +164,7 @@ export const MOCK_CARS = [
     fuelType: "Diesel",
     transmission: "Manual",
     location: "Noida",
-    image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&auto=format&fit=crop",
+    image: DEFAULT_CAR_FALLBACK_IMAGE,
     isAssured: true,
     hub: "Selectt Hub, Sec 18"
   },

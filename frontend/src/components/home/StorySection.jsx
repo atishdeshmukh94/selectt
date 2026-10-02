@@ -3,25 +3,25 @@ import { ChevronLeft, ChevronRight, User, Play, VolumeX } from 'lucide-react';
 
 const stories = [
   {
-    image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop',
+    image: '/img/selectt-benefits-1.webp',
     name: 'Ayush Srivastava',
     location: 'Lucknow',
     testimony: "Our first car that we'd truly love for years to come."
   },
   {
-    image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&auto=format&fit=crop',
+    image: '/img/selectt-benefits-2.webp',
     name: 'Darshan',
     location: 'Delhi',
     testimony: 'Our family had our hearts set on XUV 700. So, when we saw it on Selectt, we just got it home.'
   },
   {
-    image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&auto=format&fit=crop',
+    image: '/img/selectt-benefits-3.webp',
     name: 'Manu Rasho',
     location: 'Bengaluru',
     testimony: "Our car looks like a new car, feels like a new car and drives like one. The smile on our daughters' faces has made the decision worth it."
   },
   {
-    image: 'https://www.shutterstock.com/image-photo/happy-eastern-couple-hugging-holding-600nw-2442548061.jpg',
+    image: '/img/about-us-mission.webp',
     name: 'Priya Sharma',
     location: 'Mumbai',
     testimony: 'Found the perfect hatchback within my budget. The infinite options made it so easy!'

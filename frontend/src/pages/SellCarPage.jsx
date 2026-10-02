@@ -97,28 +97,28 @@ const DEFAULT_STEPS = [
     id: 1,
     title: "1. Get Online Valuation",
     description: "Enter your car's details in our instant estimate tool to get a transparent price range in seconds.",
-    imageUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=80",
+    imageUrl: "/img/step-1.webp",
     badge: "Instant Estimate"
   },
   {
     id: 2,
     title: "2. Free Doorstep Inspection",
     description: "Schedule a free evaluation at your preferred time. Our certified inspector will perform a 200-point physical check.",
-    imageUrl: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?w=800&auto=format&fit=crop&q=80",
+    imageUrl: "/img/step-2.webp",
     badge: "Free Doorstep Inspection"
   },
   {
     id: 3,
     title: "3. Receive Final Offer & Get Paid",
     description: "Accept our best competitive offer and receive full payment via secure bank transfer within 24 hours.",
-    imageUrl: "https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=800&auto=format&fit=crop&q=80",
+    imageUrl: "/img/step-3.webp",
     badge: "Instant Payment"
   },
   {
     id: 4,
     title: "4. Hassle-Free Paperwork",
     description: "100% free RC transfer and comprehensive Seller Protection Policy until ownership transfer completes.",
-    imageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80",
+    imageUrl: "/img/step-4.webp",
     badge: "Free RC Transfer"
   }
 ];

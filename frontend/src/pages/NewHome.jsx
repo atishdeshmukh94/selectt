@@ -29,7 +29,7 @@ import {
   CreditCard,
   Star
 } from 'lucide-react';
-import { API_URL } from '../config/api';
+import { API_URL, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import NewTestimonials from '../components/home/NewTestimonials';
 import FAQ from '../components/home/FAQ';
 import CarCard from '../components/buy/CarCard';
@@ -1507,7 +1507,7 @@ const NewHome = () => {
                                   alt={`${car.make} ${car.model}`}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
-                                    e.target.src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=200';
+                                    e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
                                   }}
                                 />
                               </div>
@@ -1719,7 +1719,7 @@ const NewHome = () => {
                       alt={`${car.year} ${car.make} ${car.model}`}
                       className="w-full h-full object-cover mix-blend-multiply"
                       onError={(e) => {
-                        e.target.src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=200';
+                        e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
                       }}
                     />
                   </div>

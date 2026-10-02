@@ -726,36 +726,36 @@ const KM_RANGES = [
 
 const MAKES_AND_MODELS = {
   'Maruti Suzuki': {
-    Swift: { basePrice: 7.8, fuels: ['Petrol', 'CNG'], demand: 1.12, img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80' },
-    Baleno: { basePrice: 8.8, fuels: ['Petrol', 'CNG'], demand: 1.1, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&auto=format&fit=crop&q=80' },
-    Dzire: { basePrice: 8.6, fuels: ['Petrol', 'CNG'], demand: 1.11, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=400&auto=format&fit=crop&q=80' },
-    Brezza: { basePrice: 10.8, fuels: ['Petrol', 'CNG'], demand: 1.08, img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&auto=format&fit=crop&q=80' },
-    Alto: { basePrice: 4.2, fuels: ['Petrol', 'CNG'], demand: 1.05, img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80' }
+    Swift: { basePrice: 7.8, fuels: ['Petrol', 'CNG'], demand: 1.12, img: '/img/maruti-suzuki.webp' },
+    Baleno: { basePrice: 8.8, fuels: ['Petrol', 'CNG'], demand: 1.1, img: '/img/maruti-suzuki.webp' },
+    Dzire: { basePrice: 8.6, fuels: ['Petrol', 'CNG'], demand: 1.11, img: '/img/maruti-suzuki.webp' },
+    Brezza: { basePrice: 10.8, fuels: ['Petrol', 'CNG'], demand: 1.08, img: '/img/maruti-suzuki.webp' },
+    Alto: { basePrice: 4.2, fuels: ['Petrol', 'CNG'], demand: 1.05, img: '/img/maruti-suzuki.webp' }
   },
   Hyundai: {
-    i20: { basePrice: 8.6, fuels: ['Petrol'], demand: 1.03, img: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&auto=format&fit=crop&q=80' },
-    Venue: { basePrice: 11.2, fuels: ['Petrol', 'Diesel'], demand: 1.05, img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&auto=format&fit=crop&q=80' },
-    Creta: { basePrice: 16.8, fuels: ['Petrol', 'Diesel'], demand: 1.14, img: 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=400&auto=format&fit=crop&q=80' },
-    Verna: { basePrice: 13.5, fuels: ['Petrol', 'Diesel'], demand: 1.02, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=400&auto=format&fit=crop&q=80' }
+    i20: { basePrice: 8.6, fuels: ['Petrol'], demand: 1.03, img: '/img/hyundai.webp' },
+    Venue: { basePrice: 11.2, fuels: ['Petrol', 'Diesel'], demand: 1.05, img: '/img/hyundai.webp' },
+    Creta: { basePrice: 16.8, fuels: ['Petrol', 'Diesel'], demand: 1.14, img: '/img/hyundai.webp' },
+    Verna: { basePrice: 13.5, fuels: ['Petrol', 'Diesel'], demand: 1.02, img: '/img/hyundai.webp' }
   },
   Tata: {
-    Punch: { basePrice: 9.1, fuels: ['Petrol', 'CNG'], demand: 1.12, img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80' },
-    Nexon: { basePrice: 13.4, fuels: ['Petrol', 'Diesel'], demand: 1.13, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&auto=format&fit=crop&q=80' },
-    Harrier: { basePrice: 20.6, fuels: ['Diesel'], demand: 1.04, img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&auto=format&fit=crop&q=80' },
-    Safari: { basePrice: 22.5, fuels: ['Diesel'], demand: 1.02, img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&auto=format&fit=crop&q=80' }
+    Punch: { basePrice: 9.1, fuels: ['Petrol', 'CNG'], demand: 1.12, img: '/img/tata.webp' },
+    Nexon: { basePrice: 13.4, fuels: ['Petrol', 'Diesel'], demand: 1.13, img: '/img/tata.webp' },
+    Harrier: { basePrice: 20.6, fuels: ['Diesel'], demand: 1.04, img: '/img/tata.webp' },
+    Safari: { basePrice: 22.5, fuels: ['Diesel'], demand: 1.02, img: '/img/tata.webp' }
   },
   Mahindra: {
-    Thar: { basePrice: 15.4, fuels: ['Petrol', 'Diesel'], demand: 1.1, img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&auto=format&fit=crop&q=80' },
-    XUV700: { basePrice: 21.2, fuels: ['Petrol', 'Diesel'], demand: 1.14, img: 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=400&auto=format&fit=crop&q=80' },
-    ScorpioN: { basePrice: 18.8, fuels: ['Petrol', 'Diesel'], demand: 1.12, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=400&auto=format&fit=crop&q=80' }
+    Thar: { basePrice: 15.4, fuels: ['Petrol', 'Diesel'], demand: 1.1, img: '/img/mahindra.webp' },
+    XUV700: { basePrice: 21.2, fuels: ['Petrol', 'Diesel'], demand: 1.14, img: '/img/mahindra.webp' },
+    ScorpioN: { basePrice: 18.8, fuels: ['Petrol', 'Diesel'], demand: 1.12, img: '/img/mahindra.webp' }
   },
   Renault: {
-    Kwid: { basePrice: 5.2, fuels: ['Petrol'], demand: 1.0, img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80' },
-    Triber: { basePrice: 7.5, fuels: ['Petrol'], demand: 0.98, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&auto=format&fit=crop&q=80' }
+    Kwid: { basePrice: 5.2, fuels: ['Petrol'], demand: 1.0, img: '/img/renault.webp' },
+    Triber: { basePrice: 7.5, fuels: ['Petrol'], demand: 0.98, img: '/img/renault.webp' }
   },
   Honda: {
-    City: { basePrice: 13.8, fuels: ['Petrol'], demand: 1.02, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=400&auto=format&fit=crop&q=80' },
-    Amaze: { basePrice: 8.2, fuels: ['Petrol'], demand: 1.0, img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80' }
+    City: { basePrice: 13.8, fuels: ['Petrol'], demand: 1.02, img: '/img/honda.webp' },
+    Amaze: { basePrice: 8.2, fuels: ['Petrol'], demand: 1.0, img: '/img/honda.webp' }
   },
   BMW: {
     '3 Series': { basePrice: 42.0, demand: 1.08 },
@@ -3112,9 +3112,10 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                   {/* Map Pin Box */}
                   <div className="relative w-full h-44 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-inner flex items-center justify-center">
                     <div
-                      className="absolute inset-0 bg-cover bg-center opacity-90"
+                      className="absolute inset-0 bg-[#F1F5F9] opacity-90"
                       style={{
-                        backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&auto=format&fit=crop&q=80')`
+                        backgroundImage: `radial-gradient(#94A3B8 1.5px, transparent 1.5px)`,
+                        backgroundSize: '20px 20px'
                       }}
                     />
 

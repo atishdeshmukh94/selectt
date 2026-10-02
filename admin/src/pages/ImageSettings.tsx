@@ -338,7 +338,7 @@ const BRANDING_SLOTS: ImageSlotConfig[] = [
     placement: "Social Media & WhatsApp Link Cards",
     recommendedSize: "1200 × 630 px (1.91:1)",
     description: "Rich preview image shown when website URLs are shared on WhatsApp, Facebook, or Twitter.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop",
+    defaultPlaceholder: "https://selectt.in/img/og-image.jpg",
   },
 ];
 
@@ -404,7 +404,7 @@ const BUY_CARS_SLOTS: ImageSlotConfig[] = [
     placement: "Vehicle Catalog Grid > Slot #2",
     recommendedSize: "400 × 500 px (4:5 Aspect Ratio)",
     description: "Second promotional banner card shown 3 lines (9 cars) after Banner #1.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=800&auto=format&fit=crop",
+    defaultPlaceholder: "https://selectt.in/img/insurance_banner_1to1.webp",
     hasLink: true,
     linkKey: "buy_grid_banner_2_link",
     defaultLink: "/car-insurance",
@@ -418,7 +418,7 @@ const BUY_CARS_SLOTS: ImageSlotConfig[] = [
     placement: "Vehicle Catalog Grid > Slot #3",
     recommendedSize: "400 × 500 px (4:5 Aspect Ratio)",
     description: "Third promotional banner card shown 3 lines (9 cars) after Banner #2.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop",
+    defaultPlaceholder: "https://selectt.in/img/sell_car_banner.webp",
     hasLink: true,
     linkKey: "buy_grid_banner_3_link",
     defaultLink: "/sell-car",
@@ -454,7 +454,7 @@ const HOME_SELL_SLOTS: ImageSlotConfig[] = [
     placement: "Home Page > Selectt Assured Trust Section",
     recommendedSize: "400 × 300 px (4:3)",
     description: "Illustration badge highlighting certified quality check guarantee.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?q=80&w=600&auto=format&fit=crop",
+    defaultPlaceholder: "https://selectt.in/img/trust_banner_1.webp",
   },
   {
     key: "trust_banner_2",
@@ -463,7 +463,7 @@ const HOME_SELL_SLOTS: ImageSlotConfig[] = [
     placement: "Home Page > Selectt Assured Trust Section",
     recommendedSize: "400 × 300 px (4:3)",
     description: "Illustration badge for customer return policy guarantee.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=600&auto=format&fit=crop",
+    defaultPlaceholder: "https://selectt.in/img/trust_banner_2.webp",
   },
   {
     key: "trust_banner_3",
@@ -472,7 +472,7 @@ const HOME_SELL_SLOTS: ImageSlotConfig[] = [
     placement: "Home Page > Selectt Assured Trust Section",
     recommendedSize: "400 × 300 px (4:3)",
     description: "Illustration badge for extended roadside assistance and warranty.",
-    defaultPlaceholder: "https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=600&auto=format&fit=crop",
+    defaultPlaceholder: "https://selectt.in/img/trust_banner_3.webp",
   },
 ];
 

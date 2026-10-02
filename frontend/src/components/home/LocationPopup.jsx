@@ -22,7 +22,7 @@ const LocationPopup = () => {
         if (Array.isArray(data)) {
           setCities(data.map(c => ({
             name: c.name,
-            img: c.image || 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=200&q=80'
+            img: (c.image && !c.image.includes('images.unsplash.com')) ? c.image : '/img/city-line-desktop.svg'
           })));
         }
         setLoadingCities(false);

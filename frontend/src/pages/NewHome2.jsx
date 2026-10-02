@@ -324,7 +324,7 @@ export default function NewHome2() {
                 <div>
                   <div className="h-[170px] w-full bg-[#0c1b33] rounded-xl overflow-hidden relative">
                     <img
-                      src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=600&auto=format&fit=crop"
+                      src="/img/buy_car_banner.webp"
                       alt="Featured Car Preview"
                       className="w-full h-full object-cover"
                     />

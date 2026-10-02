@@ -227,7 +227,7 @@ const CarDetailsPage = () => {
   const images = Array.from(new Set(rawImages));
 
   if (images.length === 0) {
-    images.push("https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop");
+    images.push(DEFAULT_CAR_FALLBACK_IMAGE);
   }
 
   useEffect(() => {

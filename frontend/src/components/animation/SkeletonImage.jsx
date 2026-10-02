@@ -4,36 +4,49 @@ import { DEFAULT_CAR_FALLBACK_IMAGE } from '../../config/api';
 
 /**
  * SkeletonImage
- * Guideline 9:
- * - Lazy-loads with skeleton shimmer placeholder
- * - Fades in smoothly after loading
- * - Subtle zoom on hover (1.03 scale)
- * - Retains consistent rounded corners
- * - Automatic fallback for broken/missing images
+ * Follows web.dev/articles/preload-responsive-images:
+ * - Pre-allocated aspect ratio container to eliminate Cumulative Layout Shift (CLS)
+ * - Clean white / light-grey preloader placeholder with circular spinner ring
+ * - Native decoding="async" and fetchPriority support
+ * - Smooth fade-in transition on load
+ * - Fallback to clean neutral blank SVG if image fails or backend stops
  */
 const SkeletonImage = ({
   src,
-  alt,
+  alt = '',
   className = '',
   imageClassName = '',
   aspectRatio = 'aspect-[16/10]',
   hoverZoom = true,
   fallback = DEFAULT_CAR_FALLBACK_IMAGE,
+  priority = false,
   ...props
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [imgSrc, setImgSrc] = useState(src || fallback);
+  const [hasError, setHasError] = useState(false);
+
+  // Sanitize initial src: if it's an unsplash stock photo, fallback immediately
+  const cleanInitialSrc = (src && !src.includes('images.unsplash.com') && !src.includes('shutterstock.com')) 
+    ? src 
+    : fallback;
+
+  const [imgSrc, setImgSrc] = useState(cleanInitialSrc);
 
   useEffect(() => {
-    setImgSrc(src || fallback);
+    setIsLoaded(false);
+    setHasError(false);
+    const validSrc = (src && !src.includes('images.unsplash.com') && !src.includes('shutterstock.com'))
+      ? src
+      : fallback;
+    setImgSrc(validSrc);
   }, [src, fallback]);
 
   return (
-    <div className={`relative overflow-hidden ${aspectRatio} ${className}`}>
-      {/* Skeleton Shimmer Overlay */}
+    <div className={`relative overflow-hidden bg-[#F0F2F5] ${aspectRatio} ${className}`}>
+      {/* Circular Preloader Spinner (Shown while loading) */}
       {!isLoaded && (
-        <div className="absolute inset-0 bg-slate-800/40 animate-shimmer z-10 flex items-center justify-center">
-          <div className="w-6 h-6 border-2 border-[#00C9AF]/20 border-t-[#00C9AF] rounded-full animate-spin" />
+        <div className="absolute inset-0 bg-[#F0F2F5] z-10 flex items-center justify-center pointer-events-none">
+          <div className="w-8 h-8 rounded-full border-[3px] border-slate-300/80 border-t-slate-500 animate-spin" />
         </div>
       )}
 
@@ -41,10 +54,13 @@ const SkeletonImage = ({
       <motion.img
         src={imgSrc}
         alt={alt}
-        loading="lazy"
+        loading={priority ? 'eager' : 'lazy'}
+        fetchPriority={priority ? 'high' : 'auto'}
+        decoding="async"
         onLoad={() => setIsLoaded(true)}
         onError={() => {
-          if (imgSrc !== fallback) {
+          if (!hasError && imgSrc !== fallback) {
+            setHasError(true);
             setImgSrc(fallback);
           }
           setIsLoaded(true);
@@ -53,7 +69,7 @@ const SkeletonImage = ({
         animate={{ opacity: isLoaded ? 1 : 0 }}
         whileHover={hoverZoom ? { scale: 1.03 } : {}}
         transition={{
-          opacity: { duration: 0.5, ease: 'easeOut' },
+          opacity: { duration: 0.35, ease: 'easeOut' },
           scale: { duration: 0.35, ease: [0.25, 1, 0.5, 1] },
         }}
         className={`w-full h-full object-cover gpu-accelerated ${imageClassName}`}
