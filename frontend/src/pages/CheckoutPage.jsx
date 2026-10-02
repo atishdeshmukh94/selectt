@@ -650,23 +650,6 @@ const CheckoutPage = () => {
 
         <div className="max-w-5xl mx-auto px-4 relative z-10">
 
-          {/* Progress Bar Header */}
-          {/* Desktop Version */}
-          <div className="hidden md:flex items-center justify-center mb-10 gap-4 text-xs font-bold uppercase tracking-widest text-slate-400">
-            <div className="flex items-center gap-2 text-[#00C9AF]">
-              <CheckCircle2 size={16} fill="#00C9AF" className="text-white" /> Car selected
-            </div>
-            <div className="w-24 h-px bg-[#00C9AF]" />
-            <div className="flex items-center gap-2 text-[#00C9AF]">
-              <div className="w-4 h-4 bg-[#00C9AF] text-[#0A1C3A] rounded-full flex items-center justify-center text-[10px]">2</div>
-              Test drive preferences
-            </div>
-            <div className="w-24 h-px bg-slate-200" />
-            <div className="flex items-center gap-2 text-slate-400">
-              <div className="w-4 h-4 bg-slate-200 text-slate-400 rounded-full flex items-center justify-center text-[10px]">3</div>
-              Payment
-            </div>
-          </div>
 
 
           {/* Main Title Area */}
@@ -820,7 +803,7 @@ const CheckoutPage = () => {
                   </p>
                 </div>
               ) : !isTestDriveSkipped ? (
-                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-3.5 animate-in fade-in duration-300">
+                <div className="hidden md:block bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-3.5 animate-in fade-in duration-300">
                   <div className="flex items-center justify-between">
                     <p className="text-xs sm:text-sm text-slate-500 font-medium">
                       You haven’t taken a test drive yet.
