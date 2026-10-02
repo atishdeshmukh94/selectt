@@ -715,57 +715,59 @@ const CheckoutPage = () => {
     <>
       <PageMeta title={`Checkout - Reserve ${car.year} ${car.make} ${car.model} | Selectt`} description={`Complete booking deposit for your ${car.year} ${car.make} ${car.model}.`} />
       <div className="bg-[#f9f9f9] min-h-screen pt-0 md:pt-4 lg:pt-8 pb-56 sm:pb-64 lg:pb-20 font-sans text-slate-800 relative">
-        {/* Mobile Top Navigation with Back Arrow, Checkout Title & Top-Right Call Button */}
-        <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 flex items-center justify-between shadow-2xs mb-2">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                if (window.history.length > 1) {
-                  navigate(-1);
-                } else {
-                  navigate(`/car/${car?.id || carId}`);
-                }
-              }}
-              className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 text-[#0C1B33] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
-              aria-label="Back"
+        {/* Mobile Top Navigation — fully sticky including Booking amount is 100% refundable */}
+        <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+          {/* Row 1: Back + Checkout + Call */}
+          <div className="px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.history.length > 1) {
+                    navigate(-1);
+                  } else {
+                    navigate(`/car/${car?.id || carId}`);
+                  }
+                }}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 text-[#0C1B33] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+                aria-label="Back"
+              >
+                <ArrowLeft size={20} strokeWidth={2.5} className="text-[#0C1B33]" />
+              </button>
+              <span className="text-base font-extrabold text-[#0C1B33]">
+                Checkout
+              </span>
+            </div>
+
+            <a
+              href="tel:+918574667466"
+              className="w-9 h-9 rounded-full bg-slate-50 hover:bg-purple-50 active:scale-90 text-[#4A154B] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+              aria-label="Call Support at +91-857466-7466"
+              title="Call Support"
             >
-              <ArrowLeft size={20} strokeWidth={2.5} className="text-[#0C1B33]" />
-            </button>
-            <span className="text-base font-extrabold text-[#0C1B33]">
-              Checkout
-            </span>
+              <Phone size={19} className="text-[#4A154B] fill-[#4A154B]" />
+            </a>
           </div>
 
-          <a
-            href="tel:+918574667466"
-            className="w-9 h-9 rounded-full bg-slate-50 hover:bg-purple-50 active:scale-90 text-[#4A154B] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
-            aria-label="Call Support at +91-857466-7466"
-            title="Call Support"
-          >
-            <Phone size={19} className="text-[#4A154B] fill-[#4A154B]" />
-          </a>
-        </div>
-
-        {/* Mobile-Only Top Trust & Savings Section (Circled in reference screenshot) */}
-        <div className="md:hidden px-4 pt-1 pb-3 space-y-2.5">
-          {/* 1. Booking amount is 100% refundable ⌵ */}
-          <div className="flex items-center justify-center text-center">
+          {/* Row 2: Booking amount is 100% refundable */}
+          <div className="flex items-center justify-center px-4 pb-2.5">
             <button
               type="button"
               onClick={() => setIsRefundPolicyOpen(true)}
-              className="inline-flex items-center gap-1 text-[13px] sm:text-sm font-semibold text-slate-700 hover:text-[#0C1B33] transition-colors cursor-pointer group"
+              className="inline-flex items-center gap-1 text-[12px] font-semibold text-slate-600 hover:text-[#0C1B33] transition-colors cursor-pointer group"
             >
               <span>Booking amount is</span>
               <span className="text-[#0C1B33] font-bold underline decoration-slate-400 underline-offset-4 group-hover:text-[#00A38D] group-hover:decoration-[#00A38D]">
                 100% refundable
               </span>
-              <ChevronDown size={14} className="text-slate-500 group-hover:text-[#00A38D] transition-transform group-hover:translate-y-0.5 ml-0.5" />
+              <ChevronDown size={13} className="text-slate-500 group-hover:text-[#00A38D] transition-transform group-hover:translate-y-0.5 ml-0.5" />
             </button>
           </div>
+        </div>
 
-          {/* 2. Yay! You are saving Banner with Confetti */}
-          <ConfettiSavingsBanner 
+        {/* Mobile-Only Savings Banner (non-sticky, scrolls normally) */}
+        <div className="md:hidden px-4 pt-2 pb-3">
+          <ConfettiSavingsBanner
             savingAmount={savingsAmount}
             className="w-full shadow-2xs"
           />
