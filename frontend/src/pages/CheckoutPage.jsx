@@ -12,8 +12,8 @@ import carLoanIcon from '../assets/car-loan-icon.png';
 
 export const getBookingAmount = (price) => {
   const numericPrice = Number(price) || 0;
-  if (numericPrice < 1000000) {
-    return 5000; // Under 10 Lakhs
+  if (numericPrice <= 1000000) {
+    return 5000; // 0 to 10 Lakhs (up to 10,00,000)
   } else if (numericPrice < 2000000) {
     return 11000; // Below 20 Lakhs (10L to 20L)
   } else {
@@ -558,8 +558,8 @@ const CheckoutPage = () => {
   const [isPriceBreakdownExpanded, setIsPriceBreakdownExpanded] = useState(false);
 
   const rawBookingAmount = getBookingAmount(car?.price);
-  const bookingDiscount = (appliedCoupon && appliedCoupon.applies_to === 'booking_amount') ? appliedCoupon.discount_amount : 0;
-  const finalPayableBookingAmount = Math.max(1, rawBookingAmount - bookingDiscount);
+  // Booking amount is fixed (5,000 / 11,000 / 21,000) and never reduced by coupons
+  const finalPayableBookingAmount = rawBookingAmount;
 
   const carPrice = Number(car?.price) || 0;
   const originalCarPrice = Number(car?.original_price || car?.originalPrice) || (carPrice > 0 ? carPrice + 5000 : 0);
@@ -569,13 +569,14 @@ const CheckoutPage = () => {
   const tcsAmount = Math.round(carPrice * 0.01);
   const gstTax = 2430;
 
-  const savingsAmount = (car?.original_price && Number(car.original_price) > Number(car?.price))
+  // Coupon discount is applied strictly to overall car price as "Special Discount for you"
+  const couponDiscount = appliedCoupon ? (Number(appliedCoupon.discount_amount) || 0) : 0;
+  const savingsAmount = ((car?.original_price && Number(car.original_price) > Number(car?.price))
     ? (Number(car.original_price) - Number(car.price))
-    : 15000;
+    : 15000) + couponDiscount;
 
-  const carDiscount = (appliedCoupon && appliedCoupon.applies_to === 'car_price') ? appliedCoupon.discount_amount : 0;
-  const totalVehicleAmount = Math.max(0, carPrice + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - carDiscount);
-  const totalOnRoadPrice = Math.max(0, carPrice + rcTransferFee + tcsAmount + gstTax + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - carDiscount);
+  const totalVehicleAmount = Math.max(0, carPrice + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - couponDiscount);
+  const totalOnRoadPrice = Math.max(0, carPrice + rcTransferFee + tcsAmount + gstTax + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - couponDiscount);
 
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) {
@@ -1149,18 +1150,7 @@ const CheckoutPage = () => {
                       <span>Booking Amount</span>
                     </div>
                     <div className="flex items-center gap-1.5 font-extrabold text-sm sm:text-base text-[#0C1B33] font-price">
-                      {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' ? (
-                        <>
-                          <span className="line-through text-slate-400 text-xs font-normal">
-                            ₹{rawBookingAmount.toLocaleString('en-IN')}
-                          </span>
-                          <span className="text-emerald-600">
-                            ₹{finalPayableBookingAmount.toLocaleString('en-IN')}
-                          </span>
-                        </>
-                      ) : (
-                        <span>₹{rawBookingAmount.toLocaleString('en-IN')}</span>
-                      )}
+                      <span>₹{rawBookingAmount.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium pt-2 pb-1 px-1">
@@ -1262,7 +1252,7 @@ const CheckoutPage = () => {
                               </span>
                             </div>
                             <p className="text-[11px] text-emerald-700 font-semibold truncate leading-tight mt-0.5">
-                              You saved ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')}!
+                              Special discount of ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')} applied on car price!
                             </p>
                           </div>
                         </div>
@@ -2387,6 +2377,24 @@ const CheckoutPage = () => {
                     <span>1-Year Complete Maintenance ({maintenancePaymentType === 'full' ? 'Paid in Full' : 'Monthly'})</span>
                     <span className="font-price">
                       {maintenancePaymentType === 'full' ? '+ ₹11,287' : '+ ₹990/m'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Special Discount for you (Coupon Discount) */}
+                {appliedCoupon && couponDiscount > 0 && (
+                  <div className="flex justify-between items-center text-emerald-600 font-bold pt-2 border-t border-slate-100">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles size={14} className="text-emerald-500" />
+                      <span>Special Discount for you</span>
+                      {appliedCoupon.code && (
+                        <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black">
+                          {appliedCoupon.code}
+                        </span>
+                      )}
+                    </span>
+                    <span className="font-price font-extrabold text-emerald-600">
+                      - ₹{couponDiscount.toLocaleString('en-IN')}
                     </span>
                   </div>
                 )}

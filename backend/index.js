@@ -3855,7 +3855,7 @@ app.delete('/api/admin/insurance-requests/:id', authMiddleware, isAdmin, (req, r
 // - Cars 20 Lakhs and above: ₹21,000
 const calculateBookingAmount = (price) => {
     const p = Number(price) || 0;
-    if (p < 1000000) return 5000;
+    if (p <= 1000000) return 5000;
     if (p < 2000000) return 11000;
     return 21000;
 };
