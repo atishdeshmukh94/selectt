@@ -1362,7 +1362,61 @@ const CheckoutPage = () => {
         initialData={scheduledTestDrive}
       />
 
-      {/* 1-Year Complete Maintenance Package Payment Selection Modal / Bottom Sheet (Screenshots 2 & 3) */}
+      {/* Mobile-Only Sticky Bottom CTA Bar — PROCEED TO PAY */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200/80 shadow-[0_-6px_24px_rgba(0,0,0,0.10)] px-4 pt-2.5 pb-4 space-y-2">
+        {/* Phone Line */}
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] text-slate-500 font-medium">
+            This car will be booked on{' '}
+            <a href="tel:+918574667466" className="text-[#0C1B33] font-bold hover:underline">
+              8574667466
+            </a>
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsRefundPolicyOpen(true)}
+            className="text-[10px] font-bold text-[#00A38D] uppercase tracking-wider cursor-pointer hover:underline"
+          >
+            EDIT
+          </button>
+        </div>
+
+        {/* PROCEED TO PAY Button */}
+        <button
+          type="button"
+          onClick={handleBooking}
+          disabled={isBooking}
+          className={`w-full py-3.5 px-5 bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-black text-sm rounded-2xl shadow-md shadow-[#00C9AF]/25 flex items-center justify-between transition-all cursor-pointer uppercase tracking-wider ${isBooking ? 'opacity-70 cursor-not-allowed' : 'active:scale-[0.99]'}`}
+        >
+          {isBooking ? (
+            <div className="flex items-center justify-center gap-2 w-full">
+              <div className="w-4 h-4 border-2 border-[#0C1B33] border-t-transparent rounded-full animate-spin" />
+              <span>Processing...</span>
+            </div>
+          ) : (
+            <>
+              <span>PROCEED TO PAY</span>
+              <div className="flex items-center gap-1.5 font-price">
+                {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
+                  <span className="line-through text-slate-700/70 text-xs font-bold">
+                    ₹{rawBookingAmount.toLocaleString('en-IN')}
+                  </span>
+                )}
+                <span className="font-black">
+                  ₹{finalPayableBookingAmount.toLocaleString('en-IN')} →
+                </span>
+              </div>
+            </>
+          )}
+        </button>
+
+        {/* Refundable note */}
+        <p className="text-center text-[10px] text-slate-400 font-semibold">
+          100% refundable
+        </p>
+      </div>
+
+
       {isMaintenanceModalOpen && (
         <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="fixed inset-0" onClick={() => setIsMaintenanceModalOpen(false)} />
@@ -2247,8 +2301,130 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                {/* SELECTT ASSURED BENEFITS Grid (Creative, Colorful, Highly Informative) */}
-                <div className="bg-gradient-to-br from-slate-900 via-[#0C1B33] to-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-800 shadow-xl relative overflow-hidden">
+                {/* SELECTT ASSURED BENEFITS — Horizontal Carousel (2 cards visible) */}
+                <div className="bg-gradient-to-br from-slate-900 via-[#0C1B33] to-slate-900 rounded-3xl p-4 border border-slate-800 shadow-xl relative overflow-hidden">
+                  {/* Glowing decorative background */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#00C9AF]/15 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-3 relative z-10">
+                    <div className="inline-flex items-center gap-1.5 bg-[#00C9AF]/15 border border-[#00C9AF]/40 px-2.5 py-1 rounded-full">
+                      <Sparkles size={11} className="text-[#00C9AF]" />
+                      <span className="text-[10px] font-black text-[#00C9AF] uppercase tracking-wider">Selectt Assured Benefits</span>
+                    </div>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest hidden sm:inline-block">100% Peace of Mind</span>
+                  </div>
+
+                  {/* Scroll Carousel — 2 cards visible */}
+                  <div
+                    className="relative z-10 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-1"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                    {/* Card 1: Warranty */}
+                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-emerald-200/80 shadow-sm">
+                      <div className="flex items-start gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-400 text-white flex items-center justify-center shrink-0">
+                          <ShieldCheck size={14} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
+                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">6 Months Warranty</h4>
+                            <span className="text-[7px] bg-emerald-100 text-emerald-800 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">Comprehensive</span>
+                          </div>
+                          <p className="text-[9px] text-slate-500 font-medium leading-snug">Engine, transmission & electrical coverage. Zero deductible.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 2: Money Back */}
+                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-amber-200/80 shadow-sm">
+                      <div className="flex items-start gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center shrink-0">
+                          <RotateCcw size={14} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
+                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">5-Day Money Back</h4>
+                            <span className="text-[7px] bg-amber-100 text-amber-900 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">No Risk</span>
+                          </div>
+                          <p className="text-[9px] text-slate-500 font-medium leading-snug">Return within 5 days / 250 km for 100% full refund.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 3: Lowest EMI */}
+                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-cyan-200/80 shadow-sm">
+                      <div className="flex items-start gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-400 text-white flex items-center justify-center shrink-0">
+                          <CreditCard size={14} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
+                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">Lowest EMIs & Loans</h4>
+                            <span className="text-[7px] bg-cyan-100 text-cyan-900 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">From 8.9% ROI</span>
+                          </div>
+                          <p className="text-[9px] text-slate-500 font-medium leading-snug">Top bank approvals, 12–84 months tenure.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 4: 1 in 20 Selection */}
+                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-rose-200/80 shadow-sm">
+                      <div className="flex items-start gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center shrink-0">
+                          <Car size={14} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
+                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">1 in 20 Selection</h4>
+                            <span className="text-[7px] bg-rose-100 text-rose-900 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">Top 5% Only</span>
+                          </div>
+                          <p className="text-[9px] text-slate-500 font-medium leading-snug">200-point check. Non-accidental, verified odometer.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 5: Quality Assured */}
+                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-indigo-200/80 shadow-sm">
+                      <div className="flex items-start gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-sky-400 text-white flex items-center justify-center shrink-0">
+                          <Sparkles size={14} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
+                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">Quality Assured</h4>
+                            <span className="text-[7px] bg-indigo-100 text-indigo-900 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">Refurbished</span>
+                          </div>
+                          <p className="text-[9px] text-slate-500 font-medium leading-snug">Mechanical restoration, paint polish & ozone sanitization.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 6: Buyback */}
+                    <div className="snap-start shrink-0 w-[calc(50%-5px)] bg-white/95 rounded-xl p-2.5 border border-teal-200/80 shadow-sm">
+                      <div className="flex items-start gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#0C1B33] to-[#00C9AF] text-white flex items-center justify-center shrink-0">
+                          <Gift size={14} className="text-amber-300" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
+                            <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">Buyback Guarantee</h4>
+                            <span className="text-[7px] bg-[#00C9AF]/20 text-teal-900 font-black px-1 py-0.5 rounded uppercase whitespace-nowrap">Assured Price</span>
+                          </div>
+                          <p className="text-[9px] text-slate-500 font-medium leading-snug">Locked valuation up to 12 months + ₹30,000 upgrade bonus.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Scroll hint dots */}
+                  <div className="flex justify-center gap-1 mt-2.5 relative z-10">
+                    {[0,1,2].map(i => (
+                      <div key={i} className={`h-1 rounded-full bg-[#00C9AF] ${i === 0 ? 'w-4 opacity-100' : 'w-1.5 opacity-40'}`} />
+                    ))}
+                  </div>
+                </div>
                   
                   {/* Glowing decorative background aura */}
                   <div className="absolute top-0 right-0 w-40 h-40 bg-[#00C9AF]/15 rounded-full blur-3xl pointer-events-none" />
