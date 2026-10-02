@@ -23,7 +23,7 @@ export const RupeeSignIcon = ({ className = "w-3 h-3 fill-current", ...props }) 
   </svg>
 );
 
-export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate }) => {
+export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate, onOpenRefundPolicy }) => {
   const { getSiteImage, settings } = useSiteSettings();
   const siteLogo = getSiteImage('header_logo_light', '') || '/img/dark-logo.svg';
   const supportPhone = settings?.contact_phone || settings?.maintenance_phone || '+91 85746 67466';
@@ -31,24 +31,13 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate 
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-slate-200/90 shadow-2xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-4">
-        {/* Left: Logo + Mobile Back button */}
+      {/* ========================================================
+          DESKTOP & TABLET HEADER ONLY (md:flex, hidden on mobile)
+          PC Mode is unchanged: Logo (left), 3-step stepper (center), Phone (right)
+         ======================================================== */}
+      <div className="hidden md:flex max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 items-center justify-between gap-4">
+        {/* Left: Logo */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              if (window.history.length > 1) {
-                navigate(-1);
-              } else {
-                navigate(`/car/${car?.id || carId}`);
-              }
-            }}
-            className="md:hidden w-8.5 h-8.5 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 text-[#0C1B33] flex items-center justify-center transition-all cursor-pointer shadow-2xs mr-1"
-            aria-label="Back"
-          >
-            <ArrowLeft size={18} strokeWidth={2.5} className="text-[#0C1B33]" />
-          </button>
-
           <Link to="/" className="flex items-center gap-2 group">
             <img 
               src={siteLogo} 
@@ -63,7 +52,7 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate 
         </div>
 
         {/* Center: 3-Step Stepper (Desktop & Tablet) in Selectt Brand Color */}
-        <div className="hidden md:flex items-center justify-center flex-1 max-w-2xl px-2 lg:px-6">
+        <div className="flex items-center justify-center flex-1 max-w-2xl px-2 lg:px-6">
           <div className="flex items-center w-full justify-center">
             {/* Step 1: Car selected */}
             <div className="flex items-center gap-2 shrink-0">
@@ -135,50 +124,56 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate 
         </div>
       </div>
 
-      {/* Mobile Stepper Row */}
-      <div className="md:hidden border-t border-slate-100 bg-slate-50/70 px-3 py-2 flex items-center justify-between overflow-x-auto">
-        <div className="flex items-center justify-center w-full min-w-max gap-1.5 sm:gap-2">
-          {/* Step 1 */}
-          <div className="flex items-center gap-1 shrink-0">
-            <div className="w-5 h-5 rounded-full bg-[#00A38D] text-white flex items-center justify-center text-[10px] shrink-0 shadow-2xs">
-              <Check size={11} strokeWidth={3} />
-            </div>
-            <span className="text-[11px] font-semibold text-[#1E293B]">
-              Car selected
-            </span>
+      {/* ========================================================
+          MOBILE HEADER ONLY (md:hidden)
+          No logo, no 3-step numbers.
+          Row 1: Back arrow + "Checkout" title on left, Phone call on right
+          Row 2: Sticky "Booking amount is 100% refundable ∨" link
+         ======================================================== */}
+      <div className="md:hidden bg-white">
+        {/* Row 1: Back arrow + "Checkout" & Phone */}
+        <div className="flex items-center justify-between px-4 h-13 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate(`/car/${car?.id || carId}`);
+                }
+              }}
+              className="p-1 -ml-1 text-[#0C1B33] hover:text-[#00A38D] transition-colors cursor-pointer active:scale-95"
+              aria-label="Back"
+            >
+              <ArrowLeft size={20} strokeWidth={2.4} />
+            </button>
+            <h1 className="text-base sm:text-lg font-bold text-[#0C1B33] tracking-tight">
+              Checkout
+            </h1>
           </div>
 
-          <div className="w-6 sm:w-10 h-[2px] bg-[#00A38D] mx-1 shrink-0 rounded-full" />
+          <a
+            href={`tel:${supportPhoneClean}`}
+            className="w-8.5 h-8.5 rounded-full bg-slate-100 active:bg-slate-200 text-[#00A38D] flex items-center justify-center transition-colors shadow-2xs"
+            aria-label="Call support"
+          >
+            <Phone size={16} />
+          </a>
+        </div>
 
-          {/* Step 2 */}
-          <div className="flex items-center gap-1 shrink-0">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 shadow-2xs ${
-              currentStep > 2 ? 'bg-[#00A38D] text-white' : 'bg-[#00A38D] text-white'
-            }`}>
-              {currentStep > 2 ? <Check size={11} strokeWidth={3} /> : '2'}
-            </div>
-            <span className="text-[11px] font-semibold text-[#1E293B]">
-              Test drive
+        {/* Row 2: Sticky Booking amount is 100% refundable ∨ */}
+        <div className="px-4 py-2 bg-slate-50/70 border-b border-slate-200/70 flex items-center justify-center">
+          <button
+            type="button"
+            onClick={onOpenRefundPolicy}
+            className="group inline-flex items-center justify-center gap-1.5 text-xs sm:text-[13px] font-semibold text-[#00A38D] hover:text-[#008f7b] active:scale-98 transition-all cursor-pointer"
+          >
+            <span className="underline underline-offset-3 decoration-[#00A38D]/60 group-hover:decoration-[#00A38D]">
+              Booking amount is 100% refundable
             </span>
-          </div>
-
-          <div className={`w-6 sm:w-10 h-[2px] mx-1 shrink-0 rounded-full ${
-            currentStep >= 3 ? 'bg-[#00A38D]' : 'bg-slate-300'
-          }`} />
-
-          {/* Step 3 */}
-          <div className="flex items-center gap-1 shrink-0">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 shadow-2xs ${
-              currentStep >= 3 ? 'bg-[#00A38D] text-white' : 'bg-slate-300 text-white'
-            }`}>
-              3
-            </div>
-            <span className={`text-[11px] ${
-              currentStep >= 3 ? 'text-[#1E293B] font-semibold' : 'text-slate-400 font-medium'
-            }`}>
-              Payment
-            </span>
-          </div>
+            <ChevronDown size={14} strokeWidth={2.5} className="text-[#00A38D] group-hover:translate-y-0.5 transition-transform" />
+          </button>
         </div>
       </div>
     </header>
@@ -658,7 +653,12 @@ const CheckoutPage = () => {
   const { carId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { settings } = useSiteSettings();
   const [car, setCar] = useState(null);
+
+  const supportPhone = settings?.contact_phone || settings?.maintenance_phone || '+91 85746 67466';
+  const supportPhoneClean = supportPhone.replace(/[^0-9+]/g, '');
+  const supportEmail = settings?.contact_email || 'support@selectt.in';
 
   useEffect(() => {
     // If not logged in, redirect home or login
@@ -752,6 +752,7 @@ const CheckoutPage = () => {
 
   const totalVehicleAmount = Math.max(0, carPrice + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - couponDiscount);
   const totalOnRoadPrice = Math.max(0, carPrice + rcTransferFee + tcsAmount + gstTax + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - couponDiscount);
+  const monthlyEmi = car?.emi || car?.emiStart || Math.round((carPrice || 400000) * 0.021) || 17500;
 
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) {
@@ -978,6 +979,7 @@ const CheckoutPage = () => {
         car={car}
         carId={carId}
         navigate={navigate}
+        onOpenRefundPolicy={() => setIsRefundPolicyOpen(true)}
       />
 
       <div className="bg-[#f9f9f9] min-h-screen pt-3 sm:pt-6 pb-56 sm:pb-64 lg:pb-20 font-sans text-slate-800 relative">
@@ -1231,51 +1233,68 @@ const CheckoutPage = () => {
 
               {/* Order Summary & Breakdown Card */}
               <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-                {/* Car Info Header */}
-                <div className="p-4 sm:p-5 flex items-center gap-4 border-b border-slate-100">
-                  <div className="w-28 h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-100">
-                    <img
-                      src={getCarImageUrl(car?.image || car?.images?.[0])}
-                      alt={car?.model || 'Car'}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
-                      }}
-                    />
-                  </div>
-                  <div className="flex flex-col justify-center min-w-0 flex-1">
-                    <h3 className="font-heading font-extrabold text-[#0F172A] text-[15px] sm:text-[16px] leading-snug mb-1 truncate">
-                      {car.year} {car.make} {car.model} {car.variant || ''}
-                    </h3>
-                    <div className="text-[12px] text-slate-500 font-medium flex items-center gap-1.5 mb-1.5 truncate">
-                      <span>{(car.km || 73000).toLocaleString()} Km</span> • <span>{car.fuelType || 'Petrol'}</span> • <span>{car.transmission || 'Manual'}</span>
+                {/* Car Info Header - Clicking opens car details page */}
+                <Link
+                  to={`/car/${car?.id || carId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 sm:p-5 flex items-center gap-4 border-b border-slate-100 hover:bg-slate-50/80 transition-colors group cursor-pointer block text-left"
+                  title="View car details"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-28 h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-100 relative group-hover:shadow-xs transition-shadow">
+                      <img
+                        src={getCarImageUrl(car?.image || car?.images?.[0])}
+                        alt={car?.model || 'Car'}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                        }}
+                      />
                     </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-price font-extrabold text-[#0F172A] text-lg sm:text-xl whitespace-nowrap leading-none">
-                        ₹{(carPrice / 100000).toFixed(2)} Lakh
-                      </span>
-                      {originalCarPrice > carPrice && (
-                        <span className="text-xs sm:text-[13px] text-slate-400 line-through font-normal font-price whitespace-nowrap">
-                          ₹{(originalCarPrice / 100000).toFixed(2)} Lakh
+                    <div className="flex flex-col justify-center min-w-0 flex-1">
+                      <h3 className="font-heading font-extrabold text-[#0F172A] text-[15px] sm:text-[16px] leading-snug mb-1 truncate group-hover:text-[#00A38D] transition-colors">
+                        {car.year} {car.make} {car.model} {car.variant || ''}
+                      </h3>
+                      <div className="text-[12px] text-slate-500 font-medium flex items-center gap-1.5 mb-1.5 truncate">
+                        <span>{(car.km || 73000).toLocaleString()} Km</span> • <span>{car.fuelType || 'Petrol'}</span> • <span>{car.transmission || 'Manual'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-price font-extrabold text-[#0F172A] text-lg sm:text-xl whitespace-nowrap leading-none">
+                            ₹{(carPrice / 100000).toFixed(2)} Lakh
+                          </span>
+                          {originalCarPrice > carPrice && (
+                            <span className="text-xs sm:text-[13px] text-slate-400 line-through font-normal font-price whitespace-nowrap">
+                              ₹{(originalCarPrice / 100000).toFixed(2)} Lakh
+                            </span>
+                          )}
+                        </div>
+
+                        {/* EMI Badge matching reference screenshot: EMI ₹17,500/mo */}
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200/90 whitespace-nowrap shadow-2xs font-sans">
+                          EMI ₹{Number(monthlyEmi).toLocaleString('en-IN')}/mo
                         </span>
-                      )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (window.innerWidth < 1024) {
+                            setIsPriceSummaryOpen(true);
+                          } else {
+                            document.getElementById('price-summary-section')?.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }}
+                        className="text-xs font-semibold text-slate-500 hover:text-[#00A38D] underline decoration-dotted underline-offset-2 flex items-center gap-1 cursor-pointer mt-1.5 transition-colors w-fit"
+                      >
+                        <span>View breakup</span>
+                        <ChevronDown size={13} className="text-slate-400" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (window.innerWidth < 1024) {
-                          setIsPriceSummaryOpen(true);
-                        } else {
-                          document.getElementById('price-summary-section')?.scrollIntoView({ behavior: 'smooth' });
-                        }
-                      }}
-                      className="text-xs font-semibold text-slate-500 hover:text-[#00A38D] underline decoration-dotted underline-offset-2 flex items-center gap-1 cursor-pointer mt-1.5 transition-colors"
-                    >
-                      <span>View breakup</span>
-                      <ChevronDown size={13} className="text-slate-400" />
-                    </button>
                   </div>
-                </div>
+                </Link>
 
                 {/* Booking Amount Card (Matching Reference Screenshot) */}
                 <div className="p-4 pb-0">
@@ -3036,64 +3055,70 @@ const CheckoutPage = () => {
         </div>
       )}
 
-      {/* 100% Refundable Guarantee Policy Modal */}
+      {/* Cancel Anytime, Fully Refundable Bottom Sheet / Modal */}
       {isRefundPolicyOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="fixed inset-0" onClick={() => setIsRefundPolicyOpen(false)} />
-          <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md relative z-10 shadow-2xl p-6 space-y-4 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-200">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
-                  <ShieldCheck size={22} />
-                </div>
-                <div>
-                  <h3 className="font-heading font-extrabold text-base sm:text-lg text-[#0F172A]">
-                    100% Refundable Guarantee
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium">Zero risk car reservation</p>
-                </div>
+          <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-lg relative z-10 shadow-2xl p-6 sm:p-7 space-y-4 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-200">
+            {/* Top Drag Handle for Mobile */}
+            <div className="w-12 h-1 bg-slate-300 rounded-full mx-auto sm:hidden -mt-1 mb-2" />
+
+            {/* Header: Title + Refund Icon */}
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#0C1B33] leading-snug">
+                Cancel Anytime, Fully Refundable
+              </h3>
+              <div className="w-10 h-10 rounded-full bg-[#00A38D]/10 border border-[#00A38D]/25 flex items-center justify-center text-[#00A38D] shrink-0">
+                <svg className="w-6 h-6 text-[#00A38D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <circle cx="12" cy="12" r="9" />
+                  <circle cx="12" cy="12" r="6" strokeDasharray="2 2" />
+                  <path d="M12 9v6M10 11h4M10 13h3" />
+                </svg>
               </div>
+            </div>
+
+            {/* Body paragraphs matching Spinny / Selectt refund guarantee contract */}
+            <div className="space-y-3.5 text-xs sm:text-[13.5px] text-slate-700 leading-relaxed font-normal pt-1">
+              <p>
+                For any payment you make to book the car is 100% refundable till the car delivery date.
+              </p>
+
+              <p>
+                Additionally, you can return it within 5 days from the date of car delivery for a 100% refund with our no-questions-asked 5-Day Money Back Guarantee.
+              </p>
+
+              <p>
+                You can avail a 100% refund by requesting return from Selectt app or by visiting your nearest Selectt Car Hub or requesting a home pick-up by calling us on our after sales support helpline number{' '}
+                <a href={`tel:${supportPhoneClean}`} className="text-[#00A38D] font-bold hover:underline">
+                  {supportPhone}
+                </a>{' '}
+                or writing to us at{' '}
+                <a href={`mailto:${supportEmail}`} className="text-[#00A38D] font-bold hover:underline">
+                  {supportEmail}
+                </a>.
+              </p>
+
+              <p className="text-slate-500 text-[11.5px] sm:text-xs">
+                In order for your purchased Selectt Assured car to be eligible under the 5-Day Money Back Guarantee, please refer to our{' '}
+                <Link
+                  to="/terms"
+                  onClick={() => setIsRefundPolicyOpen(false)}
+                  className="text-[#00A38D] font-semibold underline hover:text-[#008f7b]"
+                >
+                  Fair usage policy
+                </Link>.
+              </p>
+            </div>
+
+            <div className="pt-2">
               <button
                 type="button"
                 onClick={() => setIsRefundPolicyOpen(false)}
-                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center cursor-pointer transition-colors"
-                aria-label="Close"
+                className="w-full py-3 bg-[#00A38D] hover:bg-[#008f7b] text-white rounded-xl font-bold text-sm shadow-md shadow-[#00A38D]/20 transition-all cursor-pointer"
               >
-                <X size={18} />
+                Got it, thanks
               </button>
             </div>
-
-            <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 text-xs sm:text-sm text-emerald-950 font-medium space-y-2">
-              <p>
-                Your booking token deposit of <strong className="font-extrabold text-emerald-900 font-price">₹{rawBookingAmount.toLocaleString('en-IN')}</strong> holds this car exclusively for you for up to 3 days.
-              </p>
-              <p className="text-slate-600 text-xs">
-                If you decide not to proceed with the purchase for any reason prior to vehicle delivery, you receive a <strong className="text-slate-900">100% full refund</strong> with zero questions asked and zero cancellation fees.
-              </p>
-            </div>
-
-            <div className="space-y-2.5 text-xs text-slate-600 pt-1">
-              <div className="flex items-center gap-2.5">
-                <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-                <span>Instant automated refund back to your original payment method</span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-                <span>No cancellation penalty or deduction whatsoever</span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-                <span>Vehicle is reserved exclusively for you</span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsRefundPolicyOpen(false)}
-              className="w-full py-3 bg-[#00A38D] hover:bg-[#008f7b] text-white rounded-xl font-bold text-sm shadow-md shadow-[#00A38D]/20 transition-all cursor-pointer"
-            >
-              Got it, thanks
-            </button>
           </div>
         </div>
       )}
