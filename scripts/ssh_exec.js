@@ -24,8 +24,14 @@ function runSsh(cmd) {
 }
 
 (async () => {
-  const queryCmd = `mysql -u selectt-wepnex -p6EVSUZ7RNYA9bV0WUoxy -D connect-db -e "DESCRIBE cars; SELECT id, name, email, role FROM users;"`;
-  const res = await runSsh(queryCmd);
-  console.log('--- MYSQL OUTPUT ---');
-  console.log(res.out || res.errOut);
+  const arg = process.argv[2];
+  let cmd = arg;
+  if (!cmd) {
+    cmd = "echo 'No command specified'";
+  } else if (cmd.trim().toUpperCase().startsWith('SELECT') || cmd.trim().toUpperCase().startsWith('UPDATE') || cmd.trim().toUpperCase().startsWith('INSERT') || cmd.trim().toUpperCase().startsWith('SHOW') || cmd.trim().toUpperCase().startsWith('ALTER')) {
+    cmd = `mysql -u selectt-wepnex -p'6EVSUZ7RNYA9bV0WUoxy' -D connect-db -e "${cmd.replace(/"/g, '\\"')}"`;
+  }
+  const res = await runSsh(cmd);
+  if (res.out) console.log(res.out);
+  if (res.errOut) console.error(res.errOut);
 })();
