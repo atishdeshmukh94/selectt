@@ -17,6 +17,10 @@ const filesToUpload = [
     { local: path.join(LOCAL_BACKEND, 'bunny-stream.js'), remote: `${REMOTE_BASE}/bunny-stream.js` },
     { local: path.join(LOCAL_BACKEND, 'whatsapp-service.js'), remote: `${REMOTE_BASE}/whatsapp-service.js` },
     { local: path.join(LOCAL_BACKEND, 'redis-client.js'), remote: `${REMOTE_BASE}/redis-client.js` },
+    { local: path.join(LOCAL_BACKEND, 'fonts', 'NotoSans-Regular.ttf'), remote: `${REMOTE_BASE}/fonts/NotoSans-Regular.ttf` },
+    { local: path.join(LOCAL_BACKEND, 'fonts', 'NotoSans-Bold.ttf'), remote: `${REMOTE_BASE}/fonts/NotoSans-Bold.ttf` },
+    { local: path.join(LOCAL_BACKEND, 'fonts', 'NotoSansDevanagari.ttf'), remote: `${REMOTE_BASE}/fonts/NotoSansDevanagari.ttf` },
+    { local: path.join(LOCAL_BACKEND, 'public', 'img', 'dark-logo.svg'), remote: `${REMOTE_BASE}/public/img/dark-logo.svg` },
     { local: path.join(LOCAL_BACKEND, 'schema.sql'), remote: `${REMOTE_BASE}/schema.sql` },
     { local: path.join(LOCAL_ROOT, 'database.sql'), remote: `${REMOTE_BASE}/database.sql` },
     { local: path.join(LOCAL_BACKEND, '.env.example'), remote: `${REMOTE_BASE}/.env.example` },
@@ -56,6 +60,7 @@ conn.on('ready', () => {
             await ensureRemoteDir(sftp, `${REMOTE_BASE}/public/uploads`);
             await ensureRemoteDir(sftp, `${REMOTE_BASE}/public/uploads/thumbnails`);
             await ensureRemoteDir(sftp, `${REMOTE_BASE}/public/img`);
+            await ensureRemoteDir(sftp, `${REMOTE_BASE}/fonts`);
 
             for (const f of filesToUpload) {
                 await uploadFile(sftp, f.local, f.remote);

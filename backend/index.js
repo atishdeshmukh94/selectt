@@ -22,8 +22,7 @@ const { authMiddleware, isAdmin, adminAuth, customerAuth } = require('./auth-mid
 const { sendWhatsAppOTP } = require('./whatsapp-service');
 const { imagekit, getAuthenticationParameters, uploadToImageKit, testImageKitConnection, initImageKit, deleteFromImageKit } = require('./imagekit');
 const bunnyStream = require('./bunny-stream');
-const { deleteFromBunnyStream } = require('./bunny-stream');
-const { generateBookingReceiptPdf } = require('./receipt-pdf');
+const { generateBookingReceiptPdf, getImageBuffer } = require('./receipt-pdf');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -31,7 +30,16 @@ const port = process.env.PORT || 5000;
 
 // Security Middleware
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'", "https:", "data:", "blob:", "'unsafe-inline'", "'unsafe-eval'"],
+            imgSrc: ["'self'", "data:", "blob:", "https:", "*"],
+            fontSrc: ["'self'", "data:", "https:"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+        }
+    }
 }));
 app.use(hpp());
 
@@ -4893,6 +4901,25 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
 
         const pdfDownloadUrl = `${req.originalUrl.includes('?') ? req.originalUrl + '&format=pdf' : req.originalUrl + '?format=pdf'}`;
 
+        // Buffer logo as base64 data URI so browser renders immediately without CORS/CSP block
+        let logoDataUri = logoUrl;
+        try {
+            const logoBuf = await getImageBuffer(logoUrl);
+            if (logoBuf) {
+                logoDataUri = `data:image/png;base64,${logoBuf.toString('base64')}`;
+            }
+        } catch (_) {}
+
+        let signatureDataUri = signatureUrl;
+        if (signatureUrl) {
+            try {
+                const sigBuf = await getImageBuffer(signatureUrl);
+                if (sigBuf) {
+                    signatureDataUri = `data:image/png;base64,${sigBuf.toString('base64')}`;
+                }
+            } catch (_) {}
+        }
+
         const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5178,7 +5205,7 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
     <div class="top-bar"></div>
     <div class="header">
       <div>
-        <img src="${logoUrl}" alt="${companyName}" class="brand-logo" onerror="this.src='/img/dark-logo.svg'">
+        <img src="${logoDataUri}" alt="${companyName}" class="brand-logo" onerror="this.onerror=null; this.src='https://selectt.in/img/dark-logo.svg'">
         <div class="company-title">${companyName}</div>
         <div class="company-sub">${receiptSubtitle}</div>
       </div>
@@ -5253,7 +5280,7 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
         ${gstin ? `GSTIN: ${gstin}` : ''}
       </div>
       <div class="signatory-box">
-        ${signatureUrl ? `<img src="${signatureUrl}" alt="Signature" /><br>` : (showDigitalStamp ? `<div class="seal-badge">DIGITALLY VERIFIED</div><br>` : '')}
+        ${signatureUrl ? `<img src="${signatureDataUri}" alt="Signature" /><br>` : (showDigitalStamp ? `<div class="seal-badge">DIGITALLY VERIFIED</div><br>` : '')}
         <strong style="font-size:11px;color:#0C1B33;">${signatoryName}</strong><br>
         <span style="font-size:10px;color:#64748b;">${signatoryTitle}</span>
       </div>
@@ -5272,6 +5299,7 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
 </body>
 </html>`;
 
+        res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; img-src * 'self' data: blob: https:; font-src * 'self' data: https:;");
         res.setHeader('Content-Type', 'text/html');
         return res.send(html);
     } catch (err) {
