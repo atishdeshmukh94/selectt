@@ -9,6 +9,15 @@ import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/a
 
 const API = API_URL;
 
+const getAvatarUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
+    return url;
+  }
+  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  return `${API}${cleanPath}`;
+};
+
 const UserProfilePage = () => {
   const { user, token, logout, updateUser } = useAuth();
   const navigate = useNavigate();
@@ -489,7 +498,12 @@ const UserProfilePage = () => {
               <label className="relative cursor-pointer group shrink-0">
                 <div className="w-14 h-14 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center border-2 border-slate-200 group-hover:border-[#00C9AF] transition-colors">
                   {avatarUrl ? (
-                    <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                    <img
+                      src={getAvatarUrl(avatarUrl)}
+                      alt="avatar"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
                   ) : (
                     <User size={26} className="text-slate-400" />
                   )}

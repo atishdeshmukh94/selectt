@@ -7,6 +7,35 @@ import AvatarCropModal from "../components/common/AvatarCropModal";
 import { API_URL } from "../config/api";
 const API = API_URL;
 
+function CustomerAvatar({ src, size = 16, className = "w-9 h-9" }: { src?: string; size?: number; className?: string }) {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
+
+  const resolvedUrl = src ? (
+    src.startsWith("http://") || src.startsWith("https://") || src.startsWith("data:") || src.startsWith("blob:")
+      ? src
+      : `${API}${src.startsWith("/") ? src : `/${src}`}`
+  ) : "";
+
+  return (
+    <div className={`${className} rounded-full overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center text-gray-400`}>
+      {resolvedUrl && !hasError ? (
+        <img
+          src={resolvedUrl}
+          alt=""
+          className="w-full h-full object-cover"
+          onError={() => setHasError(true)}
+        />
+      ) : (
+        <User size={size} />
+      )}
+    </div>
+  );
+}
+
 export default function Customers() {
   const { token, user } = useAuth();
   const [customers, setCustomers] = useState<any[]>([]);
@@ -435,11 +464,7 @@ export default function Customers() {
                     <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center text-gray-400 border border-gray-200">
-                            {c.avatar_url
-                              ? <img src={c.avatar_url} alt="" className="w-full h-full object-cover" />
-                              : <User size={16} />}
-                          </div>
+                          <CustomerAvatar src={c.avatar_url} size={16} className="w-9 h-9 border border-gray-200" />
                           <div>
                             <div className="font-extrabold text-gray-900 text-xs dark:text-white capitalize">{c.first_name} {c.last_name}</div>
                             <div className="text-[11px] font-bold text-[#1C3EB9] font-mono">ID #{c.id}</div>
@@ -571,11 +596,7 @@ export default function Customers() {
             </div>
             <div className="p-5 space-y-4">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-gray-400 border-2 border-gray-200">
-                  {viewing.avatar_url
-                    ? <img src={viewing.avatar_url} alt="" className="w-full h-full object-cover" />
-                    : <User size={28} />}
-                </div>
+                <CustomerAvatar src={viewing.avatar_url} size={28} className="w-16 h-16 border-2 border-gray-200" />
                 <div>
                   <div className="font-bold text-gray-800 dark:text-white text-lg">{viewing.first_name} {viewing.last_name}</div>
                   <div className="text-xs text-gray-400">ID #{viewing.id}</div>
@@ -610,11 +631,7 @@ export default function Customers() {
               {/* Avatar Upload Row */}
               <div className="flex items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
                 <label className="relative cursor-pointer group shrink-0">
-                  <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-gray-400 border-2 border-gray-200 group-hover:border-[#1C3EB9] transition-colors">
-                    {editForm.avatar_url
-                      ? <img src={editForm.avatar_url} alt="" className="w-full h-full object-cover" />
-                      : <User size={24} />}
-                  </div>
+                  <CustomerAvatar src={editForm.avatar_url} size={24} className="w-16 h-16 border-2 border-gray-200 group-hover:border-[#1C3EB9] transition-colors" />
                   <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     {avatarUploading ? <Loader size={16} className="text-white animate-spin" /> : <Camera size={16} className="text-white" />}
                   </div>
