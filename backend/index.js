@@ -2182,21 +2182,35 @@ app.post('/api/auth/send-otp', async (req, res) => {
 
 // Verify OTP & Login/Register
 app.post('/api/auth/verify-otp', async (req, res) => {
-    const { phone, otp, firstName, lastName, email, city } = req.body;
-    if (!phone || !otp) return res.status(400).json({ message: 'Phone and OTP are required' });
+    const { phone, otp, firstName, lastName, email, city, verificationToken } = req.body;
+    if (!phone) return res.status(400).json({ message: 'Phone is required' });
 
     try {
         let cleanPhone = phone.replace(/\D/g, '');
         if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-        const results = await queryAsync('SELECT * FROM otps WHERE phone = ? AND otp = ? AND expires_at > NOW()', [cleanPhone, otp]);
-        
-        if (results.length === 0) {
-            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        let otpValid = false;
+
+        // 1. Verify via signed verificationToken (from Step 2 verification)
+        if (verificationToken) {
+            try {
+                const decoded = jwt.verify(verificationToken, process.env.JWT_SECRET);
+                if (decoded && (decoded.phone === cleanPhone || decoded.phone === cleanPhone.substring(2)) && decoded.purpose === 'phone_verification') {
+                    otpValid = true;
+                }
+            } catch (_) {}
         }
 
-        // SEC-003 FIX: Delete OTP immediately after validation to prevent reuse
-        await queryAsync('DELETE FROM otps WHERE phone = ?', [cleanPhone]);
+        // 2. Or verify via otps table
+        if (!otpValid) {
+            if (!otp) return res.status(400).json({ message: 'Phone and OTP are required' });
+            const results = await queryAsync('SELECT * FROM otps WHERE phone = ? AND otp = ? AND expires_at > NOW()', [cleanPhone, otp]);
+            
+            if (results.length === 0) {
+                return res.status(400).json({ message: 'Invalid or expired OTP' });
+            }
+            otpValid = true;
+        }
 
         // Check if customer exists
         // Match either 91X or X (10 digit) just in case
@@ -2204,9 +2218,11 @@ app.post('/api/auth/verify-otp', async (req, res) => {
         let customer = customerResults[0];
 
         if (!customer) {
-            // New user -> If they provided a name, create account now.
-            // Otherwise, tell frontend to show registration fields.
+            // New user -> If they provided a name, create account now!
             if (firstName) {
+                // Delete OTP only now when registration is actually completed
+                await queryAsync('DELETE FROM otps WHERE phone = ?', [cleanPhone]);
+
                 const phoneForDb = cleanPhone.length > 10 ? cleanPhone.substring(cleanPhone.length - 10) : cleanPhone;
                 const insertResult = await queryAsync(
                     'INSERT INTO customers (phone, first_name, last_name, email, city) VALUES (?, ?, ?, ?, ?)', 
@@ -2231,13 +2247,26 @@ app.post('/api/auth/verify-otp', async (req, res) => {
                     }
                 }).catch(e => console.error('[Neodove Customer Hook Error]:', e.message));
             } else {
+                // Step 2 OTP check for new user:
+                // DO NOT delete OTP yet so Step 3 can still use it,
+                // and issue a verificationToken for robust multi-step handoff!
+                const vToken = jwt.sign(
+                    { phone: cleanPhone, purpose: 'phone_verification' }, 
+                    process.env.JWT_SECRET, 
+                    { expiresIn: '15m' }
+                );
+
                 return res.json({ 
                     success: true, 
                     verified: true, 
                     existingUser: false,
+                    verificationToken: vToken,
                     message: 'OTP verified. Account details required for new user.'
                 });
             }
+        } else {
+            // Existing customer logging in -> Delete OTP immediately
+            await queryAsync('DELETE FROM otps WHERE phone = ?', [cleanPhone]);
         }
 
         // Login user

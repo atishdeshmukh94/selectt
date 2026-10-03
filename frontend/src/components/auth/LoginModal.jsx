@@ -20,6 +20,7 @@ const LoginModal = () => {
   const [loading, setLoading] = useState(false);
   const [otpHint, setOtpHint] = useState('');
   const [customBannerUrl, setCustomBannerUrl] = useState('');
+  const [verificationToken, setVerificationToken] = useState('');
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const otpRefs = useRef([]);
 
@@ -181,6 +182,9 @@ const LoginModal = () => {
           handleClose();
         }, 1800);
       } else {
+        if (data.verificationToken) {
+          setVerificationToken(data.verificationToken);
+        }
         setStep(3);
       }
     } catch (err) {
@@ -198,6 +202,7 @@ const LoginModal = () => {
       await verifyOtp({
         phone: phoneNumber,
         otp,
+        verificationToken,
         firstName,
         lastName,
         email,
@@ -217,6 +222,7 @@ const LoginModal = () => {
     setPhoneNumber('');
     setOtpDigits(['', '', '', '', '', '']);
     setOtp('');
+    setVerificationToken('');
     setFirstName('');
     setLastName('');
     setEmail('');
