@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Search, Download, Calendar, User, CreditCard, Filter, RotateCcw } from "lucide-react";
+import { Search, Download, Calendar, User, CreditCard, Filter, RotateCcw, FileText, Mail, MessageSquare, Loader2, CheckCircle2, Share2, ExternalLink } from "lucide-react";
+import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import PageMeta from "../components/common/PageMeta";
 
@@ -10,6 +11,7 @@ export default function PaymentReports() {
   const { token } = useAuth();
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
   
   // Filter States
   const [search, setSearch] = useState("");
@@ -28,6 +30,45 @@ export default function PaymentReports() {
       .then(data => setReports(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error fetching reports:", err))
       .finally(() => setLoading(false));
+  };
+
+  const handleSendEmail = async (row: any) => {
+    const bookingId = row.booking_no || row.id;
+    setSendingEmailId(bookingId);
+    try {
+      const res = await fetch(`${API}/api/admin/bookings/${bookingId}/send-receipt-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(data.message || `Receipt email sent with attached PDF to ${row.email || 'customer'}!`);
+      } else {
+        toast.error(data.message || "Failed to send receipt email");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Network error while sending receipt email");
+    } finally {
+      setSendingEmailId(null);
+    }
+  };
+
+  const handleSendWhatsApp = (row: any) => {
+    const phone = (row.phone || "").replace(/\D/g, "");
+    const customerName = `${row.first_name || ""} ${row.last_name || ""}`.trim() || "Customer";
+    const carName = `${row.brand || row.make || ""} ${row.model || ""}`.trim();
+    const receiptUrl = `https://api.selectt.in/api/bookings/${row.booking_no || row.id}/receipt?format=pdf`;
+    const bookingAmt = Number(row.booking_amount || 0).toLocaleString("en-IN");
+    const remainingAmt = Math.max(0, Number(row.final_amount || 0) - Number(row.booking_amount || 0)).toLocaleString("en-IN");
+
+    const messageText = `Hello ${customerName},\n\nThank you for choosing Selectt Mobility!\nYour vehicle reservation for *${carName}* (Booking #${row.booking_no}) is confirmed.\n\n✅ *Booking Amount Received:* ₹${bookingAmt}\n⏳ *Balance at Delivery:* ₹${remainingAmt}\n\n📄 *Download your official Booking Payment Receipt:*\n${receiptUrl}\n\nSelectt Mobility • hello@selectt.in`;
+
+    const waUrl = `https://wa.me/91${phone.slice(-10)}?text=${encodeURIComponent(messageText)}`;
+    window.open(waUrl, "_blank");
+    toast.success("WhatsApp opened with receipt details & PDF link!");
   };
 
   useEffect(() => { fetchReports(); }, []);
@@ -306,6 +347,7 @@ export default function PaymentReports() {
                     <th className="px-5 py-3.5 whitespace-nowrap">Registration No</th>
                     <th className="px-5 py-3.5">Payment Breakdown</th>
                     <th className="px-5 py-3.5">Status</th>
+                    <th className="px-5 py-3.5 text-right whitespace-nowrap">Receipt & Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
@@ -364,6 +406,46 @@ export default function PaymentReports() {
                          }`}>
                            {r.payment_status}
                          </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* 1. Download PDF */}
+                          <a
+                            href={`${API}/api/bookings/${r.booking_no || r.id}/receipt?format=pdf`}
+                            target="_blank"
+                            rel="noreferrer"
+                            title="Download Official Booking Receipt PDF"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1C3EB9] dark:bg-blue-950/50 dark:hover:bg-blue-900/60 dark:text-blue-300 font-extrabold text-[11px] border border-blue-200 dark:border-blue-800 transition-all active:scale-95 shadow-2xs"
+                          >
+                            <FileText size={13} className="text-[#1C3EB9]" />
+                            <span>PDF</span>
+                          </a>
+
+                          {/* 2. Send via WhatsApp */}
+                          <button
+                            onClick={() => handleSendWhatsApp(r)}
+                            title={`Send Receipt via WhatsApp to +91 ${r.phone}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 dark:text-emerald-300 font-extrabold text-[11px] border border-emerald-200 dark:border-emerald-800 transition-all active:scale-95 cursor-pointer shadow-2xs"
+                          >
+                            <MessageSquare size={13} className="text-emerald-600 dark:text-emerald-400" />
+                            <span>WhatsApp</span>
+                          </button>
+
+                          {/* 3. Send via Email */}
+                          <button
+                            onClick={() => handleSendEmail(r)}
+                            disabled={sendingEmailId === (r.booking_no || r.id)}
+                            title={`Send Receipt PDF to ${r.email || 'customer'}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 font-extrabold text-[11px] border border-slate-200 dark:border-gray-700 transition-all active:scale-95 cursor-pointer shadow-2xs disabled:opacity-50"
+                          >
+                            {sendingEmailId === (r.booking_no || r.id) ? (
+                              <Loader2 size={13} className="animate-spin text-[#1C3EB9]" />
+                            ) : (
+                              <Mail size={13} className="text-slate-600 dark:text-slate-300" />
+                            )}
+                            <span>{sendingEmailId === (r.booking_no || r.id) ? "Sending..." : "Email"}</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

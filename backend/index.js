@@ -4042,6 +4042,7 @@ app.put('/api/bookings/:id/status', authMiddleware, isAdmin, (req, res) => {
 app.get('/api/reports/payments', authMiddleware, isAdmin, (req, res) => {
     const query = `
         SELECT 
+            b.id,
             b.booking_no,
             b.created_at as transaction_date,
             b.booking_amount,
@@ -4050,12 +4051,16 @@ app.get('/api/reports/payments', authMiddleware, isAdmin, (req, res) => {
             b.booking_status,
             b.remaining_payment_mode,
             b.remaining_payment_date,
+            b.razorpay_payment_id,
+            c.id as customer_id,
             c.first_name,
             c.last_name,
             c.phone,
+            c.email,
             car.id as car_id,
             car.make as brand,
             car.model,
+            car.variant,
             car.registration_no
         FROM bookings b
         JOIN customers c ON b.customer_id = c.id
@@ -4845,7 +4850,7 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
 
     try {
         const rows = await queryAsync(
-            `SELECT b.*, c.first_name, c.last_name, c.phone, c.email, car.id AS car_id, car.make, car.model, car.variant, car.year, car.price AS car_price, car.fuel_type, car.transmission, car.km AS km_driven, car.km, car.image 
+            `SELECT b.*, c.first_name, c.last_name, c.phone, c.email, c.city, car.id AS car_id, car.make, car.model, car.variant, car.year, car.price AS car_price, car.original_price, car.fuel_type, car.transmission, car.km AS km_driven, car.km, car.image, car.color, car.registration_no, car.ownership 
              FROM bookings b 
              JOIN customers c ON b.customer_id = c.id 
              JOIN cars car ON b.car_id = car.id 
@@ -5450,6 +5455,71 @@ async function sendPaymentSuccessEmail(bookingId) {
         console.error("Error sending payment success email:", error);
     }
 }
+
+// Admin trigger: Send Booking Payment Receipt via Email
+app.post('/api/admin/bookings/:id/send-receipt-email', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const bookingIdentifier = req.params.id;
+        const [booking] = await queryAsync(
+            `SELECT b.id, b.booking_no, c.email 
+             FROM bookings b
+             JOIN customers c ON b.customer_id = c.id
+             WHERE b.id = ? OR b.booking_no = ?`,
+            [bookingIdentifier, bookingIdentifier]
+        );
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found' });
+        }
+        await sendPaymentSuccessEmail(booking.id);
+        res.json({ 
+            success: true, 
+            message: `Payment receipt email sent successfully to ${booking.email || 'customer'} for #${booking.booking_no}` 
+        });
+    } catch (err) {
+        console.error('Error in send-receipt-email endpoint:', err);
+        res.status(500).json({ success: false, message: err.message || 'Failed to send receipt email' });
+    }
+});
+
+// Admin trigger: Send Booking Payment Receipt via WhatsApp
+app.post('/api/admin/bookings/:id/send-receipt-whatsapp', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const bookingIdentifier = req.params.id;
+        const [booking] = await queryAsync(
+            `SELECT b.*, c.first_name, c.last_name, c.phone, car.make, car.model 
+             FROM bookings b
+             JOIN customers c ON b.customer_id = c.id
+             JOIN cars car ON b.car_id = car.id
+             WHERE b.id = ? OR b.booking_no = ?`,
+            [bookingIdentifier, bookingIdentifier]
+        );
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found' });
+        }
+
+        const phone = booking.phone ? booking.phone.replace(/\D/g, '') : '';
+        const carName = `${booking.make || ''} ${booking.model || ''}`.trim();
+        const customerName = `${booking.first_name || ''} ${booking.last_name || ''}`.trim() || 'Customer';
+        const receiptUrl = `https://api.selectt.in/api/bookings/${booking.booking_no || booking.id}/receipt?format=pdf`;
+        const bookingAmt = Number(booking.booking_amount || 0).toLocaleString('en-IN');
+        const remainingAmt = Math.max(0, Number(booking.final_amount || 0) - Number(booking.booking_amount || 0)).toLocaleString('en-IN');
+
+        const messageText = `Hello ${customerName},\n\nThank you for choosing Selectt Mobility!\nYour vehicle reservation for *${carName}* (Booking #${booking.booking_no}) is confirmed.\n\n✅ *Booking Amount Received:* ₹${bookingAmt}\n⏳ *Balance at Delivery:* ₹${remainingAmt}\n\n📄 *Download your official Booking Payment Receipt:*\n${receiptUrl}\n\nSelectt Mobility • hello@selectt.in`;
+
+        const waLink = `https://wa.me/91${phone.slice(-10)}?text=${encodeURIComponent(messageText)}`;
+
+        res.json({
+            success: true,
+            message: `WhatsApp receipt prepared for ${booking.phone}`,
+            whatsapp_url: waLink,
+            phone: booking.phone,
+            text: messageText
+        });
+    } catch (err) {
+        console.error('Error in send-receipt-whatsapp endpoint:', err);
+        res.status(500).json({ success: false, message: err.message || 'Failed to process WhatsApp receipt' });
+    }
+});
 
 // ============================================================
 // LOCATIONS API

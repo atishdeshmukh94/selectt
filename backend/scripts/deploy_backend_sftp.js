@@ -21,6 +21,7 @@ const filesToUpload = [
     { local: path.join(LOCAL_BACKEND, 'fonts', 'NotoSans-Bold.ttf'), remote: `${REMOTE_BASE}/fonts/NotoSans-Bold.ttf` },
     { local: path.join(LOCAL_BACKEND, 'fonts', 'NotoSansDevanagari.ttf'), remote: `${REMOTE_BASE}/fonts/NotoSansDevanagari.ttf` },
     { local: path.join(LOCAL_BACKEND, 'public', 'img', 'dark-logo.svg'), remote: `${REMOTE_BASE}/public/img/dark-logo.svg` },
+    { local: path.join(LOCAL_BACKEND, 'public', 'img', 'st-icon.svg'), remote: `${REMOTE_BASE}/public/img/st-icon.svg` },
     { local: path.join(LOCAL_BACKEND, 'schema.sql'), remote: `${REMOTE_BASE}/schema.sql` },
     { local: path.join(LOCAL_ROOT, 'database.sql'), remote: `${REMOTE_BASE}/database.sql` },
     { local: path.join(LOCAL_BACKEND, '.env.example'), remote: `${REMOTE_BASE}/.env.example` },
