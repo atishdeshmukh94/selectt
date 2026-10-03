@@ -110,6 +110,41 @@ const getBadgeStyles = (tagText) => {
   };
 };
 
+const STATE_CODE_MAP = {
+  'maharashtra': 'MH',
+  'delhi': 'DL',
+  'haryana': 'HR',
+  'gujarat': 'GJ',
+  'karnataka': 'KA',
+  'uttar pradesh': 'UP',
+  'rajasthan': 'RJ',
+  'punjab': 'PB',
+  'tamil nadu': 'TN',
+  'telangana': 'TS',
+  'andhra pradesh': 'AP',
+  'kerala': 'KL',
+  'madhya pradesh': 'MP',
+  'west bengal': 'WB',
+  'chandigarh': 'CH',
+  'chhattisgarh': 'CG',
+  'goa': 'GA',
+  'odisha': 'OD',
+  'bihar': 'BR',
+  'jharkhand': 'JH',
+  'uttarakhand': 'UK',
+  'himachal pradesh': 'HP'
+};
+
+const getShortRtoOrState = (car) => {
+  if (car.rto_code && String(car.rto_code).trim()) return String(car.rto_code).trim().toUpperCase();
+  if (car.rto && String(car.rto).trim()) return String(car.rto).trim().toUpperCase();
+  if (car.registration_no && String(car.registration_no).trim()) return String(car.registration_no).slice(0, 4).toUpperCase();
+  const state = String(car.regState || '').trim();
+  const lower = state.toLowerCase();
+  if (STATE_CODE_MAP[lower]) return STATE_CODE_MAP[lower];
+  return state ? (state.length > 4 ? state.slice(0, 2).toUpperCase() : state.toUpperCase()) : 'MH';
+};
+
 const CarCard = ({ car, lightBg = false }) => {
   const { user, token, openLoginModal } = useAuth();
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -269,28 +304,28 @@ const CarCard = ({ car, lightBg = false }) => {
               })()}
             </div>
 
-            {/* Spec pills: KM, Fuel, Transmission, RTO Code (Perfect mobile size, compact desktop size to prevent clipping) */}
-            <div className="flex items-center gap-1.5 sm:gap-1 md:gap-1.5 mt-3 flex-nowrap overflow-x-auto no-scrollbar">
-              <div className={`px-2.5 sm:px-1.5 md:px-2 py-1 sm:py-0.5 rounded-lg flex items-center gap-1.5 sm:gap-1 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <Gauge size={13} className="text-[#00C9AF] shrink-0 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3" />
-                <span className="text-[11.5px] sm:text-[10px] md:text-[10.5px] lg:text-[11px] font-bold">
+            {/* Spec pills: KM, Fuel, Transmission, RTO Code (Untouched on mobile, compact on desktop) */}
+            <div className="flex items-center gap-1.5 sm:gap-1 mt-3 sm:mt-2 flex-nowrap overflow-x-auto no-scrollbar">
+              <div className={`px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded-md flex items-center gap-1.5 sm:gap-0.5 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <Gauge size={13} className="text-[#00C9AF] shrink-0 sm:w-2.5 sm:h-2.5" />
+                <span className="text-[11.5px] sm:text-[9.5px] md:text-[9.5px] lg:text-[10px] font-bold">
                   {(Number(car.km) || 0).toLocaleString('en-IN')} km
                 </span>
               </div>
-              <div className={`px-2.5 sm:px-1.5 md:px-2 py-1 sm:py-0.5 rounded-lg flex items-center gap-1.5 sm:gap-1 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <Fuel size={13} className="text-[#00C9AF] shrink-0 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3" />
-                <span className="text-[11.5px] sm:text-[10px] md:text-[10.5px] lg:text-[11px] font-bold">
+              <div className={`px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded-md flex items-center gap-1.5 sm:gap-0.5 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <Fuel size={13} className="text-[#00C9AF] shrink-0 sm:w-2.5 sm:h-2.5" />
+                <span className="text-[11.5px] sm:text-[9.5px] md:text-[9.5px] lg:text-[10px] font-bold">
                   {car.fuelType || car.fuel_type || 'Petrol'}
                 </span>
               </div>
-              <div className={`px-2.5 sm:px-1.5 md:px-2 py-1 sm:py-0.5 rounded-lg flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <span className="text-[11.5px] sm:text-[10px] md:text-[10.5px] lg:text-[11px] font-bold">
+              <div className={`px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded-md flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <span className="text-[11.5px] sm:text-[9.5px] md:text-[9.5px] lg:text-[10px] font-bold">
                   {car.transmission || 'Manual'}
                 </span>
               </div>
-              <div className={`px-2.5 sm:px-1.5 md:px-2 py-1 sm:py-0.5 rounded-lg flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <span className="text-[11.5px] sm:text-[10px] md:text-[10.5px] lg:text-[11px] font-bold">
-                  {car.rto_code || car.rto || (car.registration_no ? car.registration_no.slice(0, 4).toUpperCase() : (car.regState === 'Maharashtra' ? 'MH' : car.regState || 'MH01'))}
+              <div className={`px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded-md flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <span className="text-[11.5px] sm:text-[9.5px] md:text-[9.5px] lg:text-[10px] font-bold">
+                  {getShortRtoOrState(car)}
                 </span>
               </div>
             </div>
