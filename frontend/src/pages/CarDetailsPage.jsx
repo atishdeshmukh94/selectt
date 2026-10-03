@@ -57,6 +57,7 @@ import BenefitsAddons from '../components/car-details/BenefitsAddons';
 import SectionDivider from '../components/common/SectionDivider';
 import EmiCalculator from '../components/shared/EmiCalculator';
 import PriceSummaryModal from '../components/car-details/PriceSummaryModal';
+import CategoryComparisonModal from '../components/car-details/CategoryComparisonModal';
 import { shortenLocation } from '../utils/formatters';
 import { trackCarView, getSimilarCarsForCarDetails } from '../utils/userPreferences';
 
@@ -125,6 +126,7 @@ const CarDetailsPage = () => {
   const [isWishlisting, setIsWishlisting] = useState(false);
   const [wishlistToast, setWishlistToast] = useState(null); // 'added' | 'removed'
   const [isPriceSummaryOpen, setIsPriceSummaryOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isComingSoonModalOpen, setIsComingSoonModalOpen] = useState(false);
   const [sidebarBanner, setSidebarBanner] = useState(null);
   const emiRef = useRef(null);
@@ -756,16 +758,22 @@ const CarDetailsPage = () => {
                   </a>
                 </div>
 
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="bg-[#00C9AF] text-[#0A1C3A] px-3 py-1 rounded-full text-xs font-heading font-bold flex items-center gap-1.5 shadow-xs shrink-0">
+                <div
+                  onClick={() => setIsCategoryModalOpen(true)}
+                  className="flex items-center gap-2.5 mb-3 cursor-pointer group select-none w-fit"
+                  title="Click to view category details"
+                >
+                  <div className="bg-[#00C9AF] text-[#0A1C3A] px-3 py-1 rounded-full text-xs font-heading font-bold flex items-center gap-1.5 shadow-xs shrink-0 group-hover:bg-[#00b49d] transition-colors">
                     <div className="w-[16px] h-[16px] bg-white text-[#0A1C3A] rounded-full flex items-center justify-center shrink-0">
                       <IndianRupee size={10} className="stroke-[3]" />
                     </div>
                     Budget
                   </div>
-                  <span className="text-xs sm:text-sm font-sans font-medium text-slate-600 flex items-center gap-1">
-                    Highly affordable & reliable
-                    <Info size={14} className="text-slate-400" />
+                  <span className="text-xs sm:text-sm font-sans font-medium text-slate-600 group-hover:text-[#00C9AF] flex items-center gap-1.5 transition-colors">
+                    <span>Highly affordable & reliable</span>
+                    <span className="w-4 h-4 rounded-full bg-slate-100 group-hover:bg-[#00C9AF]/15 flex items-center justify-center transition-colors">
+                      <Info size={12} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
+                    </span>
                   </span>
                 </div>
 
@@ -1007,16 +1015,22 @@ const CarDetailsPage = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <div className="flex items-center gap-1 px-3 py-1 bg-[#00c9af] text-[#0c1b33] rounded-full text-xs font-sans font-bold shrink-0 shadow-xs">
+                  <div
+                    onClick={() => setIsCategoryModalOpen(true)}
+                    className="flex items-center gap-2.5 mb-3 cursor-pointer group select-none w-fit"
+                    title="Click to view category details"
+                  >
+                    <div className="flex items-center gap-1 px-3 py-1 bg-[#00c9af] text-[#0c1b33] rounded-full text-xs font-sans font-bold shrink-0 shadow-xs group-hover:bg-[#00b49d] transition-colors">
                       <div className="w-[16px] h-[16px] bg-white text-[#0c1b33] rounded-full flex items-center justify-center shrink-0">
                         <IndianRupee size={10} className="stroke-[3]" />
                       </div>
                       Budget
                     </div>
-                    <div className="text-xs font-sans font-medium text-slate-600 flex items-center gap-1">
-                      Highly affordable & reliable
-                      <Info size={13} className="text-slate-400" />
+                    <div className="text-xs font-sans font-medium text-slate-600 group-hover:text-[#00C9AF] flex items-center gap-1.5 transition-colors">
+                      <span>Highly affordable & reliable</span>
+                      <span className="w-4 h-4 rounded-full bg-slate-100 group-hover:bg-[#00C9AF]/15 flex items-center justify-center transition-colors">
+                        <Info size={12} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
+                      </span>
                     </div>
                   </div>
 
@@ -1428,6 +1442,10 @@ const CarDetailsPage = () => {
         onClose={() => setIsPriceSummaryOpen(false)}
         car={car}
         carPrice={car?.price}
+      />
+      <CategoryComparisonModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
       />
 
       {/* Coming Soon Simple Popup Modal */}
