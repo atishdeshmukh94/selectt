@@ -662,7 +662,7 @@ const HowItWorksCarousel = () => {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex flex-row sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory scrollbar-none relative max-w-6xl mx-auto -mx-4 px-4 sm:mx-auto sm:px-0"
+        className="flex flex-row sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 overflow-x-auto sm:overflow-visible pt-4 pb-4 -mt-3 sm:mt-0 sm:pt-0 sm:pb-0 snap-x snap-mandatory scrollbar-none relative max-w-6xl mx-auto -mx-4 px-4 sm:mx-auto sm:px-0"
       >
         {HOW_IT_WORKS_STEPS.map((item, idx) => (
           <div
@@ -674,8 +674,10 @@ const HowItWorksCarousel = () => {
               background: item.bgGradient,
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              border: `1px solid ${item.borderColor}`,
-              boxShadow: `0 8px 30px ${item.shadowColor}, inset 0 1px 0 rgba(255,255,255,0.12)`
+              border: activeIndex === idx ? '1px solid rgba(0,201,175,0.8)' : `1px solid ${item.borderColor}`,
+              boxShadow: activeIndex === idx
+                ? `0 0 0 2px rgba(0,201,175,0.6), 0 8px 30px ${item.shadowColor}, inset 0 1px 0 rgba(255,255,255,0.12)`
+                : `0 8px 30px ${item.shadowColor}, inset 0 1px 0 rgba(255,255,255,0.12)`
             }}
           >
             <div className="flex flex-col items-start gap-2">
