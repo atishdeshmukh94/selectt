@@ -151,6 +151,7 @@ const navItems: NavItem[] = [
       { name: "Payment Gateway", path: "/settings/payment", permissionKey: "site_settings" },
       { name: "SMTP Settings", path: "/settings/smtp", permissionKey: "site_settings" },
       { name: "WhatsApp API", path: "/settings/whatsapp", permissionKey: "site_settings" },
+      { name: "Payment Receipt", path: "/settings/receipt", permissionKey: "site_settings" },
       { name: "Maintenance Mode", path: "/settings/maintenance", permissionKey: "site_settings" },
       { name: "Meta Catalog Setup", path: "/settings/meta-catalog", permissionKey: "site_settings" },
     ],

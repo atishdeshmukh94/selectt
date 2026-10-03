@@ -34,6 +34,7 @@ import VisitorReports from "./pages/VisitorReports";
 import MetaCatalogSettings from "./pages/MetaCatalogSettings";
 import CareerManagement from "./pages/CareerManagement";
 import CouponsPage from "./pages/CouponsPage";
+import ReceiptSettings from "./pages/ReceiptSettings";
 
 export default function App() {
   return (
@@ -100,6 +101,8 @@ export default function App() {
                   <Route path="/settings/smtp" element={<SiteSettings section="smtp" />} />
                   <Route path="/settings/maintenance" element={<SiteSettings section="maintenance" />} />
                   <Route path="/settings/whatsapp" element={<SiteSettings section="whatsapp" />} />
+                  <Route path="/settings/receipt" element={<ReceiptSettings />} />
+                  <Route path="/receipt-settings" element={<ReceiptSettings />} />
                   <Route path="/settings/meta-catalog" element={<MetaCatalogSettings />} />
                   <Route path="/meta-catalog-setup" element={<MetaCatalogSettings />} />
                 </Route>

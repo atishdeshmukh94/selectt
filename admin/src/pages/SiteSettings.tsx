@@ -48,19 +48,25 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
   const [testSmtpEmail, setTestSmtpEmail] = useState("");
   const [smtpTestResult, setSmtpTestResult] = useState<{ success?: boolean; message?: string } | null>(null);
 
-  // Live WhatsApp Test Sender state
+  // WhatsApp Notification & Template state (29 Use Cases)
   const [testPhone, setTestPhone] = useState("");
   const [selectedTestEvent, setSelectedTestEvent] = useState("sell_request");
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
   const [whatsappCategory, setWhatsappCategory] = useState("all");
   const [whatsappSearch, setWhatsappSearch] = useState("");
-  const [expandedEvents, setExpandedEvents] = useState<Record<string, boolean>>({});
+  // By default: 1st is expanded, all others closed
+  const [expandedEvents, setExpandedEvents] = useState<Record<string, boolean>>({
+    sell_request: true,
+  });
 
   // Email Notification & Template state (29 Use Cases)
   const [emailCategory, setEmailCategory] = useState("all");
   const [emailSearch, setEmailSearch] = useState("");
-  const [expandedEmailEvents, setExpandedEmailEvents] = useState<Record<string, boolean>>({});
+  // By default: 1st is expanded, all others closed
+  const [expandedEmailEvents, setExpandedEmailEvents] = useState<Record<string, boolean>>({
+    sell_request: true,
+  });
   const [testingEmailEventId, setTestingEmailEventId] = useState<string | null>(null);
   const [testEventRecipientEmail, setTestEventRecipientEmail] = useState("");
   const [previewEmailModal, setPreviewEmailModal] = useState<any>(null);
@@ -1171,7 +1177,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
                         const bodyKey = `email_tpl_${evt.id}_body`;
 
                         const isEnabled = settings[enabledKey] !== "false";
-                        const isExpanded = expandedEmailEvents[evt.id] !== false; // default expanded
+                        const isExpanded = !!expandedEmailEvents[evt.id];
                         const hasCustomSubject = !!settings[subjectKey];
                         const hasCustomHeading = !!settings[headingKey];
                         const hasCustomBody = !!settings[bodyKey];
@@ -1678,11 +1684,11 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
               category: "buy",
               categoryName: "🛍️ Buy & Bookings",
               title: "6. Car Token Booking / Deposit Paid",
-              desc: "Sent when customer pays online booking deposit on frontend",
+              desc: "Sent when customer pays online booking deposit on frontend (includes Receipt & Car URLs)",
               defaultTpl: "car_booking_confirmation",
-              vars: ["{{customer_name}}", "{{car_name}}", "{{amount}}", "{{booking_id}}"],
-              sampleText: "Congratulations {{1}}! Aapne car {{2}} ke liye token advance ₹{{3}} ka payment successfully kar diya hai. Booking ID: {{4}}. Humari team aapse delivery & paperwork ke liye jald connect karegi.",
-              varLegend: "{{1}}=Customer Name, {{2}}=Car Model, {{3}}=Booking Amount, {{4}}=Booking ID",
+              vars: ["{{customer_name}}", "{{car_name}}", "{{amount}}", "{{booking_id}}", "{{receipt_link}}", "{{car_url}}"],
+              sampleText: "Congratulations {{1}}! Aapne car {{2}} ke liye token advance ₹{{3}} ka payment successfully kar diya hai. Booking ID: {{4}}. Payment Receipt & Details download karein: {{5}}. Car details: {{6}}. Humari team aapse delivery & paperwork ke liye jald connect karegi.",
+              varLegend: "{{1}}=Customer Name, {{2}}=Car Model, {{3}}=Booking Amount, {{4}}=Booking ID, {{5}}=Receipt Link, {{6}}=Car URL",
               recipient: "Customer"
             },
             {
@@ -2203,7 +2209,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
                         const enabledKey = `gallabox_event_${evt.id}_enabled`;
                         const tplKey = `gallabox_tpl_${evt.id}`;
                         const isEnabled = settings[enabledKey] !== "false";
-                        const isExpanded = expandedEvents[evt.id] !== false; // default expanded or toggleable
+                        const isExpanded = !!expandedEvents[evt.id];
                         const configuredTpl = settings[tplKey] || evt.defaultTpl;
 
                         return (
@@ -2355,32 +2361,103 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
                                   </div>
                                 </div>
 
-                                {/* 📋 Template Reference / Gallabox & Meta Sample Message Box */}
-                                <div className="mt-2 p-3 bg-white dark:bg-gray-900 rounded-xl border border-dashed border-indigo-200 dark:border-indigo-800/80 space-y-2">
-                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <span className="text-[11px] font-black text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
-                                        <span>📋 Template Reference (Gallabox / Meta Text):</span>
-                                      </span>
-                                      <span className="text-[10px] text-gray-500 dark:text-gray-400 font-mono bg-slate-100 dark:bg-gray-800 px-2 py-0.5 rounded">
-                                        {evt.varLegend}
-                                      </span>
+                                {/* 📋 Template Content & Gallabox/Meta Message Editor */}
+                                {(() => {
+                                  const msgKey = `gallabox_msg_${evt.id}`;
+                                  const isCustomizedMsg = !!settings[msgKey] && settings[msgKey] !== evt.sampleText;
+                                  const currentMsg = settings[msgKey] !== undefined ? settings[msgKey] : evt.sampleText;
+
+                                  return (
+                                    <div className="mt-2 p-3.5 bg-white dark:bg-gray-900 rounded-xl border border-dashed border-indigo-200 dark:border-indigo-800/80 space-y-3">
+                                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <span className="text-[11px] font-black text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
+                                            <span>📋 Message Template Content:</span>
+                                          </span>
+                                          {isCustomizedMsg ? (
+                                            <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                              ✏️ Customized
+                                            </span>
+                                          ) : (
+                                            <span className="text-[10px] text-gray-400 font-medium">
+                                              Default Meta Approved
+                                            </span>
+                                          )}
+                                          <span className="text-[10px] text-gray-500 dark:text-gray-400 font-mono bg-slate-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+                                            {evt.varLegend}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                                          {isCustomizedMsg && (
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                handleChange(msgKey, evt.sampleText);
+                                                toast.success("Restored default template message text");
+                                              }}
+                                              className="px-2 py-1 text-[10px] font-bold bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 rounded transition-all cursor-pointer"
+                                              title="Reset to default text"
+                                            >
+                                              🔄 Reset
+                                            </button>
+                                          )}
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              navigator.clipboard.writeText(currentMsg);
+                                              toast.success("Template text copied to clipboard!");
+                                            }}
+                                            className="px-2.5 py-1 text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-md transition-all cursor-pointer flex items-center gap-1"
+                                          >
+                                            <span>📑 Copy Template Text</span>
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                      {/* Editable Message Textarea */}
+                                      <div>
+                                        <textarea
+                                          rows={3}
+                                          className="w-full text-xs font-sans rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50/80 dark:bg-gray-950 p-3 text-gray-800 dark:text-gray-100 leading-relaxed focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                                          placeholder={evt.sampleText}
+                                          value={currentMsg}
+                                          onChange={(e) => handleChange(msgKey, e.target.value)}
+                                        />
+                                        <div className="flex items-center justify-between text-[10px] text-gray-400 mt-1">
+                                          <span>Edit template message text here to include payment details, receipt links, and custom notes.</span>
+                                          <span>Click "Save Template Mapping" below to persist changes.</span>
+                                        </div>
+                                      </div>
+
+                                      {/* Variable Token Click-to-Append Bar */}
+                                      <div className="p-2.5 bg-slate-50 dark:bg-gray-800/60 rounded-xl border border-slate-200/80 dark:border-gray-700/80 space-y-1.5">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-[11px] font-bold text-gray-700 dark:text-gray-300">
+                                            ⚡ Click a token to append to this template:
+                                          </span>
+                                          <span className="text-[10px] text-gray-400 font-mono">Auto-substituted on send</span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-1.5">
+                                          {evt.vars.map((v) => (
+                                            <button
+                                              key={v}
+                                              type="button"
+                                              onClick={() => {
+                                                const updated = currentMsg ? `${currentMsg} ${v}` : v;
+                                                handleChange(msgKey, updated);
+                                                toast.success(`Appended ${v} to template!`);
+                                              }}
+                                              className="px-2 py-0.5 bg-white dark:bg-gray-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 border border-gray-200 dark:border-gray-700 hover:border-indigo-300 rounded font-mono text-[10px] font-bold text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer shadow-2xs"
+                                              title={`Click to append ${v}`}
+                                            >
+                                              + {v}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </div>
                                     </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        navigator.clipboard.writeText(evt.sampleText);
-                                        toast.success("Sample template text copied to clipboard!");
-                                      }}
-                                      className="px-2.5 py-1 text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-md transition-all cursor-pointer flex items-center gap-1 self-start sm:self-auto"
-                                    >
-                                      <span>📑 Copy Template Text</span>
-                                    </button>
-                                  </div>
-                                  <pre className="text-[11px] text-gray-800 dark:text-gray-200 font-sans whitespace-pre-wrap bg-slate-50 dark:bg-gray-950/80 p-2.5 rounded-lg border border-slate-200/70 dark:border-gray-800 leading-relaxed font-medium select-all">
-                                    {evt.sampleText}
-                                  </pre>
-                                </div>
+                                  );
+                                })()}
                               </div>
                             )}
                           </div>

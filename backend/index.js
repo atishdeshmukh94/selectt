@@ -23,6 +23,7 @@ const { sendWhatsAppOTP } = require('./whatsapp-service');
 const { imagekit, getAuthenticationParameters, uploadToImageKit, testImageKitConnection, initImageKit, deleteFromImageKit } = require('./imagekit');
 const bunnyStream = require('./bunny-stream');
 const { deleteFromBunnyStream } = require('./bunny-stream');
+const { generateBookingReceiptPdf } = require('./receipt-pdf');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -3931,14 +3932,21 @@ app.post('/api/bookings', customerAuth, (req, res) => {
                 }
 
                 // Gallabox WhatsApp Automated Trigger
-                db.query('SELECT c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
+                db.query('SELECT c.first_name, c.last_name, c.phone, car.id AS car_id, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
                     if (!cErr && cRows.length > 0) {
                         const info = cRows[0];
+                        const receiptUrl = `${req.protocol}://${req.get('host')}/api/bookings/${result.insertId}/receipt`;
+                        const carUrl = `https://selectt.in/car/${car_id}`;
+                        const pdfUrl = `${receiptUrl}?format=pdf`;
                         sendGallaboxWhatsAppNotification('car_booking', info.phone || req.user.phone, {
                             customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
                             car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
                             amount: `₹${Number(data.booking_amount).toLocaleString()}`,
-                            booking_id: data.booking_no
+                            booking_id: data.booking_no,
+                            receipt_link: receiptUrl,
+                            download_url: pdfUrl,
+                            pdf_url: pdfUrl,
+                            car_url: carUrl
                         });
                     }
                     res.status(201).json({ 
@@ -4797,13 +4805,42 @@ app.post('/api/bookings/:id/send-whatsapp', customerAuth, async (req, res) => {
     }
 });
 
+// Helper to fetch custom receipt design settings from database
+async function getReceiptSettings() {
+    const keys = [
+        'receipt_company_name',
+        'receipt_company_phone',
+        'receipt_company_email',
+        'receipt_company_website',
+        'receipt_company_address',
+        'receipt_gstin',
+        'receipt_logo_url',
+        'receipt_title',
+        'receipt_subtitle',
+        'receipt_guarantee_text',
+        'receipt_footer_note',
+        'receipt_signatory_name',
+        'receipt_signatory_title',
+        'receipt_signature_url',
+        'receipt_show_digital_stamp'
+    ];
+    const settings = {};
+    for (const k of keys) {
+        const val = await getSetting(k);
+        if (val !== undefined && val !== null && val !== '') {
+            settings[k] = val;
+        }
+    }
+    return settings;
+}
+
 // Official Printable / Downloadable PDF-ready Booking Receipt
 app.get('/api/bookings/:id/receipt', async (req, res) => {
     const bookingIdentifier = req.params.id;
 
     try {
         const rows = await queryAsync(
-            `SELECT b.*, c.first_name, c.last_name, c.phone, c.email, car.make, car.model, car.variant, car.year, car.price AS car_price, car.fuel_type, car.transmission, car.km_driven, car.image 
+            `SELECT b.*, c.first_name, c.last_name, c.phone, c.email, car.id AS car_id, car.make, car.model, car.variant, car.year, car.price AS car_price, car.fuel_type, car.transmission, car.km_driven, car.image 
              FROM bookings b 
              JOIN customers c ON b.customer_id = c.id 
              JOIN cars car ON b.car_id = car.id 
@@ -4816,6 +4853,16 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
         }
 
         const b = rows[0];
+        const receiptSettings = await getReceiptSettings();
+
+        // If client requests raw PDF format via query param or header
+        if (req.query.format === 'pdf' || req.query.download === 'pdf' || req.headers.accept?.includes('application/pdf')) {
+            const pdfBuffer = await generateBookingReceiptPdf({ ...b, ...receiptSettings });
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `inline; filename="Selectt-Receipt-${b.booking_no || b.id}.pdf"`);
+            return res.send(pdfBuffer);
+        }
+
         const formattedDate = new Date(b.created_at || Date.now()).toLocaleDateString('en-IN', {
             day: 'numeric',
             month: 'short',
@@ -4826,15 +4873,34 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
 
         const customerName = `${b.first_name || ''} ${b.last_name || ''}`.trim() || 'Valued Customer';
         const carTitle = `${b.year || ''} ${b.make || ''} ${b.model || ''} ${b.variant || ''}`.trim();
+        const carUrl = `https://selectt.in/car/${b.car_id}`;
         const bookingAmount = Number(b.booking_amount || 5000);
         const totalAmount = Number(b.final_amount || b.car_price || 0);
         const remainingAmount = Math.max(0, totalAmount - bookingAmount);
+
+        const companyName = receiptSettings.receipt_company_name || 'Selectt Cars India Private Limited';
+        const companyPhone = receiptSettings.receipt_company_phone || '+91 85746 67466';
+        const companyEmail = receiptSettings.receipt_company_email || 'hello@selectt.in';
+        const companyWebsite = receiptSettings.receipt_company_website || 'https://selectt.in';
+        const companyAddress = receiptSettings.receipt_company_address || 'Selectt Experience Hub, Andheri East, Mumbai, Maharashtra 400069';
+        const gstin = receiptSettings.receipt_gstin || '';
+        const logoUrl = receiptSettings.receipt_logo_url || 'https://selectt.in/img/dark-logo.svg';
+        const receiptTitle = receiptSettings.receipt_title || 'Payment Receipt';
+        const receiptSubtitle = receiptSettings.receipt_subtitle || 'PRE-OWNED CARS • ASSURED QUALITY';
+        const guaranteeText = receiptSettings.receipt_guarantee_text || `This token booking amount of ₹${bookingAmount.toLocaleString('en-IN')} is 100% refundable anytime before vehicle delivery, plus protected by our 5-Day Money Back Guarantee upon handover.`;
+        const footerNote = receiptSettings.receipt_footer_note || '*All warranties start from the date of physical vehicle handover. 200-Point Inspected & Verified.';
+        const signatoryName = receiptSettings.receipt_signatory_name || 'Authorized Signatory';
+        const signatoryTitle = receiptSettings.receipt_signatory_title || 'Selectt Fulfillment & Operations';
+        const signatureUrl = receiptSettings.receipt_signature_url || '';
+        const showDigitalStamp = receiptSettings.receipt_show_digital_stamp !== 'false';
+
+        const pdfDownloadUrl = `${req.originalUrl.includes('?') ? req.originalUrl + '&format=pdf' : req.originalUrl + '?format=pdf'}`;
 
         const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Booking Receipt - ${b.booking_no} | Selectt Cars</title>
+  <title>${receiptTitle} - ${b.booking_no} | ${companyName}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4860,22 +4926,42 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
       border: 1px solid #e2e8f0;
       position: relative;
     }
+    .top-bar {
+      height: 6px;
+      background: #00C9AF;
+      border-radius: 20px 20px 0 0;
+      margin: -36px -40px 24px -40px;
+    }
     .header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       border-bottom: 2px dashed #e2e8f0;
-      padding-bottom: 24px;
-      margin-bottom: 24px;
+      padding-bottom: 20px;
+      margin-bottom: 22px;
     }
     .brand-logo {
       height: 38px;
+      max-width: 170px;
+      object-fit: contain;
+    }
+    .company-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0C1B33;
+      margin-top: 4px;
+    }
+    .company-sub {
+      font-size: 10px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     .receipt-title {
       text-align: right;
     }
     .receipt-title h2 {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       color: #0C1B33;
       text-transform: uppercase;
@@ -4885,56 +4971,79 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
       font-size: 13px;
       font-weight: 700;
       color: #00A38D;
-      margin-top: 4px;
+      margin-top: 3px;
+    }
+    .receipt-date {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
     }
     .badge {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 3px 10px;
       border-radius: 999px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       background: #ecfdf5;
       color: #047857;
       border: 1px solid #a7f3d0;
-      margin-top: 6px;
+      margin-top: 5px;
     }
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 24px;
+      gap: 16px;
+      margin-bottom: 20px;
     }
     .info-box {
       background: #f8fafc;
-      padding: 16px 18px;
-      border-radius: 14px;
+      padding: 14px 16px;
+      border-radius: 12px;
       border: 1px solid #edf2f7;
     }
     .info-label {
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
       text-transform: uppercase;
       color: #64748b;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       letter-spacing: 0.5px;
     }
     .info-val {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       color: #0f172a;
       line-height: 1.4;
     }
     .info-sub {
-      font-size: 12px;
+      font-size: 11.5px;
       color: #64748b;
       margin-top: 2px;
     }
+    .car-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .car-box .info-label {
+      color: #166534;
+    }
+    .car-box a {
+      color: #00A38D;
+      text-decoration: underline;
+      font-size: 11.5px;
+      display: inline-block;
+      margin-top: 4px;
+      font-weight: 600;
+    }
     .table-container {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       border: 1px solid #e2e8f0;
-      border-radius: 14px;
+      border-radius: 12px;
       overflow: hidden;
     }
     table {
@@ -4945,16 +5054,16 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
     th {
       background: #f8fafc;
       text-align: left;
-      padding: 12px 16px;
+      padding: 10px 14px;
       font-weight: 700;
       color: #475569;
       border-bottom: 1px solid #e2e8f0;
       text-transform: uppercase;
-      font-size: 11px;
+      font-size: 10.5px;
       letter-spacing: 0.5px;
     }
     td {
-      padding: 12px 16px;
+      padding: 11px 14px;
       border-bottom: 1px solid #f1f5f9;
       color: #1e293b;
     }
@@ -4963,71 +5072,123 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
     }
     .text-right { text-align: right; }
     .amount-highlight {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 800;
       color: #047857;
     }
     .guarantee-box {
       background: #f0fdfa;
       border: 1px solid #ccfbf1;
-      padding: 14px 18px;
+      padding: 12px 16px;
       border-radius: 12px;
-      margin-bottom: 24px;
-      font-size: 12px;
+      margin-bottom: 20px;
+      font-size: 11.5px;
       color: #115e59;
       line-height: 1.5;
     }
-    .footer {
+    .signatory-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding-top: 20px;
+      align-items: flex-end;
+      padding-top: 16px;
       border-top: 1px solid #e2e8f0;
-      font-size: 11px;
+      margin-bottom: 16px;
+    }
+    .contact-info {
+      font-size: 10.5px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+    .signatory-box {
+      text-align: right;
+    }
+    .signatory-box img {
+      height: 32px;
+      max-width: 130px;
+      object-fit: contain;
+      margin-bottom: 4px;
+    }
+    .seal-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      background: #f0fdfa;
+      border: 1px solid #99f6e4;
+      color: #008F7C;
+      font-size: 9.5px;
+      font-weight: 800;
+      border-radius: 6px;
+      margin-bottom: 4px;
+    }
+    .footer-note {
+      font-size: 10px;
       color: #94a3b8;
+      text-align: center;
+      padding-top: 12px;
+      border-top: 1px solid #f1f5f9;
+      font-style: italic;
     }
     .print-actions {
       margin-top: 24px;
       display: flex;
-      gap: 12px;
+      gap: 10px;
       justify-content: center;
+      flex-wrap: wrap;
     }
     .btn {
-      padding: 11px 24px;
+      padding: 10px 20px;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 12.5px;
       cursor: pointer;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       border: none;
+      transition: all 0.2s;
     }
     .btn-primary {
-      background: #00A38D;
+      background: #00C9AF;
+      color: #0C1B33;
+    }
+    .btn-primary:hover {
+      background: #00b49d;
+    }
+    .btn-navy {
+      background: #0C1B33;
       color: #ffffff;
+    }
+    .btn-navy:hover {
+      background: #162947;
     }
     .btn-secondary {
       background: #e2e8f0;
       color: #334155;
     }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
     @media print {
       body { background: #ffffff; padding: 0; }
       .receipt-card { border: none; box-shadow: none; padding: 0; max-width: 100%; }
       .print-actions { display: none !important; }
+      .top-bar { margin: 0 0 20px 0; border-radius: 0; }
     }
   </style>
 </head>
 <body>
   <div class="receipt-card">
+    <div class="top-bar"></div>
     <div class="header">
       <div>
-        <img src="https://selectt.in/img/dark-logo.svg" alt="Selectt Cars" class="brand-logo" onerror="this.src='/img/dark-logo.svg'">
+        <img src="${logoUrl}" alt="${companyName}" class="brand-logo" onerror="this.src='/img/dark-logo.svg'">
+        <div class="company-title">${companyName}</div>
+        <div class="company-sub">${receiptSubtitle}</div>
       </div>
       <div class="receipt-title">
-        <h2>Booking Receipt</h2>
-        <div class="receipt-no">#${b.booking_no}</div>
+        <h2>${receiptTitle}</h2>
+        <div class="receipt-no">#${b.booking_no || b.id}</div>
+        <div class="receipt-date">${formattedDate}</div>
         <div class="badge">Payment Confirmed</div>
       </div>
     </div>
@@ -5036,21 +5197,24 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
       <div class="info-box">
         <div class="info-label">Customer Details</div>
         <div class="info-val">${customerName}</div>
-        <div class="info-sub">+${b.phone || ''}</div>
-        <div class="info-sub">${b.email || ''}</div>
+        <div class="info-sub">+${b.phone || 'N/A'}</div>
+        <div class="info-sub">${b.email || 'N/A'}</div>
       </div>
       <div class="info-box">
         <div class="info-label">Payment & Date</div>
         <div class="info-val">₹${bookingAmount.toLocaleString('en-IN')}</div>
-        <div class="info-sub">Payment ID: ${b.razorpay_payment_id || 'Verified'}</div>
-        <div class="info-sub">${formattedDate}</div>
+        <div class="info-sub">Payment ID: ${b.razorpay_payment_id || 'Verified Online'}</div>
+        <div class="info-sub">Status: Successful (Razorpay)</div>
       </div>
     </div>
 
-    <div class="info-box" style="margin-bottom: 24px;">
+    <div class="car-box">
       <div class="info-label">Reserved Vehicle</div>
       <div class="info-val" style="font-size: 15px; color: #0C1B33;">${carTitle}</div>
       <div class="info-sub">${Number(b.km_driven || 0).toLocaleString('en-IN')} KM • ${b.fuel_type || 'Petrol'} • ${b.transmission || 'Manual'}</div>
+      <div>
+        <a href="${carUrl}" target="_blank">View vehicle listing on website ↗</a>
+      </div>
     </div>
 
     <div class="table-container">
@@ -5080,29 +5244,34 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
 
     <div class="guarantee-box">
       <strong>Selectt Assured 100% Refundable Guarantee:</strong><br>
-      This token booking amount of ₹${bookingAmount.toLocaleString('en-IN')} is 100% refundable anytime before vehicle delivery, plus protected by our 5-Day Money Back Guarantee upon handover.
+      ${guaranteeText}
     </div>
 
-    <div class="footer">
-      <div>Selectt Cars India Private Limited • Verified Digital Receipt</div>
-      <div>Support: contact@selectt.in • +91 85746 67466</div>
+    <div class="signatory-row">
+      <div class="contact-info">
+        <strong>${companyName}</strong><br>
+        Phone: ${companyPhone} • Email: ${companyEmail}<br>
+        Website: ${companyWebsite}<br>
+        Address: ${companyAddress}<br>
+        ${gstin ? `GSTIN: ${gstin}` : ''}
+      </div>
+      <div class="signatory-box">
+        ${signatureUrl ? `<img src="${signatureUrl}" alt="Signature" /><br>` : (showDigitalStamp ? `<div class="seal-badge">DIGITALLY VERIFIED</div><br>` : '')}
+        <strong style="font-size:11px;color:#0C1B33;">${signatoryName}</strong><br>
+        <span style="font-size:10px;color:#64748b;">${signatoryTitle}</span>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      ${footerNote}
     </div>
 
     <div class="print-actions">
-      <button class="btn btn-primary" onclick="window.print()">Print / Save as PDF</button>
-      <button class="btn btn-secondary" onclick="window.close()">Close</button>
+      <a class="btn btn-primary" href="${pdfDownloadUrl}">Download PDF Receipt</a>
+      <button class="btn btn-navy" onclick="window.print()">Print Receipt</button>
+      <a class="btn btn-secondary" href="${carUrl}" target="_blank">View Car Details ↗</a>
     </div>
   </div>
-
-  <script>
-    window.addEventListener('load', function() {
-      setTimeout(function() {
-        if (!window.location.search.includes('noprint')) {
-          window.print();
-        }
-      }, 500);
-    });
-  </script>
 </body>
 </html>`;
 
@@ -5120,7 +5289,7 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
 async function sendPaymentSuccessEmail(bookingId) {
     try {
         const [bookingDetails] = await queryAsync(`
-            SELECT b.*, c.email, c.first_name, c.last_name, car.make, car.model, car.year, car.price 
+            SELECT b.*, c.email, c.first_name, c.last_name, c.phone, car.id AS car_id, car.make, car.model, car.variant, car.year, car.price, car.fuel_type, car.transmission, car.km_driven 
             FROM bookings b 
             JOIN customers c ON b.customer_id = c.id 
             JOIN cars car ON b.car_id = car.id 
@@ -5140,6 +5309,19 @@ async function sendPaymentSuccessEmail(bookingId) {
             return;
         }
 
+        const receiptSettings = await getReceiptSettings();
+        const carTitle = `${bookingDetails.year || ''} ${bookingDetails.make || ''} ${bookingDetails.model || ''} ${bookingDetails.variant || ''}`.trim() || 'Reserved Vehicle';
+        const carUrl = `https://selectt.in/car/${bookingDetails.car_id}`;
+        const receiptUrl = `https://api.selectt.in/api/bookings/${bookingDetails.id}/receipt`;
+
+        // Generate PDF buffer for attachment
+        let pdfBuffer = null;
+        try {
+            pdfBuffer = await generateBookingReceiptPdf({ ...bookingDetails, ...receiptSettings });
+        } catch (pdfErr) {
+            console.error('[Receipt PDF Attachment Error]:', pdfErr);
+        }
+
         const transporter = nodemailer.createTransport({
             host: smtpHost,
             port: parseInt(smtpPort),
@@ -5153,36 +5335,92 @@ async function sendPaymentSuccessEmail(bookingId) {
         const mailOptions = {
             from: '"Selectt Cars" <' + contactEmail + '>',
             to: bookingDetails.email,
-            subject: 'Payment Successful - Car Booking Confirmed',
+            subject: `Payment Successful - Car Booking Confirmed #${bookingDetails.booking_no}`,
             html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-                    <h2 style="color: #00A884;">Payment Successful!</h2>
-                    <p>Dear ${bookingDetails.first_name} ${bookingDetails.last_name},</p>
-                    <p>Thank you for choosing Selectt Cars. We have successfully received your payment.</p>
-                    
-                    <h3>Booking Details</h3>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                        <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Booking ID:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${bookingDetails.booking_no}</td></tr>
-                        <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Transaction ID:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${bookingDetails.razorpay_payment_id || 'N/A'}</td></tr>
-                        <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Amount Paid:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">₹${bookingDetails.booking_amount.toLocaleString()}</td></tr>
-                    </table>
+                <div style="font-family: Arial, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; color: #1E293B; background: #ffffff; border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden;">
+                    <div style="background-color: #0C1B33; padding: 24px 30px; text-align: left; border-bottom: 4px solid #00C9AF;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">Selectt<span style="color: #00C9AF;">.</span></h1>
+                        <p style="color: #94A3B8; margin: 4px 0 0 0; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Pre-Owned Cars • Assured Quality</p>
+                    </div>
 
-                    <h3>Car Details</h3>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                        <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Car:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${bookingDetails.year} ${bookingDetails.make} ${bookingDetails.model}</td></tr>
-                        <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Final Price:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">₹${bookingDetails.price.toLocaleString()}</td></tr>
-                    </table>
+                    <div style="padding: 28px 30px;">
+                        <div style="display: inline-block; background-color: #ECFDF5; border: 1px solid #A7F3D0; color: #047857; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
+                            Payment Confirmed
+                        </div>
+                        <h2 style="color: #0C1B33; font-size: 20px; font-weight: 800; margin: 0 0 12px 0;">Payment Successful!</h2>
+                        <p style="font-size: 14px; line-height: 1.5; color: #334155; margin-bottom: 18px;">
+                            Dear <strong>${bookingDetails.first_name} ${bookingDetails.last_name}</strong>,<br>
+                            Thank you for choosing Selectt Cars. We have successfully received your token booking payment of <strong>₹${Number(bookingDetails.booking_amount || 0).toLocaleString('en-IN')}</strong>. Your vehicle reservation is now confirmed!
+                        </p>
+                        
+                        <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #0C1B33; border-bottom: 2px solid #F1F5F9; padding-bottom: 6px; margin: 24px 0 10px 0;">
+                            Booking Summary
+                        </h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 13px;">
+                            <tr><td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Booking ID:</td><td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; font-weight: 700; color: #0C1B33; text-align: right;">${bookingDetails.booking_no}</td></tr>
+                            <tr><td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Transaction ID:</td><td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; font-weight: 700; color: #0C1B33; text-align: right;">${bookingDetails.razorpay_payment_id || 'N/A'}</td></tr>
+                            <tr><td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Token Advance Paid:</td><td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; font-weight: 800; color: #047857; text-align: right; font-size: 15px;">₹${Number(bookingDetails.booking_amount || 0).toLocaleString('en-IN')}</td></tr>
+                        </table>
 
-                    <p>Our executive will contact you shortly regarding the next steps and delivery process.</p>
-                    <p>For any queries, feel free to reply to this email.</p>
-                    
-                    <p>Best regards,<br>The Selectt Cars Team</p>
+                        <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #0C1B33; border-bottom: 2px solid #F1F5F9; padding-bottom: 6px; margin: 24px 0 10px 0;">
+                            Reserved Vehicle Details
+                        </h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
+                            <tr>
+                                <td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Car:</td>
+                                <td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; text-align: right;">
+                                    <a href="${carUrl}" style="color: #00A38D; font-weight: 800; text-decoration: underline; font-size: 14px;">${carTitle} ↗</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Specifications:</td>
+                                <td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; font-weight: 600; color: #334155; text-align: right;">${bookingDetails.fuel_type || 'Petrol'} • ${bookingDetails.transmission || 'Manual'} • ${Number(bookingDetails.km_driven || 0).toLocaleString('en-IN')} KM</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Total On-Road Price:</td>
+                                <td style="padding: 9px 0; border-bottom: 1px solid #F1F5F9; font-weight: 700; color: #0C1B33; text-align: right;">₹${Number(bookingDetails.final_amount || bookingDetails.price || 0).toLocaleString('en-IN')}</td>
+                            </tr>
+                        </table>
+
+                        <!-- CTA Action Buttons -->
+                        <div style="margin: 28px 0; text-align: center;">
+                            <a href="${carUrl}" style="display: inline-block; background-color: #00C9AF; color: #0C1B33; text-decoration: none; padding: 12px 22px; border-radius: 10px; font-weight: 800; font-size: 13px; margin: 4px;">
+                                View Booked Car ↗
+                            </a>
+                            <a href="${receiptUrl}" style="display: inline-block; background-color: #0C1B33; color: #ffffff; text-decoration: none; padding: 12px 22px; border-radius: 10px; font-weight: 800; font-size: 13px; margin: 4px;">
+                                Download Payment Receipt
+                            </a>
+                        </div>
+
+                        <!-- Guarantee & PDF attachment note -->
+                        <div style="background-color: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 14px; font-size: 12px; color: #166534; line-height: 1.5; margin-bottom: 20px;">
+                            <strong>📎 PDF Receipt Attached:</strong> An official digital payment receipt has been generated and attached as a PDF to this email for your records.<br><br>
+                            <strong>Selectt 100% Refundable Guarantee:</strong> Your token advance is 100% refundable anytime before vehicle delivery, plus protected by our 5-Day Money-Back Guarantee.
+                        </div>
+
+                        <p style="font-size: 13px; color: #64748B; line-height: 1.5;">
+                            Our executive relationship manager will contact you shortly regarding the next paperwork, loan, or delivery steps. For any queries, feel free to reply directly to this email or call us at <strong>${receiptSettings.receipt_company_phone || '+91 85746 67466'}</strong>.
+                        </p>
+                        
+                        <div style="border-top: 1px solid #E2E8F0; padding-top: 16px; margin-top: 24px; font-size: 12px; color: #94A3B8;">
+                            Warm regards,<br>
+                            <strong style="color: #0C1B33;">The Selectt Cars Team</strong><br>
+                            ${receiptSettings.receipt_company_website || 'https://selectt.in'}
+                        </div>
+                    </div>
                 </div>
-            `
+            `,
+            attachments: pdfBuffer ? [
+                {
+                    filename: `Selectt-Booking-Receipt-${bookingDetails.booking_no || bookingDetails.id}.pdf`,
+                    content: pdfBuffer,
+                    contentType: 'application/pdf'
+                }
+            ] : []
         };
 
         await transporter.sendMail(mailOptions);
-        console.log("Payment success email sent to", bookingDetails.email);
+        console.log("Payment success email with attached PDF receipt sent to", bookingDetails.email);
     } catch (error) {
         console.error("Error sending payment success email:", error);
     }
