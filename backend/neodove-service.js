@@ -134,13 +134,17 @@ async function pushLeadToNeodove(lead, getSettingFn) {
             payload.detail5 = String(lead.agent || lead.source).trim().slice(0, 100);
         }
 
-        // Append ?update=true if enabled
+        // Target webhook endpoint (do NOT append update=true for new leads)
         let targetUrl = config.webhookUrl;
         if (config.updateExisting && !targetUrl.includes('update=')) {
-            targetUrl += (targetUrl.includes('?') ? '&' : '?') + 'update=true';
+            // Only if explicitly required
+            // targetUrl += (targetUrl.includes('?') ? '&' : '?') + 'update=true';
         }
 
-        const response = await axios.post(targetUrl, payload, {
+        // Clean any existing query params if present in webhookUrl
+        const cleanEndpoint = targetUrl.replace(/[?&]update=true/g, '');
+
+        const response = await axios.post(cleanEndpoint, payload, {
             headers: {
                 'Content-Type': 'application/json'
             },
