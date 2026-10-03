@@ -1426,6 +1426,7 @@ const CarDetailsPage = () => {
       <PriceSummaryModal
         isOpen={isPriceSummaryOpen}
         onClose={() => setIsPriceSummaryOpen(false)}
+        car={car}
         carPrice={car?.price}
       />
 
