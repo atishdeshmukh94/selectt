@@ -8,6 +8,7 @@ const LOCAL_ROOT = path.join(__dirname, '..', '..');
 
 const filesToUpload = [
     { local: path.join(LOCAL_BACKEND, 'index.js'), remote: `${REMOTE_BASE}/index.js` },
+    { local: path.join(LOCAL_BACKEND, 'receipt-pdf.js'), remote: `${REMOTE_BASE}/receipt-pdf.js` },
     { local: path.join(LOCAL_BACKEND, 'auth-middleware.js'), remote: `${REMOTE_BASE}/auth-middleware.js` },
     { local: path.join(LOCAL_BACKEND, 'package.json'), remote: `${REMOTE_BASE}/package.json` },
     { local: path.join(LOCAL_BACKEND, 'package-lock.json'), remote: `${REMOTE_BASE}/package-lock.json` },
@@ -66,11 +67,13 @@ conn.on('ready', () => {
             console.log('\nRunning npm install on remote VPS...');
             const installCmd = `
                 export NVM_DIR="$HOME/.nvm"
-                [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
+                export PATH="/home/selectt-api/.nvm/versions/node/v24.21.0/bin:$PATH"
                 cd ${REMOTE_BASE}
                 npm install --omit=dev
                 echo "NPM install finished!"
-                ls -la
+                pm2 restart selectt-api || pm2 restart all
+                pm2 status
             `;
 
             conn.exec(installCmd, (execErr, stream) => {

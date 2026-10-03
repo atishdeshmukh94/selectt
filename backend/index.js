@@ -908,17 +908,14 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             };
         }
 
-        const fetch = (await import('node-fetch')).default || globalThis.fetch;
+        const fetchFn = typeof fetch !== 'undefined' ? fetch : globalThis.fetch;
         const url = 'https://server.gallabox.com/devapi/messages/whatsapp';
 
         // Provide both named keys and positional 1, 2, 3... keys so any Gallabox template format works
         const bodyValues = {};
-        const varKeys = Object.keys(variablesData);
-        varKeys.forEach((key, index) => {
-            const val = String(variablesData[key] || '');
-            bodyValues[key] = val;
-            bodyValues[String(index + 1)] = val;
-        });
+        for (const [k, v] of Object.entries(variablesData)) {
+            bodyValues[k] = String(v ?? '');
+        }
 
         const payload = {
             channelId: channelId,
@@ -936,7 +933,7 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             }
         };
 
-        const res = await fetch(url, {
+        const res = await fetchFn(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -4840,7 +4837,7 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
 
     try {
         const rows = await queryAsync(
-            `SELECT b.*, c.first_name, c.last_name, c.phone, c.email, car.id AS car_id, car.make, car.model, car.variant, car.year, car.price AS car_price, car.fuel_type, car.transmission, car.km_driven, car.image 
+            `SELECT b.*, c.first_name, c.last_name, c.phone, c.email, car.id AS car_id, car.make, car.model, car.variant, car.year, car.price AS car_price, car.fuel_type, car.transmission, car.km AS km_driven, car.km, car.image 
              FROM bookings b 
              JOIN customers c ON b.customer_id = c.id 
              JOIN cars car ON b.car_id = car.id 

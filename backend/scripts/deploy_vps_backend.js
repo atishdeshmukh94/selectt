@@ -6,6 +6,7 @@ conn.on('ready', () => {
     [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
     cd /home/selectt-api/htdocs/api.selectt.in
     git pull origin main
+    npm install --omit=dev
     pm2 restart selectt-api
     pm2 status
   `;
