@@ -27,7 +27,7 @@ interface Setting {
 }
 
 interface SiteSettingsProps {
-  section?: "location" | "payment" | "smtp" | "maintenance" | "whatsapp" | "branding" | "api_keys";
+  section?: "location" | "payment" | "smtp" | "maintenance" | "whatsapp" | "branding" | "api_keys" | "crm";
 }
 
 const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
@@ -35,6 +35,12 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // CRM Integration State
+  const [testingCrm, setTestingCrm] = useState(false);
+  const [crmTestResult, setCrmTestResult] = useState<{ success?: boolean; message?: string } | null>(null);
+  const [syncingAllCustomers, setSyncingAllCustomers] = useState(false);
+  const [crmStats, setCrmStats] = useState<{ customersTotal?: number; customersSynced?: number; customersPending?: number } | null>(null);
 
   // 3rd Party API state
   const [showIkSecret, setShowIkSecret] = useState(false);
@@ -237,7 +243,31 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
       if (!settingsMap.smtp_from_email) settingsMap.smtp_from_email = "donotreply@selectt.in";
       if (!settingsMap.admin_notification_email) settingsMap.admin_notification_email = "donotreply@selectt.in";
 
+      // Pre-populate Neodove CRM configuration
+      if (!settingsMap.neodove_webhook_url) {
+        settingsMap.neodove_webhook_url = "https://eda0390f-321a-469b-8626-96ccef23232f.neodove.com/integration/custom/1b3a4680-2005-4ede-a529-3ce4d5e8bb86/leads";
+      }
+      if (settingsMap.neodove_enabled === undefined) {
+        settingsMap.neodove_enabled = "true";
+      }
+      if (settingsMap.neodove_update_existing === undefined) {
+        settingsMap.neodove_update_existing = "true";
+      }
+
       setSettings(settingsMap);
+
+      // Fetch CRM stats
+      fetch(`${API_URL}/api/admin/crm/status`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` }
+      }).then(r => r.json()).then(data => {
+        if (data && data.success) {
+          setCrmStats({
+            customersTotal: data.customersTotal,
+            customersSynced: data.customersSynced,
+            customersPending: data.customersPending
+          });
+        }
+      }).catch(() => {});
     } catch (error) {
       console.error(error);
       toast.error("Failed to load settings");
@@ -376,6 +406,73 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
     }
   };
 
+  const handleTestCrm = async () => {
+    try {
+      setTestingCrm(true);
+      setCrmTestResult(null);
+      const token = localStorage.getItem("adminToken");
+      const targetUrl = settings.neodove_webhook_url?.trim();
+      const res = await fetch(`${API_URL}/api/admin/crm/test`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ webhookUrl: targetUrl })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setCrmTestResult({ success: true, message: data.message });
+        toast.success(data.message || "Connection successful!");
+      } else {
+        setCrmTestResult({ success: false, message: data.message || "Test connection failed" });
+        toast.error(data.message || "Test connection failed");
+      }
+    } catch (err: any) {
+      setCrmTestResult({ success: false, message: err.message });
+      toast.error("CRM test failed: " + err.message);
+    } finally {
+      setTestingCrm(false);
+    }
+  };
+
+  const handleSyncAllCustomersFromSettings = async () => {
+    try {
+      setSyncingAllCustomers(true);
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(`${API_URL}/api/admin/crm/sync-customers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ onlyUnsynced: false })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(data.message || "Customers synced to Neodove!");
+        // Refresh stats
+        const statusRes = await fetch(`${API_URL}/api/admin/crm/status`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const statusData = await statusRes.json();
+        if (statusData.success) {
+          setCrmStats({
+            customersTotal: statusData.customersTotal,
+            customersSynced: statusData.customersSynced,
+            customersPending: statusData.customersPending
+          });
+        }
+      } else {
+        toast.error(data.message || "Sync failed");
+      }
+    } catch (e: any) {
+      toast.error("Error: " + e.message);
+    } finally {
+      setSyncingAllCustomers(false);
+    }
+  };
+
   const handleChange = (key: string, value: string) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
@@ -399,6 +496,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
             { id: "payment", label: "💳 Payment Gateway" },
             { id: "smtp", label: "✉️ SMTP & Email" },
             { id: "whatsapp", label: "💬 WhatsApp API" },
+            { id: "crm", label: "🚀 Neodove CRM" },
             { id: "maintenance", label: "🚧 Maintenance Mode" },
             { id: "location", label: "📍 Location & Contact" },
           ].map((tab) => (
@@ -2535,6 +2633,215 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
         })()}
 
 
+
+        {activeSection === "crm" && (
+          <div className="space-y-6">
+            <ComponentCard title="Neodove CRM Integration">
+              <form onSubmit={handleSave} className="space-y-6">
+                {/* Status & Banner */}
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <h4 className="font-extrabold text-sm text-[#0C1B33] dark:text-white">Neodove CRM Live Lead Dispatcher</h4>
+                    </div>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">
+                      All new car bookings, sell requests, contact forms, test drives, and customer registrations automatically sync to your Neodove CRM.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="https://connect.neodove.com/integrations"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 hover:bg-gray-100 text-xs font-bold text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-200 dark:border-indigo-800 transition-all shadow-xs"
+                    >
+                      <span>Neodove Dashboard</span>
+                      <ExternalLink size={13} />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Configuration Inputs */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <Label>Neodove Custom Webhook URL</Label>
+                    <Input
+                      type="text"
+                      placeholder="https://...neodove.com/integration/custom/.../leads"
+                      value={settings.neodove_webhook_url || ""}
+                      onChange={(e) => handleChange("neodove_webhook_url", e.target.value)}
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Target webhook from <a href="https://connect.neodove.com/integrations" target="_blank" rel="noreferrer" className="text-indigo-600 underline">Neodove Integrations</a> (Method: POST, Format: JSON).
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-xs text-gray-800 dark:text-white">Enable Neodove Integration</div>
+                      <div className="text-[11px] text-gray-500">Dispatch live website leads and inquiries</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={settings.neodove_enabled !== "false"}
+                      onChange={(e) => handleChange("neodove_enabled", e.target.checked ? "true" : "false")}
+                      className="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-xs text-gray-800 dark:text-white">Update Existing Leads (?update=true)</div>
+                      <div className="text-[11px] text-gray-500">Update details if customer mobile number exists</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={settings.neodove_update_existing !== "false"}
+                      onChange={(e) => handleChange("neodove_update_existing", e.target.checked ? "true" : "false")}
+                      className="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                {/* Save and Test Controls */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <Button type="submit" disabled={saving}>
+                    {saving ? "Saving Changes..." : "Save CRM Settings"}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={handleTestCrm}
+                    disabled={testingCrm}
+                    className="px-4 py-2.5 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    <span>{testingCrm ? "Testing..." : "⚡ Test Neodove Connection"}</span>
+                  </button>
+                </div>
+
+                {crmTestResult && (
+                  <div className={`p-3.5 rounded-xl text-xs flex items-center gap-2 border font-medium ${
+                    crmTestResult.success 
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300"
+                      : "bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300"
+                  }`}>
+                    {crmTestResult.success ? <CheckCircle2 size={16} className="shrink-0" /> : <XCircle size={16} className="shrink-0" />}
+                    <span>{crmTestResult.message}</span>
+                  </div>
+                )}
+              </form>
+            </ComponentCard>
+
+            {/* Customers CRM Sync Card */}
+            <ComponentCard title="Customers CRM Directory Sync">
+              <div className="space-y-5">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
+                  Export and sync all customer directory accounts from Selectt into Neodove CRM with one click.
+                </p>
+
+                {crmStats && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700">
+                      <div className="text-[11px] font-bold text-slate-500 uppercase">Total Accounts</div>
+                      <div className="text-xl font-black text-slate-900 dark:text-white mt-1">{crmStats.customersTotal || 0}</div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+                      <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase">Synced to CRM</div>
+                      <div className="text-xl font-black text-emerald-800 dark:text-emerald-300 mt-1">{crmStats.customersSynced || 0}</div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                      <div className="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase">Pending Sync</div>
+                      <div className="text-xl font-black text-amber-800 dark:text-amber-300 mt-1">{crmStats.customersPending || 0}</div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleSyncAllCustomersFromSettings}
+                    disabled={syncingAllCustomers}
+                    className="px-5 py-2.5 rounded-xl bg-[#00C9AF] hover:bg-[#00b49d] text-[#0C1B33] font-bold text-xs transition-all shadow-sm active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    <Cloud size={16} className={syncingAllCustomers ? "animate-bounce" : ""} />
+                    <span>{syncingAllCustomers ? "Syncing All Customers to Neodove..." : "Sync All Customers to Neodove CRM"}</span>
+                  </button>
+                </div>
+              </div>
+            </ComponentCard>
+
+            {/* Custom Contact Properties (CCP) Mapping Reference */}
+            <ComponentCard title="Neodove Field & Property Mapping Reference">
+              <div className="space-y-3 text-xs">
+                <p className="text-gray-600 dark:text-gray-400">
+                  Data sent from Selectt is mapped into Neodove Custom Contact Properties (CCP) configured in your Neodove workspace:
+                </p>
+                <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-gray-50 dark:bg-gray-800 font-extrabold text-gray-700 dark:text-gray-300">
+                      <tr>
+                        <th className="p-2.5">Field / Key</th>
+                        <th className="p-2.5">Neodove CCP Name</th>
+                        <th className="p-2.5">Type</th>
+                        <th className="p-2.5">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                      <tr>
+                        <td className="p-2.5 font-mono text-indigo-600 font-bold">name</td>
+                        <td className="p-2.5 font-bold">Contact Name</td>
+                        <td className="p-2.5">String</td>
+                        <td className="p-2.5 text-gray-500">Customer or lead's full name</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2.5 font-mono text-indigo-600 font-bold">mobile</td>
+                        <td className="p-2.5 font-bold">Contact Number</td>
+                        <td className="p-2.5">Number (10-digit)</td>
+                        <td className="p-2.5 text-gray-500">Primary phone identifier in CRM</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2.5 font-mono text-indigo-600 font-bold">email</td>
+                        <td className="p-2.5 font-bold">Email Address</td>
+                        <td className="p-2.5">String</td>
+                        <td className="p-2.5 text-gray-500">Customer email address</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2.5 font-mono text-indigo-600 font-bold">detail1</td>
+                        <td className="p-2.5 font-bold">Car Interested</td>
+                        <td className="p-2.5">Text</td>
+                        <td className="p-2.5 text-gray-500">Vehicle make, model, variant, or inquiry subject</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2.5 font-mono text-indigo-600 font-bold">detail2</td>
+                        <td className="p-2.5 font-bold">Buy urgency</td>
+                        <td className="p-2.5">Text</td>
+                        <td className="p-2.5 text-gray-500">Urgency level / lead category</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2.5 font-mono text-indigo-600 font-bold">detail3</td>
+                        <td className="p-2.5 font-bold">Summary</td>
+                        <td className="p-2.5">Text</td>
+                        <td className="p-2.5 text-gray-500">Detailed notes, location, slot, booking or request info</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2.5 font-mono text-indigo-600 font-bold">detail4</td>
+                        <td className="p-2.5 font-bold">Budget</td>
+                        <td className="p-2.5">Number</td>
+                        <td className="p-2.5 text-gray-500">Vehicle price, booking amount, or budget in INR</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2.5 font-mono text-indigo-600 font-bold">detail5</td>
+                        <td className="p-2.5 font-bold">Agent</td>
+                        <td className="p-2.5">Text</td>
+                        <td className="p-2.5 text-gray-500">Source channel or assigned staff</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </ComponentCard>
+          </div>
+        )}
 
         {section === "branding" && (
           <div className="space-y-6">

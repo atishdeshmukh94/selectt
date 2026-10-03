@@ -23,6 +23,12 @@ const { sendWhatsAppOTP } = require('./whatsapp-service');
 const { imagekit, getAuthenticationParameters, uploadToImageKit, testImageKitConnection, initImageKit, deleteFromImageKit } = require('./imagekit');
 const bunnyStream = require('./bunny-stream');
 const { generateBookingReceiptPdf, getImageBuffer } = require('./receipt-pdf');
+const {
+    pushLeadToNeodove,
+    pushCustomerToNeodove,
+    bulkSyncCustomers,
+    testNeodoveConnection
+} = require('./neodove-service');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -252,6 +258,11 @@ const db = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
+});
+
+// Ensure neodove_synced_at column exists in customers table
+db.query("ALTER TABLE customers ADD COLUMN neodove_synced_at TIMESTAMP NULL", (err) => {
+    if (!err) console.log("✅ [Neodove CRM] Verified/Added neodove_synced_at column to customers table");
 });
 
 // Media Alt Store JSON Fallback
@@ -2212,6 +2223,13 @@ app.post('/api/auth/verify-otp', async (req, res) => {
                 };
                 
                 createNotification('NEW_USER', `New customer registered via WhatsApp: ${firstName} ${lastName || ''} (${phoneForDb})`, customer.id);
+
+                // Auto-sync newly registered customer to Neodove CRM
+                pushCustomerToNeodove(customer, getSetting).then(res => {
+                    if (res && res.success) {
+                        db.query('UPDATE customers SET neodove_synced_at = NOW() WHERE id = ?', [customer.id], () => {});
+                    }
+                }).catch(e => console.error('[Neodove Customer Hook Error]:', e.message));
             } else {
                 return res.json({ 
                     success: true, 
@@ -2292,7 +2310,7 @@ app.post('/api/customers/:id/avatar', authMiddleware, isAdmin, upload.single('av
 
 // Admin: Get all customers
 app.get('/api/customers', authMiddleware, isAdmin, (req, res) => {
-    db.query('SELECT id, first_name, last_name, phone, alt_phone, email, city, state, avatar_url, created_at FROM customers ORDER BY created_at DESC', (err, results) => {
+    db.query('SELECT id, first_name, last_name, phone, alt_phone, email, city, state, avatar_url, neodove_synced_at, created_at FROM customers ORDER BY created_at DESC', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
     });
@@ -2430,6 +2448,19 @@ app.post('/api/sell-requests', (req, res) => {
             car_name: `${year || ''} ${make || ''} ${model || ''} ${variant || ''}`.trim(),
             request_id: `#SELL-${result.insertId}`
         });
+
+        // Neodove CRM Push
+        const carTitle = `${year || ''} ${make || ''} ${model || ''} ${variant || ''}`.trim();
+        pushLeadToNeodove({
+            name: customer_name || 'Valued Seller',
+            mobile: customer_phone,
+            email: customer_email,
+            car_interested: carTitle || 'Sell Car',
+            urgency: 'Sell Car Request',
+            summary: `Sell Car: ${carTitle} (${year || ''}). Asking: ₹${Number(asking_price || 0).toLocaleString('en-IN')}. KM: ${km || 'N/A'}. Location: ${location || 'N/A'}. Inspection: ${inspection_date || appointment_date || 'N/A'} ${inspection_time || appointment_time || ''}`.trim(),
+            budget: asking_price,
+            agent: 'Sell Portal'
+        }, getSetting).catch(e => console.error('[Neodove Sell Request Error]:', e.message));
 
         res.status(201).json({ id: result.insertId, ...data });
     });
@@ -3100,6 +3131,32 @@ app.post('/api/leads', async (req, res) => {
                 directLink: 'https://admin.selectt.in/leads'
             }).catch(e => console.error('SMTP Lead Error:', e.message));
 
+            // Neodove CRM Push
+            (async () => {
+                let carTitle = null;
+                let carPrice = null;
+                if (leadData.car_id) {
+                    try {
+                        const [cRow] = await queryAsync('SELECT make, model, variant, year, price FROM cars WHERE id = ?', [leadData.car_id]);
+                        if (cRow) {
+                            carTitle = `${cRow.year || ''} ${cRow.make || ''} ${cRow.model || ''} ${cRow.variant || ''}`.trim();
+                            carPrice = cRow.price;
+                        }
+                    } catch (_) {}
+                }
+                const parsedDetails = typeof details === 'object' ? details : {};
+                await pushLeadToNeodove({
+                    name: leadData.name,
+                    mobile: leadData.phone,
+                    email: leadData.email,
+                    car_interested: carTitle || parsedDetails['Car Interested'] || parsedDetails['Vehicle'] || leadData.subject,
+                    urgency: parsedDetails['Urgency'] || leadData.lead_type || 'General Lead',
+                    summary: leadData.message || leadData.subject || (typeof details === 'object' ? JSON.stringify(details) : 'Website Lead'),
+                    budget: parsedDetails['Budget'] || carPrice,
+                    agent: 'Website Lead'
+                }, getSetting);
+            })().catch(e => console.error('[Neodove Leads Error]:', e.message));
+
             res.status(201).json({ success: true, id: leadId, message: 'Lead submitted successfully' });
         });
     } catch (e) {
@@ -3165,6 +3222,16 @@ app.post(['/api/partners/apply', '/api/dealer-partners'], async (req, res) => {
                 request_id: `#PARTNER-${leadId}`
             }).catch(() => {});
 
+            // Neodove CRM Push
+            pushLeadToNeodove({
+                name: fullName,
+                mobile: mobile,
+                car_interested: 'Dealer Partner Network',
+                urgency: 'Dealer Partner Application',
+                summary: `Dealer Partner: ${dealershipName} (${city || 'N/A'}, ${state || 'N/A'}). Contact: ${fullName}. Notes: ${notes || ''}`,
+                agent: 'Dealer Network'
+            }, getSetting).catch(e => console.error('[Neodove Partner Error]:', e.message));
+
             res.status(201).json({ success: true, id: leadId, message: 'Partner application received successfully' });
         });
     } catch (e) {
@@ -3212,6 +3279,16 @@ app.post('/api/contact', async (req, res) => {
                 directLink: 'https://admin.selectt.in/leads'
             }).catch(e => console.error('SMTP Contact Alert Error:', e.message));
 
+            // Neodove CRM Push
+            pushLeadToNeodove({
+                name,
+                mobile: phone,
+                email: email || undefined,
+                urgency: subject || 'Contact Us Inquiry',
+                summary: `${subject || 'Contact Inquiry'}: ${message || ''}`.trim(),
+                agent: 'Contact Form'
+            }, getSetting).catch(e => console.error('[Neodove Contact Error]:', e.message));
+
             res.status(201).json({ success: true, id: leadId, message: 'Message sent successfully' });
         });
     } catch (e) {
@@ -3253,6 +3330,16 @@ app.post('/api/buyback/inquiry', async (req, res) => {
                 message: leadData.message,
                 directLink: 'https://admin.selectt.in/leads'
             }).catch(e => console.error('SMTP Buyback Alert Error:', e.message));
+
+            // Neodove CRM Push
+            pushLeadToNeodove({
+                name: leadData.name,
+                mobile: phone,
+                car_interested: car_details || 'Buyback Assurance',
+                urgency: 'Buyback Inquiry',
+                summary: message || `Buyback inquiry for vehicle: ${car_details || 'General'}`,
+                agent: 'Buyback Form'
+            }, getSetting).catch(e => console.error('[Neodove Buyback Error]:', e.message));
 
             res.status(201).json({ success: true, id: leadId, message: 'Buyback inquiry received successfully' });
         });
@@ -3399,15 +3486,28 @@ app.post('/api/test-drives', customerAuth, (req, res) => {
             createNotification('TEST_DRIVE', `New test drive request booked`, req.user.id, result.insertId);
 
             // Gallabox WhatsApp Automated Trigger
-            db.query('SELECT c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
+            db.query('SELECT c.first_name, c.last_name, c.phone, c.email, car.make, car.model, car.variant, car.year, car.price FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
                 if (!cErr && cRows.length > 0) {
                     const info = cRows[0];
+                    const carTitle = `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim();
                     sendGallaboxWhatsAppNotification('test_drive', info.phone || req.user.phone, {
                         customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Customer',
-                        car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
+                        car_name: carTitle,
                         date_slot: `${date_day} (${date_label}) ${slot}`,
                         location: location
                     });
+
+                    // Neodove CRM Push
+                    pushLeadToNeodove({
+                        name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Customer',
+                        mobile: info.phone || req.user.phone,
+                        email: info.email,
+                        car_interested: carTitle,
+                        urgency: 'Test Drive Scheduled',
+                        summary: `Test Drive Booking #${result.insertId} at ${location}. Date: ${date_day} (${date_label}), Slot: ${slot}`,
+                        budget: info.price,
+                        agent: 'Test Drive System'
+                    }, getSetting).catch(e => console.error('[Neodove Test Drive Error]:', e.message));
                 }
             });
 
@@ -3641,7 +3741,7 @@ app.post('/api/loan-application', customerAuth, loanUploadFields, (req, res) => 
         createNotification('LOAN_APPLICATION', `New loan application: ${loanData.application_no}`, req.user.id, result.insertId);
 
         // Gallabox WhatsApp Automated Trigger
-        db.query('SELECT first_name, last_name, phone FROM customers WHERE id = ?', [req.user.id], (cErr, cRows) => {
+        db.query('SELECT first_name, last_name, phone, email FROM customers WHERE id = ?', [req.user.id], (cErr, cRows) => {
             if (!cErr && cRows.length > 0) {
                 const cust = cRows[0];
                 sendGallaboxWhatsAppNotification('emi_query', cust.phone || req.user.phone, {
@@ -3650,6 +3750,18 @@ app.post('/api/loan-application', customerAuth, loanUploadFields, (req, res) => 
                     loan_amount: req.body.loan_amount || '₹5,00,000',
                     monthly_emi: req.body.monthly_emi || '₹9,500'
                 });
+
+                // Neodove CRM Push
+                pushLeadToNeodove({
+                    name: `${cust.first_name || ''} ${cust.last_name || ''}`.trim() || 'Valued Customer',
+                    mobile: cust.phone || req.user.phone,
+                    email: cust.email,
+                    car_interested: req.body.car_name || 'Vehicle Loan Application',
+                    urgency: 'Loan Application',
+                    summary: `Loan Application #${loanData.application_no}. Amount: ${req.body.loan_amount || 'N/A'}, EMI: ${req.body.monthly_emi || 'N/A'}, Profession: ${profession_type || 'N/A'}`,
+                    budget: req.body.loan_amount,
+                    agent: 'Finance & Loan'
+                }, getSetting).catch(e => console.error('[Neodove Loan Error]:', e.message));
             }
         });
 
@@ -3801,6 +3913,16 @@ app.post('/api/insurance/request', (req, res) => {
             directLink: 'https://admin.selectt.in/leads'
         }).catch(e => console.error('SMTP Insurance Alert Error:', e.message));
 
+        // Neodove CRM Push
+        pushLeadToNeodove({
+            name: `Insurance Lead (${cleanVehicle})`,
+            mobile: cleanPhone,
+            car_interested: `Vehicle: ${cleanVehicle}`,
+            urgency: 'Insurance Quote Request',
+            summary: `Car Insurance Quote #${requestNo}. Vehicle: ${cleanVehicle}, Plan: ${insuranceData.plan_type || 'Comprehensive'}`,
+            agent: 'Insurance System'
+        }, getSetting).catch(e => console.error('[Neodove Insurance Error]:', e.message));
+
         res.status(201).json({
             success: true,
             message: 'Insurance quote request submitted successfully',
@@ -3937,15 +4059,16 @@ app.post('/api/bookings', customerAuth, (req, res) => {
                 }
 
                 // Gallabox WhatsApp Automated Trigger
-                db.query('SELECT c.first_name, c.last_name, c.phone, car.id AS car_id, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
+                db.query('SELECT c.first_name, c.last_name, c.phone, c.email, car.id AS car_id, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
                     if (!cErr && cRows.length > 0) {
                         const info = cRows[0];
                         const receiptUrl = `${req.protocol}://${req.get('host')}/api/bookings/${result.insertId}/receipt`;
                         const carUrl = `https://selectt.in/car/${car_id}`;
                         const pdfUrl = `${receiptUrl}?format=pdf`;
+                        const carTitle = `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim();
                         sendGallaboxWhatsAppNotification('car_booking', info.phone || req.user.phone, {
                             customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
-                            car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
+                            car_name: carTitle,
                             amount: `₹${Number(data.booking_amount).toLocaleString()}`,
                             booking_id: data.booking_no,
                             receipt_link: receiptUrl,
@@ -3953,6 +4076,18 @@ app.post('/api/bookings', customerAuth, (req, res) => {
                             pdf_url: pdfUrl,
                             car_url: carUrl
                         });
+
+                        // Neodove CRM Push
+                        pushLeadToNeodove({
+                            name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
+                            mobile: info.phone || req.user.phone,
+                            email: info.email,
+                            car_interested: carTitle,
+                            urgency: 'Car Booking Initiated',
+                            summary: `Car Booking #${data.booking_no} for ${carTitle}. Token: ₹${Number(data.booking_amount).toLocaleString('en-IN')}, Final: ₹${Number(data.final_amount).toLocaleString('en-IN')}. Loan: ${data.interested_in_loan ? 'Yes' : 'No'}`,
+                            budget: data.final_amount,
+                            agent: 'Booking System'
+                        }, getSetting).catch(e => console.error('[Neodove Booking Error]:', e.message));
                     }
                     res.status(201).json({ 
                         message: 'Booking created successfully', 
@@ -4373,6 +4508,120 @@ app.get('/api/settings/public', (req, res) => {
 });
 
 // ============================================================
+// NEODOVE CRM INTEGRATION API (ADMIN)
+// ============================================================
+
+// 1. Get CRM Status & Stats
+app.get('/api/admin/crm/status', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const webhookUrl = await getSetting('neodove_webhook_url') || process.env.NEODOVE_WEBHOOK_URL || 'https://eda0390f-321a-469b-8626-96ccef23232f.neodove.com/integration/custom/1b3a4680-2005-4ede-a529-3ce4d5e8bb86/leads';
+        const enabledSetting = await getSetting('neodove_enabled');
+        const enabled = enabledSetting !== null ? (enabledSetting !== 'false' && enabledSetting !== '0') : true;
+        const updateExistingSetting = await getSetting('neodove_update_existing');
+        const updateExisting = updateExistingSetting !== null ? updateExistingSetting !== 'false' : true;
+
+        const [custCount] = await queryAsync('SELECT COUNT(*) as total, COUNT(neodove_synced_at) as synced FROM customers');
+
+        res.json({
+            success: true,
+            enabled,
+            webhookUrl,
+            updateExisting,
+            customersTotal: custCount ? custCount.total : 0,
+            customersSynced: custCount ? custCount.synced : 0,
+            customersPending: custCount ? (custCount.total - custCount.synced) : 0
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 2. Test Connection to Neodove Webhook
+app.post('/api/admin/crm/test', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { webhookUrl } = req.body;
+        const targetUrl = webhookUrl || await getSetting('neodove_webhook_url');
+        const result = await testNeodoveConnection(targetUrl);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 3. Sync Single Customer to Neodove
+app.post('/api/admin/crm/sync-customer/:id', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const [customer] = await queryAsync('SELECT * FROM customers WHERE id = ?', [req.params.id]);
+        if (!customer) {
+            return res.status(404).json({ success: false, message: 'Customer not found' });
+        }
+        const result = await pushCustomerToNeodove(customer, getSetting);
+        if (result.success) {
+            await queryAsync('UPDATE customers SET neodove_synced_at = NOW() WHERE id = ?', [customer.id]);
+            res.json({ 
+                success: true, 
+                message: `Customer "${customer.first_name || ''} ${customer.last_name || ''}" successfully synced to Neodove CRM!`,
+                synced_at: new Date()
+            });
+        } else {
+            res.status(400).json({ success: false, message: result.error || result.message || 'Failed to sync customer to Neodove' });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 4. Bulk Sync All Customers to Neodove
+app.post('/api/admin/crm/sync-customers', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { onlyUnsynced } = req.body || {};
+        const query = onlyUnsynced 
+            ? 'SELECT * FROM customers WHERE neodove_synced_at IS NULL ORDER BY id ASC'
+            : 'SELECT * FROM customers ORDER BY id ASC';
+        
+        const customers = await queryAsync(query);
+
+        if (!customers || customers.length === 0) {
+            return res.json({
+                success: true,
+                message: onlyUnsynced ? 'All customers are already synced with Neodove CRM!' : 'No customers found to sync.',
+                stats: { total: 0, synced: 0, failed: 0, skipped: 0, errors: [] }
+            });
+        }
+
+        const stats = { total: customers.length, synced: 0, failed: 0, skipped: 0, errors: [] };
+
+        for (const cust of customers) {
+            try {
+                const r = await pushCustomerToNeodove(cust, getSetting);
+                if (r.success) {
+                    stats.synced++;
+                    await queryAsync('UPDATE customers SET neodove_synced_at = NOW() WHERE id = ?', [cust.id]);
+                } else if (r.skipped) {
+                    stats.skipped++;
+                } else {
+                    stats.failed++;
+                    stats.errors.push(`Customer #${cust.id} (${cust.phone}): ${r.error || r.message}`);
+                }
+            } catch (cErr) {
+                stats.failed++;
+                stats.errors.push(`Customer #${cust.id}: ${cErr.message}`);
+            }
+            // Small pause between records
+            await new Promise(r => setTimeout(r, 120));
+        }
+
+        res.json({
+            success: true,
+            message: `Sync complete! Successfully synced ${stats.synced} of ${stats.total} customer accounts to Neodove CRM.`,
+            stats
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ============================================================
 // CAREERS MODULE (PUBLIC & ADMIN)
 // ============================================================
 
@@ -4762,6 +5011,18 @@ app.post('/api/payments/verify', customerAuth, async (req, res) => {
                                 } catch (_) {}
 
                                 createNotification('PAYMENT', `Token payment of ₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')} received for booking #${info.booking_no} (${info.make} ${info.model})`, req.user.id, booking_id);
+
+                                // Neodove CRM Push (Confirmed Payment)
+                                const carTitle = `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim();
+                                pushLeadToNeodove({
+                                    name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
+                                    mobile: recipientPhone,
+                                    car_interested: carTitle,
+                                    urgency: 'Car Booking Confirmed (Token Paid)',
+                                    summary: `Payment Confirmed! Booking #${info.booking_no || booking_id} for ${carTitle}. Token: ₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')}, Final: ₹${Number(info.final_amount || 0).toLocaleString('en-IN')}. Razorpay Order: ${razorpay_order_id}`,
+                                    budget: info.final_amount,
+                                    agent: 'Payment Verified'
+                                }, getSetting).catch(e => console.error('[Neodove Payment Verify Error]:', e.message));
                             }
                         }
                     );
@@ -5280,364 +5541,6 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
     <a class="btn btn-teal" href="${pdfDownloadUrl}">⬇ Download PDF Receipt</a>
     <button class="btn btn-dark" onclick="window.print()">🖨 Print Receipt</button>
     <a class="btn btn-outline" href="${carUrl}" target="_blank">View Car Listing ↗</a>
-  </div>
-</body>
-</html>`;
-    .receipt-card {
-      background: #ffffff;
-      max-width: 680px;
-      width: 100%;
-      border-radius: 20px;
-      padding: 36px 40px;
-      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
-      border: 1px solid #e2e8f0;
-      position: relative;
-    }
-    .top-bar {
-      height: 6px;
-      background: #00C9AF;
-      border-radius: 20px 20px 0 0;
-      margin: -36px -40px 24px -40px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      border-bottom: 2px dashed #e2e8f0;
-      padding-bottom: 20px;
-      margin-bottom: 22px;
-    }
-    .brand-logo {
-      height: 38px;
-      max-width: 170px;
-      object-fit: contain;
-    }
-    .company-title {
-      font-size: 13px;
-      font-weight: 800;
-      color: #0C1B33;
-      margin-top: 4px;
-    }
-    .company-sub {
-      font-size: 10px;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .receipt-title {
-      text-align: right;
-    }
-    .receipt-title h2 {
-      font-size: 18px;
-      font-weight: 800;
-      color: #0C1B33;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .receipt-no {
-      font-size: 13px;
-      font-weight: 700;
-      color: #00A38D;
-      margin-top: 3px;
-    }
-    .receipt-date {
-      font-size: 11px;
-      color: #64748b;
-      margin-top: 2px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 10.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      background: #ecfdf5;
-      color: #047857;
-      border: 1px solid #a7f3d0;
-      margin-top: 5px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .info-box {
-      background: #f8fafc;
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: 1px solid #edf2f7;
-    }
-    .info-label {
-      font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: #64748b;
-      margin-bottom: 5px;
-      letter-spacing: 0.5px;
-    }
-    .info-val {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #0f172a;
-      line-height: 1.4;
-    }
-    .info-sub {
-      font-size: 11.5px;
-      color: #64748b;
-      margin-top: 2px;
-    }
-    .car-box {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      padding: 14px 18px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-    }
-    .car-box .info-label {
-      color: #166534;
-    }
-    .car-box a {
-      color: #00A38D;
-      text-decoration: underline;
-      font-size: 11.5px;
-      display: inline-block;
-      margin-top: 4px;
-      font-weight: 600;
-    }
-    .table-container {
-      margin-bottom: 20px;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    th {
-      background: #f8fafc;
-      text-align: left;
-      padding: 10px 14px;
-      font-weight: 700;
-      color: #475569;
-      border-bottom: 1px solid #e2e8f0;
-      text-transform: uppercase;
-      font-size: 10.5px;
-      letter-spacing: 0.5px;
-    }
-    td {
-      padding: 11px 14px;
-      border-bottom: 1px solid #f1f5f9;
-      color: #1e293b;
-    }
-    tr:last-child td {
-      border-bottom: none;
-    }
-    .text-right { text-align: right; }
-    .amount-highlight {
-      font-size: 16px;
-      font-weight: 800;
-      color: #047857;
-    }
-    .guarantee-box {
-      background: #f0fdfa;
-      border: 1px solid #ccfbf1;
-      padding: 12px 16px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      font-size: 11.5px;
-      color: #115e59;
-      line-height: 1.5;
-    }
-    .signatory-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      padding-top: 16px;
-      border-top: 1px solid #e2e8f0;
-      margin-bottom: 16px;
-    }
-    .contact-info {
-      font-size: 10.5px;
-      color: #64748b;
-      line-height: 1.5;
-    }
-    .signatory-box {
-      text-align: right;
-    }
-    .signatory-box img {
-      height: 32px;
-      max-width: 130px;
-      object-fit: contain;
-      margin-bottom: 4px;
-    }
-    .seal-badge {
-      display: inline-block;
-      padding: 3px 8px;
-      background: #f0fdfa;
-      border: 1px solid #99f6e4;
-      color: #008F7C;
-      font-size: 9.5px;
-      font-weight: 800;
-      border-radius: 6px;
-      margin-bottom: 4px;
-    }
-    .footer-note {
-      font-size: 10px;
-      color: #94a3b8;
-      text-align: center;
-      padding-top: 12px;
-      border-top: 1px solid #f1f5f9;
-      font-style: italic;
-    }
-    .print-actions {
-      margin-top: 24px;
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .btn {
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 12.5px;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: none;
-      transition: all 0.2s;
-    }
-    .btn-primary {
-      background: #00C9AF;
-      color: #0C1B33;
-    }
-    .btn-primary:hover {
-      background: #00b49d;
-    }
-    .btn-navy {
-      background: #0C1B33;
-      color: #ffffff;
-    }
-    .btn-navy:hover {
-      background: #162947;
-    }
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #334155;
-    }
-    .btn-secondary:hover {
-      background: #cbd5e1;
-    }
-    @media print {
-      body { background: #ffffff; padding: 0; }
-      .receipt-card { border: none; box-shadow: none; padding: 0; max-width: 100%; }
-      .print-actions { display: none !important; }
-      .top-bar { margin: 0 0 20px 0; border-radius: 0; }
-    }
-  </style>
-</head>
-<body>
-  <div class="receipt-card">
-    <div class="top-bar"></div>
-    <div class="header">
-      <div>
-        <img src="${logoDataUri}" alt="${companyName}" class="brand-logo" onerror="this.onerror=null; this.src='https://selectt.in/img/dark-logo.svg'">
-        <div class="company-title">${companyName}</div>
-        <div class="company-sub">${receiptSubtitle}</div>
-      </div>
-      <div class="receipt-title">
-        <h2>${receiptTitle}</h2>
-        <div class="receipt-no">#${b.booking_no || b.id}</div>
-        <div class="receipt-date">${formattedDate}</div>
-        <div class="badge">Payment Confirmed</div>
-      </div>
-    </div>
-
-    <div class="grid-2">
-      <div class="info-box">
-        <div class="info-label">Customer Details</div>
-        <div class="info-val">${customerName}</div>
-        <div class="info-sub">+${b.phone || 'N/A'}</div>
-        <div class="info-sub">${b.email || 'N/A'}</div>
-      </div>
-      <div class="info-box">
-        <div class="info-label">Payment & Date</div>
-        <div class="info-val">₹${bookingAmount.toLocaleString('en-IN')}</div>
-        <div class="info-sub">Payment ID: ${b.razorpay_payment_id || 'Verified Online'}</div>
-        <div class="info-sub">Status: Successful (Razorpay)</div>
-      </div>
-    </div>
-
-    <div class="car-box">
-      <div class="info-label">Reserved Vehicle</div>
-      <div class="info-val" style="font-size: 15px; color: #0C1B33;">${carTitle}</div>
-      <div class="info-sub">${Number(b.km_driven || 0).toLocaleString('en-IN')} KM • ${b.fuel_type || 'Petrol'} • ${b.transmission || 'Manual'}</div>
-      <div>
-        <a href="${carUrl}" target="_blank">View vehicle listing on website ↗</a>
-      </div>
-    </div>
-
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th class="text-right">Amount (INR)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Total Vehicle On-Road Price</td>
-            <td class="text-right">₹${totalAmount.toLocaleString('en-IN')}</td>
-          </tr>
-          <tr>
-            <td><strong>Token Booking Advance Paid</strong></td>
-            <td class="text-right amount-highlight">₹${bookingAmount.toLocaleString('en-IN')}</td>
-          </tr>
-          <tr>
-            <td>Remaining Balance Due at Delivery</td>
-            <td class="text-right" style="font-weight: 700;">₹${remainingAmount.toLocaleString('en-IN')}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="guarantee-box">
-      <strong>Selectt Assured 100% Refundable Guarantee:</strong><br>
-      ${guaranteeText}
-    </div>
-
-    <div class="signatory-row">
-      <div class="contact-info">
-        <strong>${companyName}</strong><br>
-        Phone: ${companyPhone} • Email: ${companyEmail}<br>
-        Website: ${companyWebsite}<br>
-        Address: ${companyAddress}<br>
-        ${gstin ? `GSTIN: ${gstin}` : ''}
-      </div>
-      <div class="signatory-box">
-        ${signatureUrl ? `<img src="${signatureDataUri}" alt="Signature" /><br>` : (showDigitalStamp ? `<div class="seal-badge">DIGITALLY VERIFIED</div><br>` : '')}
-        <strong style="font-size:11px;color:#0C1B33;">${signatoryName}</strong><br>
-        <span style="font-size:10px;color:#64748b;">${signatoryTitle}</span>
-      </div>
-    </div>
-
-    <div class="footer-note">
-      ${footerNote}
-    </div>
-
-    <div class="print-actions">
-      <a class="btn btn-primary" href="${pdfDownloadUrl}">Download PDF Receipt</a>
-      <button class="btn btn-navy" onclick="window.print()">Print Receipt</button>
-      <a class="btn btn-secondary" href="${carUrl}" target="_blank">View Car Details ↗</a>
-    </div>
   </div>
 </body>
 </html>`;

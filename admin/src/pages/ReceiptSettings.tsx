@@ -235,7 +235,7 @@ const ReceiptSettings: React.FC = () => {
                       type="text"
                       value={settings.receipt_company_name}
                       onChange={(e) => handleChange("receipt_company_name", e.target.value)}
-                      placeholder="Selectt Cars India Private Limited"
+                      placeholder="SELECTT FIRST PVT LTD"
                     />
                   </div>
                   <div>
@@ -244,7 +244,7 @@ const ReceiptSettings: React.FC = () => {
                       type="text"
                       value={settings.receipt_gstin}
                       onChange={(e) => handleChange("receipt_gstin", e.target.value)}
-                      placeholder="27AAACS9821L1ZM"
+                      placeholder="27AACE3859E1ZJ"
                     />
                   </div>
                 </div>

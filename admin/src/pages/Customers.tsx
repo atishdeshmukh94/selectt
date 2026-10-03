@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Edit, Trash2, X, Users, Phone, Mail, MapPin, Download, Eye, Camera, User, Loader, Filter, RotateCcw, Calendar } from "lucide-react";
+import { Search, Edit, Trash2, X, Users, Phone, Mail, MapPin, Download, Eye, Camera, User, Loader, Filter, RotateCcw, Calendar, Cloud, CheckCircle2, RefreshCw } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import PageMeta from "../components/common/PageMeta";
 import AvatarCropModal from "../components/common/AvatarCropModal";
@@ -12,6 +12,11 @@ export default function Customers() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // CRM Sync State
+  const [syncingCrm, setSyncingCrm] = useState(false);
+  const [syncingSingleId, setSyncingSingleId] = useState<number | null>(null);
+  const [crmSyncMessage, setCrmSyncMessage] = useState<string | null>(null);
+
   // Filter States
   const [search, setSearch] = useState("");
   const [dateFilter, setDateFilter] = useState("all");
@@ -187,6 +192,49 @@ export default function Customers() {
     document.body.removeChild(link);
   };
 
+  const handleSyncAllToCrm = async (onlyUnsynced = false) => {
+    try {
+      setSyncingCrm(true);
+      setCrmSyncMessage(null);
+      const res = await fetch(`${API}/api/admin/crm/sync-customers`, {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({ onlyUnsynced })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setCrmSyncMessage(data.message);
+        fetchCustomers();
+      } else {
+        alert(data.message || data.error || "Failed to sync customers to Neodove CRM");
+      }
+    } catch (e: any) {
+      alert("Error syncing to Neodove CRM: " + e.message);
+    } finally {
+      setSyncingCrm(false);
+    }
+  };
+
+  const handleSyncSingleToCrm = async (c: any) => {
+    try {
+      setSyncingSingleId(c.id);
+      const res = await fetch(`${API}/api/admin/crm/sync-customer/${c.id}`, {
+        method: "POST",
+        headers: authHeaders
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        fetchCustomers();
+      } else {
+        alert(data.message || "Failed to sync customer to Neodove");
+      }
+    } catch (e: any) {
+      alert("Error: " + e.message);
+    } finally {
+      setSyncingSingleId(null);
+    }
+  };
+
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this customer?")) return;
     await fetch(`${API}/api/customers/${id}`, { method: "DELETE", headers: authHeaders });
@@ -205,13 +253,36 @@ export default function Customers() {
             <h1 className="text-xl font-bold text-gray-800 dark:text-white">Customers</h1>
             <p className="text-sm text-gray-500">{customers.length} registered accounts ({filtered.length} matching filter)</p>
           </div>
-          {user?.role === "admin" && (
-            <button onClick={handleExport}
-              className="flex items-center gap-2 bg-[#0C1B33] hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer">
-              <Download size={16} /> Export CSV ({filtered.length})
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => handleSyncAllToCrm(false)}
+              disabled={syncingCrm}
+              className="flex items-center gap-2 bg-[#00C9AF] hover:bg-[#00b49d] text-[#0C1B33] px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50"
+              title="Push customer accounts to Neodove CRM"
+            >
+              <Cloud size={16} className={syncingCrm ? "animate-bounce" : ""} />
+              <span>{syncingCrm ? "Syncing to Neodove..." : "Sync All to Neodove CRM"}</span>
             </button>
-          )}
+            {user?.role === "admin" && (
+              <button onClick={handleExport}
+                className="flex items-center gap-2 bg-[#0C1B33] hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer">
+                <Download size={16} /> Export CSV ({filtered.length})
+              </button>
+            )}
+          </div>
         </div>
+
+        {crmSyncMessage && (
+          <div className="flex items-center justify-between p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-semibold animate-in fade-in">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+              <span>{crmSyncMessage}</span>
+            </div>
+            <button onClick={() => setCrmSyncMessage(null)} className="p-1 hover:bg-emerald-100 rounded text-emerald-700 cursor-pointer">
+              <X size={14} />
+            </button>
+          </div>
+        )}
 
         {/* Filter Controls Bar */}
         <div className="bg-white dark:bg-gray-900 p-4 sm:p-5 rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-2xs space-y-3.5">
@@ -354,7 +425,7 @@ export default function Customers() {
               <table className="w-full text-xs">
                 <thead className="bg-gray-100/90 dark:bg-gray-800 text-xs font-extrabold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
                   <tr>
-                    {["Name & ID", "Phone", "Email", "City", "Registered", "Actions"].map(h => (
+                    {["Name & ID", "Phone", "Email", "City", "Registered", "CRM Sync", "Actions"].map(h => (
                       <th key={h} className="px-4 py-3 text-left whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -390,8 +461,30 @@ export default function Customers() {
                           {new Date(c.created_at).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' })}
                         </div>
                       </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {c.neodove_synced_at ? (
+                          <span 
+                            title={`Synced to Neodove: ${new Date(c.neodove_synced_at).toLocaleString('en-IN')}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                          >
+                            <CheckCircle2 size={11} /> Synced
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-500 dark:bg-gray-800 dark:text-gray-400 border border-slate-200 dark:border-gray-700">
+                            Pending
+                          </span>
+                        )}
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
+                          <button 
+                            onClick={() => handleSyncSingleToCrm(c)} 
+                            disabled={syncingSingleId === c.id}
+                            title="Push Customer to Neodove CRM" 
+                            className="p-1.5 hover:bg-cyan-50 text-cyan-600 dark:hover:bg-cyan-950/40 rounded-lg transition-colors cursor-pointer disabled:opacity-40"
+                          >
+                            <Cloud size={15} className={syncingSingleId === c.id ? "animate-spin" : ""} />
+                          </button>
                           <button onClick={() => setViewing(c)} title="View Details" className="p-1.5 hover:bg-emerald-50 text-emerald-600 rounded-lg transition-colors cursor-pointer"><Eye size={15} /></button>
                           <button onClick={() => openEdit(c)} title="Edit Customer" className="p-1.5 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors cursor-pointer"><Edit size={15} /></button>
                           <button onClick={() => handleDelete(c.id)} title="Delete Customer" className="p-1.5 hover:bg-red-50 text-red-500 rounded-lg transition-colors cursor-pointer"><Trash2 size={15} /></button>

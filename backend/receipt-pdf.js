@@ -160,8 +160,8 @@ async function generateBookingReceiptPdf(data) {
       });
 
       // Settings
-      const companyName = data.receipt_company_name || 'Selectt Mobility';
-      const companyGstin = data.receipt_gstin || 'PAN CQHPD8366F';
+      const companyName = data.receipt_company_name || 'SELECTT FIRST PVT LTD';
+      const companyGstin = data.receipt_gstin || '27AACE3859E1ZJ';
       const companyPhone = data.receipt_company_phone || '8574667466';
       const companyEmail = data.receipt_company_email || 'hello@selectt.in';
       const companyAddress = data.receipt_company_address || '906, 9th Floor, Techno IT Park, Near Eksar Metro, Link Road, Borivali West, Mumbai 400092';
