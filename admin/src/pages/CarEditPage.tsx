@@ -51,6 +51,9 @@ const CarEditPage = () => {
   const [videoUploadFileName, setVideoUploadFileName] = useState("");
   const [videoUploadError, setVideoUploadError] = useState("");
   const [brandsList, setBrandsList] = useState<any[]>([]);
+  const [isCustomMake, setIsCustomMake] = useState(false);
+  const [isCustomModel, setIsCustomModel] = useState(false);
+  const [isCustomVariant, setIsCustomVariant] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -941,22 +944,10 @@ const CarEditPage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                   {/* Car Custom Title Field */}
                   <div className="col-span-full pb-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5 ml-1">
-                      <label className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                        <span>Vehicle Display / Meta Catalog Title</span>
-                        <span className="text-[11px] font-medium text-slate-400 dark:text-gray-500">(Auto-generated or custom title)</span>
+                    <div className="mb-1.5 ml-1">
+                      <label className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                        Vehicle Display / Meta Catalog Title
                       </label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const auto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
-                          setFormData({ ...formData, title: auto });
-                          toast.success("Title reset to default vehicle name!");
-                        }}
-                        className="text-xs font-bold text-[#155DFC] hover:text-[#00B49D] flex items-center gap-1 transition-colors cursor-pointer w-fit"
-                      >
-                        <span>✨ Auto-Generate Name</span>
-                      </button>
                     </div>
                     <input 
                       type="text" 
@@ -971,34 +962,53 @@ const CarEditPage = () => {
                   </div>
 
                   <div>
-                    <label className={labelClass}>
-                      Make (Brand) <span className="text-rose-500 font-black ml-1">*</span>
-                    </label>
-                    <div className="space-y-1.5">
+                    <div className="flex items-center justify-between mb-1.5 ml-1">
+                      <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                        Make (Brand) <span className="text-rose-500 font-black ml-1">*</span>
+                      </label>
                       {brandsList.length > 0 && (
-                        <select 
-                          className={inpClass} 
-                          value={brandsList.some(b => b.name?.toLowerCase() === (formData.make || '').toLowerCase()) ? formData.make : ""} 
-                          onChange={e => {
-                            const newMake = e.target.value;
-                            if (!newMake) return;
-                            const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
-                            const nextAuto = `${formData.year || ''} ${newMake || ''}`.replace(/\s+/g, ' ').trim();
-                            const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
-                            setFormData({
-                              ...formData, 
-                              make: newMake, 
-                              model: "",
-                              title: isUntouched ? nextAuto : formData.title
-                            });
-                          }}
+                        <button
+                          type="button"
+                          onClick={() => setIsCustomMake(!isCustomMake)}
+                          className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline cursor-pointer"
                         >
-                          <option value="">Select Brand from Catalog...</option>
-                          {brandsList.map(b => (
-                            <option key={b.id || b.name} value={b.name}>{b.name}</option>
-                          ))}
-                        </select>
+                          {isCustomMake ? "← Catalog List" : "+ Custom Brand"}
+                        </button>
                       )}
+                    </div>
+                    {brandsList.length > 0 && !isCustomMake ? (
+                      <select 
+                        className={inpClass} 
+                        value={brandsList.some(b => b.name?.toLowerCase() === (formData.make || '').toLowerCase()) ? formData.make : (formData.make || "")} 
+                        onChange={e => {
+                          const newMake = e.target.value;
+                          if (newMake === "__custom__") {
+                            setIsCustomMake(true);
+                            return;
+                          }
+                          if (!newMake) return;
+                          const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                          const nextAuto = `${formData.year || ''} ${newMake || ''}`.replace(/\s+/g, ' ').trim();
+                          const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
+                          setFormData({
+                            ...formData, 
+                            make: newMake, 
+                            model: "",
+                            title: isUntouched ? nextAuto : formData.title
+                          });
+                        }}
+                        required
+                      >
+                        <option value="">Select Brand...</option>
+                        {brandsList.map(b => (
+                          <option key={b.id || b.name} value={b.name}>{b.name}</option>
+                        ))}
+                        {formData.make && !brandsList.some(b => b.name?.toLowerCase() === (formData.make || '').toLowerCase()) && (
+                          <option value={formData.make}>{formData.make}</option>
+                        )}
+                        <option value="__custom__">+ Enter Custom Brand...</option>
+                      </select>
+                    ) : (
                       <input
                         type="text"
                         className={inpClass}
@@ -1014,16 +1024,13 @@ const CarEditPage = () => {
                             title: isUntouched ? nextAuto : formData.title
                           });
                         }}
-                        placeholder="Or enter brand name (e.g. Skoda, Hyundai, MG)"
+                        placeholder="Enter brand name (e.g. Skoda, Hyundai, MG)"
                         required
                       />
-                    </div>
+                    )}
                   </div>
 
                   <div>
-                    <label className={labelClass}>
-                      Model <span className="text-rose-500 font-black ml-1">*</span>
-                    </label>
                     {(() => {
                       const availableModels = brandsList.find(b => b.name?.toLowerCase() === (formData.make || '').toLowerCase())?.models || [];
 
@@ -1039,38 +1046,61 @@ const CarEditPage = () => {
                       };
 
                       return (
-                        <div className="space-y-1.5">
-                          {availableModels.length > 0 && (
+                        <>
+                          <div className="flex items-center justify-between mb-1.5 ml-1">
+                            <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                              Model <span className="text-rose-500 font-black ml-1">*</span>
+                            </label>
+                            {availableModels.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setIsCustomModel(!isCustomModel)}
+                                className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline cursor-pointer"
+                              >
+                                {isCustomModel ? "← Catalog List" : "+ Custom Model"}
+                              </button>
+                            )}
+                          </div>
+                          {availableModels.length > 0 && !isCustomModel ? (
                             <select 
                               className={inpClass} 
-                              value={availableModels.some((m: any) => m.name?.toLowerCase() === (formData.model || '').toLowerCase()) ? formData.model : ""} 
+                              value={availableModels.some((m: any) => m.name?.toLowerCase() === (formData.model || '').toLowerCase()) ? formData.model : (formData.model || "")} 
                               onChange={e => {
-                                if (e.target.value) handleModelChange(e.target.value);
+                                if (e.target.value === "__custom__") {
+                                  setIsCustomModel(true);
+                                } else if (e.target.value) {
+                                  handleModelChange(e.target.value);
+                                }
                               }}
+                              required
                             >
-                              <option value="">Select Catalog Model...</option>
+                              <option value="">Select Model...</option>
                               {availableModels.map((m: any) => (
                                 <option key={m.id || m.name} value={m.name}>{m.name}</option>
                               ))}
+                              {formData.model && !availableModels.some((m: any) => m.name?.toLowerCase() === (formData.model || '').toLowerCase()) && (
+                                <option value={formData.model}>{formData.model}</option>
+                              )}
+                              <option value="__custom__">+ Enter Custom Model...</option>
                             </select>
+                          ) : (
+                            <input
+                              type="text"
+                              className={inpClass}
+                              value={formData.model || ''}
+                              onChange={e => handleModelChange(e.target.value)}
+                              placeholder={availableModels.length > 0 ? "Enter model name (e.g. Kylaq / Kushaq)..." : "Enter car model (e.g. Kylaq, Creta, Fortuner)"}
+                              required
+                            />
                           )}
-                          <input
-                            type="text"
-                            className={inpClass}
-                            value={formData.model || ''}
-                            onChange={e => handleModelChange(e.target.value)}
-                            placeholder={availableModels.length > 0 ? "Or type / edit model name (e.g. Kylaq / Kushaq)..." : "Enter car model (e.g. Kylaq, Creta, Fortuner, Thar)"}
-                            required
-                          />
-                        </div>
+                        </>
                       );
                     })()}
                   </div>
 
                   <div>
-                    <label className={labelClass}>Variant</label>
                     {(() => {
-                      const selectedModelObj = brandsList.find(b => b.name === formData.make)?.models?.find((m: any) => m.name === formData.model);
+                      const selectedModelObj = brandsList.find(b => b.name?.toLowerCase() === (formData.make || '').toLowerCase())?.models?.find((m: any) => m.name?.toLowerCase() === (formData.model || '').toLowerCase());
                       const modelVariants = selectedModelObj?.variants || [];
 
                       const handleVariantChange = (newVariant: string) => {
@@ -1085,27 +1115,50 @@ const CarEditPage = () => {
                       };
 
                       return (
-                        <div className="space-y-1.5">
-                          {modelVariants.length > 0 && (
+                        <>
+                          <div className="flex items-center justify-between mb-1.5 ml-1">
+                            <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Variant</label>
+                            {modelVariants.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setIsCustomVariant(!isCustomVariant)}
+                                className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline cursor-pointer"
+                              >
+                                {isCustomVariant ? "← Catalog List" : "+ Custom Variant"}
+                              </button>
+                            )}
+                          </div>
+                          {modelVariants.length > 0 && !isCustomVariant ? (
                             <select
                               className={inpClass}
-                              value={formData.variant}
-                              onChange={e => handleVariantChange(e.target.value)}
+                              value={modelVariants.some((v: any) => v.name?.toLowerCase() === (formData.variant || '').toLowerCase()) ? formData.variant : (formData.variant || "")}
+                              onChange={e => {
+                                if (e.target.value === "__custom__") {
+                                  setIsCustomVariant(true);
+                                } else {
+                                  handleVariantChange(e.target.value);
+                                }
+                              }}
                             >
-                              <option value="">Select Catalog Variant...</option>
+                              <option value="">Select Variant...</option>
                               {modelVariants.map((v: any) => (
-                                <option key={v.id} value={v.name}>{v.name}</option>
+                                <option key={v.id || v.name} value={v.name}>{v.name}</option>
                               ))}
+                              {formData.variant && !modelVariants.some((v: any) => v.name?.toLowerCase() === (formData.variant || '').toLowerCase()) && (
+                                <option value={formData.variant}>{formData.variant}</option>
+                              )}
+                              <option value="__custom__">+ Enter Custom Variant...</option>
                             </select>
+                          ) : (
+                            <input
+                              type="text"
+                              className={inpClass}
+                              value={formData.variant || ''}
+                              onChange={e => handleVariantChange(e.target.value)}
+                              placeholder="e.g. Signature MT / SX (O) / Asta"
+                            />
                           )}
-                          <input
-                            type="text"
-                            className={inpClass}
-                            value={formData.variant}
-                            onChange={e => handleVariantChange(e.target.value)}
-                            placeholder="e.g. SX (O) / Asta"
-                          />
-                        </div>
+                        </>
                       );
                     })()}
                   </div>
@@ -1160,38 +1213,12 @@ const CarEditPage = () => {
 
                   <div>
                     <label className={labelClass}>
-                      RTO Code <span className="text-gray-400 text-xs font-normal">(e.g. MH01, DL3C)</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      className={inpClass} 
-                      value={formData.rto_code || ""} 
-                      onChange={e => setFormData({...formData, rto_code: e.target.value.toUpperCase()})} 
-                      placeholder="e.g. MH01" 
-                    />
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>
                       Body Type <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
                     <select className={inpClass} value={formData.bodyType || ""} onChange={e => setFormData({...formData, bodyType: e.target.value})}>
                       <option value="">Select Body Type...</option>
                       {["Hatchback", "Sedan", "SUV", "Compact SUV", "MUV", "Luxury Sedan", "Luxury SUV"].map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>
-                      Location (City / Hub) <span className="text-rose-500 font-black ml-1">*</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      className={inpClass} 
-                      value={formData.location || ""} 
-                      onChange={e => setFormData({ ...formData, location: e.target.value, hub: e.target.value })} 
-                      placeholder="e.g. Eksar Village, Borivali West, Mumbai" 
-                    />
                   </div>
 
                   {/* Custom Details / Long Description Box in Step 1 */}
@@ -1573,6 +1600,19 @@ const CarEditPage = () => {
                 </div>
 
                 <div>
+                  <label className={labelClass}>
+                    RTO Code <span className="text-gray-400 text-xs font-normal">(e.g. MH01, DL3C)</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    className={inpClass} 
+                    value={formData.rto_code || ""} 
+                    onChange={e => setFormData({...formData, rto_code: e.target.value.toUpperCase()})} 
+                    placeholder="e.g. MH01" 
+                  />
+                </div>
+
+                <div>
                   <label className={labelClass}>Registration Number</label>
                   <input 
                     type="text" 
@@ -1580,6 +1620,19 @@ const CarEditPage = () => {
                     value={formData.registrationNo || formData.registration_no || ""} 
                     onChange={e => setFormData({...formData, registrationNo: e.target.value.toUpperCase(), registration_no: e.target.value.toUpperCase()})} 
                     placeholder="e.g. MH02DW8821" 
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>
+                    Location (City / Hub) <span className="text-rose-500 font-black ml-1">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    className={inpClass} 
+                    value={formData.location || formData.hub || ""} 
+                    onChange={e => setFormData({ ...formData, location: e.target.value, hub: e.target.value })} 
+                    placeholder="e.g. Eksar Village, Borivali West, Mumbai" 
                   />
                 </div>
 
@@ -1628,17 +1681,6 @@ const CarEditPage = () => {
                     <option value="Third Party">Third Party Only</option>
                     <option value="Expired">Expired</option>
                   </select>
-                </div>
-
-                <div>
-                  <label className={labelClass}>Hub / Showroom Location</label>
-                  <input 
-                    type="text" 
-                    className={inpClass} 
-                    value={formData.hub || ""} 
-                    onChange={e => setFormData({...formData, hub: e.target.value})} 
-                    placeholder="e.g. Andheri Hub, Mumbai" 
-                  />
                 </div>
 
                 <div className="sm:col-span-2 md:col-span-3">
