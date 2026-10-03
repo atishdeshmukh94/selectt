@@ -133,15 +133,15 @@ const RecentlyViewed = ({
           </button>
         </div>
 
-        <div className="overflow-hidden -mx-4 px-4 lg:mx-0 lg:px-0">
+        <div className="overflow-hidden -mx-4 px-4 lg:-mx-2 lg:px-2 py-4 -my-4">
           <div 
-            className="flex gap-4 transition-transform duration-500 ease-out"
+            className="flex gap-4 transition-transform duration-500 ease-out py-1.5"
             style={{ transform: `translateX(calc(-${currentIndex * 100}% / ${itemsPerView}))` }}
           >
             {carsList.map((car) => (
               <div 
                 key={`decide-${car.id}`} 
-                className="flex-none w-full sm:w-[calc(50%-8px)] lg:w-[calc(25%-12px)]"
+                className="flex-none w-full sm:w-[calc(50%-8px)] lg:w-[calc(25%-12px)] p-1"
               >
                 <CarCard car={car} lightBg={lightBg} />
               </div>
