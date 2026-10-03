@@ -65,6 +65,17 @@ async function getStLogoIconBuffer() {
  * @returns {Promise<Buffer>}
  */
 async function generateBookingReceiptPdf(data) {
+  // Load the real Selectt header logo (white version on dark, or the primary logo)
+  let headerLogoBuffer = null;
+  try {
+    const logoPath = path.join(__dirname, 'public', 'img', 'header-logo.png');
+    if (fs.existsSync(logoPath)) {
+      headerLogoBuffer = await sharp(fs.readFileSync(logoPath))
+        .resize({ height: 52, fit: 'inside', withoutEnlargement: true })
+        .png()
+        .toBuffer();
+    }
+  } catch (_) {}
   const stIconBuffer = await getStLogoIconBuffer();
 
   return new Promise((resolve, reject) => {
@@ -166,40 +177,80 @@ async function generateBookingReceiptPdf(data) {
       const contentWidth = 535;
 
       // ==========================================
-      // 1. TOP HEADER BANNER (Dark Navy Card)
+      // 1. HEADER — Clean professional corporate style
       // ==========================================
       let y = 28;
-      const headerHeight = 62;
-      doc.roundedRect(startX, y, contentWidth, headerHeight, 8).fill(DARK_NAVY);
 
-      // Logo Icon & Title on Left
-      if (stIconBuffer) {
+      // ── Top accent strip (teal bar, full width of content)
+      const accentH = 5;
+      doc.rect(startX, y, contentWidth, accentH).fill(TEAL);
+      y += accentH;
+
+      // ── White header area
+      const headerHeight = 64;
+      doc.rect(startX, y, contentWidth, headerHeight).fill('#FFFFFF');
+
+      // ── Thin outer border around header
+      doc.rect(startX, y, contentWidth, headerHeight).stroke(BORDER_LIGHT);
+
+      // ── Left side: Selectt logo
+      let logoPrintedW = 0;
+      if (headerLogoBuffer) {
         try {
-          doc.image(stIconBuffer, startX + 16, y + 14, { fit: [34, 34] });
+          // Resize to max height 40 inside header
+          const logoH = 38;
+          const logoW = Math.round(logoH * 2990 / 1000); // preserve aspect ratio
+          doc.image(headerLogoBuffer, startX + 14, y + 13, { height: logoH });
+          logoPrintedW = logoW + 20;
         } catch (_) {}
       }
 
-      // Title & Subtitle text
-      const titleX = startX + 58;
-      doc.font(FONT_BLD).fontSize(14).fillColor('#FFFFFF').text(companyName, titleX, y + 16);
-      doc.font(FONT_REG).fontSize(8).fillColor('#94A3B8').text(`selectt.in • ${companyGstin}`, titleX, y + 35);
+      // If logo failed, fallback to company name text
+      if (logoPrintedW === 0) {
+        doc.font(FONT_BLD).fontSize(16).fillColor(TEAL).text('Selectt', startX + 14, y + 20);
+        logoPrintedW = 80;
+      }
 
-      // Right Side: Cyan Pill Badge & Booking No
-      const pillWidth = 102;
-      const pillHeight = 18;
-      const pillX = startX + contentWidth - pillWidth - 16;
-      doc.roundedRect(pillX, y + 12, pillWidth, pillHeight, 9).fill('#00A896');
-      doc.font(FONT_BLD).fontSize(7.5).fillColor('#FFFFFF').text('BOOKING RECEIPT', pillX, y + 16.5, { width: pillWidth, align: 'center' });
+      // ── Thin vertical divider between logo and right block
+      const divX = startX + contentWidth - 190;
+      doc.moveTo(divX, y + 12).lineTo(divX, y + headerHeight - 12).strokeColor(BORDER_LIGHT).lineWidth(0.8).stroke();
 
-      doc.font(FONT_BLD).fontSize(8.5).fillColor('#F1F5F9').text(bookingNo, startX + contentWidth - 180, y + 34, { width: 164, align: 'right' });
-      doc.font(FONT_REG).fontSize(7.5).fillColor('#94A3B8').text(formattedDate, startX + contentWidth - 180, y + 46, { width: 164, align: 'right' });
+      // ── Right side: Receipt type label, booking no, date
+      const rightBlockX = divX + 16;
+      const rightBlockW = startX + contentWidth - rightBlockX - 12;
+
+      // "BOOKING RECEIPT" label
+      doc.font(FONT_BLD).fontSize(8).fillColor(TEAL)
+        .text('BOOKING RECEIPT', rightBlockX, y + 14, { width: rightBlockW, align: 'right' });
+
+      // Booking number
+      doc.font(FONT_BLD).fontSize(13).fillColor(DARK_TEXT)
+        .text(bookingNo, rightBlockX, y + 28, { width: rightBlockW, align: 'right' });
+
+      // Date
+      doc.font(FONT_REG).fontSize(7.5).fillColor(MUTED_LABEL)
+        .text(formattedDate, rightBlockX, y + 48, { width: rightBlockW, align: 'right' });
+
+      y += headerHeight;
+
+      // ── Bottom info strip: company full name + PAN on light grey band
+      const infoStripH = 20;
+      doc.rect(startX, y, contentWidth, infoStripH).fill('#F8FAFC');
+      doc.rect(startX, y, contentWidth, infoStripH).stroke(BORDER_LIGHT);
+
+      doc.font(FONT_BLD).fontSize(8).fillColor(DARK_TEXT)
+        .text(companyName, startX + 14, y + 6, { continued: true });
+      doc.font(FONT_REG).fillColor(MUTED_LABEL)
+        .text(`  •  ${companyGstin}  •  selectt.in`);
+
+      y += infoStripH;
 
       // ==========================================
       // 2. DISCLAIMER BANNER (Orange Alert Bar)
       // ==========================================
-      y += headerHeight + 8;
+      y += 10;
       const disclHeight = 24;
-      doc.roundedRect(startX, y, contentWidth, disclHeight, 3).fill('#FFF8F0');
+      doc.rect(startX, y, contentWidth, disclHeight).fill('#FFF8F0');
       // Left vertical accent bar
       doc.rect(startX, y, 4, disclHeight).fill('#EA580C');
       
@@ -220,7 +271,7 @@ async function generateBookingReceiptPdf(data) {
       y += disclHeight + 14;
       doc.font(FONT_BLD).fontSize(8.5).fillColor(TEAL).text('CUSTOMER', startX, y);
 
-      y += 14;
+      y += 13;
       const col1LabelX = startX;
       const col1ValX = startX + 50;
       const col2LabelX = startX + 265;
@@ -233,39 +284,29 @@ async function generateBookingReceiptPdf(data) {
       doc.font(FONT_BLD).fontSize(8.5).fillColor(DARK_TEXT).text(customerPhone, col2LabelX + 50, y, { width: rightMargin - (col2LabelX + 50), align: 'right' });
 
       // Row 2: Email & City
-      y += 16;
+      y += 18;
       doc.font(FONT_REG).fontSize(8.5).fillColor(MUTED_LABEL).text('Email', col1LabelX, y);
       doc.font(FONT_BLD).fontSize(8.5).fillColor(DARK_TEXT).text(customerEmail, col1ValX, y);
       doc.font(FONT_REG).fontSize(8.5).fillColor(MUTED_LABEL).text('City', col2LabelX, y);
       doc.font(FONT_BLD).fontSize(8.5).fillColor(DARK_TEXT).text(customerCity, col2LabelX + 50, y, { width: rightMargin - (col2LabelX + 50), align: 'right' });
 
-      // Row 3: PAN
-      y += 16;
-      doc.font(FONT_REG).fontSize(8.5).fillColor(MUTED_LABEL).text('PAN', col1LabelX, y);
-      doc.font(FONT_BLD).fontSize(8.5).fillColor(DARK_TEXT).text(customerPan, col1ValX, y);
-
       // Divider below customer
-      y += 16;
+      y += 18;
       doc.moveTo(startX, y).lineTo(rightMargin, y).strokeColor(BORDER_LIGHT).lineWidth(0.6).stroke();
 
       // ==========================================
       // 4. VEHICLE SECTION
       // ==========================================
-      y += 10;
+      y += 12;
       doc.font(FONT_BLD).fontSize(8.5).fillColor(TEAL).text('VEHICLE', startX, y);
 
       y += 12;
-      // Vehicle Initials Badge (e.g. TA for Tata, HY for Hyundai)
-      const initials = (carMake.substring(0, 2) || 'SE').toUpperCase();
-      doc.roundedRect(startX, y, 30, 30, 6).fill('#E0F2FE');
-      doc.font(FONT_BLD).fontSize(10).fillColor('#0284C7').text(initials, startX, y + 8, { width: 30, align: 'center' });
-
-      // Vehicle Name & Specs
-      doc.font(FONT_BLD).fontSize(11).fillColor(DARK_TEXT).text(carFullName, startX + 40, y + 2);
-      doc.font(FONT_REG).fontSize(8).fillColor(MUTED_LABEL).text(`${carYear} • ${carTransmission} • ${carFuel}`, startX + 40, y + 17);
+      // Vehicle Name & Specs (No image / badge - clean left alignment)
+      doc.font(FONT_BLD).fontSize(11).fillColor(DARK_TEXT).text(carFullName, startX, y);
+      doc.font(FONT_REG).fontSize(8).fillColor(MUTED_LABEL).text(`${carYear} • ${carTransmission} • ${carFuel}`, startX, y + 16);
 
       // Vehicle Details 2-Col Grid
-      y += 38;
+      y += 34;
       doc.font(FONT_REG).fontSize(8.5).fillColor(MUTED_LABEL).text('Reg. No.', col1LabelX, y);
       doc.font(FONT_BLD).fontSize(8.5).fillColor(DARK_TEXT).text(carRegNo, col1ValX, y);
       
@@ -278,7 +319,7 @@ async function generateBookingReceiptPdf(data) {
       doc.circle(dotX, y + 5.5, 3.2).fill('#1E293B');
       doc.fillColor(DARK_TEXT).text(colorText, rightMargin - colorTextW, y, { lineBreak: false });
 
-      y += 16;
+      y += 18;
       doc.font(FONT_REG).fontSize(8.5).fillColor(MUTED_LABEL).text('KMs Driven', col1LabelX, y);
       doc.font(FONT_BLD).fontSize(8.5).fillColor(DARK_TEXT).text(`${carKm} km`, col1ValX, y);
       
@@ -286,13 +327,13 @@ async function generateBookingReceiptPdf(data) {
       doc.font(FONT_BLD).fontSize(8.5).fillColor(DARK_TEXT).text(carOwnership, col2LabelX + 50, y, { width: rightMargin - (col2LabelX + 50), align: 'right' });
 
       // Divider below vehicle
-      y += 16;
+      y += 18;
       doc.moveTo(startX, y).lineTo(rightMargin, y).strokeColor(BORDER_LIGHT).lineWidth(0.6).stroke();
 
       // ==========================================
       // 5. PRICE BREAKUP TABLE
       // ==========================================
-      y += 10;
+      y += 12;
       doc.font(FONT_BLD).fontSize(8.5).fillColor(TEAL).text('PRICE BREAKUP', startX, y);
 
       y += 12;
@@ -312,7 +353,7 @@ async function generateBookingReceiptPdf(data) {
       doc.font(FONT_BLD).fontSize(7.5).fillColor(MUTED_LABEL).text('DISCOUNT', colDiscX - 70, y + 5, { width: 70, align: 'right' });
       doc.font(FONT_BLD).fontSize(7.5).fillColor(MUTED_LABEL).text('AMOUNT', colAmtX - 60, y + 5, { width: 60, align: 'right' });
 
-      y += thHeight + 4;
+      y += thHeight + 5;
 
       const renderTableRow = (itemText, mrpText, discText, amtText, isFree = false) => {
         doc.font(FONT_REG).fontSize(8).fillColor(DARK_TEXT).text(itemText, colItemX, y, { width: 200, ellipsis: true });
@@ -323,7 +364,7 @@ async function generateBookingReceiptPdf(data) {
         } else {
           doc.font(FONT_REG).fontSize(8).fillColor(DARK_TEXT).text(amtText, colAmtX - 60, y, { width: 60, align: 'right' });
         }
-        y += 15;
+        y += 16;
       };
 
       const formattedVehicleName = `Vehicle – ${carMake} ${carModel} ${carVariant}`.trim();
@@ -336,14 +377,14 @@ async function generateBookingReceiptPdf(data) {
       renderTableRow('Car Delivery & Refueling', `${CURRENCY}${deliveryFee.toLocaleString('en-IN')}`, '—', `${CURRENCY}${deliveryFee.toLocaleString('en-IN')}`);
 
       // Subtotals
-      y += 2;
+      y += 4;
       doc.font(FONT_REG).fontSize(8.5).fillColor(MUTED_LABEL).text('You save', colMrpX, y);
       doc.font(FONT_BLD).fontSize(8.5).fillColor('#0D9488').text(`${CURRENCY}${totalSavings.toLocaleString('en-IN')}`, colAmtX - 80, y, { width: 80, align: 'right' });
 
-      y += 13;
+      y += 15;
       doc.moveTo(colMrpX, y).lineTo(rightMargin, y).strokeColor(DARK_TEXT).lineWidth(1).stroke();
 
-      y += 6;
+      y += 7;
       doc.font(FONT_BLD).fontSize(10).fillColor(DARK_TEXT).text('Total Deal Value', colMrpX, y);
       doc.font(FONT_BLD).fontSize(10).fillColor(DARK_TEXT).text(`${CURRENCY}${totalDealValue.toLocaleString('en-IN')}`, colAmtX - 100, y, { width: 100, align: 'right' });
 
@@ -353,15 +394,15 @@ async function generateBookingReceiptPdf(data) {
       y += 20;
 
       // Card 1: Booking Amount Received (Light Green Card)
-      const payCardH = 40;
+      const payCardH = 42;
       doc.roundedRect(startX, y, contentWidth, payCardH, 6).fill('#ECFDF5');
       doc.font(FONT_BLD).fontSize(10).fillColor('#065F46').text('Booking Amount Received', startX + 14, y + 8);
-      doc.font(FONT_REG).fontSize(8).fillColor('#047857').text(`UPI • Txn ID ${txnId}`, startX + 14, y + 23);
-      doc.font(FONT_BLD).fontSize(16).fillColor('#059669').text(`${CURRENCY}${bookingAmount.toLocaleString('en-IN')}`, rightMargin - 150, y + 10, { width: 136, align: 'right' });
+      doc.font(FONT_REG).fontSize(8).fillColor('#047857').text(`UPI • Txn ID ${txnId}`, startX + 14, y + 24);
+      doc.font(FONT_BLD).fontSize(16).fillColor('#059669').text(`${CURRENCY}${bookingAmount.toLocaleString('en-IN')}`, rightMargin - 150, y + 11, { width: 136, align: 'right' });
 
       // Card 2: Balance Payable at Delivery (Light Slate Card)
-      y += payCardH + 8;
-      const balCardH = 32;
+      y += payCardH + 9;
+      const balCardH = 34;
       doc.roundedRect(startX, y, contentWidth, balCardH, 6).fill('#F8FAFC');
       doc.font(FONT_BLD).fontSize(9.5).fillColor(DARK_TEXT).text('Balance Payable at Delivery', startX + 14, y + 10);
       doc.font(FONT_BLD).fontSize(12).fillColor(DARK_TEXT).text(`${CURRENCY}${balancePayable.toLocaleString('en-IN')}`, rightMargin - 150, y + 9, { width: 136, align: 'right' });
@@ -369,10 +410,10 @@ async function generateBookingReceiptPdf(data) {
       // ==========================================
       // 7. TERMS & CONDITIONS
       // ==========================================
-      y += balCardH + 16;
+      y += balCardH + 18;
       doc.font(FONT_BLD).fontSize(8.5).fillColor(TEAL).text('TERMS & CONDITIONS', startX, y);
 
-      y += 11;
+      y += 12;
       const terms = [
         '1. Vehicle sold on "As Is Where Is" basis after purchaser\'s inspection and acceptance.',
         '2. Ownership transfer, insurance, and statutory compliance are the purchaser\'s responsibility post-delivery.',
@@ -381,27 +422,27 @@ async function generateBookingReceiptPdf(data) {
         '5. Subject to Mumbai Jurisdiction only.'
       ];
 
-      doc.font(FONT_REG).fontSize(7.2).fillColor('#475569');
+      doc.font(FONT_REG).fontSize(7.5).fillColor('#475569');
       terms.forEach(t => {
-        doc.text(t, startX, y, { lineGap: 1.5 });
-        y += 11;
+        doc.text(t, startX, y);
+        y += 14;
       });
 
       // ==========================================
       // 8. FOOTER: BANK & CONTACT DETAILS
       // ==========================================
-      y += 6;
+      y += 8;
       doc.moveTo(startX, y).lineTo(rightMargin, y).strokeColor(BORDER_LIGHT).lineWidth(0.8).stroke();
 
-      y += 8;
+      y += 12;
       doc.font(FONT_BLD).fontSize(7.5).fillColor(DARK_TEXT).text('Bank: ', startX, y, { continued: true });
       doc.font(FONT_REG).fillColor('#475569').text('Selectt Mobility • IndusInd Bank, IC Colony Borivali | A/c 257878785288 • IFSC INDB0002144 • UPI 7878785288-7@ybl');
 
-      y += 12;
+      y += 16;
       doc.font(FONT_BLD).fontSize(7.5).fillColor(DARK_TEXT).text('Contact: ', startX, y, { continued: true });
       doc.font(FONT_REG).fillColor('#475569').text(`${companyPhone} • ${companyEmail}`);
 
-      y += 10;
+      y += 14;
       doc.font(FONT_REG).fontSize(7).fillColor('#94A3B8').text(companyAddress, startX, y);
 
       doc.end();
