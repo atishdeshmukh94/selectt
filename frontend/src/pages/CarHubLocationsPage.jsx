@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { API_URL } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
+import VideoPreloader from '../components/common/VideoPreloader';
 
 const DEFAULT_HUBS = [
   {
@@ -235,9 +236,8 @@ export default function CarHubLocationsPage() {
         {/* ───────────── Main Content Container ───────────── */}
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
           {loading ? (
-            <div className="py-32 text-center">
-              <div className="w-10 h-10 border-3 border-[#00C9AF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-slate-500 font-medium text-sm">Loading car hub locations...</p>
+            <div className="py-12">
+              <VideoPreloader fullScreen={false} message="Loading car hub locations..." />
             </div>
           ) : (
             <div className="flex flex-col md:flex-row gap-8 items-start">

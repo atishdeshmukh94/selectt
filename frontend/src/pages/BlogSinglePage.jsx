@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronRight, Calendar, User, Facebook, Twitter, Linkedin, Link as LinkIcon, MapPin, FileText } from 'lucide-react';
 import PageMeta from '../components/common/PageMeta';
+import VideoPreloader from '../components/common/VideoPreloader';
 import { getCarDetailsUrl } from '../utils/formatters';
 
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from "../config/api";
@@ -34,12 +35,7 @@ const BlogSinglePage = () => {
   }, [slug]);
 
   if (loading) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 bg-[#f9f9f9]">
-        <div className="w-10 h-10 border-3 border-[#00C9AF] border-t-transparent rounded-full animate-spin"></div>
-        <span className="text-xs font-bold text-slate-500 tracking-widest uppercase">Loading Article...</span>
-      </div>
-    );
+    return <VideoPreloader fullScreen={true} />;
   }
 
   if (!post) {

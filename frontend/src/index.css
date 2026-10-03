@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
 :root {
   /* Selectt Typography Guide Configuration: Plus Jakarta Sans (Headings) + Inter (Body & UI) */
   --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

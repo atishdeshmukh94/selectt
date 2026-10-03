@@ -9,6 +9,7 @@ import Footer from './components/layout/Footer';
 import LocationPopup from './components/home/LocationPopup';
 import PWAInstallPrompt from './components/common/PWAInstallPrompt';
 import PagePreloader from './components/common/PagePreloader';
+import VideoPreloader from './components/common/VideoPreloader';
 import ScrollToTop from './components/common/ScrollToTop';
 import { useVisitorTracker } from './hooks/useVisitorTracker';
 import { API_URL } from './config/api';
@@ -142,11 +143,7 @@ function MainLayout() {
 }
 
 function LoadingFallback() {
-  return (
-    <div className="min-h-[50vh] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[#00C9AF] border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  );
+  return <VideoPreloader fullScreen={true} />;
 }
 
 function App() {

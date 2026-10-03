@@ -10,6 +10,7 @@ import PageMeta from '../components/common/PageMeta';
 import TestDriveModal from '../components/buy/TestDriveModal';
 import carLoanIcon from '../assets/car-loan-icon.png';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import VideoPreloader from '../components/common/VideoPreloader';
 
 export const RupeeSignIcon = ({ className = "w-3 h-3 fill-current", ...props }) => (
   <svg
@@ -30,7 +31,7 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate,
   const supportPhoneClean = supportPhone.replace(/[^0-9+]/g, '');
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-slate-200/90 shadow-2xs">
+    <header className="sticky top-0 z-50 bg-white border-b border-slate-200/90 shadow-2xs w-full max-w-full overflow-hidden">
       {/* ========================================================
           DESKTOP & TABLET HEADER ONLY (md:flex, hidden on mobile)
           PC Mode is unchanged: Logo (left), 3-step stepper (center), Phone (right)
@@ -925,14 +926,14 @@ const CheckoutPage = () => {
   if (!car || !user) return (
     <>
       <PageMeta title="Checkout - Secure Car Booking | Selectt" description="Securely book your certified pre-owned car at Selectt." />
-      <div className="pt-32 text-center text-slate-500 font-bold bg-[#050B16] min-h-screen flex items-center justify-center">Loading Checkout...</div>
+      <VideoPreloader fullScreen={true} />
     </>
   );
 
   const originalPrice = car.price + 22000;
 
   return (
-    <>
+    <div className="w-full max-w-full overflow-x-hidden min-h-screen">
       <PageMeta title={`Checkout - Reserve ${car.year} ${car.make} ${car.model} | Selectt`} description={`Complete booking deposit for your ${car.year} ${car.make} ${car.model}.`} />
 
       {/* Dedicated Checkout Header with Logo (left), 3-step Stepper (center), Phone Support (right) */}
@@ -944,7 +945,7 @@ const CheckoutPage = () => {
         onOpenRefundPolicy={() => setIsRefundPolicyOpen(true)}
       />
 
-      <div className="bg-[#f9f9f9] min-h-screen pt-3 sm:pt-6 pb-56 sm:pb-64 lg:pb-20 font-sans text-slate-800 relative">
+      <div className="bg-[#f9f9f9] min-h-screen pt-3 sm:pt-6 pb-56 sm:pb-64 lg:pb-20 font-sans text-slate-800 relative w-full max-w-full overflow-x-hidden">
         {/* Mobile-Only Savings Banner (non-sticky, scrolls normally) */}
         <div className="md:hidden px-4 pt-1 pb-3">
           <ConfettiSavingsBanner
@@ -1588,12 +1589,12 @@ const CheckoutPage = () => {
         </div>
 
         {/* What Happens Next - Expanded Dynamic Step-by-Step Section */}
-        <div className="max-w-7xl mx-auto px-4 mt-16 sm:mt-20">
+        <div className="max-w-7xl mx-auto px-4 mt-16 sm:mt-20 w-full overflow-hidden">
           <div className="text-center mb-10">
-            <h3 className="text-xl sm:text-2xl font-heading font-bold text-[#0F172A] text-center flex items-center justify-center gap-4">
-              <div className="h-px bg-slate-200 flex-1 max-w-[150px]" />
-              <span>What happens next</span>
-              <div className="h-px bg-slate-200 flex-1 max-w-[150px]" />
+            <h3 className="text-xl sm:text-2xl font-heading font-bold text-[#0F172A] text-center flex items-center justify-center gap-2 sm:gap-4 overflow-hidden">
+              <div className="hidden sm:block h-px bg-slate-200 flex-1 max-w-[150px]" />
+              <span className="shrink-0">What happens next</span>
+              <div className="hidden sm:block h-px bg-slate-200 flex-1 max-w-[150px]" />
             </h3>
             <p className="text-xs sm:text-sm text-slate-500 mt-1.5 font-medium">
               Simple, transparent 4-step process from online reservation to doorstep delivery.
@@ -1627,19 +1628,19 @@ const CheckoutPage = () => {
             ))}
           </div>
 
-          {/* MOBILE / TABLET VIEW (Alternating Left/Right Animated Slide-ins with Down Arrows) */}
-          <div className="flex flex-col gap-0 lg:hidden max-w-md sm:max-w-lg mx-auto">
+          {/* MOBILE / TABLET VIEW (Smooth Vertical In-view Animation with Down Arrows) */}
+          <div className="flex flex-col gap-0 lg:hidden max-w-md sm:max-w-lg mx-auto w-full overflow-hidden px-1">
             {steps.map((step, idx) => {
-              const isEven = idx % 2 === 0; // 0, 2 from LEFT, 1, 3 from RIGHT
+              const isEven = idx % 2 === 0;
 
               return (
                 <div key={idx} className="flex flex-col items-center w-full">
-                  {/* Step Card with Alternating Directional Animation */}
+                  {/* Step Card with Smooth In-View Fade & Rise (No Horizontal Overflow) */}
                   <motion.div
-                    initial={{ opacity: 0, x: isEven ? -60 : 60, scale: 0.96 }}
-                    whileInView={{ opacity: 1, x: 0, scale: 1 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ duration: 0.55, ease: "easeOut" }}
+                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-20px" }}
+                    transition={{ duration: 0.45, ease: "easeOut" }}
                     className={`w-full p-6 rounded-2xl flex flex-col items-center text-center border shadow-xl ${step.bgClass} ${step.glow} relative overflow-hidden`}
                   >
                     {/* Step Badge & Directional Indicator */}
@@ -2386,8 +2387,8 @@ const CheckoutPage = () => {
 
       {/* Mobile Sticky Footer Popup for Car Loan & Test Drive (Mobile Only) */}
       {mobileLoanPromptVisible && (
-        <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-4 pb-5 bg-white rounded-t-3xl shadow-[0_-10px_35px_rgba(0,0,0,0.18)] border-t border-slate-200/90 animate-in slide-in-from-bottom duration-300">
-          <div className="max-w-md mx-auto">
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-4 pb-5 bg-white rounded-t-3xl shadow-[0_-10px_35px_rgba(0,0,0,0.18)] border-t border-slate-200/90 animate-in slide-in-from-bottom duration-300 w-full max-w-full overflow-hidden">
+          <div className="max-w-md mx-auto w-full">
             {mobilePromptStep === 1 ? (
               <div className="animate-in fade-in duration-200">
                 <div className="flex items-start gap-3 mb-3.5">
@@ -3402,7 +3403,7 @@ const CheckoutPage = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

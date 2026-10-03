@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Youtube, Sparkles, ChevronDown } from 'lucide-react';
 import PageMeta from '../components/common/PageMeta';
+import VideoPreloader from '../components/common/VideoPreloader';
 import { API_URL } from '../config/api';
 
 export const extractYouTubeId = (url) => {
@@ -84,9 +85,8 @@ export default function CustomerReviewsPage() {
         {/* 5 Cards in 1 Row Layout */}
         <div className="max-w-[1400px] mx-auto px-4 md:px-6 mt-14">
           {loading ? (
-            <div className="py-24 text-center">
-              <div className="w-10 h-10 border-4 border-[#00C9AF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-slate-500 font-bold text-sm">Loading video reviews...</p>
+            <div className="py-12">
+              <VideoPreloader fullScreen={false} message="Loading video reviews..." />
             </div>
           ) : videoReviews.length === 0 ? (
             <div className="py-24 text-center bg-white rounded-3xl border border-slate-200 shadow-sm max-w-2xl mx-auto p-12 space-y-3">
