@@ -4888,7 +4888,7 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
         const totalAmount = Number(b.final_amount || b.car_price || 0);
         const remainingAmount = Math.max(0, totalAmount - bookingAmount);
 
-        const companyName = receiptSettings.receipt_company_name || 'Selectt Cars India Private Limited';
+        const companyName = receiptSettings.receipt_company_name || 'SELECTT FIRST PVT LTD';
         const companyPhone = receiptSettings.receipt_company_phone || '+91 85746 67466';
         const companyEmail = receiptSettings.receipt_company_email || 'hello@selectt.in';
         const companyWebsite = receiptSettings.receipt_company_website || 'https://selectt.in';
@@ -4929,22 +4929,360 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>${receiptTitle} - ${b.booking_no} | ${companyName}</title>
+  <title>Booking Receipt - ${b.booking_no} | ${companyName}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      font-family: 'Inter', -apple-system, sans-serif;
       background: #f1f5f9;
       color: #0F172A;
       padding: 30px 15px;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
       -webkit-font-smoothing: antialiased;
+      font-size: 14px;
     }
+    .receipt {
+      background: #ffffff;
+      width: 100%;
+      max-width: 720px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px -8px rgba(0,0,0,0.10);
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+    }
+
+    /* ── Teal accent strip */
+    .teal-strip { height: 5px; background: #0D9488; }
+
+    /* ── Header row */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 28px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .header-logo { height: 36px; max-width: 160px; object-fit: contain; }
+    .header-right { text-align: right; padding-left: 24px; border-left: 1px solid #e2e8f0; }
+    .header-right .label { font-size: 9px; font-weight: 700; color: #0D9488; text-transform: uppercase; letter-spacing: 1.5px; }
+    .header-right .booking-no { font-size: 20px; font-weight: 900; color: #0F172A; margin-top: 2px; }
+    .header-right .date { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    /* ── Company info strip */
+    .company-strip {
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 8px 28px;
+      font-size: 11.5px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .company-strip strong { color: #334155; }
+    .company-strip .dot { color: #cbd5e1; }
+
+    /* ── Disclaimer */
+    .disclaimer {
+      margin: 16px 28px 0;
+      border-left: 4px solid #f97316;
+      background: #fff7ed;
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      font-size: 11.5px;
+      color: #9a3412;
+      font-weight: 500;
+    }
+
+    /* ── Sections */
+    .section { padding: 20px 28px 0; }
+    .section-title {
+      font-size: 9px;
+      font-weight: 800;
+      color: #0D9488;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 10px;
+    }
+    .divider { border: none; border-top: 1px solid #f1f5f9; margin: 18px 28px 0; }
+
+    /* ── Info grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 20px;
+    }
+    .info-row { display: flex; gap: 8px; align-items: baseline; }
+    .info-key { font-size: 12px; color: #94a3b8; min-width: 60px; flex-shrink: 0; }
+    .info-val { font-size: 13px; font-weight: 700; color: #0F172A; }
+    .info-right { justify-content: flex-end; text-align: right; }
+
+    /* ── Vehicle name */
+    .vehicle-name { font-size: 16px; font-weight: 900; color: #0F172A; margin-bottom: 3px; }
+    .vehicle-sub { font-size: 11.5px; color: #94a3b8; margin-bottom: 10px; }
+
+    /* ── Price table */
+    .price-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 12.5px;
+      margin-top: 2px;
+    }
+    .price-table thead tr { background: #f8fafc; }
+    .price-table th {
+      padding: 8px 12px;
+      font-size: 9px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      text-align: left;
+    }
+    .price-table th:nth-child(2), .price-table th:nth-child(3) { text-align: right; }
+    .price-table td {
+      padding: 9px 12px;
+      border-top: 1px solid #f1f5f9;
+      color: #334155;
+    }
+    .price-table td:nth-child(2) { text-align: right; color: #64748b; }
+    .price-table td:nth-child(3) { text-align: right; font-weight: 600; }
+    .price-table .free { color: #059669; font-weight: 700; }
+    .price-table tfoot tr { background: #ffffff; border-top: 2px solid #e2e8f0; }
+    .price-table tfoot td { font-weight: 800; color: #0F172A; font-size: 13px; }
+
+    /* ── Booking amount card */
+    .booking-card {
+      margin: 16px 28px 0;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .booking-card .bk-label { font-weight: 700; color: #166534; font-size: 13px; }
+    .booking-card .bk-sub { font-size: 11px; color: #4ade80; margin-top: 2px; }
+    .booking-card .bk-amount { font-size: 22px; font-weight: 900; color: #16a34a; }
+
+    /* ── Balance card */
+    .balance-card {
+      margin: 10px 28px 0;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .balance-card span { font-weight: 700; color: #334155; font-size: 13px; }
+    .balance-card strong { font-size: 15px; font-weight: 800; color: #0F172A; }
+
+    /* ── Terms */
+    .terms-list {
+      margin: 0;
+      padding-left: 16px;
+      list-style: decimal;
+    }
+    .terms-list li { font-size: 11px; color: #64748b; line-height: 1.7; }
+
+    /* ── Footer */
+    .receipt-footer {
+      border-top: 1px solid #e2e8f0;
+      margin: 20px 28px 0;
+      padding: 14px 0 20px;
+    }
+    .footer-line { font-size: 11px; color: #64748b; line-height: 1.6; }
+    .footer-line strong { color: #334155; }
+    .footer-addr { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+
+    /* ── Actions */
+    .actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 720px;
+      width: 100%;
+    }
+    .btn {
+      padding: 11px 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: none;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn-teal { background: #0D9488; color: #fff; }
+    .btn-teal:hover { background: #0f766e; }
+    .btn-dark { background: #0F172A; color: #fff; }
+    .btn-dark:hover { background: #1e293b; }
+    .btn-outline { background: #f1f5f9; color: #334155; }
+    .btn-outline:hover { background: #e2e8f0; }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .receipt { border: none; box-shadow: none; border-radius: 0; max-width: 100%; }
+      .actions { display: none !important; }
+      .teal-strip { border-radius: 0; }
+    }
+    @media (max-width: 520px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .header { flex-direction: column; gap: 12px; align-items: flex-start; }
+      .header-right { border-left: none; border-top: 1px solid #e2e8f0; padding-left: 0; padding-top: 10px; text-align: left; width: 100%; }
+      .booking-card, .balance-card { flex-direction: column; align-items: flex-start; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+
+    <!-- Teal strip -->
+    <div class="teal-strip"></div>
+
+    <!-- Header: Logo left | Booking info right -->
+    <div class="header">
+      <div>
+        <img src="${logoDataUri}" alt="${companyName}" class="header-logo" onerror="this.src='https://selectt.in/img/dark-logo.svg'">
+      </div>
+      <div class="header-right">
+        <div class="label">Booking Receipt</div>
+        <div class="booking-no">${b.booking_no || b.id}</div>
+        <div class="date">${formattedDate}</div>
+      </div>
+    </div>
+
+    <!-- Company info strip -->
+    <div class="company-strip">
+      <strong>${companyName}</strong>
+      <span class="dot">•</span>
+      <span>${gstin || '27AACE3859E1ZJ'}</span>
+      <span class="dot">•</span>
+      <span>selectt.in</span>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      ⚠ This is a booking receipt only — NOT a final invoice. The final Bill of Supply will be issued at delivery.
+    </div>
+
+    <!-- CUSTOMER -->
+    <div class="section">
+      <div class="section-title">Customer</div>
+      <div class="info-grid">
+        <div class="info-row"><span class="info-key">Name</span><span class="info-val">${customerName}</span></div>
+        <div class="info-row info-right"><span class="info-key">Phone</span><span class="info-val">+${b.phone || 'N/A'}</span></div>
+        <div class="info-row"><span class="info-key">Email</span><span class="info-val">${b.email || 'N/A'}</span></div>
+        <div class="info-row info-right"><span class="info-key">City</span><span class="info-val">${b.city || 'N/A'}</span></div>
+      </div>
+    </div>
+    <hr class="divider">
+
+    <!-- VEHICLE -->
+    <div class="section">
+      <div class="section-title">Vehicle</div>
+      <div class="vehicle-name">${carTitle.toUpperCase()}</div>
+      <div class="vehicle-sub">${b.year || ''} • ${b.transmission || 'Manual'} • ${b.fuel_type || 'Petrol'}</div>
+      <div class="info-grid">
+        <div class="info-row"><span class="info-key">Reg. No.</span><span class="info-val">${b.registration_no || 'N/A'}</span></div>
+        <div class="info-row info-right"><span class="info-key">Colour</span><span class="info-val">● ${b.color || 'N/A'}</span></div>
+        <div class="info-row"><span class="info-key">KMs Driven</span><span class="info-val">${Number(b.km_driven || b.km || 0).toLocaleString('en-IN')} km</span></div>
+        <div class="info-row info-right"><span class="info-key">Owner</span><span class="info-val">${b.ownership || '1st Owner'}</span></div>
+      </div>
+    </div>
+    <hr class="divider">
+
+    <!-- PRICE BREAKUP -->
+    <div class="section">
+      <div class="section-title">Price Breakup</div>
+      <table class="price-table">
+        <thead>
+          <tr>
+            <th style="width:50%">Item</th>
+            <th>Discount</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Vehicle – ${carTitle}</td>
+            <td>₹0 (0.00%)</td>
+            <td>₹${totalAmount.toLocaleString('en-IN')}</td>
+          </tr>
+          ${b.rc_transfer_charges ? `<tr><td>RC Transfer</td><td>—</td><td>₹${Number(b.rc_transfer_charges).toLocaleString('en-IN')}</td></tr>` : ''}
+          ${b.free_services ? b.free_services.split(',').map(s => `<tr><td>${s.trim()}</td><td>100%</td><td class="free">FREE</td></tr>`).join('') : ''}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">Total Deal Value</td>
+            <td>₹${totalAmount.toLocaleString('en-IN')}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- BOOKING AMOUNT -->
+    <div class="booking-card">
+      <div>
+        <div class="bk-label">Booking Amount Received</div>
+        <div class="bk-sub">${b.payment_method ? b.payment_method.toUpperCase() + ' • ' : ''}Txn ID: ${b.razorpay_payment_id || 'Verified Online'}</div>
+      </div>
+      <div class="bk-amount">₹${bookingAmount.toLocaleString('en-IN')}</div>
+    </div>
+
+    <!-- BALANCE -->
+    <div class="balance-card">
+      <span>Balance Payable at Delivery</span>
+      <strong>₹${remainingAmount.toLocaleString('en-IN')}</strong>
+    </div>
+
+    <!-- TERMS -->
+    <div class="section" style="padding-bottom:4px;">
+      <div class="section-title">Terms & Conditions</div>
+      <ol class="terms-list">
+        <li>Vehicle sold on "As Is Where Is" basis after purchaser's inspection and acceptance.</li>
+        <li>Ownership transfer, insurance, and statutory compliance are the purchaser's responsibility post-delivery.</li>
+        <li>All liabilities, penalties, challans, or claims after delivery shall be borne by the purchaser.</li>
+        <li>Goods/Vehicle once sold will not be returned, exchanged, or refunded.</li>
+        <li>Subject to Mumbai Jurisdiction only.</li>
+      </ol>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="receipt-footer">
+      <div class="footer-line">
+        <strong>Contact:</strong> ${companyPhone} • ${companyEmail}
+      </div>
+      <div class="footer-addr">${companyAddress}${gstin ? ' • GSTIN: ' + gstin : ''}</div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="actions">
+    <a class="btn btn-teal" href="${pdfDownloadUrl}">⬇ Download PDF Receipt</a>
+    <button class="btn btn-dark" onclick="window.print()">🖨 Print Receipt</button>
+    <a class="btn btn-outline" href="${carUrl}" target="_blank">View Car Listing ↗</a>
+  </div>
+</body>
+</html>`;
     .receipt-card {
       background: #ffffff;
       max-width: 680px;

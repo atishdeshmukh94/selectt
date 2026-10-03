@@ -31,12 +31,12 @@ interface Setting {
 }
 
 const defaultReceiptSettings = {
-  receipt_company_name: "Selectt Cars India Private Limited",
+  receipt_company_name: "SELECTT FIRST PVT LTD",
   receipt_company_phone: "+91 85746 67466",
   receipt_company_email: "hello@selectt.in",
   receipt_company_website: "https://selectt.in",
   receipt_company_address: "Selectt Experience Hub, Andheri East, Mumbai, Maharashtra 400069",
-  receipt_gstin: "27AAACS9821L1ZM",
+  receipt_gstin: "27AACE3859E1ZJ",
   receipt_logo_url: "https://selectt.in/img/dark-logo.svg",
   receipt_title: "Payment Receipt",
   receipt_subtitle: "PRE-OWNED CARS • ASSURED QUALITY",
