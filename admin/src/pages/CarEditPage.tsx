@@ -1567,7 +1567,6 @@ const CarEditPage = () => {
                     onChange={e => setFormData({...formData, km: e.target.value})} 
                     placeholder="e.g. 24500" 
                   />
-                  <p className="text-[10px] text-slate-400 mt-1 font-medium">Total kilometers on odometer.</p>
                 </div>
 
                 <div>
@@ -1596,7 +1595,6 @@ const CarEditPage = () => {
                     onChange={e => setFormData({...formData, regState: e.target.value.toUpperCase()})} 
                     placeholder="e.g. MH, DL, CG" 
                   />
-                  <p className="text-[10px] text-slate-400 mt-1 font-medium">2-letter RTO state code.</p>
                 </div>
 
                 <div>
