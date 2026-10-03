@@ -181,7 +181,17 @@ const getBadgeStyles = (tagText) => {
     };
   }
 
-  if (text.includes('certified') || text.includes('verified') || text.includes('assured') || text.includes('like new')) {
+  if (text.includes('like new')) {
+    return {
+      bg: 'bg-lime-100 dark:bg-lime-950/60',
+      color: 'text-lime-950 dark:text-lime-300 font-normal',
+      border: 'border-lime-300/80',
+      glow: 'shadow-[0_0_12px_rgba(190,242,100,0.8)]',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  if (text.includes('certified') || text.includes('verified') || text.includes('assured')) {
     return {
       bg: 'bg-teal-50 dark:bg-teal-950/60',
       color: 'text-teal-800 dark:text-teal-300',

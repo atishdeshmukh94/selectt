@@ -927,10 +927,11 @@ export const PremiumHeader: React.FC = () => {
             onTouchStart={() => setMobileMenuOpen(false)} 
           />
 
-          {/* Slide-In White Drawer Canvas */}
+          {/* Slide-In White Drawer Canvas (Left Side) */}
           <div 
             ref={mobileDrawerRef}
-            className="fixed inset-y-0 right-0 z-[100000] w-[86%] max-w-[340px] h-full bg-white shadow-2xl flex flex-col overflow-hidden font-['Plus_Jakarta_Sans',sans-serif] transition-transform duration-300 ease-out" 
+            className="fixed inset-y-0 left-0 z-[100000] w-[86%] max-w-[340px] h-full bg-white shadow-2xl flex flex-col overflow-hidden font-['Plus_Jakarta_Sans',sans-serif] transition-transform duration-300 ease-out" 
+            style={{ animation: 'slideFromLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
             aria-label="Mobile Navigation Menu"
           >
             
@@ -1416,14 +1417,14 @@ export const PremiumHeader: React.FC = () => {
                 <a
                   href="tel:+91-857466-7466"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3.5 p-3.5 bg-[#13EDE5]/15 border border-[#13EDE5]/40 rounded-2xl shadow-xs text-left no-underline group hover:bg-[#13EDE5]/25 transition-colors"
+                  className="flex items-center gap-3.5 p-3.5 bg-[#13EDE5]/20 border border-[#13EDE5]/50 rounded-2xl shadow-xs text-left no-underline group hover:bg-[#13EDE5]/30 transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-full bg-[#13EDE5] text-[#0C1B33] flex items-center justify-center shadow-md shadow-[#13EDE5]/30 shrink-0 group-hover:scale-105 transition-transform">
-                    <IconPhone size={18} />
+                  <div className="w-11 h-11 rounded-full bg-[#13EDE5] text-[#0C1B33] flex items-center justify-center shadow-md shadow-[#13EDE5]/40 shrink-0 group-hover:scale-105 transition-transform">
+                    <IconPhone size={20} stroke={2.5} />
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
-                    <div className="text-xs font-normal text-[#0C1B33]">Call us at 8574667466</div>
+                    <div className="text-[11px] font-black text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
+                    <div className="text-[15px] sm:text-base font-extrabold text-[#0C1B33] tracking-tight">Call us at 8574667466</div>
                   </div>
                 </a>
               </div>

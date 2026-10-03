@@ -199,36 +199,18 @@ export default function BenefitsAddons() {
             <button
               key={i}
               type="button"
+              aria-label={`Go to benefit ${i + 1}`}
               onClick={() => { setCurrentIndex(i); setIsPaused(true); setTimeout(() => setIsPaused(false), 4000); }}
-              className={`h-1.5 rounded-full transition-all duration-400 cursor-pointer ${
+              className={`p-0 border-0 outline-none appearance-none cursor-pointer rounded-full transition-all duration-300 block ${
                 i === currentIndex
-                  ? 'w-5 bg-[#00C9AF] dot-active'
-                  : 'w-1.5 bg-slate-600 hover:bg-slate-400'
+                  ? 'w-6 h-2 bg-[#00C9AF] shadow-[0_0_8px_rgba(0,201,175,0.7)]'
+                  : 'w-2 h-2 bg-slate-600 hover:bg-slate-400'
               }`}
+              style={{ minHeight: '8px', maxHeight: '8px', padding: 0, border: 'none' }}
             />
           ))}
         </div>
 
-        {/* Mobile swipe buttons */}
-        <div className="flex items-center justify-center gap-3 mt-3 sm:hidden">
-          <button
-            type="button"
-            onClick={goPrev}
-            className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 cursor-pointer"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <span className="text-xs text-slate-500 font-semibold">
-            {currentIndex + 1} / {benefits.length}
-          </span>
-          <button
-            type="button"
-            onClick={goNext}
-            className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 cursor-pointer"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
       </div>
 
       {/* Interactive Detail Modal */}

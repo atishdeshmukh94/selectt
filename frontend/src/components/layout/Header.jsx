@@ -565,8 +565,8 @@ const Header = () => {
             className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] md:hidden transition-opacity duration-300"
             onClick={() => setMobileMenuOpen(false)}
           />
-          {/* Slide-In White Drawer Canvas */}
-          <div className="fixed inset-y-0 right-0 z-[10000] w-[86%] max-w-[340px] bg-white shadow-2xl flex flex-col overflow-hidden font-['Plus_Jakarta_Sans',sans-serif] transition-transform duration-300 ease-out md:hidden" aria-label="Mobile Navigation Menu">
+          {/* Slide-In White Drawer Canvas (Left Side) */}
+          <div className="fixed inset-y-0 left-0 z-[10000] w-[86%] max-w-[340px] bg-white shadow-2xl flex flex-col overflow-hidden font-['Plus_Jakarta_Sans',sans-serif] transition-transform duration-300 ease-out md:hidden" style={{ animation: 'slideFromLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards' }} aria-label="Mobile Navigation Menu">
             
             {/* Top User Profile Header (Dark Navy Theme - Sticky) */}
             <div className="sticky top-0 z-30 shrink-0 bg-gradient-to-r from-[#0C1B33] via-[#102340] to-[#0A1628] text-white px-4 py-3.5 flex items-center justify-between border-b border-white/10 shadow-sm">
@@ -970,14 +970,14 @@ const Header = () => {
                 <a
                   href="tel:+91-857466-7466"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3.5 p-3.5 bg-[#13EDE5]/15 border border-[#13EDE5]/40 rounded-2xl shadow-xs text-left no-underline group hover:bg-[#13EDE5]/25 transition-colors"
+                  className="flex items-center gap-3.5 p-3.5 bg-[#13EDE5]/20 border border-[#13EDE5]/50 rounded-2xl shadow-xs text-left no-underline group hover:bg-[#13EDE5]/30 transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-full bg-[#13EDE5] text-[#0C1B33] flex items-center justify-center shadow-md shadow-[#13EDE5]/30 shrink-0 group-hover:scale-105 transition-transform">
-                    <Phone size={18} />
+                  <div className="w-11 h-11 rounded-full bg-[#13EDE5] text-[#0C1B33] flex items-center justify-center shadow-md shadow-[#13EDE5]/40 shrink-0 group-hover:scale-105 transition-transform">
+                    <Phone size={20} strokeWidth={2.5} />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
-                    <div className="text-xs sm:text-sm font-medium text-[#0C1B33]">Call us at 8574667466</div>
+                    <div className="text-[11px] font-black text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
+                    <div className="text-[15px] sm:text-base font-extrabold text-[#0C1B33] tracking-tight">Call us at 8574667466</div>
                   </div>
                 </a>
               </div>

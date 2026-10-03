@@ -624,6 +624,50 @@ button, input[type="button"], input[type="submit"] {
   }
 }
 
+/* Car Card Badge Glowing Shine Sweep Animation */
+@keyframes badgeShineSweep {
+  0% {
+    transform: translateX(-140%) skewX(-20deg);
+  }
+  30%, 100% {
+    transform: translateX(240%) skewX(-20deg);
+  }
+}
+
+.badge-glow-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-glow-shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 55%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-140%) skewX(-20deg);
+  animation: badgeShineSweep 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Mobile Menu Left Slide-In Animation */
+@keyframes slideFromLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 /* Accessibility: Respect user's prefers-reduced-motion setting */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {

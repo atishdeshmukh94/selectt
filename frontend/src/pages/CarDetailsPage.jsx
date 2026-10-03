@@ -730,7 +730,9 @@ const CarDetailsPage = () => {
                     <button
                       onClick={handleWishlistToggle}
                       disabled={isWishlisting}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isWishlisted ? 'text-red-500 bg-red-50' : 'bg-slate-100 text-slate-500 hover:text-red-500 hover:bg-red-50'}`}>
+                      className={`w-10 h-10 min-w-10 min-h-10 max-w-10 max-h-10 aspect-square p-0 rounded-full flex items-center justify-center shrink-0 transition-all ${isWishlisted ? 'text-red-500 bg-red-50' : 'bg-slate-100 text-slate-500 hover:text-red-500 hover:bg-red-50'}`}
+                      style={{ borderRadius: '9999px', aspectRatio: '1 / 1', padding: 0 }}
+                    >
                       <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
                     </button>
                     <span className="text-[10px] text-slate-500 font-medium text-center mt-1 leading-tight">
@@ -976,7 +978,9 @@ const CarDetailsPage = () => {
                       <button
                         onClick={handleWishlistToggle}
                         disabled={isWishlisting}
-                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors border shadow-sm ${isWishlisted ? 'text-red-500 bg-red-50 border-red-200/50' : 'bg-slate-50 text-slate-500 hover:text-red-500 hover:bg-slate-100 border-slate-200/50'}`}>
+                        className={`w-9 h-9 min-w-9 min-h-9 max-w-9 max-h-9 aspect-square p-0 rounded-full flex items-center justify-center shrink-0 transition-colors border shadow-sm ${isWishlisted ? 'text-red-500 bg-red-50 border-red-200/50' : 'bg-slate-50 text-slate-500 hover:text-red-500 hover:bg-slate-100 border-slate-200/50'}`}
+                        style={{ borderRadius: '9999px', aspectRatio: '1 / 1', padding: 0 }}
+                      >
                         <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
                       </button>
                       <span className="text-[9px] text-slate-400 font-sans font-medium mt-0.5 text-center leading-tight">

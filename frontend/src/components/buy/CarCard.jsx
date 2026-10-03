@@ -41,32 +41,46 @@ const getBadgeStyles = (tagText) => {
   const raw = (tagText || '').trim();
   const text = raw.toLowerCase();
 
-  // Luxury
+  // Selectt Luxury
   if (text.includes('luxury') || text.includes('selectt luxury')) {
     return {
-      bg: 'bg-gradient-to-r from-amber-400 to-amber-500',
-      color: 'text-slate-950 font-black',
-      border: 'border-amber-300/60',
+      bg: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400',
+      color: 'text-amber-950 font-normal',
+      border: 'border-amber-200/90',
+      glow: 'shadow-[0_0_14px_rgba(251,191,36,0.85)] ring-1 ring-amber-300/80',
       label: 'Selectt Luxury'
     };
   }
 
-  // Offer Zone / Price Drop / Discount
+  // Offer Zone / Price Drop / Discount / Deal
   if (text.includes('offer zone') || text.includes('discount') || text.includes('price drop') || text.includes('deal')) {
     return {
-      bg: 'bg-rose-600',
-      color: 'text-white font-bold',
-      border: 'border-rose-400/40',
+      bg: 'bg-gradient-to-r from-rose-600 to-red-500',
+      color: 'text-white font-normal',
+      border: 'border-rose-300/80',
+      glow: 'shadow-[0_0_14px_rgba(244,63,94,0.85)] ring-1 ring-rose-400/80',
       label: formatBadgeText(raw)
     };
   }
 
-  // Certified / Verified / Assured / Like New
-  if (text.includes('certified') || text.includes('verified') || text.includes('assured') || text.includes('like new')) {
+  // Like New - Distinct light radiant lime color with vivid glow
+  if (text.includes('like new')) {
     return {
-      bg: 'bg-[#00C9AF]',
-      color: 'text-slate-950 font-black',
-      border: 'border-teal-300/40',
+      bg: 'bg-gradient-to-r from-[#E2F952] via-[#BEF264] to-[#A3E635]',
+      color: 'text-slate-950 font-normal',
+      border: 'border-lime-400/90',
+      glow: 'shadow-[0_0_14px_rgba(190,242,100,0.95)] ring-1 ring-lime-300/90',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  // Certified / Verified / Assured
+  if (text.includes('certified') || text.includes('verified') || text.includes('assured')) {
+    return {
+      bg: 'bg-gradient-to-r from-[#00E5C6] to-[#00B8A0]',
+      color: 'text-slate-950 font-normal',
+      border: 'border-teal-200/90',
+      glow: 'shadow-[0_0_14px_rgba(0,229,198,0.85)] ring-1 ring-teal-300/80',
       label: formatBadgeText(raw)
     };
   }
@@ -74,19 +88,21 @@ const getBadgeStyles = (tagText) => {
   // Electric / EV / Hybrid
   if (text.includes('electric') || text.includes('hybrid') || text.includes('ev')) {
     return {
-      bg: 'bg-emerald-600',
-      color: 'text-white font-bold',
-      border: 'border-emerald-400/40',
+      bg: 'bg-gradient-to-r from-emerald-500 to-teal-500',
+      color: 'text-white font-normal',
+      border: 'border-emerald-200/80',
+      glow: 'shadow-[0_0_14px_rgba(16,185,129,0.85)] ring-1 ring-emerald-300/80',
       label: formatBadgeText(raw)
     };
   }
 
-  // Top Rated / Hot
+  // Top Rated / Hot / Trending
   if (text.includes('top rated') || text.includes('rated') || text.includes('hot') || text.includes('trending')) {
     return {
-      bg: 'bg-orange-500',
-      color: 'text-white font-bold',
-      border: 'border-orange-400/40',
+      bg: 'bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500',
+      color: 'text-white font-normal',
+      border: 'border-amber-200/90',
+      glow: 'shadow-[0_0_14px_rgba(249,115,22,0.85)] ring-1 ring-orange-300/80',
       label: formatBadgeText(raw)
     };
   }
@@ -94,18 +110,20 @@ const getBadgeStyles = (tagText) => {
   // Premium
   if (text.includes('premium')) {
     return {
-      bg: 'bg-indigo-600',
-      color: 'text-white font-bold',
-      border: 'border-indigo-400/40',
+      bg: 'bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600',
+      color: 'text-white font-normal',
+      border: 'border-indigo-200/80',
+      glow: 'shadow-[0_0_14px_rgba(99,102,241,0.85)] ring-1 ring-indigo-300/80',
       label: formatBadgeText(raw)
     };
   }
 
-  // Refined Obsidian Frosted Glass Badge for features (German Engineered, Manual Fun, Low KM, Sunroof, etc.)
+  // Refined Obsidian Glass Badge for features (German Engineered, Manual Fun, Low KM, Sunroof, etc.)
   return {
-    bg: 'bg-slate-900/85 backdrop-blur-md',
-    color: 'text-white font-bold',
-    border: 'border-white/20',
+    bg: 'bg-slate-900/90 backdrop-blur-md',
+    color: 'text-white font-normal',
+    border: 'border-white/35',
+    glow: 'shadow-[0_0_12px_rgba(255,255,255,0.35)] ring-1 ring-white/25',
     label: formatBadgeText(raw)
   };
 };
@@ -194,7 +212,12 @@ const CarCard = ({ car, lightBg = false }) => {
       ? 'bg-slate-50 text-slate-500 hover:text-red-500 hover:bg-slate-100 border-slate-200/60 shadow-sm'
       : 'bg-slate-950/40 text-white/80 hover:text-red-500 hover:bg-white/10 border-white/10';
 
-  const imageSrc = getCarImageUrl(car.image);
+  const primaryImage = car.image || 
+    (Array.isArray(car.moreImages) && car.moreImages[0]) || 
+    (Array.isArray(car.images) && car.images[0]) || 
+    car.image_url || 
+    '';
+  const imageSrc = getCarImageUrl(primaryImage);
 
   return (
     <motion.div
@@ -237,13 +260,13 @@ const CarCard = ({ car, lightBg = false }) => {
             </div>
           )}
 
-          {/* Regular Tag Badge (if not coming soon) */}
+          {/* Regular Tag Badge (if not coming soon) - Glowing & Shining */}
           {(car.badgeText || car.tag) && car.status !== 'coming_soon' && (() => {
             const badge = getBadgeStyles(car.badgeText || car.tag);
             return (
               <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none">
-                <div className={`${badge.bg} ${badge.color} ${badge.border} border px-2.5 py-1 rounded-full text-[10.5px] font-sans font-bold shadow-md tracking-wide flex items-center`}>
-                  <span>{badge.label}</span>
+                <div className={`badge-glow-shine ${badge.bg} ${badge.color} ${badge.border} ${badge.glow} border px-2.5 py-0.5 rounded-full text-[10.5px] font-sans font-normal tracking-wide flex items-center`}>
+                  <span className="relative z-10">{badge.label}</span>
                 </div>
               </div>
             );
@@ -255,7 +278,8 @@ const CarCard = ({ car, lightBg = false }) => {
             whileHover={{ scale: 1.15 }}
             whileTap={{ scale: 0.88 }}
             transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            className={`w-8 h-8 aspect-square rounded-full flex items-center justify-center absolute top-2.5 right-2.5 transition-colors z-20 border cursor-pointer shrink-0 shadow-xs ${heartBtnClass}`}
+            className={`w-8 h-8 min-w-[32px] min-h-[32px] max-w-[32px] max-h-[32px] aspect-square rounded-full p-0 flex items-center justify-center absolute top-2.5 right-2.5 transition-colors z-20 border cursor-pointer shrink-0 shadow-xs overflow-hidden ${heartBtnClass}`}
+            style={{ width: '32px', height: '32px', minWidth: '32px', minHeight: '32px', borderRadius: '9999px', aspectRatio: '1 / 1', padding: 0 }}
             onClick={handleWishlistToggle}
             aria-label="Wishlist"
           >
