@@ -56,3 +56,24 @@ CREATE TABLE IF NOT EXISTS leads (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE SET NULL
 );
+
+-- Coupons / discount codes table
+CREATE TABLE IF NOT EXISTS coupons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    title VARCHAR(150) NULL,
+    description TEXT NULL,
+    discount_type ENUM('flat', 'percentage') NOT NULL DEFAULT 'flat',
+    discount_value DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    applies_to ENUM('booking_amount', 'car_price') NOT NULL DEFAULT 'booking_amount',
+    min_order_amount DECIMAL(12, 2) NOT NULL DEFAULT 0,
+    max_discount_amount DECIMAL(12, 2) NULL,
+    usage_limit INT NULL,
+    used_count INT NOT NULL DEFAULT 0,
+    valid_from DATETIME NULL,
+    valid_until DATETIME NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
