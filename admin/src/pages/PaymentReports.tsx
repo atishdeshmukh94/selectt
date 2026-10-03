@@ -407,28 +407,26 @@ export default function PaymentReports() {
                            {r.payment_status}
                          </span>
                       </td>
-                      <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                      <td className="px-4 py-3.5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
                           {/* 1. Download PDF */}
                           <a
                             href={`${API}/api/bookings/${r.booking_no || r.id}/receipt?format=pdf`}
                             target="_blank"
                             rel="noreferrer"
-                            title="Download Official Booking Receipt PDF"
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1C3EB9] dark:bg-blue-950/50 dark:hover:bg-blue-900/60 dark:text-blue-300 font-extrabold text-[11px] border border-blue-200 dark:border-blue-800 transition-all active:scale-95 shadow-2xs"
+                            title="Download Booking Receipt PDF"
+                            className="w-8 h-8 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#1C3EB9] dark:bg-blue-950/50 dark:hover:bg-blue-900/60 dark:text-blue-300 flex items-center justify-center border border-blue-200 dark:border-blue-800 transition-all active:scale-95 shadow-2xs"
                           >
-                            <FileText size={13} className="text-[#1C3EB9]" />
-                            <span>PDF</span>
+                            <FileText size={15} />
                           </a>
 
                           {/* 2. Send via WhatsApp */}
                           <button
                             onClick={() => handleSendWhatsApp(r)}
                             title={`Send Receipt via WhatsApp to +91 ${r.phone}`}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 dark:text-emerald-300 font-extrabold text-[11px] border border-emerald-200 dark:border-emerald-800 transition-all active:scale-95 cursor-pointer shadow-2xs"
+                            className="w-8 h-8 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 dark:text-emerald-300 flex items-center justify-center border border-emerald-200 dark:border-emerald-800 transition-all active:scale-95 cursor-pointer shadow-2xs"
                           >
-                            <MessageSquare size={13} className="text-emerald-600 dark:text-emerald-400" />
-                            <span>WhatsApp</span>
+                            <MessageSquare size={15} />
                           </button>
 
                           {/* 3. Send via Email */}
@@ -436,14 +434,13 @@ export default function PaymentReports() {
                             onClick={() => handleSendEmail(r)}
                             disabled={sendingEmailId === (r.booking_no || r.id)}
                             title={`Send Receipt PDF to ${r.email || 'customer'}`}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 font-extrabold text-[11px] border border-slate-200 dark:border-gray-700 transition-all active:scale-95 cursor-pointer shadow-2xs disabled:opacity-50"
+                            className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 flex items-center justify-center border border-slate-200 dark:border-gray-700 transition-all active:scale-95 cursor-pointer shadow-2xs disabled:opacity-50"
                           >
                             {sendingEmailId === (r.booking_no || r.id) ? (
-                              <Loader2 size={13} className="animate-spin text-[#1C3EB9]" />
+                              <Loader2 size={15} className="animate-spin text-[#1C3EB9]" />
                             ) : (
-                              <Mail size={13} className="text-slate-600 dark:text-slate-300" />
+                              <Mail size={15} />
                             )}
-                            <span>{sendingEmailId === (r.booking_no || r.id) ? "Sending..." : "Email"}</span>
                           </button>
                         </div>
                       </td>

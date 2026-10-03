@@ -277,7 +277,7 @@ export default function BookedCars() {
 
           <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-slate-200/80 dark:border-gray-800 shadow-2xs flex items-center justify-between">
             <div>
-              <span className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-wider block">1-Yr Maintenance</span>
+              <span className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-wider block">AMC Subscribed</span>
               <span className="text-xl font-black text-teal-600 dark:text-teal-400 mt-0.5 block">{maintenancePkgCount}</span>
             </div>
             <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center">
@@ -353,16 +353,16 @@ export default function BookedCars() {
               </select>
             </div>
 
-            {/* Maintenance Package Filter */}
+            {/* Maintenance / AMC Package Filter */}
             <div>
               <select
                 value={maintenanceFilter}
                 onChange={e => setMaintenanceFilter(e.target.value)}
                 className="w-full px-3.5 py-2 border border-slate-200 dark:border-gray-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#1C3EB9] dark:bg-gray-800 dark:text-white bg-white cursor-pointer"
               >
-                <option value="all">🛡️ Maintenance: All</option>
-                <option value="yes">✓ With 1-Yr Package</option>
-                <option value="no">✕ No Package</option>
+                <option value="all">🛡️ AMC: All</option>
+                <option value="yes">✓ AMC: YES</option>
+                <option value="no">✕ AMC: NO</option>
               </select>
             </div>
 
@@ -474,18 +474,18 @@ export default function BookedCars() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse">
+              <table className="w-full text-xs text-left border-collapse table-auto">
                 <thead className="bg-slate-50 dark:bg-gray-800/80 text-[11px] font-black text-slate-500 dark:text-gray-400 uppercase tracking-wider border-b border-slate-200/80 dark:border-gray-700">
                   <tr>
-                    <th className="px-4 py-3.5 whitespace-nowrap">Booking Info</th>
-                    <th className="px-4 py-3.5 whitespace-nowrap">Customer</th>
-                    <th className="px-4 py-3.5 whitespace-nowrap">Vehicle Specs</th>
-                    <th className="px-4 py-3.5 whitespace-nowrap">Registration No</th>
-                    <th className="px-4 py-3.5 whitespace-nowrap">1-Yr Maintenance</th>
-                    <th className="px-4 py-3.5 whitespace-nowrap">Token Advance</th>
-                    <th className="px-4 py-3.5 whitespace-nowrap">Booking Status</th>
-                    <th className="px-4 py-3.5 whitespace-nowrap">Loan Interest</th>
-                    <th className="px-4 py-3.5 text-right whitespace-nowrap">Actions</th>
+                    <th className="px-2.5 py-2.5 whitespace-nowrap">Booking Info</th>
+                    <th className="px-2.5 py-2.5 whitespace-nowrap">Customer</th>
+                    <th className="px-2.5 py-2.5 whitespace-nowrap">Vehicle Specs</th>
+                    <th className="px-2 py-2.5 whitespace-nowrap">Reg No</th>
+                    <th className="px-2 py-2.5 whitespace-nowrap">AMC</th>
+                    <th className="px-2.5 py-2.5 whitespace-nowrap">Token Advance</th>
+                    <th className="px-2 py-2.5 whitespace-nowrap">Status</th>
+                    <th className="px-2 py-2.5 whitespace-nowrap">Loan</th>
+                    <th className="px-2 py-2.5 text-right whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200/80 dark:divide-gray-800">
@@ -494,100 +494,127 @@ export default function BookedCars() {
                     const pkg = checkMaintenancePkg(b);
                     return (
                       <tr key={b.id} className="hover:bg-slate-50/70 dark:hover:bg-gray-800/40 transition-colors">
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <div className="font-mono text-xs font-black text-[#1C3EB9] mb-0.5 whitespace-nowrap">{b.booking_no}</div>
+                        {/* 1. Booking Info (Clickable Booking ID) */}
+                        <td className="px-2.5 py-2.5 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => handleViewDetails(b)}
+                            className="font-mono text-xs font-black text-[#1C3EB9] hover:text-blue-700 hover:underline mb-0.5 whitespace-nowrap text-left cursor-pointer transition-colors block active:scale-98"
+                            title="Click to view Reservation Details"
+                          >
+                            {b.booking_no}
+                          </button>
                           <div className="text-[10px] text-slate-500 dark:text-gray-400 font-extrabold uppercase flex items-center gap-1 whitespace-nowrap">
-                            <Calendar size={12} className="text-slate-400" />
+                            <Calendar size={11} className="text-slate-400 shrink-0" />
                             {new Date(b.created_at).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' })}
                           </div>
                         </td>
 
-                        <td className="px-4 py-4 whitespace-nowrap">
+                        {/* 2. Customer */}
+                        <td className="px-2.5 py-2.5 whitespace-nowrap">
                           <div className="font-black text-slate-900 dark:text-white text-xs leading-tight mb-0.5 whitespace-nowrap">{b.first_name} {b.last_name}</div>
-                          <div className="text-xs text-slate-500 font-semibold mb-1 whitespace-nowrap">{b.phone}</div>
+                          <div className="text-[11px] text-slate-500 font-semibold mb-0.5 whitespace-nowrap">{b.phone}</div>
                           {b.test_drive_date ? (
-                            <div className="flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800/40 w-max whitespace-nowrap">
-                              <span>Drive: {b.test_drive_date} • {b.test_drive_slot}</span>
+                            <div className="flex items-center gap-1 text-[9px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.2 rounded border border-emerald-200/60 dark:border-emerald-800/40 w-max whitespace-nowrap">
+                              <span>Drive: {b.test_drive_date}</span>
                             </div>
                           ) : (
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider italic whitespace-nowrap">No Test Drive</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider italic whitespace-nowrap">No Test Drive</span>
                           )}
                         </td>
 
-                        <td className="px-4 py-4 max-w-[200px]">
+                        {/* 3. Vehicle Specs */}
+                        <td className="px-2.5 py-2.5 max-w-[170px]">
                           <div>
-                            <div className="font-black text-slate-900 dark:text-white uppercase text-xs leading-snug break-words">{b.make} {b.model} {b.variant || ""}</div>
-                            <div className="text-xs text-[#1C3EB9] font-black whitespace-nowrap mt-1">{b.year} • ₹{(b.final_amount/100000).toFixed(2)} Lakh</div>
+                            <div className="font-black text-slate-900 dark:text-white uppercase text-[11px] leading-tight truncate" title={`${b.make} ${b.model} ${b.variant || ""}`}>
+                              {b.make} {b.model} {b.variant || ""}
+                            </div>
+                            <div className="text-[10px] text-[#1C3EB9] font-black whitespace-nowrap mt-0.5">
+                              {b.year} • ₹{(b.final_amount/100000).toFixed(2)} Lakh
+                            </div>
                           </div>
                         </td>
 
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 font-mono text-xs font-extrabold text-slate-800 dark:text-gray-200 uppercase tracking-wider">
-                            {b.registration_no || b.registrationNo || `MH-${(b.car_id % 45 + 1).toString().padStart(2, '0')}-XX-${(1000 + b.car_id)}`}
+                        {/* 4. Registration No (Reduced font size) */}
+                        <td className="px-2 py-2.5 whitespace-nowrap">
+                          <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 font-mono text-[10px] font-extrabold text-slate-700 dark:text-gray-300 uppercase tracking-tight">
+                            {b.registration_no || b.registrationNo || (b.car_id ? `MH-${(b.car_id % 45 + 1).toString().padStart(2, '0')}-XX-${(1000 + b.car_id)}` : "—")}
                           </span>
                         </td>
 
-                        {/* 1-Yr Maintenance Package Column */}
-                        <td className="px-4 py-4 whitespace-nowrap">
+                        {/* 5. AMC (YES or NO badge with package name) */}
+                        <td className="px-2 py-2.5 whitespace-nowrap">
                           {pkg.isAdded ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-black bg-teal-50 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200 dark:border-teal-800 shadow-2xs">
-                              <Wrench size={12} className="text-teal-600" />
-                              <span>{pkg.planType === 'full' ? '1-Yr (₹11,287)' : '1-Yr (₹990/m)'}</span>
-                            </span>
+                            <div className="flex flex-col gap-0.5">
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 w-max shadow-2xs">
+                                <Check size={10} className="stroke-[3]" />
+                                <span>YES</span>
+                              </span>
+                              <span className="text-[10px] font-extrabold text-slate-700 dark:text-slate-300 leading-tight">
+                                {b.maintenance_package_name || (pkg.planType === 'full' ? '1-Yr Comprehensive' : '1-Yr Standard')}
+                              </span>
+                            </div>
                           ) : (
-                            <span className="text-[11px] font-semibold text-slate-400 italic">— None</span>
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-slate-100 text-slate-500 dark:bg-gray-800 dark:text-gray-400 border border-slate-200 dark:border-gray-700 w-max">
+                              <X size={9} className="stroke-[3]" />
+                              <span>NO</span>
+                            </span>
                           )}
                         </td>
 
-                        <td className="px-4 py-4 whitespace-nowrap">
-                           <div className="flex flex-col gap-1">
-                              <div className="flex items-center gap-2 whitespace-nowrap">
+                        {/* 6. Token Advance */}
+                        <td className="px-2.5 py-2.5 whitespace-nowrap">
+                           <div className="flex flex-col gap-0.5">
+                              <div className="flex items-center gap-1.5 whitespace-nowrap">
                                  <span className="text-xs font-black text-slate-900 dark:text-white">₹{Number(b.booking_amount).toLocaleString()}</span>
-                                 <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase border whitespace-nowrap ${PAYMENT_STATUS_COLORS[b.payment_status] || "bg-gray-100 text-gray-700"}`}>
+                                 <span className={`px-1.5 py-0.2 rounded-full text-[8.5px] font-black uppercase border whitespace-nowrap ${PAYMENT_STATUS_COLORS[b.payment_status] || "bg-gray-100 text-gray-700"}`}>
                                    {b.payment_status}
                                  </span>
                               </div>
-                              <div className="text-[10px] text-slate-400 font-extrabold whitespace-nowrap">Total: ₹{Number(b.final_amount).toLocaleString()}</div>
+                              <div className="text-[9.5px] text-slate-400 font-extrabold whitespace-nowrap">Total: ₹{Number(b.final_amount).toLocaleString()}</div>
                            </div>
                         </td>
 
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border capitalize ${BOOKING_STATUS_COLORS[b.booking_status] || "bg-gray-100 text-gray-700"}`}>
+                        {/* 7. Booking Status */}
+                        <td className="px-2 py-2.5 whitespace-nowrap">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black border capitalize ${BOOKING_STATUS_COLORS[b.booking_status] || "bg-gray-100 text-gray-700"}`}>
                              {b.booking_status}
                           </span>
                         </td>
 
-                        <td className="px-4 py-4 whitespace-nowrap">
+                        {/* 8. Loan Interest */}
+                        <td className="px-2 py-2.5 whitespace-nowrap">
                           {isLoanInterested ? (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 shadow-2xs">
-                              <Landmark size={12} />
-                              <span>✓ Interested</span>
+                            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 shadow-2xs">
+                              <Landmark size={10} />
+                              <span>Interested</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 dark:bg-gray-800 dark:text-gray-400 border border-slate-200 dark:border-gray-700">
-                              <span>✕ Self-Financed</span>
+                            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-500 dark:bg-gray-800 dark:text-gray-400 border border-slate-200 dark:border-gray-700">
+                              <span>Self-Fin</span>
                             </span>
                           )}
                         </td>
 
-                        <td className="px-4 py-4 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1.5">
+                        {/* 9. Actions */}
+                        <td className="px-2 py-2.5 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => handleViewDetails(b)}
-                              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-200 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-95"
+                              className="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-200 rounded-lg transition-all cursor-pointer shadow-2xs active:scale-95"
                               title="View Full Booking Details"
                             >
-                              <Eye size={15} />
+                              <Eye size={13} />
                             </button>
 
                             {b.booking_status === 'pending' && (
                                <button 
                                 onClick={() => updateStatus(b.id, 'booking_status', 'confirmed')}
                                 disabled={updating === b.id}
-                                className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border border-emerald-200/80 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-50"
+                                className="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border border-emerald-200/80 rounded-lg transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-50"
                                 title="Confirm Booking"
                               >
-                                <Check size={15} />
+                                <Check size={13} />
                               </button>
                             )}
                             
@@ -595,10 +622,10 @@ export default function BookedCars() {
                               <button 
                                 onClick={() => handleComplete(b)}
                                 disabled={updating === b.id}
-                                className="p-2 bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white border border-purple-200/80 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-50"
+                                className="p-1.5 bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white border border-purple-200/80 rounded-lg transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-50"
                                 title="Mark Completed"
                               >
-                                <CheckCircle size={15} />
+                                <CheckCircle size={13} />
                               </button>
                             )}
 
@@ -606,10 +633,10 @@ export default function BookedCars() {
                               <button 
                                 onClick={() => updateStatus(b.id, 'booking_status', 'cancelled')}
                                 disabled={updating === b.id}
-                                className="p-2 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200/80 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-50"
+                                className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200/80 rounded-lg transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-50"
                                 title="Cancel Booking"
                               >
-                                <X size={15} />
+                                <X size={13} />
                               </button>
                             )}
                           </div>
@@ -751,14 +778,14 @@ export default function BookedCars() {
                       <div className="flex items-center gap-2">
                         <Wrench size={16} className="text-teal-600" />
                         <div>
-                          <span className="font-black text-teal-950 dark:text-teal-200 block">1-Year Maintenance Package</span>
+                          <span className="font-black text-teal-950 dark:text-teal-200 block">AMC (Annual Maintenance Contract)</span>
                           <span className="text-[11px] text-teal-700 dark:text-teal-400 font-medium">
-                            {pkg.isAdded ? `Plan: ${pkg.planType === 'full' ? 'Pay in Full (₹11,287)' : 'Pay Monthly (₹990/m)'}` : 'Not Subscribed'}
+                            {pkg.isAdded ? `Package: ${detailBooking.maintenance_package_name || (pkg.planType === 'full' ? '1-Year Comprehensive (₹11,287)' : '1-Year Standard (₹990/m)')}` : 'Not Subscribed'}
                           </span>
                         </div>
                       </div>
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${pkg.isAdded ? 'bg-teal-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
-                        {pkg.isAdded ? 'Active' : 'No'}
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${pkg.isAdded ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                        {pkg.isAdded ? 'YES' : 'NO'}
                       </span>
                     </div>
                   );
