@@ -434,120 +434,139 @@ const ReceiptSettings: React.FC = () => {
               </span>
             </div>
 
-            {/* Preview Sheet Card */}
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 text-[#0F172A] font-sans text-xs">
-              {/* Top Accent Strip */}
-              <div className="h-1.5 bg-[#00C9AF] rounded-t-lg -mx-6 -mt-6 mb-5" />
+            {/* Preview Sheet Card — mirrors the actual PDF receipt */}
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden text-[#0F172A] font-sans text-[10px]">
 
-              {/* Header */}
-              <div className="flex items-start justify-between border-b border-dashed border-gray-200 pb-4 mb-4">
-                <div>
+              {/* ── Teal top accent strip */}
+              <div className="h-[5px] bg-[#0D9488]" />
+
+              {/* ── White header row: Logo left | Booking info right */}
+              <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3">
+                <div className="flex-1">
                   {settings.receipt_logo_url ? (
                     <img
                       src={settings.receipt_logo_url}
                       alt="Logo"
-                      className="h-7 w-auto mb-1 object-contain"
-                      onError={(e: any) => {
-                        e.target.style.display = "none";
-                      }}
+                      className="h-8 w-auto object-contain"
+                      onError={(e: any) => { e.target.style.display = "none"; }}
                     />
-                  ) : null}
-                  <div className="font-extrabold text-sm text-[#0C1B33]">{settings.receipt_company_name}</div>
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider">{settings.receipt_subtitle}</div>
+                  ) : (
+                    <span className="font-extrabold text-base text-[#0D9488]">Selectt</span>
+                  )}
                 </div>
-                <div className="text-right">
-                  <div className="font-extrabold text-sm text-[#0C1B33] uppercase">{settings.receipt_title}</div>
-                  <div className="font-bold text-xs text-[#00A38D] mt-0.5">#BK-560496</div>
-                  <div className="text-[10px] text-gray-400 mt-0.5">03 Oct 2026, 11:30 AM</div>
-                  <div className="inline-block mt-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-extrabold text-[9px] uppercase border border-emerald-200">
-                    Payment Confirmed
+                <div className="text-right shrink-0 pl-4 border-l border-gray-200">
+                  <div className="font-bold text-[9px] text-[#0D9488] uppercase tracking-widest">Booking Receipt</div>
+                  <div className="font-extrabold text-sm text-[#0F172A] mt-0.5">BK-560496</div>
+                  <div className="text-[9px] text-gray-400 mt-0.5">03/10/2026, 05:59 AM</div>
+                </div>
+              </div>
+
+              {/* ── Company info strip */}
+              <div className="flex items-center gap-1.5 px-5 py-1.5 bg-slate-50 border-b border-gray-200 text-[9px] text-gray-500">
+                <span className="font-bold text-gray-700">{settings.receipt_company_name}</span>
+                <span>•</span>
+                <span>{settings.receipt_gstin}</span>
+                <span>•</span>
+                <span>selectt.in</span>
+              </div>
+
+              {/* ── Orange disclaimer */}
+              <div className="mx-4 mt-3 flex items-center gap-2 bg-orange-50 border-l-4 border-orange-500 px-3 py-1.5 rounded-r-md">
+                <span className="text-orange-700 font-bold text-[9px]">⚠ This is a booking receipt only — NOT a final invoice. The final Bill of Supply will be issued at delivery.</span>
+              </div>
+
+              {/* ── CUSTOMER section */}
+              <div className="px-5 mt-4">
+                <div className="font-extrabold text-[9px] text-[#0D9488] uppercase tracking-widest mb-2">Customer</div>
+                <div className="grid grid-cols-2 gap-y-1.5">
+                  <div className="flex gap-2"><span className="text-gray-400 w-9 shrink-0">Name</span><span className="font-bold">Rohit Yadav</span></div>
+                  <div className="flex gap-2 justify-end"><span className="text-gray-400">Phone</span><span className="font-bold ml-2">+91 9753003648</span></div>
+                  <div className="flex gap-2"><span className="text-gray-400 w-9 shrink-0">Email</span><span className="font-bold">itraipur36@gmail.com</span></div>
+                  <div className="flex gap-2 justify-end"><span className="text-gray-400">City</span><span className="font-bold ml-2">Mumbai</span></div>
+                </div>
+                <div className="mt-3 border-t border-gray-100" />
+              </div>
+
+              {/* ── VEHICLE section */}
+              <div className="px-5 mt-3">
+                <div className="font-extrabold text-[9px] text-[#0D9488] uppercase tracking-widest mb-2">Vehicle</div>
+                <div className="font-extrabold text-[11px] text-[#0F172A]">SKODA KYLAQ SIGNATURE AT</div>
+                <div className="text-gray-400 text-[9px] mt-0.5">2025 • Automatic • Petrol</div>
+                <div className="grid grid-cols-2 gap-y-1.5 mt-2">
+                  <div className="flex gap-2"><span className="text-gray-400 w-14 shrink-0">Reg. No.</span><span className="font-bold">MH47AY8194</span></div>
+                  <div className="flex gap-2 justify-end"><span className="text-gray-400">Colour</span><span className="font-bold ml-2">● Red</span></div>
+                  <div className="flex gap-2"><span className="text-gray-400 w-14 shrink-0">KMs Driven</span><span className="font-bold">3,100 km</span></div>
+                  <div className="flex gap-2 justify-end"><span className="text-gray-400">Owner</span><span className="font-bold ml-2">1st Owner</span></div>
+                </div>
+                <div className="mt-3 border-t border-gray-100" />
+              </div>
+
+              {/* ── PRICE BREAKUP table */}
+              <div className="px-5 mt-3">
+                <div className="font-extrabold text-[9px] text-[#0D9488] uppercase tracking-widest mb-2">Price Breakup</div>
+                <div className="bg-slate-50 rounded overflow-hidden border border-slate-200">
+                  <div className="grid grid-cols-4 bg-slate-100 px-2 py-1 text-[8px] font-bold text-gray-400 uppercase tracking-wide">
+                    <span className="col-span-2">Item</span><span className="text-right">Discount</span><span className="text-right">Amount</span>
+                  </div>
+                  {[
+                    ["Vehicle – SKODA KYLAQ", "₹0 (0.00%)", "₹11,31,900"],
+                    ["RC Transfer", "—", "₹10,500"],
+                    ["Professional Detailing", "100%", "FREE"],
+                    ["Standard Service", "100%", "FREE"],
+                    ["Car Delivery & Refueling", "—", "₹2,600"],
+                  ].map(([item, disc, amt], i) => (
+                    <div key={i} className="grid grid-cols-4 px-2 py-1 border-t border-slate-200">
+                      <span className="col-span-2 text-gray-700">{item}</span>
+                      <span className="text-right text-gray-500">{disc}</span>
+                      <span className={`text-right font-semibold ${amt === "FREE" ? "text-emerald-600" : "text-gray-800"}`}>{amt}</span>
+                    </div>
+                  ))}
+                  <div className="grid grid-cols-4 px-2 py-1.5 border-t-2 border-gray-300 bg-white">
+                    <span className="col-span-2 font-bold text-gray-800">Total Deal Value</span>
+                    <span />
+                    <span className="text-right font-extrabold text-gray-900">₹11,45,000</span>
                   </div>
                 </div>
               </div>
 
-              {/* 2 Grid Info Cards */}
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                  <div className="font-bold text-[9px] text-gray-400 uppercase tracking-wide mb-1">Customer Details</div>
-                  <div className="font-bold text-gray-900 text-xs">Rohit Yadav</div>
-                  <div className="text-gray-500 text-[10.5px] mt-0.5">+91 97530 03648</div>
-                  <div className="text-gray-500 text-[10.5px]">rohit@selectt.in</div>
+              {/* ── Booking Amount green card */}
+              <div className="mx-5 mt-3 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-2.5 flex justify-between items-center">
+                <div>
+                  <div className="font-bold text-emerald-800 text-[10px]">Booking Amount Received</div>
+                  <div className="text-emerald-600 text-[9px] mt-0.5">UPI • Txn ID TjKQWRyJMcPtmo</div>
                 </div>
-                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                  <div className="font-bold text-[9px] text-gray-400 uppercase tracking-wide mb-1">Transaction Summary</div>
-                  <div className="font-extrabold text-[#047857] text-sm">₹11,000.00</div>
-                  <div className="text-gray-500 text-[10px]">Token Booking Advance</div>
-                  <div className="text-gray-500 text-[10px] mt-0.5 truncate">ID: pay_TjKQWRyJMcPtmo</div>
-                </div>
+                <div className="font-extrabold text-emerald-600 text-sm">₹11,000</div>
               </div>
 
-              {/* Car Info Box */}
-              <div className="bg-emerald-50/60 p-3 rounded-lg border border-emerald-100 mb-4">
-                <div className="font-bold text-[9px] text-emerald-800 uppercase tracking-wide mb-1">Reserved Vehicle</div>
-                <div className="font-extrabold text-sm text-[#0C1B33]">2025 Skoda Kylaq Signature MT</div>
-                <div className="text-gray-600 text-[10.5px] mt-0.5">14,200 KM • Petrol • Manual • Mumbai</div>
-                <div className="text-[10px] text-[#00A38D] font-bold mt-1 underline">
-                  https://selectt.in/car/41
-                </div>
+              {/* ── Balance slate card */}
+              <div className="mx-5 mt-2 mb-3 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 flex justify-between items-center">
+                <span className="font-bold text-gray-700 text-[10px]">Balance Payable at Delivery</span>
+                <span className="font-extrabold text-gray-900 text-[11px]">₹11,34,000</span>
               </div>
 
-              {/* Breakdown Table */}
-              <div className="bg-slate-50 rounded-lg border border-slate-200 overflow-hidden mb-4">
-                <div className="flex justify-between items-center px-3 py-1.5 border-b border-slate-200 text-gray-700">
-                  <span>Total Vehicle On-Road Price</span>
-                  <span className="font-bold">₹11,45,000.00</span>
-                </div>
-                <div className="flex justify-between items-center px-3 py-1.5 border-b border-slate-200 text-[#047857] font-bold">
-                  <span>Token Booking Advance Paid</span>
-                  <span>- ₹11,000.00</span>
-                </div>
-                <div className="flex justify-between items-center px-3 py-1.5 font-bold text-gray-900 bg-white">
-                  <span>Remaining Balance Due at Handover</span>
-                  <span>₹11,34,000.00</span>
-                </div>
+              {/* ── Terms */}
+              <div className="px-5 pb-2">
+                <div className="font-extrabold text-[9px] text-[#0D9488] uppercase tracking-widest mb-1.5">Terms & Conditions</div>
+                <ol className="space-y-0.5 text-[8.5px] text-gray-500 list-decimal list-inside">
+                  <li>Vehicle sold on "As Is Where Is" basis after purchaser's inspection and acceptance.</li>
+                  <li>Ownership transfer, insurance, and statutory compliance are the purchaser's responsibility post-delivery.</li>
+                  <li>All liabilities, penalties, challans, or claims after delivery shall be borne by the purchaser.</li>
+                  <li>Goods/Vehicle once sold will not be returned, exchanged, or refunded.</li>
+                  <li>Subject to Mumbai Jurisdiction only.</li>
+                </ol>
               </div>
 
-              {/* Guarantee Box */}
-              <div className="bg-teal-50/70 p-2.5 rounded-lg border border-teal-100 mb-4 text-teal-900 leading-snug">
-                <div className="font-bold text-[9px] text-teal-800 uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <ShieldCheck size={12} className="text-[#00C9AF]" />
-                  <span>Selectt Assured 100% Refundable Guarantee</span>
+              {/* ── Footer */}
+              <div className="border-t border-gray-200 mx-5 mb-4 pt-2 space-y-0.5">
+                <div className="text-[8.5px] text-gray-600">
+                  <span className="font-bold text-gray-800">Bank: </span>
+                  Selectt Mobility • IndusInd Bank, IC Colony Borivali | A/c 257878785288 • IFSC INDB0002144
                 </div>
-                <div className="text-[10px] text-teal-800">{settings.receipt_guarantee_text}</div>
-              </div>
-
-              {/* Signature & Seal Row */}
-              <div className="flex items-end justify-between border-t border-gray-100 pt-3 mb-3">
-                <div className="space-y-0.5">
-                  <div className="text-[9px] text-gray-400 font-bold uppercase">Contact & Support</div>
-                  <div className="text-[10px] text-gray-600">{settings.receipt_company_phone} • {settings.receipt_company_email}</div>
-                  <div className="text-[9px] text-gray-500">{settings.receipt_company_address}</div>
-                  {settings.receipt_gstin && (
-                    <div className="text-[9px] text-gray-500 font-mono">GSTIN: {settings.receipt_gstin}</div>
-                  )}
+                <div className="text-[8.5px] text-gray-600">
+                  <span className="font-bold text-gray-800">Contact: </span>
+                  {settings.receipt_company_phone} • {settings.receipt_company_email}
                 </div>
-
-                <div className="text-right">
-                  {settings.receipt_signature_url ? (
-                    <img
-                      src={settings.receipt_signature_url}
-                      alt="Signature"
-                      className="h-8 w-auto ml-auto mb-1 object-contain"
-                    />
-                  ) : settings.receipt_show_digital_stamp === "true" ? (
-                    <div className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-[#00C9AF]/60 bg-[#00C9AF]/10 text-[#00A38D] font-extrabold text-[9px] mb-1">
-                      <ShieldCheck size={11} />
-                      <span>DIGITALLY VERIFIED</span>
-                    </div>
-                  ) : null}
-                  <div className="font-bold text-[10px] text-[#0C1B33]">{settings.receipt_signatory_name}</div>
-                  <div className="text-[9px] text-gray-500">{settings.receipt_signatory_title}</div>
-                </div>
-              </div>
-
-              {/* Footer Note */}
-              <div className="text-[9px] text-gray-400 border-t border-gray-100 pt-2 text-center italic">
-                {settings.receipt_footer_note}
+                <div className="text-[8px] text-gray-400">{settings.receipt_company_address}</div>
               </div>
             </div>
           </div>

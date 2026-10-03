@@ -65,13 +65,13 @@ async function getStLogoIconBuffer() {
  * @returns {Promise<Buffer>}
  */
 async function generateBookingReceiptPdf(data) {
-  // Load the real Selectt header logo (white version on dark, or the primary logo)
+  // Load the Selectt dark-logo.svg and rasterize to PNG for PDFKit
   let headerLogoBuffer = null;
   try {
-    const logoPath = path.join(__dirname, 'public', 'img', 'header-logo.png');
+    const logoPath = path.join(__dirname, 'public', 'img', 'dark-logo.svg');
     if (fs.existsSync(logoPath)) {
-      headerLogoBuffer = await sharp(fs.readFileSync(logoPath))
-        .resize({ height: 52, fit: 'inside', withoutEnlargement: true })
+      headerLogoBuffer = await sharp(fs.readFileSync(logoPath), { density: 300 })
+        .resize({ height: 80, fit: 'inside', withoutEnlargement: false })
         .png()
         .toBuffer();
     }
@@ -193,15 +193,13 @@ async function generateBookingReceiptPdf(data) {
       // ── Thin outer border around header
       doc.rect(startX, y, contentWidth, headerHeight).stroke(BORDER_LIGHT);
 
-      // ── Left side: Selectt logo
+      // ── Left side: Selectt logo (dark-logo.svg rasterized)
       let logoPrintedW = 0;
       if (headerLogoBuffer) {
         try {
-          // Resize to max height 40 inside header
-          const logoH = 38;
-          const logoW = Math.round(logoH * 2990 / 1000); // preserve aspect ratio
-          doc.image(headerLogoBuffer, startX + 14, y + 13, { height: logoH });
-          logoPrintedW = logoW + 20;
+          const logoH = 34;
+          doc.image(headerLogoBuffer, startX + 14, y + 15, { height: logoH });
+          logoPrintedW = 130; // approximate rendered width
         } catch (_) {}
       }
 
