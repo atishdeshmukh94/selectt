@@ -451,8 +451,29 @@ const BuyCarsPage = () => {
     }
     if (filters.brands?.length > 0 && !filters.brands.some(b => b.toLowerCase() === (car.make || '').toLowerCase())) return false;
     if (filters.models?.length > 0 && !filters.models.some(m => m.toLowerCase() === (car.model || '').toLowerCase())) return false;
-    if (filters.body_type?.length > 0 && !filters.body_type.some(bt => bt.toLowerCase() === (car.bodyType || car.body_type || '').toLowerCase())) return false;
-    if (filters.fuel && (car.fuelType || car.fuel_type || '').toLowerCase() !== filters.fuel.toLowerCase()) return false;
+    if (filters.body_type?.length > 0) {
+      const carBt = (car.bodyType || car.body_type || '').toLowerCase().trim();
+      const match = filters.body_type.some(bt => {
+        const filterBt = bt.toLowerCase().trim();
+        if (carBt === filterBt) return true;
+        if (carBt.replace(/[-\s]/g, '') === filterBt.replace(/[-\s]/g, '')) return true;
+        return false;
+      });
+      if (!match) return false;
+    }
+    if (filters.fuel) {
+      const carFuel = (car.fuelType || car.fuel_type || '').toLowerCase().trim();
+      const filterFuel = filters.fuel.toLowerCase().trim();
+      if (filterFuel === 'petrol/cng' || filterFuel === 'petrol / cng' || filterFuel === 'cng/petrol') {
+        const isPetrolCng = (carFuel.includes('petrol') && carFuel.includes('cng')) || carFuel === 'petrol/cng' || carFuel === 'petrol / cng';
+        if (!isPetrolCng) return false;
+      } else if (filterFuel === 'cng') {
+        const isCng = carFuel === 'cng' || carFuel.includes('cng');
+        if (!isCng) return false;
+      } else {
+        if (carFuel !== filterFuel) return false;
+      }
+    }
     if (filters.transmission && (car.transmission || '').toLowerCase() !== filters.transmission.toLowerCase()) return false;
     if (filters.owners?.length > 0 && !filters.owners.some(o => (car.owner_type || car.ownership || '').toLowerCase().includes(o.split(' ')[0].toLowerCase()))) return false;
     if (filters.year_min && parseInt(car.year) < filters.year_min) return false;

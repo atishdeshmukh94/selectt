@@ -808,6 +808,7 @@ export const PremiumHeader: React.FC = () => {
                 { label: 'Petrol', query: { fuel: 'Petrol' } },
                 { label: 'Diesel', query: { fuel: 'Diesel' } },
                 { label: 'CNG', query: { fuel: 'CNG' } },
+                { label: 'Petrol/CNG', query: { fuel: 'Petrol/CNG' } },
                 { label: 'Electric', query: { fuel: 'Electric' } },
                 { label: 'Hybrid', query: { fuel: 'Hybrid' } }
               ].map((opt, i) => (
@@ -852,7 +853,10 @@ export const PremiumHeader: React.FC = () => {
                 { label: 'Hatchback', query: { body_type: ['Hatchback'] } },
                 { label: 'Sedan', query: { body_type: ['Sedan'] } },
                 { label: 'SUV', query: { body_type: ['SUV'] } },
-                { label: 'MUV', query: { body_type: ['MUV'] } }
+                { label: 'Compact SUV', query: { body_type: ['Compact SUV'] } },
+                { label: 'MUV', query: { body_type: ['MUV'] } },
+                { label: 'Luxury Sedan', query: { body_type: ['Luxury Sedan'] } },
+                { label: 'Luxury SUV', query: { body_type: ['Luxury SUV'] } }
               ].map((opt, i) => (
                 <button key={i} onClick={() => handleNavFilter(opt.query)}>
                   {opt.label}
@@ -1144,10 +1148,13 @@ export const PremiumHeader: React.FC = () => {
                   <h4 className="text-xs font-bold text-[#0C1B33] mb-2 text-left">By body type</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {[
-                      { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
-                      { name: 'MUV', icon: '🚐', query: { body_type: ['MUV'] } },
                       { name: 'Hatchback', icon: '🚗', query: { body_type: ['Hatchback'] } },
-                      { name: 'Sedan', icon: '🏎️', query: { body_type: ['Sedan'] } }
+                      { name: 'Sedan', icon: '🏎️', query: { body_type: ['Sedan'] } },
+                      { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
+                      { name: 'Compact SUV', icon: '🚙', query: { body_type: ['Compact SUV'] } },
+                      { name: 'MUV', icon: '🚐', query: { body_type: ['MUV'] } },
+                      { name: 'Luxury Sedan', icon: '✨', query: { body_type: ['Luxury Sedan'] } },
+                      { name: 'Luxury SUV', icon: '👑', query: { body_type: ['Luxury SUV'] } }
                     ].map((type, idx) => (
                       <button
                         key={idx}
@@ -1160,7 +1167,7 @@ export const PremiumHeader: React.FC = () => {
                         <span className="text-2.5xl mb-1 group-hover:scale-115 transition-transform duration-200 filter drop-shadow-xs">
                           {type.icon}
                         </span>
-                        <span className="text-xs font-bold text-slate-800">{type.name}</span>
+                        <span className="text-[11px] font-bold text-slate-800 leading-tight">{type.name}</span>
                       </button>
                     ))}
                   </div>

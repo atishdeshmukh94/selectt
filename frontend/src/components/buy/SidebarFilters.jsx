@@ -28,6 +28,7 @@ const SidebarFilters = ({ filters = {}, setFilters, onClose, lightBg = false }) 
   // Single accordion state: opening one tab automatically closes other tabs
   const [activeSection, setActiveSection] = useState(() => {
     if (filters.brands?.length) return 'brand';
+    if (filters.body_type?.length) return 'bodyType';
     if (filters.budget || (filters.budget_max && filters.budget_max < 25)) return 'budget';
     if (filters.fuel) return 'fuel';
     if (filters.transmission) return 'transmission';
@@ -58,8 +59,9 @@ const SidebarFilters = ({ filters = {}, setFilters, onClose, lightBg = false }) 
     if (!setFilters) return;
     setFilters(prev => {
       const current = prev[category] || [];
-      const updated = current.includes(value)
-        ? current.filter(item => item !== value)
+      const exists = current.some(item => String(item).toLowerCase() === String(value).toLowerCase());
+      const updated = exists
+        ? current.filter(item => String(item).toLowerCase() !== String(value).toLowerCase())
         : [...current, value];
       return { ...prev, [category]: updated };
     });
@@ -193,15 +195,38 @@ const SidebarFilters = ({ filters = {}, setFilters, onClose, lightBg = false }) 
           </div>
         </FilterSection>
 
+        {/* Body Type */}
+        <FilterSection id="bodyType" activeSection={activeSection} onToggle={handleToggleSection} title="Body Type" lightBg={lightBg}>
+          <div className="flex flex-wrap gap-2">
+            {['Hatchback', 'Sedan', 'SUV', 'Compact SUV', 'MUV', 'Luxury Sedan', 'Luxury SUV'].map(bt => {
+              const isActive = filters.body_type?.some(x => String(x).toLowerCase() === bt.toLowerCase());
+              return (
+                <button
+                  key={bt}
+                  onClick={() => toggleFilter('body_type', bt)}
+                  className={`px-3 py-1.5 border rounded-xl text-[11.5px] font-heading font-bold transition-all tracking-wider cursor-pointer ${isActive
+                    ? 'bg-[#00C9AF] text-slate-950 border-[#00C9AF] font-black shadow-xs'
+                    : lightBg
+                      ? 'border-slate-300 text-slate-800 bg-slate-50 hover:bg-slate-100 hover:border-[#00C9AF] hover:text-[#00A38D]'
+                      : 'border-white/15 text-slate-200 hover:border-[#00C9AF] hover:text-[#00C9AF] bg-white/5 hover:bg-white/10'
+                    }`}
+                >
+                  {bt}
+                </button>
+              );
+            })}
+          </div>
+        </FilterSection>
+
         {/* Fuel Type */}
         <FilterSection id="fuel" activeSection={activeSection} onToggle={handleToggleSection} title="Fuel Type" lightBg={lightBg}>
           <div className="flex flex-wrap gap-2">
-            {['PETROL', 'DIESEL', 'CNG', 'ELECTRIC', 'HYBRID'].map(fuel => {
-              const isActive = filters.fuel === fuel;
+            {['PETROL', 'DIESEL', 'CNG', 'PETROL/CNG', 'ELECTRIC', 'HYBRID'].map(fuel => {
+              const isActive = filters.fuel?.toLowerCase() === fuel.toLowerCase();
               return (
                 <button
                   key={fuel}
-                  onClick={() => setSingleFilter('fuel', isActive ? '' : fuel)}
+                  onClick={() => setSingleFilter('fuel', isActive ? '' : (fuel === 'PETROL/CNG' ? 'Petrol/CNG' : fuel))}
                   className={`px-3.5 py-1.5 border rounded-full text-[11.5px] font-heading font-bold transition-all tracking-wider cursor-pointer ${isActive
                     ? 'bg-[#00C9AF] text-slate-950 border-[#00C9AF] font-black shadow-xs'
                     : lightBg

@@ -415,6 +415,7 @@ const Header = () => {
                 { label: 'Petrol', query: { fuel: 'Petrol' } },
                 { label: 'Diesel', query: { fuel: 'Diesel' } },
                 { label: 'CNG', query: { fuel: 'CNG' } },
+                { label: 'Petrol/CNG', query: { fuel: 'Petrol/CNG' } },
                 { label: 'Electric', query: { fuel: 'Electric' } },
                 { label: 'Hybrid', query: { fuel: 'Hybrid' } }
               ]}
@@ -439,7 +440,10 @@ const Header = () => {
                 { label: 'Hatchback', query: { body_type: ['Hatchback'] } },
                 { label: 'Sedan', query: { body_type: ['Sedan'] } },
                 { label: 'SUV', query: { body_type: ['SUV'] } },
-                { label: 'MUV', query: { body_type: ['MUV'] } }
+                { label: 'Compact SUV', query: { body_type: ['Compact SUV'] } },
+                { label: 'MUV', query: { body_type: ['MUV'] } },
+                { label: 'Luxury Sedan', query: { body_type: ['Luxury Sedan'] } },
+                { label: 'Luxury SUV', query: { body_type: ['Luxury SUV'] } }
               ]}
             />
 
@@ -697,10 +701,13 @@ const Header = () => {
                   <h4 className="text-sm font-bold text-[#0C1B33] mb-2 text-left">By body type</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {[
-                      { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
-                      { name: 'MUV', icon: '🚐', query: { body_type: ['MUV'] } },
                       { name: 'Hatchback', icon: '🚗', query: { body_type: ['Hatchback'] } },
-                      { name: 'Sedan', icon: '🏎️', query: { body_type: ['Sedan'] } }
+                      { name: 'Sedan', icon: '🏎️', query: { body_type: ['Sedan'] } },
+                      { name: 'SUV', icon: '🚘', query: { body_type: ['SUV'] } },
+                      { name: 'Compact SUV', icon: '🚙', query: { body_type: ['Compact SUV'] } },
+                      { name: 'MUV', icon: '🚐', query: { body_type: ['MUV'] } },
+                      { name: 'Luxury Sedan', icon: '✨', query: { body_type: ['Luxury Sedan'] } },
+                      { name: 'Luxury SUV', icon: '👑', query: { body_type: ['Luxury SUV'] } }
                     ].map((type, idx) => (
                       <button
                         key={idx}
