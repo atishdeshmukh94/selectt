@@ -638,12 +638,12 @@ const BuyCarsPage = () => {
       />
 
       {/* ── Page Shell ── */}
-      <div className="min-h-screen bg-[#f9f9f9] text-[#0C1B33] font-sans">
+      <div className="min-h-screen bg-[#f9f9f9] text-[#0C1B33] font-sans w-full max-w-full overflow-x-hidden">
 
         {/* ── Marquee Section ── */}
         {marqueeText && (
-          <section className="relative overflow-hidden bg-[#0C1B33] py-2.5 shadow-md z-10 border-b border-white/5">
-            <div className="overflow-hidden flex w-full">
+          <section className="relative overflow-hidden bg-[#0C1B33] py-2.5 shadow-md z-10 border-b border-white/5 w-full max-w-full">
+            <div className="overflow-hidden flex w-full max-w-full">
               <div className="flex whitespace-nowrap gap-8 items-center animate-marquee-left">
                 {/* Copy 1 */}
                 <div className="flex gap-8 items-center">
@@ -670,8 +670,8 @@ const BuyCarsPage = () => {
         {loading ? (
           <BuyCarsSkeleton />
         ) : (
-          <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-4 pb-8">
-            <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start relative">
+          <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-4 pb-8 w-full min-w-0 max-w-full">
+            <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start relative w-full min-w-0 max-w-full">
 
               {/* ── LEFT SIDEBAR ── */}
               <aside className="hidden md:block md:w-[26%] lg:w-[24%] shrink-0 sticky top-24 self-start h-[calc(100vh-120px)] z-20">
@@ -679,7 +679,7 @@ const BuyCarsPage = () => {
               </aside>
 
               {/* ── MAIN CONTENT ── */}
-              <main className="flex-1 min-w-0">
+              <main className="flex-1 min-w-0 w-full max-w-full">
 
                 {/* Page label & SEO H1 Heading */}
                 <div className="flex flex-col gap-2 mb-4 md:mb-8 text-left">
