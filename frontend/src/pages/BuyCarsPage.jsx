@@ -643,13 +643,11 @@ const BuyCarsPage = () => {
           <BuyCarsSkeleton />
         ) : (
           <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-4 pb-8">
-            <div className="flex flex-col md:flex-row gap-6 lg:gap-8">
+            <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start relative">
 
               {/* ── LEFT SIDEBAR ── */}
-              <aside className="hidden md:flex flex-col md:w-[26%] lg:w-[24%] shrink-0">
-                <div className="sticky top-24 h-[calc(100vh-120px)] flex flex-col">
-                  <SidebarFilters filters={filters} setFilters={setFilters} lightBg={true} />
-                </div>
+              <aside className="hidden md:block md:w-[26%] lg:w-[24%] shrink-0 sticky top-24 self-start h-[calc(100vh-120px)] z-20">
+                <SidebarFilters filters={filters} setFilters={setFilters} lightBg={true} />
               </aside>
 
               {/* ── MAIN CONTENT ── */}
