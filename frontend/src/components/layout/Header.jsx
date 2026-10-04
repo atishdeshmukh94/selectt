@@ -34,6 +34,18 @@ const Header = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [frontendHeaderLogo, setFrontendHeaderLogo] = useState(null);
+  const [brandsData, setBrandsData] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/brands`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setBrandsData(data);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -120,76 +132,100 @@ const Header = () => {
     </div>
   );
 
-  const MegaDropdown = () => (
-    <div className="relative group/mega z-[60] h-full flex items-center">
-      <button className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-slate-700 hover:text-slate-950 whitespace-nowrap rounded transition-colors peer cursor-pointer h-8 group-hover/mega:text-[#00B4A0]">
-        Make and Model <ChevronDown size={13} className="opacity-70 group-hover/mega:opacity-100 group-hover/mega:rotate-180 transition-all duration-200" />
-      </button>
-      <div className="absolute top-[100%] left-0 w-[600px] bg-[#051124] shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-200 p-6 rounded-b-lg border border-white/5 border-t-2 border-t-[#00C9AF] flex gap-8">
+  const MegaDropdown = () => {
+    const DEFAULT_MAKE_MODELS = [
+      {
+        name: 'Maruti Suzuki',
+        models: [{ name: 'Baleno' }, { name: 'Swift' }, { name: 'Alto 800' }, { name: 'Wagon R' }, { name: 'Ciaz' }]
+      },
+      {
+        name: 'Honda',
+        models: [{ name: 'City' }, { name: 'Amaze' }, { name: 'Jazz' }, { name: 'Brio' }, { name: 'Elevate' }]
+      },
+      {
+        name: 'Kia',
+        models: [{ name: 'Seltos' }, { name: 'Sonet' }, { name: 'Carens' }, { name: 'Syros' }, { name: 'Carens Clavis' }]
+      },
+      {
+        name: 'Hyundai',
+        models: [{ name: 'Grand i10' }, { name: 'i20' }, { name: 'Creta' }, { name: 'Elite i20' }, { name: 'Venue' }]
+      },
+      {
+        name: 'Tata',
+        models: [{ name: 'Nexon' }, { name: 'Tiago' }, { name: 'Altroz' }, { name: 'Punch' }, { name: 'Harrier' }]
+      },
+      {
+        name: 'Renault',
+        models: [{ name: 'Kwid' }, { name: 'Kiger' }, { name: 'Triber' }, { name: 'Duster' }, { name: 'Captur' }]
+      }
+    ];
 
-        {/* Column 1 */}
-        <div className="flex-1 flex flex-col gap-6">
-          <div>
-            <button onClick={() => handleNavFilter({ brands: ['Maruti Suzuki'] })} className="text-[14px] font-bold text-white mb-2 flex items-center hover:text-[#00C9AF] transition-colors">Maruti Suzuki <ChevronRight size={14} className="ml-1" /></button>
-            <div className="flex flex-col space-y-2">
-              {['Baleno', 'Swift', 'Alto 800', 'Wagon R', 'Ciaz'].map(m => (
-                <button key={m} onClick={() => handleNavFilter({ models: [m] })} className="text-[13px] text-slate-300 hover:text-[#00C9AF] text-left transition-colors cursor-pointer">{m}</button>
-              ))}
+    const activeBrands = brandsData.length > 0 ? brandsData : DEFAULT_MAKE_MODELS;
+
+    const cols = [
+      activeBrands.filter((_, idx) => idx % 3 === 0),
+      activeBrands.filter((_, idx) => idx % 3 === 1),
+      activeBrands.filter((_, idx) => idx % 3 === 2),
+    ];
+
+    return (
+      <div className="relative group/mega z-[60] h-full flex items-center">
+        <button className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-slate-700 hover:text-slate-950 whitespace-nowrap rounded transition-colors peer cursor-pointer h-8 group-hover/mega:text-[#00B4A0]">
+          Make and Model <ChevronDown size={13} className="opacity-70 group-hover/mega:opacity-100 group-hover/mega:rotate-180 transition-all duration-200" />
+        </button>
+        <div className="absolute top-[100%] left-0 w-[680px] max-h-[520px] overflow-y-auto bg-[#051124] shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-200 p-6 rounded-b-lg border border-white/5 border-t-2 border-t-[#00C9AF] flex gap-8">
+          {cols.map((colBrands, colIdx) => (
+            <div key={colIdx} className="flex-1 flex flex-col gap-6">
+              {colBrands.map((brand) => {
+                const brandModels = brand.models || [];
+                return (
+                  <div key={brand.id || brand.name}>
+                    <button
+                      onClick={() => handleNavFilter({ brands: [brand.name] })}
+                      className="text-[14px] font-bold text-white mb-2 flex items-center hover:text-[#00C9AF] transition-colors"
+                    >
+                      {brand.name} <ChevronRight size={14} className="ml-1" />
+                    </button>
+                    {brandModels.length > 0 ? (
+                      <div className="flex flex-col space-y-2">
+                        {brandModels.slice(0, 5).map((m) => {
+                          const modelName = typeof m === 'string' ? m : m.name;
+                          return (
+                            <button
+                              key={modelName}
+                              onClick={() => handleNavFilter({ models: [modelName] })}
+                              className="text-[13px] text-slate-300 hover:text-[#00C9AF] text-left transition-colors cursor-pointer"
+                            >
+                              {modelName}
+                            </button>
+                          );
+                        })}
+                        {brandModels.length > 5 && (
+                          <button
+                            onClick={() => handleNavFilter({ brands: [brand.name] })}
+                            className="text-[11px] text-[#00C9AF] font-bold text-left hover:underline"
+                          >
+                            +{brandModels.length - 5} more
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleNavFilter({ brands: [brand.name] })}
+                        className="text-[12px] text-slate-400 hover:text-[#00C9AF] text-left"
+                      >
+                        Explore {brand.name}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          </div>
-          <div>
-            <button onClick={() => handleNavFilter({ brands: ['Hyundai'] })} className="text-[14px] font-bold text-white mb-2 flex items-center hover:text-[#00C9AF] transition-colors">Hyundai <ChevronRight size={14} className="ml-1" /></button>
-            <div className="flex flex-col space-y-2">
-              {['Grand i10', 'i20', 'Creta', 'Elite i20', 'Venue'].map(m => (
-                <button key={m} onClick={() => handleNavFilter({ models: [m] })} className="text-[13px] text-slate-300 hover:text-[#00C9AF] text-left transition-colors cursor-pointer">{m}</button>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
-
-        {/* Column 2 */}
-        <div className="flex-1 flex flex-col gap-6">
-          <div>
-            <button onClick={() => handleNavFilter({ brands: ['Honda'] })} className="text-[14px] font-bold text-white mb-2 flex items-center hover:text-[#00C9AF] transition-colors">Honda <ChevronRight size={14} className="ml-1" /></button>
-            <div className="flex flex-col space-y-2">
-              {['City', 'Amaze', 'Jazz', 'Brio', 'Elevate'].map(m => (
-                <button key={m} onClick={() => handleNavFilter({ models: [m] })} className="text-[13px] text-slate-300 hover:text-[#00C9AF] text-left transition-colors cursor-pointer">{m}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <button onClick={() => handleNavFilter({ brands: ['Tata'] })} className="text-[14px] font-bold text-white mb-2 flex items-center hover:text-[#00C9AF] transition-colors">Tata <ChevronRight size={14} className="ml-1" /></button>
-            <div className="flex flex-col space-y-2">
-              {['Nexon', 'Tiago', 'Altroz', 'Punch', 'Harrier'].map(m => (
-                <button key={m} onClick={() => handleNavFilter({ models: [m] })} className="text-[13px] text-slate-300 hover:text-[#00C9AF] text-left transition-colors cursor-pointer">{m}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Column 3 */}
-        <div className="flex-1 flex flex-col gap-6">
-          <div>
-            <button onClick={() => handleNavFilter({ brands: ['Kia'] })} className="text-[14px] font-bold text-white mb-2 flex items-center hover:text-[#00C9AF] transition-colors">Kia <ChevronRight size={14} className="ml-1" /></button>
-            <div className="flex flex-col space-y-2">
-              {['Seltos', 'Sonet', 'Carens', 'Syros', 'Carens Clavis'].map(m => (
-                <button key={m} onClick={() => handleNavFilter({ models: [m] })} className="text-[13px] text-slate-300 hover:text-[#00C9AF] text-left transition-colors cursor-pointer">{m}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <button onClick={() => handleNavFilter({ brands: ['Renault'] })} className="text-[14px] font-bold text-white mb-2 flex items-center hover:text-[#00C9AF] transition-colors">Renault <ChevronRight size={14} className="ml-1" /></button>
-            <div className="flex flex-col space-y-2">
-              {['Kwid', 'Kiger', 'Triber', 'Duster', 'Captur'].map(m => (
-                <button key={m} onClick={() => handleNavFilter({ models: [m] })} className="text-[13px] text-slate-300 hover:text-[#00C9AF] text-left transition-colors cursor-pointer">{m}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-
       </div>
-    </div>
-  );
+    );
+  };
 
   const categories = [
     { name: 'MAX', subtitle: 'Luxury cars', color: 'bg-red-50', icon: '🏆' },

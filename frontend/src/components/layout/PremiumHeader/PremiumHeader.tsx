@@ -51,6 +51,18 @@ export const PremiumHeader: React.FC = () => {
   const lastScrollYRef = React.useRef(0);
   const [city, setCity] = useState('Mumbai');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [brandsData, setBrandsData] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/brands`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setBrandsData(data);
+        }
+      })
+      .catch(err => console.error('Failed to fetch brands in header:', err));
+  }, []);
 
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
   const mobileSearchContainerRef = React.useRef<HTMLDivElement>(null);
@@ -669,107 +681,93 @@ export const PremiumHeader: React.FC = () => {
               <IconChevronDown size={13} className={styles.chevronIcon} />
             </button>
             <div className={styles.makeModelDropdown}>
-              {/* Column 1 */}
-              <div className={styles.makeModelDropdownCol}>
-                <div>
-                  <button
-                    onClick={() => handleNavFilter({ brands: ['Maruti Suzuki'] })}
-                    className={styles.makeModelBrandBtn}
-                  >
-                    Maruti Suzuki <IconChevronRight size={12} />
-                  </button>
-                  <ul className={styles.makeModelList}>
-                    {['Baleno', 'Swift', 'Alto 800', 'Wagon R', 'Ciaz'].map((m) => (
-                      <li key={m}>
-                        <button onClick={() => handleNavFilter({ models: [m] })}>{m}</button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <button
-                    onClick={() => handleNavFilter({ brands: ['Hyundai'] })}
-                    className={styles.makeModelBrandBtn}
-                  >
-                    Hyundai <IconChevronRight size={12} />
-                  </button>
-                  <ul className={styles.makeModelList}>
-                    {['Grand i10', 'i20', 'Creta', 'Elite i20', 'Venue'].map((m) => (
-                      <li key={m}>
-                        <button onClick={() => handleNavFilter({ models: [m] })}>{m}</button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+              {(() => {
+                const DEFAULT_MAKE_MODELS = [
+                  {
+                    name: 'Maruti Suzuki',
+                    models: [{ name: 'Baleno' }, { name: 'Swift' }, { name: 'Alto 800' }, { name: 'Wagon R' }, { name: 'Ciaz' }]
+                  },
+                  {
+                    name: 'Honda',
+                    models: [{ name: 'City' }, { name: 'Amaze' }, { name: 'Jazz' }, { name: 'Brio' }, { name: 'Elevate' }]
+                  },
+                  {
+                    name: 'Kia',
+                    models: [{ name: 'Seltos' }, { name: 'Sonet' }, { name: 'Carens' }, { name: 'Syros' }, { name: 'Carens Clavis' }]
+                  },
+                  {
+                    name: 'Hyundai',
+                    models: [{ name: 'Grand i10' }, { name: 'i20' }, { name: 'Creta' }, { name: 'Elite i20' }, { name: 'Venue' }]
+                  },
+                  {
+                    name: 'Tata',
+                    models: [{ name: 'Nexon' }, { name: 'Tiago' }, { name: 'Altroz' }, { name: 'Punch' }, { name: 'Harrier' }]
+                  },
+                  {
+                    name: 'Renault',
+                    models: [{ name: 'Kwid' }, { name: 'Kiger' }, { name: 'Triber' }, { name: 'Duster' }, { name: 'Captur' }]
+                  }
+                ];
 
-              {/* Column 2 */}
-              <div className={styles.makeModelDropdownCol}>
-                <div>
-                  <button
-                    onClick={() => handleNavFilter({ brands: ['Honda'] })}
-                    className={styles.makeModelBrandBtn}
-                  >
-                    Honda <IconChevronRight size={12} />
-                  </button>
-                  <ul className={styles.makeModelList}>
-                    {['City', 'Amaze', 'Jazz', 'Brio', 'Elevate'].map((m) => (
-                      <li key={m}>
-                        <button onClick={() => handleNavFilter({ models: [m] })}>{m}</button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <button
-                    onClick={() => handleNavFilter({ brands: ['Tata'] })}
-                    className={styles.makeModelBrandBtn}
-                  >
-                    Tata <IconChevronRight size={12} />
-                  </button>
-                  <ul className={styles.makeModelList}>
-                    {['Nexon', 'Tiago', 'Altroz', 'Punch', 'Harrier'].map((m) => (
-                      <li key={m}>
-                        <button onClick={() => handleNavFilter({ models: [m] })}>{m}</button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+                const activeBrands = brandsData.length > 0 ? brandsData : DEFAULT_MAKE_MODELS;
 
-              {/* Column 3 */}
-              <div className={styles.makeModelDropdownCol}>
-                <div>
-                  <button
-                    onClick={() => handleNavFilter({ brands: ['Kia'] })}
-                    className={styles.makeModelBrandBtn}
-                  >
-                    Kia <IconChevronRight size={12} />
-                  </button>
-                  <ul className={styles.makeModelList}>
-                    {['Seltos', 'Sonet', 'Carens', 'Syros', 'Carens Clavis'].map((m) => (
-                      <li key={m}>
-                        <button onClick={() => handleNavFilter({ models: [m] })}>{m}</button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <button
-                    onClick={() => handleNavFilter({ brands: ['Renault'] })}
-                    className={styles.makeModelBrandBtn}
-                  >
-                    Renault <IconChevronRight size={12} />
-                  </button>
-                  <ul className={styles.makeModelList}>
-                    {['Kwid', 'Kiger', 'Triber', 'Duster', 'Captur'].map((m) => (
-                      <li key={m}>
-                        <button onClick={() => handleNavFilter({ models: [m] })}>{m}</button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+                // Distribute brands across 3 columns in order
+                const cols = [
+                  activeBrands.filter((_, idx) => idx % 3 === 0),
+                  activeBrands.filter((_, idx) => idx % 3 === 1),
+                  activeBrands.filter((_, idx) => idx % 3 === 2),
+                ];
+
+                return cols.map((colBrands, colIdx) => (
+                  <div key={colIdx} className={styles.makeModelDropdownCol}>
+                    {colBrands.map((brand: any) => {
+                      const brandModels = brand.models || [];
+                      return (
+                        <div key={brand.id || brand.name} className="mb-4">
+                          <button
+                            onClick={() => handleNavFilter({ brands: [brand.name] })}
+                            className={styles.makeModelBrandBtn}
+                          >
+                            <span>{brand.name}</span>
+                            <IconChevronRight size={12} />
+                          </button>
+                          {brandModels.length > 0 ? (
+                            <ul className={styles.makeModelList}>
+                              {brandModels.slice(0, 5).map((m: any) => {
+                                const modelName = typeof m === 'string' ? m : m.name;
+                                return (
+                                  <li key={modelName}>
+                                    <button onClick={() => handleNavFilter({ models: [modelName] })}>
+                                      {modelName}
+                                    </button>
+                                  </li>
+                                );
+                              })}
+                              {brandModels.length > 5 && (
+                                <li>
+                                  <button
+                                    onClick={() => handleNavFilter({ brands: [brand.name] })}
+                                    style={{ fontSize: '11px', color: '#00C9AF', fontWeight: 700 }}
+                                  >
+                                    +{brandModels.length - 5} more
+                                  </button>
+                                </li>
+                              )}
+                            </ul>
+                          ) : (
+                            <button
+                              onClick={() => handleNavFilter({ brands: [brand.name] })}
+                              style={{ fontSize: '12px', color: '#64748b', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                            >
+                              View all cars
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ));
+              })()}
             </div>
           </div>
 

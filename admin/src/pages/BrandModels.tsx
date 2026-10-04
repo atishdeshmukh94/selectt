@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Plus, Edit, Trash2, Car, Settings, Image as ImageIcon, CheckCircle, X, ChevronRight, Upload, Download, FileSpreadsheet, AlertCircle, Check, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Car, Settings, Image as ImageIcon, CheckCircle, X, ChevronRight, Upload, Download, FileSpreadsheet, AlertCircle, Check, Loader2, GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import PageMeta from "../components/common/PageMeta";
 import { toast } from "react-hot-toast";
@@ -24,6 +24,7 @@ interface Brand {
   id: number;
   name: string;
   logo_url: string;
+  order_index?: number;
   models: Model[];
 }
 
@@ -31,6 +32,11 @@ const BrandModels = () => {
   const { token } = useAuth();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Drag & drop reorder state
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   // Modals state
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null); // the active brand being viewed/edited
@@ -58,6 +64,76 @@ const BrandModels = () => {
   useEffect(() => {
     fetchBrands();
   }, []);
+
+  const saveBrandOrder = async (reorderedBrands: Brand[]) => {
+    setIsSavingOrder(true);
+    try {
+      const res = await fetch(`${API}/api/admin/brands/reorder`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ brandIds: reorderedBrands.map(b => b.id) })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Brand order updated! Live on header menu.");
+      } else {
+        toast.error(data.error || "Failed to update brand order");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error updating brand order");
+    } finally {
+      setIsSavingOrder(false);
+    }
+  };
+
+  const handleDragStart = (index: number, e: React.DragEvent) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const updated = [...brands];
+    const [draggedItem] = updated.splice(draggedIndex, 1);
+    updated.splice(dropIndex, 0, draggedItem);
+
+    setBrands(updated);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    saveBrandOrder(updated);
+  };
+
+  const handleMoveBrand = (index: number, direction: 'up' | 'down', e: React.MouseEvent) => {
+    e.stopPropagation();
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= brands.length) return;
+
+    const updated = [...brands];
+    const [item] = updated.splice(index, 1);
+    updated.splice(targetIndex, 0, item);
+
+    setBrands(updated);
+    saveBrandOrder(updated);
+  };
 
   const fetchBrands = async () => {
     setLoading(true);
@@ -421,31 +497,100 @@ const BrandModels = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Col: Brands List */}
         <div className="w-full lg:w-1/3 bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm flex flex-col h-[70vh]">
-          <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">All Brands ({brands.length})</h3>
+          <div className="p-3.5 sm:p-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <div>
+              <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">All Brands ({brands.length})</h3>
+              <p className="text-[10.5px] text-gray-400 mt-0.5">Drag to reorder position in header menu</p>
+            </div>
+            {isSavingOrder && (
+              <span className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                <Loader2 size={12} className="animate-spin" /> Saving
+              </span>
+            )}
           </div>
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {loading && <p className="text-gray-400 text-center py-6 text-sm">Loading...</p>}
-            {!loading && brands.map(brand => (
-              <div
-                key={brand.id}
-                onClick={() => setSelectedBrand(brand)}
-                className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer border transition-all ${selectedBrand?.id === brand.id ? 'border-indigo-500 bg-indigo-50/50 shadow-sm' : 'border-transparent hover:bg-gray-50'}`}
-              >
-                <div className="w-12 h-10 bg-white border border-gray-100 rounded-lg flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                  {brand.logo_url ? (
-                    <img src={brand.logo_url.startsWith('http') ? brand.logo_url : `${API}${brand.logo_url}`} alt={brand.name} className="w-full h-full object-contain p-1" />
-                  ) : (
-                    <Car size={16} className="text-gray-300" />
-                  )}
+          <div className="flex-1 overflow-y-auto p-2.5 sm:p-3 space-y-1.5">
+            {loading && <p className="text-gray-400 text-center py-6 text-sm">Loading brands...</p>}
+            {!loading && brands.map((brand, index) => {
+              const isDragging = draggedIndex === index;
+              const isDragOver = dragOverIndex === index;
+
+              return (
+                <div
+                  key={brand.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(index, e)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragEnd={() => { setDraggedIndex(null); setDragOverIndex(null); }}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onClick={() => setSelectedBrand(brand)}
+                  className={`relative flex items-center gap-2 p-2 rounded-xl cursor-pointer border transition-all select-none group ${
+                    isDragging
+                      ? 'opacity-40 border-dashed border-indigo-400 bg-indigo-50/30 scale-98'
+                      : isDragOver
+                        ? 'border-indigo-500 bg-indigo-50 shadow-md ring-2 ring-indigo-400/30'
+                        : selectedBrand?.id === brand.id
+                          ? 'border-indigo-500 bg-indigo-50/60 shadow-xs'
+                          : 'border-transparent hover:bg-gray-50 hover:border-gray-200'
+                  }`}
+                >
+                  {/* Drag Grip Handle */}
+                  <div
+                    title="Drag up or down to reorder"
+                    className="cursor-grab active:cursor-grabbing text-gray-300 group-hover:text-indigo-600 p-1 rounded transition-colors shrink-0"
+                  >
+                    <GripVertical size={16} />
+                  </div>
+
+                  {/* Brand Position Index Badge */}
+                  <span className="text-[10px] font-bold text-gray-400 w-4 text-center shrink-0">
+                    {index + 1}
+                  </span>
+
+                  {/* Brand Logo */}
+                  <div className="w-10 h-9 bg-white border border-gray-100 rounded-lg flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                    {brand.logo_url ? (
+                      <img src={brand.logo_url.startsWith('http') ? brand.logo_url : `${API}${brand.logo_url}`} alt={brand.name} className="w-full h-full object-contain p-0.5" />
+                    ) : (
+                      <Car size={15} className="text-gray-300" />
+                    )}
+                  </div>
+
+                  {/* Brand Info */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className={`font-semibold text-xs sm:text-sm truncate ${selectedBrand?.id === brand.id ? 'text-indigo-900 font-bold' : 'text-gray-800'}`}>
+                      {brand.name}
+                    </h4>
+                    <p className="text-[11px] text-gray-500">
+                      {brand.models?.length || 0} Models
+                    </p>
+                  </div>
+
+                  {/* Quick Up/Down Buttons */}
+                  <div className="flex items-center gap-0.5 opacity-40 group-hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      disabled={index === 0}
+                      onClick={(e) => handleMoveBrand(index, 'up', e)}
+                      title="Move up"
+                      className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-gray-100 rounded disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-gray-400 cursor-pointer"
+                    >
+                      <ArrowUp size={13} />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={index === brands.length - 1}
+                      onClick={(e) => handleMoveBrand(index, 'down', e)}
+                      title="Move down"
+                      className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-gray-100 rounded disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-gray-400 cursor-pointer"
+                    >
+                      <ArrowDown size={13} />
+                    </button>
+                  </div>
+
+                  <ChevronRight size={16} className={`shrink-0 ${selectedBrand?.id === brand.id ? 'text-indigo-500' : 'text-gray-300'}`} />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className={`font-semibold text-sm truncate ${selectedBrand?.id === brand.id ? 'text-indigo-900' : 'text-gray-800'}`}>{brand.name}</h4>
-                  <p className="text-[11px] text-gray-500 mt-0.5">{brand.models.length} Models</p>
-                </div>
-                <ChevronRight size={18} className={`${selectedBrand?.id === brand.id ? 'text-indigo-400' : 'text-gray-300'}`} />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

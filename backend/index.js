@@ -7093,18 +7093,19 @@ app.delete('/api/admin/blog/tags/:id', authMiddleware, isAdmin, (req, res) => {
 
 // Public: Get all brands with their models and variants
 app.get('/api/brands', (req, res) => {
-    db.query('SELECT * FROM brands ORDER BY name ASC', (err, brands) => {
+    db.query('SELECT * FROM brands ORDER BY order_index ASC, id ASC', (err, brands) => {
         if (err) return res.status(500).json({ error: err.message });
         
-        db.query('SELECT * FROM models ORDER BY name ASC', (err, models) => {
+        db.query('SELECT * FROM models ORDER BY id ASC', (err, models) => {
             if (err) return res.status(500).json({ error: err.message });
             
-            db.query('SELECT * FROM variants ORDER BY name ASC', (err, variants) => {
+            db.query('SELECT * FROM variants ORDER BY id ASC', (err, variants) => {
                 const varList = err ? [] : (variants || []);
                 const brandsWithModels = brands.map(b => ({
                     id: b.id,
                     name: b.name,
                     logo_url: b.logo_url,
+                    order_index: b.order_index != null ? b.order_index : 0,
                     models: models.filter(m => m.brand_id === b.id).map(m => ({
                         id: m.id,
                         brand_id: m.brand_id,
@@ -7118,6 +7119,33 @@ app.get('/api/brands', (req, res) => {
         });
     });
 });
+
+// Admin: Reorder brands (drag & drop reorder)
+const handleReorderBrands = async (req, res) => {
+    const { brandIds } = req.body;
+    if (!Array.isArray(brandIds) || brandIds.length === 0) {
+        return res.status(400).json({ error: 'brandIds array is required' });
+    }
+
+    try {
+        const updatePromises = brandIds.map((id, index) => {
+            return new Promise((resolve, reject) => {
+                db.query('UPDATE brands SET order_index = ? WHERE id = ?', [index, id], (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                });
+            });
+        });
+
+        await Promise.all(updatePromises);
+        res.json({ success: true, message: 'Brand order updated successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+app.put('/api/admin/brands/reorder', authMiddleware, isAdmin, handleReorderBrands);
+app.post('/api/admin/brands/reorder', authMiddleware, isAdmin, handleReorderBrands);
 
 // Public: Get models (optionally filtered by ?brand_id=...)
 app.get(['/api/models', '/api/car-models'], (req, res) => {
@@ -7142,9 +7170,12 @@ app.post('/api/admin/brands', authMiddleware, isAdmin, upload.single('logo'), co
         logo_url = `/uploads/${req.file.filename}`;
     }
     
-    db.query('INSERT INTO brands (name, logo_url) VALUES (?, ?)', [name, logo_url], (err, r) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ id: r.insertId, name, logo_url, message: 'Brand created successfully' });
+    db.query('SELECT COALESCE(MAX(order_index), 0) + 1 AS next_order FROM brands', (err, rows) => {
+        const nextOrder = (rows && rows[0]?.next_order) || 0;
+        db.query('INSERT INTO brands (name, logo_url, order_index) VALUES (?, ?, ?)', [name, logo_url, nextOrder], (err, r) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ id: r.insertId, name, logo_url, order_index: nextOrder, message: 'Brand created successfully' });
+        });
     });
 });
 
