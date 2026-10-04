@@ -358,12 +358,26 @@ const CarCard = ({ car, lightBg = false }) => {
           {/* Pricing and Action button */}
           <div className={`flex items-center justify-between border-t pt-3 mt-1 pb-0 ${lightBg ? 'border-slate-100' : 'border-white/5'}`}>
             <div className="flex flex-col items-start text-left min-w-0 pr-2">
-              {/* Only show strikethrough if there's a real original price */}
-              {(car.original_price || car.originalPrice || car.old_price || car.oldPrice) && (
-                <span className={`text-[12px] font-medium line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
-                  ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)} Lakh
-                </span>
-              )}
+              {/* If there is an offer/discount, show strikethrough original price; otherwise render invisible placeholder of exact same height so horizontal divider line stays at identical position */}
+              {(() => {
+                const orig = Number(car.original_price || car.originalPrice || car.old_price || car.oldPrice || 0);
+                const current = Number(car.price || 0);
+                const hasDiscount = orig > current && orig > 0;
+
+                if (hasDiscount) {
+                  return (
+                    <span className={`block text-[12px] font-medium line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
+                      ₹{(orig / 100000).toFixed(2)} Lakh
+                    </span>
+                  );
+                }
+
+                return (
+                  <span className="block text-[12px] font-medium leading-none mb-1.5 invisible select-none pointer-events-none" aria-hidden="true">
+                    ₹0.00 Lakh
+                  </span>
+                );
+              })()}
               <div className="whitespace-nowrap flex items-baseline gap-1">
                 <span className={`text-[18px] sm:text-[20px] font-extrabold tracking-tight leading-none ${lightBg ? 'text-slate-900' : 'text-white'}`}>
                   ₹{(car.price / 100000).toFixed(2)} Lakh
