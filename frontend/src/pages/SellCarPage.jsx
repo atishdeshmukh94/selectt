@@ -468,7 +468,7 @@ const SellCarPage = () => {
         whileInView: { opacity: 1, x: 0, scale: 1 },
         viewport: { once: false, amount: 0.2 },
         transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 },
-        whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+        whileHover: { y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } },
         whileTap: { scale: 0.98 }
       };
     }
@@ -478,7 +478,7 @@ const SellCarPage = () => {
       whileInView: { opacity: 1, y: 0, scale: 1 },
       viewport: { once: false, amount: 0.2 },
       transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 },
-      whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+      whileHover: { y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } },
       whileTap: { scale: 0.98 }
     };
   };
@@ -492,7 +492,7 @@ const SellCarPage = () => {
         whileInView: { opacity: 1, x: 0, scale: 1 },
         viewport: { once: false, amount: 0.2 },
         transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 },
-        whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+        whileHover: { y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } },
         whileTap: { scale: 0.98 }
       };
     }
@@ -502,7 +502,7 @@ const SellCarPage = () => {
       whileInView: { opacity: 1, y: 0, scale: 1 },
       viewport: { once: false, amount: 0.2 },
       transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 },
-      whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+      whileHover: { y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } },
       whileTap: { scale: 0.98 }
     };
   };
@@ -821,7 +821,7 @@ const SellCarPage = () => {
                       <motion.div
                         key={idx}
                         {...getSellerProtectionMotion(idx)}
-                        className={`bg-white p-6 sm:p-7 md:p-8 rounded-2xl border border-slate-200/90 ${item.borderColor} border-t-4 ${item.hoverBorder} shadow-xs hover:shadow-2xl hover:shadow-[#00C9AF]/10 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between cursor-pointer`}
+                        className={`bg-white p-6 sm:p-7 md:p-8 rounded-2xl border border-slate-200/90 ${item.borderColor} border-t-4 ${item.hoverBorder} shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between cursor-pointer`}
                       >
                         <div>
                           <div className="flex items-center justify-between mb-4">

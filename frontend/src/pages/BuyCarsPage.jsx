@@ -282,7 +282,7 @@ const BuyCarsPage = () => {
         whileInView: { opacity: 1, x: 0, scale: 1 },
         viewport: { once: false, amount: 0.2 },
         transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 },
-        whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+        whileHover: { y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } },
         whileTap: { scale: 0.98 }
       };
     }
@@ -292,7 +292,7 @@ const BuyCarsPage = () => {
       whileInView: { opacity: 1, y: 0, scale: 1 },
       viewport: { once: false, amount: 0.2 },
       transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 },
-      whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+      whileHover: { y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } },
       whileTap: { scale: 0.98 }
     };
   };
@@ -647,7 +647,7 @@ const BuyCarsPage = () => {
 
               {/* ── LEFT SIDEBAR ── */}
               <aside className="hidden md:flex flex-col md:w-[26%] lg:w-[24%] shrink-0">
-                <div className="sticky top-24 h-[calc(100vh-120px)] overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                <div className="sticky top-24 h-[calc(100vh-120px)] flex flex-col">
                   <SidebarFilters filters={filters} setFilters={setFilters} lightBg={true} />
                 </div>
               </aside>
@@ -831,9 +831,12 @@ const BuyCarsPage = () => {
                     </button>
                   </div>
                 )}
+              </main>
+            </div>
 
-                {/* ── The Selectt Advantage for Buyers (SEO Module) ── */}
-                <section className="mt-16 pt-12 border-t border-slate-200 overflow-hidden">
+            {/* ── FULL WIDTH SECTIONS (Buyer Guarantee, How It Works, FAQs) ── */}
+            {/* ── The Selectt Advantage for Buyers (SEO Module) ── */}
+            <section className="mt-16 pt-12 border-t border-slate-200 overflow-hidden">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -1077,11 +1080,9 @@ const BuyCarsPage = () => {
             </div>
           </div>
         </section>
-      </main>
-    </div >
-          </div >
-        )}
-      </div >
+      </div>
+    )}
+  </div>
 
   {/* ── Mobile Filters Drawer ── */ }
 {
