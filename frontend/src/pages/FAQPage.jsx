@@ -258,43 +258,73 @@ const FAQPage = () => {
         canonical="https://selectt.in/faq"
         schema={faqSchema}
       />
-      <div className="min-h-screen bg-[#F8FAFC] font-sans pt-28 pb-20">
+      <div className="min-h-screen bg-[#F8FAFC] font-sans pt-3 sm:pt-6 md:pt-8 pb-28 sm:pb-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Hero Knowledge Hub Header */}
-          <div className="bg-white border border-[#E2E8F0] rounded-3xl p-7 sm:p-10 shadow-xs mb-10">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-              <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 border border-[#00C9AF]/30 text-[#008f7d] px-3.5 py-1.5 rounded-full text-[12px] font-semibold leading-[1.4] mb-3.5">
-                  <HelpCircle size={14} className="text-[#00a892]" /> Selectt knowledge & help hub
+          <div className="relative overflow-hidden bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 shadow-xs mb-8">
+            {/* Ambient decorative blur background */}
+            <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#00C9AF]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-[#00C9AF]/5 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10">
+              {/* Left Column: Heading, Subtitle & Trust Badges */}
+              <div className="flex-1 max-w-3xl">
+                <div className="inline-flex items-center gap-2 bg-[#00C9AF]/10 border border-[#00C9AF]/30 text-[#008775] px-3.5 py-1.5 rounded-full text-xs font-semibold leading-normal mb-3">
+                  <span className="w-2 h-2 rounded-full bg-[#00C9AF] animate-pulse" />
+                  <HelpCircle size={14} className="text-[#009b86]" /> Selectt knowledge & help hub
                 </div>
-                <h1 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] leading-[1.2] mb-3.5">
-                  Frequently asked questions about buying & selling used cars
+                
+                <h1 className="text-2xl sm:text-3xl lg:text-[38px] font-heading font-bold text-[#0F172A] tracking-tight leading-[1.2] mb-3">
+                  Frequently asked questions about buying &amp; selling used cars
                 </h1>
-                <p className="text-[#475569] text-[17px] sm:text-[18px] font-normal leading-[1.6] mb-6">
+
+                <p className="text-slate-600 text-sm sm:text-base lg:text-[17px] font-normal leading-relaxed mb-5">
                   Everything you need to know about certified pre-owned cars, 200-point inspection guarantees, instant valuation, used car loans, and 100% free RC transfer.
                 </p>
 
-                {/* Quick Trust Highlights */}
-                <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-6 border-t border-slate-100 text-[14px] text-slate-700 font-medium">
-                  <div className="flex items-center gap-2 text-[#0F172A]">
-                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> 200-point inspected
+                {/* 4 Trust Highlights: Responsive 2-col on mobile, flex row on tablet/desktop */}
+                <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2.5 sm:gap-3.5 pt-4 sm:pt-5 border-t border-slate-100">
+                  <div className="flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-xl bg-slate-50/80 border border-slate-200/70 text-xs sm:text-[13px] font-medium text-slate-800">
+                    <CheckCircle2 size={16} className="text-[#00C9AF] shrink-0" />
+                    <span>200-point inspected</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[#0F172A]">
-                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> 5-day money-back guarantee
+                  <div className="flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-xl bg-slate-50/80 border border-slate-200/70 text-xs sm:text-[13px] font-medium text-slate-800">
+                    <CheckCircle2 size={16} className="text-[#00C9AF] shrink-0" />
+                    <span className="leading-tight">5-day money-back guarantee</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[#0F172A]">
-                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> Seller protection policy
+                  <div className="flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-xl bg-slate-50/80 border border-slate-200/70 text-xs sm:text-[13px] font-medium text-slate-800">
+                    <CheckCircle2 size={16} className="text-[#00C9AF] shrink-0" />
+                    <span>Seller protection policy</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[#0F172A]">
-                    <CheckCircle2 size={16} className="text-[#00C9AF]" /> Free RC transfer
+                  <div className="flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-xl bg-slate-50/80 border border-slate-200/70 text-xs sm:text-[13px] font-medium text-slate-800">
+                    <CheckCircle2 size={16} className="text-[#00C9AF] shrink-0" />
+                    <span>Free RC transfer</span>
                   </div>
                 </div>
               </div>
 
-              {/* Instant Search Bar */}
-              <div className="w-full lg:max-w-md bg-slate-50 border border-slate-200/80 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-                <span className="text-[12px] font-medium text-slate-500 mb-2.5">Search answers</span>
+              {/* Right Column: Search Card & Controls */}
+              <div className="w-full lg:w-[380px] xl:w-[420px] bg-slate-50/90 border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs shrink-0 flex flex-col justify-between">
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Search answers</span>
+                  <div className="flex items-center gap-1.5 text-xs font-medium">
+                    <button
+                      onClick={() => toggleAll(true)}
+                      className="text-[#008775] hover:text-[#00C9AF] transition-colors cursor-pointer"
+                    >
+                      Expand all
+                    </button>
+                    <span className="text-slate-300">•</span>
+                    <button
+                      onClick={() => toggleAll(false)}
+                      className="text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                    >
+                      Collapse
+                    </button>
+                  </div>
+                </div>
+
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <Search className="h-4 w-4 text-slate-400" />
@@ -304,36 +334,46 @@ const FAQPage = () => {
                     placeholder="Search e.g. RC transfer, warranty, loan, inspection..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white border border-[#CBD5E1] rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00C9AF] focus:border-[#00C9AF] text-[15px] shadow-xs transition-all"
+                    className="w-full pl-10 pr-9 py-2.5 sm:py-3 bg-white border border-slate-200 focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/20 rounded-xl text-slate-800 placeholder-slate-400 text-sm shadow-2xs transition-all outline-none"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-semibold text-slate-400 hover:text-slate-600"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-semibold text-slate-400 hover:text-slate-700 cursor-pointer"
                     >
-                      Clear
+                      ✕
                     </button>
                   )}
                 </div>
-                <div className="mt-3.5 flex items-center justify-between text-[12px] text-slate-500 font-normal">
-                  <span>Popular: <button onClick={() => setSearchQuery('warranty')} className="text-[#00a892] hover:underline">Warranty</button>, <button onClick={() => setSearchQuery('RC transfer')} className="text-[#00a892] hover:underline">RC transfer</button>, <button onClick={() => setSearchQuery('loan')} className="text-[#00a892] hover:underline">EMI</button></span>
-                  <div className="flex gap-2">
-                    <button onClick={() => toggleAll(true)} className="text-[#00a892] hover:underline">Expand all</button>
-                    <span>•</span>
-                    <button onClick={() => toggleAll(false)} className="text-slate-500 hover:underline">Collapse</button>
-                  </div>
+
+                <div className="mt-3 pt-3 border-t border-slate-200/70 flex items-center gap-1.5 flex-wrap text-xs text-slate-500">
+                  <span className="text-slate-400 font-medium">Popular:</span>
+                  {['Warranty', 'RC transfer', 'EMI', 'Inspection'].map((kw) => (
+                    <button
+                      key={kw}
+                      onClick={() => setSearchQuery(kw)}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-[#008775] hover:border-[#00C9AF]/60 text-xs font-medium transition-colors cursor-pointer shadow-2xs"
+                    >
+                      {kw}
+                    </button>
+                  ))}
+                  {searchQuery && (
+                    <span className="ml-auto text-[11px] font-semibold text-[#008775] bg-[#00C9AF]/15 px-2 py-0.5 rounded-full">
+                      Filtered
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Interactive Category Tabs */}
-          <div className="flex flex-wrap items-center gap-2.5 mb-10 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+          {/* Interactive Category Filter Pills */}
+          <div className="flex items-center gap-2 sm:gap-2.5 mb-8 overflow-x-auto pb-2 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
             {[
-              { id: 'ALL', label: 'All topics', count: allFaqs.length },
+              { id: 'ALL', label: 'All questions', count: allFaqs.length },
               { id: 'BUY', label: 'Buying used cars', count: allCategories[0].items.length },
               { id: 'SELL', label: 'Selling your car', count: allCategories[1].items.length },
-              { id: 'LOAN', label: 'Financing & EMI', count: allCategories[2].items.length },
+              { id: 'LOAN', label: 'Financing & loans', count: allCategories[2].items.length },
               { id: 'DOCS', label: 'RC transfer & docs', count: allCategories[3].items.length },
               { id: 'INSPECTION', label: '200-point inspection', count: allCategories[4].items.length }
             ].map(tab => {
@@ -342,15 +382,15 @@ const FAQPage = () => {
                 <button
                   key={tab.id}
                   onClick={() => { setActiveTab(tab.id); setSearchQuery(''); }}
-                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium leading-[1.4] transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0 cursor-pointer ${
                     isSelected
-                      ? 'bg-[#00C9AF] text-slate-950 shadow-sm font-semibold'
-                      : 'bg-white text-[#475569] hover:bg-slate-100 border border-slate-200'
+                      ? 'bg-[#00C9AF] text-slate-950 shadow-xs font-semibold'
+                      : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200/90'
                   }`}
                 >
                   <span>{tab.label}</span>
-                  <span className={`px-1.5 py-0.5 rounded-full text-[11px] font-semibold ${
-                    isSelected ? 'bg-slate-950 text-white' : 'bg-slate-100 text-slate-500'
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold ${
+                    isSelected ? 'bg-slate-950/15 text-slate-950' : 'bg-slate-100 text-slate-500'
                   }`}>
                     {tab.count}
                   </span>
@@ -360,28 +400,32 @@ const FAQPage = () => {
           </div>
 
           {/* Category FAQ Sections */}
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {displayedCategories.length > 0 ? (
               displayedCategories.map(cat => {
                 const IconComponent = cat.icon || Sparkles;
                 return (
-                  <div key={cat.id} className="bg-white border border-[#E2E8F0] rounded-3xl p-7 sm:p-9 shadow-xs">
+                  <div key={cat.id} className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xs">
                     
                     {/* Category Title Bar */}
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-7">
-                      <div className="flex items-center gap-3.5">
-                        <div className="w-10 h-10 rounded-xl bg-[#00C9AF]/15 text-[#008f7d] flex items-center justify-center font-bold">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-4 sm:pb-5 mb-5 sm:mb-6">
+                      <div className="flex items-center gap-3 sm:gap-3.5">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#00C9AF]/15 text-[#008775] flex items-center justify-center shrink-0">
                           <IconComponent size={20} />
                         </div>
                         <div>
-                          <h2 className="text-[20px] sm:text-[21px] font-heading font-semibold text-[#0F172A] leading-[1.35] mb-0.5">{cat.title}</h2>
-                          <span className="text-[13px] text-slate-500 font-normal">{cat.items.length} questions answered</span>
+                          <h2 className="text-lg sm:text-xl font-heading font-bold text-[#0F172A] leading-snug">
+                            {cat.title}
+                          </h2>
+                          <span className="text-xs sm:text-[13px] text-slate-500 font-normal">
+                            {cat.items.length} {cat.items.length === 1 ? 'question' : 'questions'} answered
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    {/* FAQ Items Accordion / Card List */}
-                    <div className="space-y-4">
+                    {/* FAQ Items Accordion */}
+                    <div className="space-y-3 sm:space-y-3.5">
                       {cat.items.map((item, idx) => {
                         const itemKey = `${cat.id}-${idx}`;
                         const isOpen = openItems[itemKey] !== false; // open by default unless explicitly collapsed
@@ -389,41 +433,46 @@ const FAQPage = () => {
                         return (
                           <div
                             key={idx}
-                            className={`border rounded-2xl transition-all ${
+                            className={`border rounded-xl sm:rounded-2xl transition-all duration-200 overflow-hidden ${
                               isOpen
-                                ? 'bg-slate-50/60 border-slate-200'
+                                ? 'bg-slate-50/70 border-slate-200/90 shadow-2xs'
                                 : 'bg-white border-slate-200/70 hover:border-slate-300'
                             }`}
                           >
                             <button
                               type="button"
                               onClick={() => toggleAccordion(itemKey)}
-                              className="w-full text-left px-6 py-4.5 flex items-center justify-between gap-4 cursor-pointer"
+                              className="w-full text-left px-4 sm:px-6 py-3.5 sm:py-4.5 flex items-center justify-between gap-3 sm:gap-4 cursor-pointer"
                             >
-                              <div className="flex items-start gap-3.5">
-                                <span className="w-5 h-5 rounded-full bg-[#00C9AF]/20 text-[#008f7d] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                              <div className="flex items-start gap-3">
+                                <span className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                                  isOpen ? 'bg-[#00C9AF] text-slate-950' : 'bg-[#00C9AF]/15 text-[#008775]'
+                                }`}>
                                   Q
                                 </span>
-                                <h3 className="text-[16px] sm:text-[17px] font-heading font-semibold text-[#0F172A] leading-snug">
+                                <h3 className="text-sm sm:text-base font-heading font-semibold text-[#0F172A] leading-snug">
                                   {item.q}
                                 </h3>
                               </div>
-                              <span className="text-slate-400 shrink-0">
-                                {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                              <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-200 ${
+                                isOpen ? 'bg-slate-200/60 text-slate-700 rotate-180' : 'text-slate-400 hover:text-slate-600'
+                              }`}>
+                                <ChevronDown size={17} />
                               </span>
                             </button>
 
                             {isOpen && (
-                              <div className="px-6 pb-6 pt-2 text-[#475569] text-[15px] sm:text-[16px] leading-[1.6] font-normal border-t border-slate-100/80">
-                                <p className="pl-8.5">{item.a}</p>
+                              <div className="px-4 sm:px-6 pb-4 sm:pb-5 pt-1 text-slate-600 text-xs sm:text-[15px] leading-relaxed font-normal border-t border-slate-100">
+                                <p className="pl-8">{item.a}</p>
 
                                 {item.link && (
-                                  <div className="pt-3.5 mt-3 pl-8.5">
+                                  <div className="pt-3 mt-3 pl-8">
                                     <Link
                                       to={item.link}
-                                      className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#00a892] hover:text-[#0F172A] transition-colors"
+                                      className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#008775] hover:text-[#0F172A] transition-colors group"
                                     >
-                                      {item.linkText || 'Learn more'} <ArrowRight size={14} />
+                                      <span>{item.linkText || 'Learn more'}</span>
+                                      <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
                                     </Link>
                                   </div>
                                 )}
@@ -437,7 +486,7 @@ const FAQPage = () => {
                 );
               })
             ) : (
-              <div className="bg-white rounded-3xl p-16 text-center border border-slate-200">
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-10 sm:p-16 text-center border border-slate-200">
                 <div className="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3.5">
                   <Search size={22} />
                 </div>
@@ -454,30 +503,30 @@ const FAQPage = () => {
           </div>
 
           {/* Quick Help & Direct Support CTA */}
-          <div className="mt-14 bg-gradient-to-r from-[#0C1B33] via-[#112444] to-[#0C1B33] rounded-3xl p-7 sm:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-md border border-slate-800">
+          <div className="mt-10 sm:mt-14 bg-gradient-to-r from-[#0C1B33] via-[#112444] to-[#0C1B33] rounded-2xl sm:rounded-3xl p-6 sm:p-10 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-md border border-slate-800">
             <div className="max-w-2xl">
-              <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#00C9AF] bg-[#00C9AF]/15 px-3 py-1 rounded-full mb-3.5 leading-[1.4]">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#00C9AF] bg-[#00C9AF]/15 px-3 py-1 rounded-full mb-3 leading-tight">
                 <Clock size={12} /> Available 7 days a week
               </span>
-              <h3 className="text-[20px] sm:text-[24px] font-heading font-semibold text-white mb-2.5 leading-[1.2]">
+              <h3 className="text-xl sm:text-2xl font-heading font-semibold text-white mb-2 leading-tight">
                 Have a specific question not listed here?
               </h3>
-              <p className="text-[#CBD5E1] text-[15px] sm:text-[16px] leading-[1.6] font-normal">
+              <p className="text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed font-normal">
                 Whether you want to sell your car, book a doorstep test drive, check used car loan eligibility, or verify RC status, our automotive specialists are ready to help.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3.5 shrink-0">
+            <div className="flex flex-wrap gap-3 shrink-0 w-full sm:w-auto">
               <Link
                 to="/contact-us"
-                className="inline-flex items-center gap-2 bg-white text-slate-950 hover:bg-slate-100 text-[15px] font-semibold leading-[1.45] px-6 py-3.5 rounded-xl transition-all"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-white text-slate-950 hover:bg-slate-100 text-xs sm:text-sm font-semibold px-5 py-3 rounded-xl transition-all"
               >
-                <PhoneCall size={16} /> Contact support
+                <PhoneCall size={15} /> Contact support
               </Link>
               <Link
                 to="/sell-car-in-mumbai"
-                className="inline-flex items-center gap-2 bg-[#00C9AF] text-slate-950 hover:bg-[#00b29c] text-[15px] font-semibold leading-[1.45] px-6 py-3.5 rounded-xl transition-all"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-[#00C9AF] text-slate-950 hover:bg-[#00b29c] text-xs sm:text-sm font-semibold px-5 py-3 rounded-xl transition-all"
               >
-                <Sparkles size={16} /> Instant car valuation
+                <Sparkles size={15} /> Instant car valuation
               </Link>
             </div>
           </div>
