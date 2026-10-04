@@ -479,6 +479,33 @@ const SellCarPage = () => {
     };
   };
 
+  const getSellerProtectionMotion = (idx) => {
+    // Alternating Left / Right entrance (slow and smooth):
+    // idx 0, 2: enters from Left (-75px)
+    // idx 1, 3: enters from Right (+75px)
+    const isFromLeft = idx % 2 === 0;
+    const offset = isMobile ? (isFromLeft ? -45 : 45) : (isFromLeft ? -75 : 75);
+
+    return {
+      initial: { opacity: 0, x: offset },
+      whileInView: { opacity: 1, x: 0 },
+      viewport: { once: true, amount: 0.2 },
+      transition: {
+        duration: 0.95,
+        ease: [0.22, 1, 0.36, 1],
+        delay: idx * 0.16
+      },
+      whileHover: {
+        y: -10,
+        scale: 1.025,
+        transition: { duration: 0.3, ease: 'easeOut' }
+      },
+      whileTap: {
+        scale: 0.98
+      }
+    };
+  };
+
   const advantages = [
     {
       icon: <TrendingUp size={24} />,
@@ -767,7 +794,7 @@ const SellCarPage = () => {
 
           {/* 3. THE SELECTT SELLER PROTECTION GUARANTEE */}
           <section className="py-12 sm:py-16 bg-[#F8FAFC] border-b border-slate-200">
-            <div className="max-w-6xl mx-auto px-4">
+            <div className="max-w-7xl xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
               <div className="bg-gradient-to-br from-[#061426] via-[#0C1B33] to-[#061426] rounded-3xl p-6 sm:p-10 md:p-12 border border-[#00C9AF]/30 shadow-2xl relative overflow-hidden text-white text-left">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-[#00C9AF]/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 w-full">
@@ -775,7 +802,7 @@ const SellCarPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <div className="inline-flex items-center gap-2 bg-[#00C9AF]/20 border border-[#00C9AF]/40 px-3.5 py-1 rounded-full text-[#00C9AF] text-[12px] font-semibold leading-[1.4] mb-3.5">
                       <ShieldCheck size={16} /> 100% peace of mind
@@ -783,7 +810,7 @@ const SellCarPage = () => {
                     <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-white leading-[1.2] mb-3.5">
                       The Selectt seller protection guarantee
                     </h2>
-                    <p className="text-[#CBD5E1] text-[17px] sm:text-[18px] font-normal leading-[1.6] mb-10 max-w-4xl">
+                    <p className="text-[#CBD5E1] text-[17px] sm:text-[18px] font-normal leading-[1.6] mb-10 max-w-5xl">
                       Selling your car shouldn't come with post-handover anxiety. We protect you from all legal and financial liabilities from the exact minute of car handover until the RC transfer is officially registered in RTO records.
                     </p>
                   </motion.div>
@@ -792,16 +819,16 @@ const SellCarPage = () => {
                     {sellerProtections.map((item, idx) => (
                       <motion.div
                         key={idx}
-                        {...getAlternatingCardMotion(idx)}
-                        className={`bg-white p-6 sm:p-7 md:p-8 rounded-2xl border border-slate-200/90 ${item.borderColor} border-t-4 ${item.hoverBorder} shadow-xs hover:shadow-xl transition-all duration-300 relative overflow-hidden group flex flex-col justify-between`}
+                        {...getSellerProtectionMotion(idx)}
+                        className={`bg-white p-6 sm:p-7 md:p-8 rounded-2xl border border-slate-200/90 ${item.borderColor} border-t-4 ${item.hoverBorder} shadow-xs hover:shadow-2xl hover:shadow-[#00C9AF]/10 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between cursor-pointer`}
                       >
                         <div>
                           <div className="flex items-center justify-between mb-4">
-                            <span className={`text-[32px] sm:text-[36px] font-heading font-bold bg-gradient-to-r ${item.numGradient} bg-clip-text text-transparent leading-none`}>
+                            <span className={`text-[32px] sm:text-[36px] font-heading font-bold bg-gradient-to-r ${item.numGradient} bg-clip-text text-transparent leading-none inline-block transition-transform duration-300 group-hover:scale-110 group-hover:translate-x-1`}>
                               {item.num}
                             </span>
                           </div>
-                          <h3 className="text-[20px] sm:text-[21px] font-heading font-semibold text-[#0F172A] mb-3 leading-[1.35]">
+                          <h3 className="text-[20px] sm:text-[21px] font-heading font-semibold text-[#0F172A] mb-3 leading-[1.35] group-hover:text-[#00A38D] transition-colors duration-200">
                             {item.title}
                           </h3>
                           <p className="text-[#475569] text-[16px] sm:text-[17px] leading-[1.6] font-normal">
