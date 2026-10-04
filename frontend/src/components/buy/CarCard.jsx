@@ -288,7 +288,7 @@ const CarCard = ({ car, lightBg = false }) => {
         </div>
 
         {/* Content details */}
-        <div className="px-4.5 sm:px-3.5 md:px-4 pb-4.5 sm:pb-4 md:pb-5 pt-1 flex-grow flex flex-col justify-between gap-2.5">
+        <div className="px-3.5 sm:px-3.5 md:px-4 pb-4.5 sm:pb-4 md:pb-5 pt-1 flex-grow flex flex-col justify-between gap-2.5">
           <div>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
@@ -328,27 +328,27 @@ const CarCard = ({ car, lightBg = false }) => {
               })()}
             </div>
 
-            {/* Spec pills: KM, Fuel, Transmission, RTO Code (Untouched on mobile, compact on desktop) */}
-            <div className="flex items-center gap-1.5 sm:gap-1 mt-3 sm:mt-2 flex-nowrap overflow-x-auto no-scrollbar">
-              <div className={`px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded-md flex items-center gap-1.5 sm:gap-0.5 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <Gauge size={13} className="text-[#00C9AF] shrink-0 sm:w-2.5 sm:h-2.5" />
-                <span className="text-[11.5px] sm:text-[9.5px] md:text-[9.5px] lg:text-[10px] font-bold">
+            {/* Spec pills: KM, Fuel, Transmission, RTO Code (Responsive sizing so all 4 fit on mobile, 1280px laptops & desktop) */}
+            <div className="flex items-center gap-1 sm:gap-0.5 md:gap-1 2xl:gap-1.5 mt-2.5 sm:mt-2 flex-nowrap overflow-x-auto no-scrollbar">
+              <div className={`px-1.5 sm:px-1 md:px-1.5 2xl:px-2 py-0.5 rounded-md flex items-center gap-1 sm:gap-0.5 2xl:gap-1 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <Gauge size={11} className="text-[#00C9AF] shrink-0 w-2.5 h-2.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 2xl:w-3 2xl:h-3" />
+                <span className="text-[10px] sm:text-[8.5px] md:text-[8.5px] lg:text-[8.5px] xl:text-[9px] 2xl:text-[10px] font-bold tracking-tight">
                   {(Number(car.km) || 0).toLocaleString('en-IN')} km
                 </span>
               </div>
-              <div className={`px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded-md flex items-center gap-1.5 sm:gap-0.5 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <Fuel size={13} className="text-[#00C9AF] shrink-0 sm:w-2.5 sm:h-2.5" />
-                <span className="text-[11.5px] sm:text-[9.5px] md:text-[9.5px] lg:text-[10px] font-bold">
+              <div className={`px-1.5 sm:px-1 md:px-1.5 2xl:px-2 py-0.5 rounded-md flex items-center gap-1 sm:gap-0.5 2xl:gap-1 shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <Fuel size={11} className="text-[#00C9AF] shrink-0 w-2.5 h-2.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 2xl:w-3 2xl:h-3" />
+                <span className="text-[10px] sm:text-[8.5px] md:text-[8.5px] lg:text-[8.5px] xl:text-[9px] 2xl:text-[10px] font-bold tracking-tight">
                   {car.fuelType || car.fuel_type || 'Petrol'}
                 </span>
               </div>
-              <div className={`px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded-md flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <span className="text-[11.5px] sm:text-[9.5px] md:text-[9.5px] lg:text-[10px] font-bold">
+              <div className={`px-1.5 sm:px-1 md:px-1.5 2xl:px-2 py-0.5 rounded-md flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <span className="text-[10px] sm:text-[8.5px] md:text-[8.5px] lg:text-[8.5px] xl:text-[9px] 2xl:text-[10px] font-bold tracking-tight">
                   {car.transmission || 'Manual'}
                 </span>
               </div>
-              <div className={`px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded-md flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
-                <span className="text-[11.5px] sm:text-[9.5px] md:text-[9.5px] lg:text-[10px] font-bold">
+              <div className={`px-1.5 sm:px-1 md:px-1.5 2xl:px-2 py-0.5 rounded-md flex items-center shrink-0 border whitespace-nowrap shadow-2xs ${lightBg ? 'bg-slate-50 border-slate-200/80 text-slate-800' : 'bg-white/5 border-white/10 text-slate-200'}`}>
+                <span className="text-[10px] sm:text-[8.5px] md:text-[8.5px] lg:text-[8.5px] xl:text-[9px] 2xl:text-[10px] font-bold tracking-tight">
                   {getShortRtoOrState(car)}
                 </span>
               </div>
