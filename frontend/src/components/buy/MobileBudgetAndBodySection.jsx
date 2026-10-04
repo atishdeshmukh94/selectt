@@ -156,17 +156,23 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
               type="button"
               className={`p-2.5 pt-2.5 pb-0.5 flex flex-col justify-between h-[116px] sm:h-[122px] rounded-2xl relative overflow-hidden text-left transition-all cursor-pointer w-full min-w-0 ${
                 active
-                  ? 'bg-gradient-to-b from-[#E6FAF7] to-[#D0F4EF] ring-2 ring-[#00C9AF] border border-[#00C9AF] shadow-md'
-                  : 'bg-gradient-to-b from-[#F0F5FA] to-[#E5EDF6] border border-slate-200/80 hover:border-[#00C9AF]/40 hover:shadow-xs active:scale-[0.98]'
+                  ? 'bg-gradient-to-b from-[#d9fffe] to-[#cbfcf7] ring-2 ring-[#00C9AF] border border-[#00C9AF] shadow-md'
+                  : 'bg-gradient-to-b from-[#d9fffea8] to-[#edfbf9] border border-slate-200/80 hover:border-[#00C9AF]/40 hover:shadow-xs active:scale-[0.98]'
               }`}
             >
               {/* Header info */}
               <div className="flex items-start justify-between w-full min-w-0 z-10 relative">
                 <div className="min-w-0 pr-1">
-                  <div className="font-['Inter',sans-serif] font-medium text-[15px] sm:text-[15.5px] text-[#0C1B33] leading-tight tracking-normal truncate">
+                  <div
+                    style={{ fontWeight: 500, fontFamily: 'Inter, sans-serif' }}
+                    className="font-['Inter',sans-serif] text-[15px] sm:text-[15.5px] text-[#0C1B33] leading-tight tracking-normal truncate"
+                  >
                     {opt.label}
                   </div>
-                  <div className="font-['Inter',sans-serif] font-medium text-[11.5px] text-slate-500 mt-0.5 tracking-normal">
+                  <div
+                    style={{ fontWeight: 500, fontFamily: 'Inter, sans-serif' }}
+                    className="font-['Inter',sans-serif] text-[11.5px] text-slate-500 mt-0.5 tracking-normal"
+                  >
                     {getCarCount(opt)}
                   </div>
                 </div>
