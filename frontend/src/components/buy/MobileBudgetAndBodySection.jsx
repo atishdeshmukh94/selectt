@@ -163,10 +163,10 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
               {/* Header info */}
               <div className="flex items-start justify-between w-full min-w-0 z-10 relative">
                 <div className="min-w-0 pr-1">
-                  <div className="font-['Inter',sans-serif] font-normal text-[15px] sm:text-[15.5px] text-[#0C1B33] leading-tight tracking-normal truncate">
+                  <div className="font-['Inter',sans-serif] font-medium text-[15px] sm:text-[15.5px] text-[#0C1B33] leading-tight tracking-normal truncate">
                     {opt.label}
                   </div>
-                  <div className="font-['Inter',sans-serif] font-normal text-[11.5px] text-slate-500 mt-0.5 tracking-normal">
+                  <div className="font-['Inter',sans-serif] font-medium text-[11.5px] text-slate-500 mt-0.5 tracking-normal">
                     {getCarCount(opt)}
                   </div>
                 </div>
