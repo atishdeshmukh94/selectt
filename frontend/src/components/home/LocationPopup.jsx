@@ -5,12 +5,7 @@ import { API_URL } from '../../config/api';
 const LocationPopup = () => {
   const [cities, setCities] = useState([]);
   const [loadingCities, setLoadingCities] = useState(true);
-  const [isVisible, setIsVisible] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return !localStorage.getItem('user_city');
-    }
-    return false;
-  });
+  const [isVisible, setIsVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [view, setView] = useState('selection'); // 'selection' or 'coming-soon'
   const [outsideStateMsg, setOutsideStateMsg] = useState('');
@@ -41,6 +36,15 @@ const LocationPopup = () => {
     window.addEventListener('open-location-selector', handleOpen);
     return () => window.removeEventListener('open-location-selector', handleOpen);
   }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setIsVisible(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isVisible]);
 
   const handleCitySelect = (cityName) => {
     localStorage.setItem('user_city', cityName);
@@ -102,7 +106,12 @@ const LocationPopup = () => {
   );
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center px-4 backdrop-blur-md bg-black/40 animate-in fade-in duration-300">
+    <div 
+      className="fixed inset-0 z-[110] flex items-center justify-center px-4 backdrop-blur-md bg-black/40 animate-in fade-in duration-300"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) setIsVisible(false);
+      }}
+    >
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 flex flex-col max-h-[85vh]">
 
         {/* Header */}
@@ -113,15 +122,14 @@ const LocationPopup = () => {
               {view === 'coming-soon' ? 'Operation Area Warning' : 'Choose location to see local car listings'}
             </p>
           </div>
-          {/* Close button - only show if there's already a city selected so they can dismiss it */}
-          {localStorage.getItem('user_city') && (
-            <button
-              onClick={() => setIsVisible(false)}
-              className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              <X size={16} />
-            </button>
-          )}
+          {/* Close button */}
+          <button
+            onClick={() => setIsVisible(false)}
+            className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+            aria-label="Close location selector"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         {/* Coming Soon state screen */}
