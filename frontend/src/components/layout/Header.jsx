@@ -35,6 +35,13 @@ const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [frontendHeaderLogo, setFrontendHeaderLogo] = useState(null);
   const [brandsData, setBrandsData] = useState([]);
+  const [expandedBrands, setExpandedBrands] = useState({});
+
+  const toggleBrandExpand = (e, key) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setExpandedBrands(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   useEffect(() => {
     fetch(`${API_URL}/api/brands`)
@@ -161,67 +168,70 @@ const Header = () => {
     ];
 
     const activeBrands = brandsData.length > 0 ? brandsData : DEFAULT_MAKE_MODELS;
-
-    const cols = [
-      activeBrands.filter((_, idx) => idx % 3 === 0),
-      activeBrands.filter((_, idx) => idx % 3 === 1),
-      activeBrands.filter((_, idx) => idx % 3 === 2),
-    ];
+    const MODEL_LIMIT = 7; // Show 6 to 8 models by default
 
     return (
       <div className="relative group/mega z-[60] h-full flex items-center">
         <button className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-slate-700 hover:text-slate-950 whitespace-nowrap rounded transition-colors peer cursor-pointer h-8 group-hover/mega:text-[#00B4A0]">
           Make and Model <ChevronDown size={13} className="opacity-70 group-hover/mega:opacity-100 group-hover/mega:rotate-180 transition-all duration-200" />
         </button>
-        <div className="absolute top-[100%] left-0 w-[680px] max-h-[520px] overflow-y-auto bg-[#051124] shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-200 p-6 rounded-b-lg border border-white/5 border-t-2 border-t-[#00C9AF] flex gap-8">
-          {cols.map((colBrands, colIdx) => (
-            <div key={colIdx} className="flex-1 flex flex-col gap-6">
-              {colBrands.map((brand) => {
-                const brandModels = brand.models || [];
-                return (
-                  <div key={brand.id || brand.name}>
-                    <button
-                      onClick={() => handleNavFilter({ brands: [brand.name] })}
-                      className="text-[14px] font-bold text-white mb-2 flex items-center hover:text-[#00C9AF] transition-colors"
-                    >
-                      {brand.name} <ChevronRight size={14} className="ml-1" />
-                    </button>
-                    {brandModels.length > 0 ? (
-                      <div className="flex flex-col space-y-2">
-                        {brandModels.slice(0, 5).map((m) => {
-                          const modelName = typeof m === 'string' ? m : m.name;
-                          return (
-                            <button
-                              key={modelName}
-                              onClick={() => handleNavFilter({ models: [modelName] })}
-                              className="text-[13px] text-slate-300 hover:text-[#00C9AF] text-left transition-colors cursor-pointer"
-                            >
-                              {modelName}
-                            </button>
-                          );
-                        })}
-                        {brandModels.length > 5 && (
+        <div className="absolute top-[100%] left-[-120px] w-[1080px] max-w-[92vw] max-h-[550px] overflow-y-auto bg-[#051124] shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-200 p-5 rounded-b-xl border border-white/10 border-t-2 border-t-[#00C9AF]">
+          <div className="grid grid-cols-4 gap-3">
+            {activeBrands.map((brand) => {
+              const brandKey = brand.id ? String(brand.id) : brand.name;
+              const brandModels = brand.models || [];
+              const isExpanded = !!expandedBrands[brandKey];
+              const visibleModels = isExpanded ? brandModels : brandModels.slice(0, MODEL_LIMIT);
+              const hasMore = brandModels.length > MODEL_LIMIT;
+
+              return (
+                <div key={brandKey} className="bg-white/5 border border-white/10 hover:border-[#00C9AF]/40 rounded-lg p-3 flex flex-col min-h-[205px] transition-all">
+                  <button
+                    onClick={() => handleNavFilter({ brands: [brand.name] })}
+                    className="text-[13.5px] font-bold text-white pb-1.5 mb-1.5 border-b border-white/10 flex items-center justify-between hover:text-[#00C9AF] transition-colors"
+                  >
+                    <span className="truncate max-w-[170px]">{brand.name}</span>
+                    <ChevronRight size={13} className="opacity-60 flex-shrink-0" />
+                  </button>
+
+                  {brandModels.length > 0 ? (
+                    <div className="flex flex-col space-y-[2px] flex-1">
+                      {visibleModels.map((m) => {
+                        const modelName = typeof m === 'string' ? m : m.name;
+                        return (
                           <button
-                            onClick={() => handleNavFilter({ brands: [brand.name] })}
-                            className="text-[11px] text-[#00C9AF] font-bold text-left hover:underline"
+                            key={modelName}
+                            onClick={() => handleNavFilter({ models: [modelName] })}
+                            className="text-[12px] text-slate-300 hover:text-[#00C9AF] hover:bg-white/5 px-1 py-[2px] rounded text-left transition-colors truncate"
                           >
-                            +{brandModels.length - 5} more
+                            {modelName}
                           </button>
-                        )}
-                      </div>
-                    ) : (
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex items-center">
                       <button
                         onClick={() => handleNavFilter({ brands: [brand.name] })}
-                        className="text-[12px] text-slate-400 hover:text-[#00C9AF] text-left"
+                        className="text-[11.5px] text-slate-400 hover:text-[#00C9AF] text-left"
                       >
-                        Explore {brand.name}
+                        View all {brand.name}
                       </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                    </div>
+                  )}
+
+                  {hasMore && (
+                    <button
+                      onClick={(e) => toggleBrandExpand(e, brandKey)}
+                      className="text-[11px] font-bold text-[#00C9AF] hover:underline text-left mt-auto pt-1"
+                    >
+                      {isExpanded ? 'Show less' : `See more (+${brandModels.length - MODEL_LIMIT})`}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     );

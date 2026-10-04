@@ -746,25 +746,38 @@
 .makeModelDropdown {
   position: absolute;
   top: 100%;
-  left: -80px;
-  width: 680px;
-  max-height: 520px;
+  left: -120px;
+  width: min(1080px, calc(100vw - 32px));
+  max-height: 550px;
   overflow-y: auto;
   scrollbar-width: thin;
+  scrollbar-color: #00C9AF #f1f5f9;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-top: 2px solid #00C9AF;
-  border-radius: 0 0 12px 12px;
-  padding: 22px 24px;
-  display: flex;
-  gap: 28px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 2.5px solid #00C9AF;
+  border-radius: 0 0 14px 14px;
+  padding: 16px 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.05);
   z-index: 999;
   opacity: 0;
   visibility: hidden;
   transform: translateY(6px);
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s ease;
   pointer-events: none;
+}
+
+.makeModelDropdown::-webkit-scrollbar {
+  width: 5px;
+}
+
+.makeModelDropdown::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.makeModelDropdown::-webkit-scrollbar-thumb {
+  background: #00C9AF;
+  border-radius: 4px;
 }
 
 .dropdownWrapper:hover .makeModelDropdown,
@@ -775,60 +788,159 @@
   pointer-events: auto;
 }
 
-.makeModelDropdownCol {
-  flex: 1;
+.makeModelGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px 16px;
+  width: 100%;
+}
+
+.makeModelCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  min-height: 205px;
+  box-sizing: border-box;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.makeModelCard:hover {
+  background: #ffffff;
+  border-color: rgba(0, 201, 175, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .makeModelBrandBtn {
   background: none;
   border: none;
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 13.5px;
+  font-weight: 700;
   color: #0f172a;
   cursor: pointer;
   text-align: left;
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 0;
-  margin-bottom: 6px;
-  transition: color 0.2s ease;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 0 6px 0;
+  margin: 0;
+  border-bottom: 1px solid #e2e8f0;
+  transition: color 0.15s ease;
   outline: none;
 }
 
 .makeModelBrandBtn:hover,
 .makeModelBrandBtn:focus-visible {
-  color: #0d9488;
+  color: #00C9AF;
+}
+
+.brandTitleText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.brandArrowIcon {
+  flex-shrink: 0;
+  color: #94a3b8;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.makeModelBrandBtn:hover .brandArrowIcon {
+  color: #00C9AF;
+  transform: translateX(2px);
 }
 
 .makeModelList {
   list-style: none;
-  padding: 0;
+  padding: 6px 0 0 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 2.5px;
+  flex: 1;
+}
+
+.makeModelList li {
+  margin: 0;
+  padding: 0;
 }
 
 .makeModelList li button {
   background: none;
   border: none;
-  color: #334155;
-  font-size: 13.5px;
-  font-weight: 600;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  padding: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
   text-align: left;
-  transition: color 0.2s ease;
+  transition: all 0.12s ease;
   outline: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  width: 100%;
+  line-height: 1.3;
 }
 
 .makeModelList li button:hover,
 .makeModelList li button:focus-visible {
-  color: #0d9488;
+  color: #008778;
+  background: rgba(0, 201, 175, 0.1);
+  font-weight: 600;
+}
+
+.makeModelToggleBtn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  color: #00C9AF;
+  cursor: pointer;
+  padding: 4px 6px 0 6px;
+  margin-top: auto;
+  text-align: left;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  outline: none;
+}
+
+.makeModelToggleBtn:hover {
+  text-decoration: underline;
+  color: #008778;
+}
+
+.emptyModelsBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.emptyModelsBtn {
+  background: none;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: color 0.15s ease;
+}
+
+.emptyModelsBtn:hover {
+  color: #00C9AF;
+  text-decoration: underline;
 }
 
 /* Account Dropdown Styles */

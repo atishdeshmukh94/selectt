@@ -52,6 +52,13 @@ export const PremiumHeader: React.FC = () => {
   const [city, setCity] = useState('Mumbai');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [brandsData, setBrandsData] = useState<any[]>([]);
+  const [expandedBrands, setExpandedBrands] = useState<{ [brandKey: string]: boolean }>({});
+
+  const toggleBrandExpand = (e: React.MouseEvent, key: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setExpandedBrands(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   useEffect(() => {
     fetch(`${API_URL}/api/brands`)
@@ -710,63 +717,72 @@ export const PremiumHeader: React.FC = () => {
                 ];
 
                 const activeBrands = brandsData.length > 0 ? brandsData : DEFAULT_MAKE_MODELS;
+                const MODEL_LIMIT = 7; // Show 6 to 8 models by default
 
-                // Distribute brands across 3 columns in order
-                const cols = [
-                  activeBrands.filter((_, idx) => idx % 3 === 0),
-                  activeBrands.filter((_, idx) => idx % 3 === 1),
-                  activeBrands.filter((_, idx) => idx % 3 === 2),
-                ];
-
-                return cols.map((colBrands, colIdx) => (
-                  <div key={colIdx} className={styles.makeModelDropdownCol}>
-                    {colBrands.map((brand: any) => {
+                return (
+                  <div className={styles.makeModelGrid}>
+                    {activeBrands.map((brand: any) => {
+                      const brandKey = brand.id ? String(brand.id) : brand.name;
                       const brandModels = brand.models || [];
+                      const isExpanded = !!expandedBrands[brandKey];
+                      const visibleModels = isExpanded ? brandModels : brandModels.slice(0, MODEL_LIMIT);
+                      const hasMore = brandModels.length > MODEL_LIMIT;
+
                       return (
-                        <div key={brand.id || brand.name} className="mb-4">
+                        <div key={brandKey} className={styles.makeModelCard}>
                           <button
                             onClick={() => handleNavFilter({ brands: [brand.name] })}
                             className={styles.makeModelBrandBtn}
+                            title={`Filter cars by ${brand.name}`}
                           >
-                            <span>{brand.name}</span>
-                            <IconChevronRight size={12} />
+                            <span className={styles.brandTitleText}>{brand.name}</span>
+                            <IconChevronRight size={12} className={styles.brandArrowIcon} />
                           </button>
+
                           {brandModels.length > 0 ? (
                             <ul className={styles.makeModelList}>
-                              {brandModels.slice(0, 5).map((m: any) => {
+                              {visibleModels.map((m: any) => {
                                 const modelName = typeof m === 'string' ? m : m.name;
                                 return (
                                   <li key={modelName}>
-                                    <button onClick={() => handleNavFilter({ models: [modelName] })}>
+                                    <button
+                                      onClick={() => handleNavFilter({ models: [modelName] })}
+                                      title={modelName}
+                                    >
                                       {modelName}
                                     </button>
                                   </li>
                                 );
                               })}
-                              {brandModels.length > 5 && (
-                                <li>
-                                  <button
-                                    onClick={() => handleNavFilter({ brands: [brand.name] })}
-                                    style={{ fontSize: '11px', color: '#00C9AF', fontWeight: 700 }}
-                                  >
-                                    +{brandModels.length - 5} more
-                                  </button>
-                                </li>
-                              )}
                             </ul>
                           ) : (
+                            <div className={styles.emptyModelsBox}>
+                              <button
+                                onClick={() => handleNavFilter({ brands: [brand.name] })}
+                                className={styles.emptyModelsBtn}
+                              >
+                                View all {brand.name}
+                              </button>
+                            </div>
+                          )}
+
+                          {hasMore && (
                             <button
-                              onClick={() => handleNavFilter({ brands: [brand.name] })}
-                              style={{ fontSize: '12px', color: '#64748b', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                              onClick={(e) => toggleBrandExpand(e, brandKey)}
+                              className={styles.makeModelToggleBtn}
                             >
-                              View all cars
+                              {isExpanded ? (
+                                <>Show less</>
+                              ) : (
+                                <>See more (+{brandModels.length - MODEL_LIMIT})</>
+                              )}
                             </button>
                           )}
                         </div>
                       );
                     })}
                   </div>
-                ));
+                );
               })()}
             </div>
           </div>
