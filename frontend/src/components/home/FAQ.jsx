@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
+import { ChevronDown, ArrowRight, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const faqs = [
@@ -37,7 +37,7 @@ const FAQ = ({ dark = true }) => {
   };
 
   return (
-    <section className={`pt-10 pb-6 md:py-20 px-4 backdrop-blur-md relative z-10 ${dark
+    <section className={`pt-8 md:pt-14 pb-2 md:pb-4 px-4 backdrop-blur-md relative z-10 ${dark
       ? 'bg-[#050b14]/40 text-white'
       : 'bg-white text-[#0C1B33]'
       }`}>
@@ -94,13 +94,54 @@ const FAQ = ({ dark = true }) => {
           })}
         </div>
 
-        {/* View All FAQs Link */}
-        <div className="text-center mt-8">
+        {/* Redesigned Premium FAQ Knowledge Hub CTA */}
+        <div className="mt-5 sm:mt-6 text-center flex justify-center">
           <Link
             to="/faq"
-            className="inline-flex items-center gap-2 text-[15px] font-semibold text-[#00C9AF] hover:text-[#00b29c] transition-colors leading-[1.45]"
+            className={`group w-full sm:w-auto inline-flex items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 py-3.5 sm:py-4 rounded-2xl border transition-all duration-300 ${
+              dark
+                ? 'bg-gradient-to-r from-white/[0.04] via-white/[0.07] to-white/[0.04] border-white/10 hover:border-[#00C9AF]/50 hover:bg-white/[0.08] shadow-lg shadow-black/20'
+                : 'bg-gradient-to-r from-slate-50 via-teal-50/30 to-white border-slate-200/90 hover:border-[#00C9AF]/60 hover:bg-white shadow-xs hover:shadow-md hover:shadow-[#00C9AF]/10'
+            }`}
           >
-            <Sparkles size={14} /> View all frequently asked questions & knowledge hub <ChevronRight size={16} />
+            <div className="flex items-center gap-3 sm:gap-3.5 text-left min-w-0">
+              <div
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-xs ${
+                  dark
+                    ? 'bg-[#00C9AF]/15 text-[#00C9AF] border border-[#00C9AF]/30'
+                    : 'bg-[#00C9AF]/15 text-[#00A38D] border border-[#00C9AF]/30'
+                }`}
+              >
+                <HelpCircle size={18} className="sm:w-5 sm:h-5 stroke-[2.2]" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span
+                    className={`text-[13.5px] sm:text-[15px] font-heading font-bold transition-colors ${
+                      dark ? 'text-white group-hover:text-[#00C9AF]' : 'text-slate-900 group-hover:text-[#00A38D]'
+                    }`}
+                  >
+                    View all FAQs & Knowledge Hub
+                  </span>
+                  <span className="hidden sm:inline-flex items-center text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#00C9AF]/15 text-[#008A79] tracking-wider shrink-0">
+                    25+ Answers
+                  </span>
+                </div>
+                <p className={`text-[11.5px] sm:text-[12.5px] truncate font-normal mt-0.5 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  Instant answers on inspection, warranty, loans & RC transfer
+                </p>
+              </div>
+            </div>
+
+            <div
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 group-hover:translate-x-1 ${
+                dark
+                  ? 'bg-white/10 text-white group-hover:bg-[#00C9AF] group-hover:text-slate-950'
+                  : 'bg-white text-slate-700 border border-slate-200 shadow-xs group-hover:bg-[#00C9AF] group-hover:text-slate-950 group-hover:border-[#00C9AF]'
+              }`}
+            >
+              <ArrowRight size={14} className="sm:w-4 sm:h-4 stroke-[2.5]" />
+            </div>
           </Link>
         </div>
 

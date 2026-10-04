@@ -464,20 +464,20 @@ const SellCarPage = () => {
       // Mobile: Alternating Left / Right entrance (01 Left, 02 Right, 03 Left, 04 Right)
       const isFromLeft = idx % 2 === 0;
       return {
-        initial: { opacity: 0, x: isFromLeft ? -90 : 90, scale: 0.98 },
-        whileInView: { opacity: 1, x: 0, scale: 1 },
-        viewport: { once: false, amount: 0.2 },
-        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 },
+        initial: { opacity: 0, x: isFromLeft ? -40 : 40 },
+        whileInView: { opacity: 1, x: 0 },
+        viewport: { once: false, amount: 0.1 },
+        transition: { duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.04 },
         whileHover: { y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } },
         whileTap: { scale: 0.98 }
       };
     }
     // Desktop: Bottom to Up entrance (smooth and repeatable on scroll)
     return {
-      initial: { opacity: 0, y: 50, scale: 0.98 },
-      whileInView: { opacity: 1, y: 0, scale: 1 },
-      viewport: { once: false, amount: 0.2 },
-      transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 },
+      initial: { opacity: 0, y: 35 },
+      whileInView: { opacity: 1, y: 0 },
+      viewport: { once: false, amount: 0.15 },
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 },
       whileHover: { y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } },
       whileTap: { scale: 0.98 }
     };
@@ -488,20 +488,20 @@ const SellCarPage = () => {
       // Mobile: Alternating Left / Right entrance (01 Left, 02 Right, 03 Left, 04 Right)
       const isFromLeft = idx % 2 === 0;
       return {
-        initial: { opacity: 0, x: isFromLeft ? -90 : 90, scale: 0.98 },
-        whileInView: { opacity: 1, x: 0, scale: 1 },
-        viewport: { once: false, amount: 0.2 },
-        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 },
+        initial: { opacity: 0, x: isFromLeft ? -40 : 40 },
+        whileInView: { opacity: 1, x: 0 },
+        viewport: { once: false, amount: 0.1 },
+        transition: { duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.04 },
         whileHover: { y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } },
         whileTap: { scale: 0.98 }
       };
     }
     // Desktop: Bottom to Up entrance (smooth and repeatable on scroll)
     return {
-      initial: { opacity: 0, y: 50, scale: 0.98 },
-      whileInView: { opacity: 1, y: 0, scale: 1 },
-      viewport: { once: false, amount: 0.2 },
-      transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 },
+      initial: { opacity: 0, y: 35 },
+      whileInView: { opacity: 1, y: 0 },
+      viewport: { once: false, amount: 0.15 },
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 },
       whileHover: { y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } },
       whileTap: { scale: 0.98 }
     };

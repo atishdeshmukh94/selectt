@@ -1606,11 +1606,11 @@ const CheckoutPage = () => {
             {steps.map((step, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 50, scale: 0.98 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: false, amount: 0.2 }}
-                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 }}
-                whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.12 }}
+                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: idx * 0.08 }}
+                whileHover={{ y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } }}
                 className="relative flex flex-col cursor-pointer"
               >
                 <div
@@ -1645,11 +1645,11 @@ const CheckoutPage = () => {
                 <div key={idx} className="flex flex-col items-center w-full">
                   {/* Step Card with Alternating Left / Right In-View Animation */}
                   <motion.div
-                    initial={{ opacity: 0, x: isEven ? -90 : 90, scale: 0.98 }}
-                    whileInView={{ opacity: 1, x: 0, scale: 1 }}
-                    viewport={{ once: false, amount: 0.2 }}
-                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-                    whileHover={{ y: -6, scale: 1.015, transition: { duration: 0.25, ease: 'easeOut' } }}
+                    initial={{ opacity: 0, x: isEven ? -35 : 35 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: false, amount: 0.1 }}
+                    transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.03 }}
+                    whileHover={{ y: -4, scale: 1.01, transition: { duration: 0.15, ease: 'easeOut' } }}
                     whileTap={{ scale: 0.98 }}
                     className={`w-full p-6 rounded-2xl flex flex-col items-center text-center border shadow-xl ${step.bgClass} ${step.glow} relative overflow-hidden`}
                   >

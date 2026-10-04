@@ -2910,7 +2910,7 @@ const NewHome = () => {
       <FAQ dark={false} />
 
       {/* Redesigned Premium & Modern PromoSection */}
-      <section className="pt-6 pb-8 md:py-20 px-4 md:px-12 bg-[#fff] border-t border-white/5 relative z-10">
+      <section className="pt-2 sm:pt-4 md:pt-6 pb-8 md:pb-16 px-4 md:px-12 bg-[#fff] relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-8 pb-0 max-w-6xl mx-auto px-0">
 
