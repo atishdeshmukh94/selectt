@@ -730,7 +730,7 @@ const BuyCarsPage = () => {
                 />
 
                 {/* Results bar */}
-                <div id="cars-results-list" className="flex items-center justify-between gap-1.5 sm:gap-2 mb-6 mt-2 w-full min-w-0 max-w-full">
+                <div id="cars-results-list" className="flex items-center justify-between gap-1.5 sm:gap-2 mb-6 mt-2 w-full min-w-0 max-w-full scroll-mt-20">
                   <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink">
                     {/* Mobile filter btn */}
                     <button

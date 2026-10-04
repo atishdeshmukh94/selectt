@@ -71,6 +71,17 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
     return filters.budget === opt.filterValue;
   };
 
+  const scrollToCars = () => {
+    setTimeout(() => {
+      const resultsEl = document.getElementById('cars-results-list');
+      if (resultsEl) {
+        const yOffset = -65;
+        const y = resultsEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      }
+    }, 60);
+  };
+
   const handleBudgetClick = (opt) => {
     if (isBudgetActive(opt)) {
       // Toggle off
@@ -88,6 +99,7 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
         budget_max: opt.max || null,
       }));
     }
+    scrollToCars();
   };
 
   const handleExploreAll = () => {
@@ -98,12 +110,7 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
       budget_max: 25,
       body_type: [],
     }));
-
-    // Smooth scroll down to results
-    const resultsEl = document.getElementById('cars-results-list');
-    if (resultsEl) {
-      resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    scrollToCars();
   };
 
   const isBodyTypeActive = (type) => {
@@ -118,35 +125,35 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
   const handleBodyTypeClick = (type) => {
     if (type === 'All') {
       setFilters((prev) => ({ ...prev, body_type: [] }));
-      return;
-    }
-
-    setFilters((prev) => {
-      const current = prev.body_type || [];
-      const isAlreadySelected = current.some(
-        (b) => b.toLowerCase().trim() === type.toLowerCase().trim()
-      );
-
-      if (isAlreadySelected) {
-        const updated = current.filter(
-          (b) => b.toLowerCase().trim() !== type.toLowerCase().trim()
+    } else {
+      setFilters((prev) => {
+        const current = prev.body_type || [];
+        const isAlreadySelected = current.some(
+          (b) => b.toLowerCase().trim() === type.toLowerCase().trim()
         );
-        return { ...prev, body_type: updated };
-      } else {
-        return { ...prev, body_type: [type] };
-      }
-    });
+
+        if (isAlreadySelected) {
+          const updated = current.filter(
+            (b) => b.toLowerCase().trim() !== type.toLowerCase().trim()
+          );
+          return { ...prev, body_type: updated };
+        } else {
+          return { ...prev, body_type: [type] };
+        }
+      });
+    }
+    scrollToCars();
   };
 
   return (
-    <div className="block md:hidden mb-5 text-left w-full max-w-full overflow-hidden">
+    <div className="block md:hidden mb-5 text-left w-full max-w-full">
       {/* ── Budget Section Heading ── */}
       <h2 className="text-[17px] font-extrabold text-[#0C1B33] tracking-tight mb-3">
         What&apos;s your budget?
       </h2>
 
-      {/* 2x2 Grid with responsive min-w-0 */}
-      <div className="grid grid-cols-2 gap-2.5 mb-3.5 w-full min-w-0 max-w-full">
+      {/* 2x2 Grid with responsive min-w-0 and breathing padding to prevent border cropping */}
+      <div className="grid grid-cols-2 gap-2.5 mb-3.5 w-full min-w-0 max-w-full p-0.5">
         {BUDGET_OPTIONS.map((opt) => {
           const active = isBudgetActive(opt);
           return (
@@ -156,7 +163,7 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
               type="button"
               className={`p-2.5 pt-2.5 pb-0.5 flex flex-col justify-between h-[116px] sm:h-[122px] rounded-2xl relative overflow-hidden text-left transition-all cursor-pointer w-full min-w-0 ${
                 active
-                  ? 'bg-gradient-to-b from-[#d9fffe] to-[#cbfcf7] ring-2 ring-[#00C9AF] border border-[#00C9AF] shadow-md'
+                  ? 'bg-gradient-to-b from-[#d9fffe] to-[#cbfcf7] ring-2 ring-inset ring-[#00C9AF] border border-[#00C9AF] shadow-md'
                   : 'bg-gradient-to-b from-[#d9fffea8] to-[#edfbf9] border border-slate-200/80 hover:border-[#00C9AF]/40 hover:shadow-xs active:scale-[0.98]'
               }`}
             >
