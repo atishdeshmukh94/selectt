@@ -1118,7 +1118,7 @@ const CheckoutPage = () => {
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div className="shrink-0 flex items-center justify-center">
                         <img
-                          src="/img/doodle-outline-903-car-service.gif"
+                          src="/amc.gif"
                           alt="1-Year Complete Maintenance Package"
                           className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
                         />
@@ -2062,7 +2062,7 @@ const CheckoutPage = () => {
                 <div className="relative inline-flex items-center justify-center mx-auto my-2">
                   <div className="w-20 h-20 flex items-center justify-center">
                     <img
-                      src="/img/doodle-outline-903-car-service.gif"
+                      src="/amc.gif"
                       alt="Complete Maintenance Package"
                       className="w-18 h-18 object-contain"
                     />
