@@ -178,7 +178,10 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
                 </div>
 
                 {/* Badge: Selectt Teal Brand Color */}
-                <div className="shrink-0 bg-[#00C9AF] text-[#0C1B33] rounded-full flex items-center justify-center font-black px-1.5 py-0.5 min-w-[22px] h-[22px] text-[11px] leading-none shadow-xs">
+                <div
+                  style={{ fontWeight: 600 }}
+                  className="shrink-0 bg-[#00C9AF] text-[#0C1B33] rounded-full flex items-center justify-center font-semibold px-1.5 py-0.5 min-w-[22px] h-[22px] text-[11.5px] leading-none shadow-xs"
+                >
                   {opt.badge}
                 </div>
               </div>
