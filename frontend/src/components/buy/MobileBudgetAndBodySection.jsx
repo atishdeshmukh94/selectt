@@ -39,7 +39,7 @@ const BUDGET_OPTIONS = [
     min: 15,
     max: null,
     defaultCount: '40+',
-    img: '/img/budget/luxury.webp',
+    img: '/img/budget/luxury_left.webp?v=3',
     filterValue: '₹15 Lakhs +',
   },
 ];
@@ -163,16 +163,16 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
               {/* Header info */}
               <div className="flex items-start justify-between w-full min-w-0 z-10 relative">
                 <div className="min-w-0 pr-1">
-                  <div className="text-[15.5px] sm:text-[16px] font-black text-[#0C1B33] leading-tight truncate">
+                  <div className="text-[14px] sm:text-[14.5px] font-black text-[#0C1B33] leading-tight truncate">
                     {opt.label}
                   </div>
-                  <div className="text-[12px] font-bold text-slate-500 mt-0.5">
+                  <div className="text-[11px] sm:text-[11.5px] font-bold text-slate-500 mt-0.5">
                     {getCarCount(opt)}
                   </div>
                 </div>
 
                 {/* Badge: Selectt Teal Brand Color */}
-                <div className="shrink-0 bg-[#00C9AF] text-[#0C1B33] rounded-full flex items-center justify-center font-black px-1.5 py-0.5 min-w-[24px] h-[24px] text-[12px] leading-none shadow-xs">
+                <div className="shrink-0 bg-[#00C9AF] text-[#0C1B33] rounded-full flex items-center justify-center font-black px-1.5 py-0.5 min-w-[22px] h-[22px] text-[11px] leading-none shadow-xs">
                   {opt.badge}
                 </div>
               </div>
