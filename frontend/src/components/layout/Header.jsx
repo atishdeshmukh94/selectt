@@ -110,7 +110,11 @@ const Header = () => {
     const queryString = params.toString();
     const targetUrl = queryString ? `/buy-cars?${queryString}` : '/buy-cars';
 
-    navigate(targetUrl, { state: { filters } });
+    if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
+    window.location.href = targetUrl;
   };
 
   const handleTextSearch = () => {
@@ -171,11 +175,18 @@ const Header = () => {
     const MODEL_LIMIT = 7; // Show 6 to 8 models by default
 
     return (
-      <div className="relative group/mega z-[60] h-full flex items-center">
-        <button className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-slate-700 hover:text-slate-950 whitespace-nowrap rounded transition-colors peer cursor-pointer h-8 group-hover/mega:text-[#00B4A0]">
+      <div 
+        className="relative group/mega z-[60] h-full flex items-center"
+        onMouseEnter={() => setMakeModelMenuOpen(true)}
+        onMouseLeave={() => setMakeModelMenuOpen(false)}
+      >
+        <button 
+          onClick={() => setMakeModelMenuOpen(prev => !prev)}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-slate-700 hover:text-slate-950 whitespace-nowrap rounded transition-colors peer cursor-pointer h-8 group-hover/mega:text-[#00B4A0]"
+        >
           Make and Model <ChevronDown size={13} className="opacity-70 group-hover/mega:opacity-100 group-hover/mega:rotate-180 transition-all duration-200" />
         </button>
-        <div className="absolute top-[100%] left-[-120px] w-[1080px] max-w-[92vw] max-h-[550px] overflow-y-auto bg-[#051124] shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-200 p-5 rounded-b-xl border border-white/10 border-t-2 border-t-[#00C9AF]">
+        <div className={`absolute top-[100%] left-[-120px] w-[1080px] max-w-[92vw] max-h-[550px] overflow-y-auto bg-[#051124] shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-200 p-5 rounded-b-xl border border-white/10 border-t-2 border-t-[#00C9AF] ${!makeModelMenuOpen ? '!hidden !opacity-0 !invisible' : ''}`}>
           <div className="grid grid-cols-4 gap-3">
             {activeBrands.map((brand) => {
               const brandKey = brand.id ? String(brand.id) : brand.name;
@@ -187,7 +198,10 @@ const Header = () => {
               return (
                 <div key={brandKey} className="bg-white/5 border border-white/10 hover:border-[#00C9AF]/40 rounded-lg p-3 flex flex-col min-h-[205px] transition-all">
                   <button
-                    onClick={() => handleNavFilter({ brands: [brand.name] })}
+                    onClick={() => {
+                      setMakeModelMenuOpen(false);
+                      handleNavFilter({ brands: [brand.name] });
+                    }}
                     className="text-[13.5px] font-bold text-white pb-1.5 mb-1.5 border-b border-white/10 flex items-center justify-between hover:text-[#00C9AF] transition-colors"
                   >
                     <span className="truncate max-w-[170px]">{brand.name}</span>
@@ -201,7 +215,10 @@ const Header = () => {
                         return (
                           <button
                             key={modelName}
-                            onClick={() => handleNavFilter({ models: [modelName] })}
+                            onClick={() => {
+                              setMakeModelMenuOpen(false);
+                              handleNavFilter({ brands: [brand.name], models: [modelName] });
+                            }}
                             className="text-[12px] text-slate-300 hover:text-[#00C9AF] hover:bg-white/5 px-1 py-[2px] rounded text-left transition-colors truncate"
                           >
                             {modelName}
@@ -212,7 +229,10 @@ const Header = () => {
                   ) : (
                     <div className="flex-1 flex items-center">
                       <button
-                        onClick={() => handleNavFilter({ brands: [brand.name] })}
+                        onClick={() => {
+                          setMakeModelMenuOpen(false);
+                          handleNavFilter({ brands: [brand.name] });
+                        }}
                         className="text-[11.5px] text-slate-400 hover:text-[#00C9AF] text-left"
                       >
                         View all {brand.name}

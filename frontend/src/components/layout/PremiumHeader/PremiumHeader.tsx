@@ -53,6 +53,7 @@ export const PremiumHeader: React.FC = () => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [brandsData, setBrandsData] = useState<any[]>([]);
   const [expandedBrands, setExpandedBrands] = useState<{ [brandKey: string]: boolean }>({});
+  const [makeModelMenuOpen, setMakeModelMenuOpen] = useState(false);
 
   const toggleBrandExpand = (e: React.MouseEvent, key: string) => {
     e.preventDefault();
@@ -285,9 +286,15 @@ export const PremiumHeader: React.FC = () => {
     const queryString = params.toString();
     const targetUrl = queryString ? `/buy-cars?${queryString}` : '/buy-cars';
 
-    navigate(targetUrl, { state: { filters } });
+    setMakeModelMenuOpen(false);
     setActiveDropdown(null);
     setMobileMenuOpen(false);
+
+    if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
+    window.location.href = targetUrl;
   };
 
   const handleTextSearch = () => {
@@ -682,12 +689,19 @@ export const PremiumHeader: React.FC = () => {
           </div>
 
           {/* Make and Model Dropdown Wrapper */}
-          <div className={styles.dropdownWrapper}>
-            <button className={styles.filterButton}>
+          <div 
+            className={styles.dropdownWrapper}
+            onMouseEnter={() => setMakeModelMenuOpen(true)}
+            onMouseLeave={() => setMakeModelMenuOpen(false)}
+          >
+            <button 
+              className={styles.filterButton}
+              onClick={() => setMakeModelMenuOpen(prev => !prev)}
+            >
               <span>Make and Model</span>
               <IconChevronDown size={13} className={styles.chevronIcon} />
             </button>
-            <div className={styles.makeModelDropdown}>
+            <div className={`${styles.makeModelDropdown} ${!makeModelMenuOpen ? styles.dropdownForceClosed : ''}`}>
               {(() => {
                 const DEFAULT_MAKE_MODELS = [
                   {
@@ -731,7 +745,10 @@ export const PremiumHeader: React.FC = () => {
                       return (
                         <div key={brandKey} className={styles.makeModelCard}>
                           <button
-                            onClick={() => handleNavFilter({ brands: [brand.name] })}
+                            onClick={() => {
+                              setMakeModelMenuOpen(false);
+                              handleNavFilter({ brands: [brand.name] });
+                            }}
                             className={styles.makeModelBrandBtn}
                             title={`Filter cars by ${brand.name}`}
                           >
@@ -746,7 +763,10 @@ export const PremiumHeader: React.FC = () => {
                                 return (
                                   <li key={modelName}>
                                     <button
-                                      onClick={() => handleNavFilter({ models: [modelName] })}
+                                      onClick={() => {
+                                        setMakeModelMenuOpen(false);
+                                        handleNavFilter({ brands: [brand.name], models: [modelName] });
+                                      }}
                                       title={modelName}
                                     >
                                       {modelName}
@@ -758,7 +778,10 @@ export const PremiumHeader: React.FC = () => {
                           ) : (
                             <div className={styles.emptyModelsBox}>
                               <button
-                                onClick={() => handleNavFilter({ brands: [brand.name] })}
+                                onClick={() => {
+                                  setMakeModelMenuOpen(false);
+                                  handleNavFilter({ brands: [brand.name] });
+                                }}
                                 className={styles.emptyModelsBtn}
                               >
                                 View all {brand.name}

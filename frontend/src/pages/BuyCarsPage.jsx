@@ -68,6 +68,8 @@ const parseQueryParams = (search, locationState) => {
   }
   if (certification) {
     base.certification = certification;
+  } else if (brand || model) {
+    base.certification = 'all';
   } else if (!tag || !tag.toLowerCase().includes('offer')) {
     base.certification = 'standard';
   }

@@ -788,6 +788,13 @@
   pointer-events: auto;
 }
 
+.dropdownForceClosed {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 .makeModelGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
