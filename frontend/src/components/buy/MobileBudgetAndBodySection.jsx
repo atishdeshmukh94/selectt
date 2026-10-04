@@ -44,7 +44,16 @@ const BUDGET_OPTIONS = [
   },
 ];
 
-const BODY_TYPES = ['All', 'Hatchback', 'Sedan', 'SUV', 'MUV'];
+const BODY_TYPES = [
+  'All',
+  'Hatchback',
+  'Sedan',
+  'SUV',
+  'Compact SUV',
+  'MUV',
+  'Luxury Sedan',
+  'Luxury SUV'
+];
 
 const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) => {
   // Real dynamic count calculations with fallback to default UI numbers
@@ -102,7 +111,7 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
       return !filters.body_type || filters.body_type.length === 0;
     }
     return filters.body_type?.some(
-      (b) => b.toLowerCase() === type.toLowerCase() || (type === 'SUV' && b.toLowerCase().includes('suv'))
+      (b) => b.toLowerCase().trim() === type.toLowerCase().trim()
     );
   };
 
@@ -115,12 +124,12 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
     setFilters((prev) => {
       const current = prev.body_type || [];
       const isAlreadySelected = current.some(
-        (b) => b.toLowerCase() === type.toLowerCase() || (type === 'SUV' && b.toLowerCase().includes('suv'))
+        (b) => b.toLowerCase().trim() === type.toLowerCase().trim()
       );
 
       if (isAlreadySelected) {
         const updated = current.filter(
-          (b) => b.toLowerCase() !== type.toLowerCase() && !(type === 'SUV' && b.toLowerCase().includes('suv'))
+          (b) => b.toLowerCase().trim() !== type.toLowerCase().trim()
         );
         return { ...prev, body_type: updated };
       } else {
@@ -145,14 +154,14 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
               key={opt.id}
               onClick={() => handleBudgetClick(opt)}
               type="button"
-              className={`p-3 pt-3 pb-1 flex flex-col justify-between h-[132px] rounded-2xl relative overflow-hidden text-left transition-all cursor-pointer w-full min-w-0 ${
+              className={`p-3 pt-3 pb-1 flex flex-col justify-between h-[140px] sm:h-[148px] rounded-2xl relative overflow-hidden text-left transition-all cursor-pointer w-full min-w-0 ${
                 active
                   ? 'bg-gradient-to-b from-[#E6FAF7] to-[#D0F4EF] ring-2 ring-[#00C9AF] border border-[#00C9AF] shadow-md'
                   : 'bg-gradient-to-b from-[#F0F5FA] to-[#E5EDF6] border border-slate-200/80 hover:border-[#00C9AF]/40 hover:shadow-xs active:scale-[0.98]'
               }`}
             >
               {/* Header info */}
-              <div className="flex items-start justify-between w-full min-w-0">
+              <div className="flex items-start justify-between w-full min-w-0 z-10 relative">
                 <div className="min-w-0 pr-1">
                   <div className="text-[13.5px] sm:text-[14px] font-extrabold text-[#0C1B33] leading-tight truncate">
                     {opt.label}
@@ -169,11 +178,11 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
               </div>
 
               {/* Large Car 3D Graphic */}
-              <div className="w-full flex justify-end items-end -mb-1 -mr-1">
+              <div className="w-full flex justify-end items-end relative -mb-1 -mr-1 h-[82px] sm:h-[90px]">
                 <img
                   src={opt.img}
                   alt={opt.label}
-                  className="h-[72px] sm:h-[78px] w-auto max-w-[92%] object-contain filter drop-shadow-[0_6px_10px_rgba(12,27,51,0.12)] pointer-events-none"
+                  className="h-full w-auto max-w-[98%] object-contain filter drop-shadow-[0_8px_14px_rgba(12,27,51,0.14)] pointer-events-none"
                   loading="lazy"
                 />
               </div>
@@ -199,8 +208,8 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
         </h3>
 
         {/* Horizontal scroll without breaking viewport width */}
-        <div className="w-full max-w-full overflow-x-auto pb-1 scrollbar-none">
-          <div className="flex items-center gap-2 w-max min-w-full">
+        <div className="w-full max-w-full overflow-x-auto pb-1.5 scrollbar-none overscroll-x-contain -mx-1 px-1">
+          <div className="flex items-center gap-2 w-max pr-3">
             {BODY_TYPES.map((bt) => {
               const active = isBodyTypeActive(bt);
               return (
