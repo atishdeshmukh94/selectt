@@ -1120,12 +1120,12 @@ const CheckoutPage = () => {
                         <img
                           src="/amc.gif"
                           alt="1-Year Complete Maintenance Package"
-                          className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
+                          className="w-20 h-20 sm:w-22 sm:h-22 object-contain drop-shadow-sm"
                         />
                       </div>
                       <div className="min-w-0">
                         <h3 className="font-extrabold text-[#0C1B33] text-sm sm:text-base leading-snug">
-                          1-Year complete maintenance package
+                          1-Year complete <span className="block sm:inline">maintenance package</span>
                         </h3>
                         <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
                           Warranty, service, RSA & buyback
