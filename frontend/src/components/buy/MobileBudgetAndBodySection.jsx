@@ -154,7 +154,7 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
               key={opt.id}
               onClick={() => handleBudgetClick(opt)}
               type="button"
-              className={`p-3 pt-3 pb-1 flex flex-col justify-between h-[140px] sm:h-[148px] rounded-2xl relative overflow-hidden text-left transition-all cursor-pointer w-full min-w-0 ${
+              className={`p-2.5 pt-2.5 pb-0.5 flex flex-col justify-between h-[116px] sm:h-[122px] rounded-2xl relative overflow-hidden text-left transition-all cursor-pointer w-full min-w-0 ${
                 active
                   ? 'bg-gradient-to-b from-[#E6FAF7] to-[#D0F4EF] ring-2 ring-[#00C9AF] border border-[#00C9AF] shadow-md'
                   : 'bg-gradient-to-b from-[#F0F5FA] to-[#E5EDF6] border border-slate-200/80 hover:border-[#00C9AF]/40 hover:shadow-xs active:scale-[0.98]'
@@ -163,26 +163,26 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
               {/* Header info */}
               <div className="flex items-start justify-between w-full min-w-0 z-10 relative">
                 <div className="min-w-0 pr-1">
-                  <div className="text-[13.5px] sm:text-[14px] font-extrabold text-[#0C1B33] leading-tight truncate">
+                  <div className="text-[15.5px] sm:text-[16px] font-black text-[#0C1B33] leading-tight truncate">
                     {opt.label}
                   </div>
-                  <div className="text-[11px] font-semibold text-slate-500 mt-0.5">
+                  <div className="text-[12px] font-bold text-slate-500 mt-0.5">
                     {getCarCount(opt)}
                   </div>
                 </div>
 
                 {/* Badge: Selectt Teal Brand Color */}
-                <div className="shrink-0 bg-[#00C9AF] text-[#0C1B33] rounded-full flex items-center justify-center font-black px-1.5 py-0.5 min-w-[22px] h-[22px] text-[11px] leading-none shadow-xs">
+                <div className="shrink-0 bg-[#00C9AF] text-[#0C1B33] rounded-full flex items-center justify-center font-black px-1.5 py-0.5 min-w-[24px] h-[24px] text-[12px] leading-none shadow-xs">
                   {opt.badge}
                 </div>
               </div>
 
               {/* Large Car 3D Graphic */}
-              <div className="w-full flex justify-end items-end relative -mb-1 -mr-1 h-[82px] sm:h-[90px]">
+              <div className="w-full flex justify-end items-end relative -mb-0.5 -mr-1 h-[68px] sm:h-[72px]">
                 <img
                   src={opt.img}
                   alt={opt.label}
-                  className="h-full w-auto max-w-[98%] object-contain filter drop-shadow-[0_8px_14px_rgba(12,27,51,0.14)] pointer-events-none"
+                  className="h-full w-auto max-w-[96%] object-contain filter drop-shadow-[0_6px_12px_rgba(12,27,51,0.14)] pointer-events-none"
                   loading="lazy"
                 />
               </div>
