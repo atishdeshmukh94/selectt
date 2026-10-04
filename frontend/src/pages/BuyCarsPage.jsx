@@ -263,11 +263,11 @@ const BuyCarsPage = () => {
   const [sortOrder, setSortOrder] = useState(initialSort);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [city, setCity] = useState(urlCity || initialFilters.city || localStorage.getItem('user_city') || 'Mumbai');
-  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 1024 : false));
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1024);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -275,21 +275,25 @@ const BuyCarsPage = () => {
 
   const getAlternatingCardMotion = (idx) => {
     if (isMobile) {
-      // Mobile: Alternating Left / Right entrance
+      // Mobile: Alternating Left / Right entrance (01 Left, 02 Right, 03 Left, 04 Right)
       const isFromLeft = idx % 2 === 0;
       return {
-        initial: { opacity: 0, x: isFromLeft ? -50 : 50 },
-        whileInView: { opacity: 1, x: 0 },
-        viewport: { once: true, amount: 0.2 },
-        transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.05 }
+        initial: { opacity: 0, x: isFromLeft ? -90 : 90, scale: 0.98 },
+        whileInView: { opacity: 1, x: 0, scale: 1 },
+        viewport: { once: false, amount: 0.2 },
+        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 },
+        whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+        whileTap: { scale: 0.98 }
       };
     }
-    // Desktop: Staggered smooth fade up
+    // Desktop: Bottom to Up entrance (smooth and repeatable on scroll)
     return {
-      initial: { opacity: 0, y: 35 },
-      whileInView: { opacity: 1, y: 0 },
-      viewport: { once: true, amount: 0.2 },
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 }
+      initial: { opacity: 0, y: 50, scale: 0.98 },
+      whileInView: { opacity: 1, y: 0, scale: 1 },
+      viewport: { once: false, amount: 0.2 },
+      transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 },
+      whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+      whileTap: { scale: 0.98 }
     };
   };
 
@@ -829,7 +833,7 @@ const BuyCarsPage = () => {
                 )}
 
                 {/* ── The Selectt Advantage for Buyers (SEO Module) ── */}
-                <section className="mt-16 pt-12 border-t border-slate-200">
+                <section className="mt-16 pt-12 border-t border-slate-200 overflow-hidden">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -928,7 +932,7 @@ const BuyCarsPage = () => {
                 </section>
 
                 {/* ── How Buying a Car Works (4 Steps) ── */}
-                <section className="mt-16 pt-12 border-t border-slate-200">
+                <section className="mt-16 pt-12 border-t border-slate-200 overflow-hidden">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}

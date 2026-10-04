@@ -18,6 +18,7 @@ import {
   Check
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import PageMeta from '../components/common/PageMeta';
 import FAQ from '../components/home/FAQ';
 import NeedAssistanceSection from '../components/common/NeedAssistanceSection';
@@ -35,6 +36,38 @@ export default function SelecttPartnersPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 1024 : false));
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const getAlternatingCardMotion = (idx) => {
+    if (isMobile) {
+      const isFromLeft = idx % 2 === 0;
+      return {
+        initial: { opacity: 0, x: isFromLeft ? -90 : 90, scale: 0.98 },
+        whileInView: { opacity: 1, x: 0, scale: 1 },
+        viewport: { once: false, amount: 0.2 },
+        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 },
+        whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+        whileTap: { scale: 0.98 }
+      };
+    }
+    return {
+      initial: { opacity: 0, y: 50, scale: 0.98 },
+      whileInView: { opacity: 1, y: 0, scale: 1 },
+      viewport: { once: false, amount: 0.2 },
+      transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 },
+      whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+      whileTap: { scale: 0.98 }
+    };
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -366,7 +399,7 @@ export default function SelecttPartnersPage() {
         </section>
 
         {/* ───────────── How It Works (3 Steps) ───────────── */}
-        <section className="py-20 bg-white border-b border-slate-200/80">
+        <section className="py-20 bg-white border-b border-slate-200/80 overflow-hidden">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-14">
               <span className="inline-block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3.5">Streamlined Workflow</span>
@@ -379,7 +412,10 @@ export default function SelecttPartnersPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left relative">
+              <motion.div
+                {...getAlternatingCardMotion(0)}
+                className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left relative cursor-pointer"
+              >
                 <div className="w-9 h-9 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-5">
                   01
                 </div>
@@ -387,9 +423,12 @@ export default function SelecttPartnersPage() {
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Filter verified cars by brand, fuel type, manufacturing year, or region, and submit competitive bids during live auction windows.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left relative">
+              <motion.div
+                {...getAlternatingCardMotion(1)}
+                className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left relative cursor-pointer"
+              >
                 <div className="w-9 h-9 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-5">
                   02
                 </div>
@@ -397,9 +436,12 @@ export default function SelecttPartnersPage() {
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Upon winning the auction, our procurement team negotiates seller handovers and ensures you receive the vehicle at the agreed transparent price.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left relative">
+              <motion.div
+                {...getAlternatingCardMotion(2)}
+                className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left relative cursor-pointer"
+              >
                 <div className="w-9 h-9 rounded-lg bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-bold text-xs mb-5">
                   03
                 </div>
@@ -407,7 +449,7 @@ export default function SelecttPartnersPage() {
                 <p className="text-slate-500 text-xs font-normal leading-relaxed">
                   Complete secure payment post-verification and receive insured transportation to your dealership with full RTO documentation.
                 </p>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>

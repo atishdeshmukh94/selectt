@@ -16,12 +16,45 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import PageMeta from '../components/common/PageMeta';
 import FAQ from '../components/home/FAQ';
 import NeedAssistanceSection from '../components/common/NeedAssistanceSection';
 
 export default function SelecttBuybackPage() {
   const [activeTenure, setActiveTenure] = useState('18');
+
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 1024 : false));
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const getAlternatingCardMotion = (idx) => {
+    if (isMobile) {
+      const isFromLeft = idx % 2 === 0;
+      return {
+        initial: { opacity: 0, x: isFromLeft ? -90 : 90, scale: 0.98 },
+        whileInView: { opacity: 1, x: 0, scale: 1 },
+        viewport: { once: false, amount: 0.2 },
+        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 },
+        whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+        whileTap: { scale: 0.98 }
+      };
+    }
+    return {
+      initial: { opacity: 0, y: 50, scale: 0.98 },
+      whileInView: { opacity: 1, y: 0, scale: 1 },
+      viewport: { once: false, amount: 0.2 },
+      transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 },
+      whileHover: { y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } },
+      whileTap: { scale: 0.98 }
+    };
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -228,7 +261,7 @@ export default function SelecttBuybackPage() {
         </section>
 
         {/* ───────────── How It Works (3 Steps) ───────────── */}
-        <section id="how-it-works" className="py-20 bg-white border-b border-slate-200/80">
+        <section id="how-it-works" className="py-20 bg-white border-b border-slate-200/80 overflow-hidden">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-14">
               <span className="inline-block text-[12px] font-medium text-slate-500 mb-3.5">Simple process</span>
@@ -241,7 +274,10 @@ export default function SelecttBuybackPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left">
+              <motion.div
+                {...getAlternatingCardMotion(0)}
+                className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left cursor-pointer"
+              >
                 <div className="w-9 h-9 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-5">
                   01
                 </div>
@@ -249,9 +285,12 @@ export default function SelecttBuybackPage() {
                 <p className="text-[#475569] text-[15px] sm:text-[16px] font-normal leading-[1.6]">
                   Pick any certified car on Selectt and opt for your preferred buyback tenure (12, 18, or 36 months) during checkout.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left">
+              <motion.div
+                {...getAlternatingCardMotion(1)}
+                className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left cursor-pointer"
+              >
                 <div className="w-9 h-9 rounded-lg bg-[#0C1B33] text-white flex items-center justify-center font-bold text-xs mb-5">
                   02
                 </div>
@@ -259,9 +298,12 @@ export default function SelecttBuybackPage() {
                 <p className="text-[#475569] text-[15px] sm:text-[16px] font-normal leading-[1.6]">
                   Enjoy your vehicle with full self-ownership, comprehensive warranty coverage, and zero per-kilometer restrictions.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left">
+              <motion.div
+                {...getAlternatingCardMotion(2)}
+                className="border border-slate-200/80 rounded-2xl p-7 sm:p-8 bg-slate-50/50 text-left cursor-pointer"
+              >
                 <div className="w-9 h-9 rounded-lg bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center font-bold text-xs mb-5">
                   03
                 </div>
@@ -269,7 +311,7 @@ export default function SelecttBuybackPage() {
                 <p className="text-[#475569] text-[15px] sm:text-[16px] font-normal leading-[1.6]">
                   At the end of tenure, either return the car for instant pre-agreed bank payout, upgrade to a newer model, or retain ownership.
                 </p>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>

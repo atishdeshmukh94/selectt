@@ -465,7 +465,7 @@ const UsedCarLoanPage = () => {
             <motion.div
               initial={{ opacity: 0, x: 60 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
+              viewport={{ once: false, amount: 0.2 }}
               transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-col lg:flex-row items-center gap-6 lg:gap-[76px] lg:pt-[30px] relative z-10 gpu-accelerated"
             >
@@ -502,7 +502,7 @@ const UsedCarLoanPage = () => {
             <motion.div
               initial={{ opacity: 0, x: -60 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
+              viewport={{ once: false, amount: 0.2 }}
               transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-col lg:flex-row-reverse items-center gap-6 lg:gap-[76px] lg:pt-[30px] relative z-10 gpu-accelerated"
             >
@@ -539,7 +539,7 @@ const UsedCarLoanPage = () => {
             <motion.div
               initial={{ opacity: 0, x: 60 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
+              viewport={{ once: false, amount: 0.2 }}
               transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-col lg:flex-row items-center gap-6 lg:gap-[76px] lg:pt-[30px] relative z-10 gpu-accelerated"
             >
@@ -576,7 +576,7 @@ const UsedCarLoanPage = () => {
             <motion.div
               initial={{ opacity: 0, x: -60 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
+              viewport={{ once: false, amount: 0.2 }}
               transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-col lg:flex-row-reverse items-center gap-6 lg:gap-[76px] lg:pt-[30px] relative z-10 gpu-accelerated"
             >

@@ -1604,7 +1604,15 @@ const CheckoutPage = () => {
           {/* DESKTOP VIEW (Horizontal 4-Grid with Connectors) */}
           <div className="hidden lg:grid grid-cols-4 gap-6 relative">
             {steps.map((step, idx) => (
-              <div key={idx} className="relative flex flex-col">
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 50, scale: 0.98 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: false, amount: 0.2 }}
+                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 }}
+                whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.25, ease: 'easeOut' } }}
+                className="relative flex flex-col cursor-pointer"
+              >
                 <div
                   className={`p-6 sm:p-7 rounded-2xl flex flex-col items-center text-center border hover:-translate-y-1.5 transition-all duration-300 shadow-xl ${step.bgClass} ${step.glow} h-full relative overflow-hidden group`}
                 >
@@ -1624,23 +1632,25 @@ const CheckoutPage = () => {
                     {step.desc}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
-          {/* MOBILE / TABLET VIEW (Smooth Vertical In-view Animation with Down Arrows) */}
+          {/* MOBILE / TABLET VIEW (Smooth Alternating Left/Right In-view Animation with Down Arrows) */}
           <div className="flex flex-col gap-0 lg:hidden max-w-md sm:max-w-lg mx-auto w-full overflow-hidden px-1">
             {steps.map((step, idx) => {
               const isEven = idx % 2 === 0;
 
               return (
                 <div key={idx} className="flex flex-col items-center w-full">
-                  {/* Step Card with Smooth In-View Fade & Rise (No Horizontal Overflow) */}
+                  {/* Step Card with Alternating Left / Right In-View Animation */}
                   <motion.div
-                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, margin: "-20px" }}
-                    transition={{ duration: 0.45, ease: "easeOut" }}
+                    initial={{ opacity: 0, x: isEven ? -90 : 90, scale: 0.98 }}
+                    whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                    viewport={{ once: false, amount: 0.2 }}
+                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+                    whileHover={{ y: -6, scale: 1.015, transition: { duration: 0.25, ease: 'easeOut' } }}
+                    whileTap={{ scale: 0.98 }}
                     className={`w-full p-6 rounded-2xl flex flex-col items-center text-center border shadow-xl ${step.bgClass} ${step.glow} relative overflow-hidden`}
                   >
                     {/* Step Badge & Directional Indicator */}
