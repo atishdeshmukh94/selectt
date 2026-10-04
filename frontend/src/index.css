@@ -1136,4 +1136,89 @@ div[class*="chatty"],
   z-index: 1;
 }
 
+/* ==========================================================================
+   Checkout Page Glowing Multicolor Rainbow Border Animation (No Confetti)
+   ========================================================================== */
+@property --rainbow-card-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes rainbowCardRotate {
+  0% {
+    --rainbow-card-angle: 0deg;
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    --rainbow-card-angle: 360deg;
+    filter: hue-rotate(360deg);
+  }
+}
+
+.rainbow-glow-card-container {
+  position: relative;
+  border-radius: 1rem; /* 16px — matches inner 13.5px + 2.5px padding */
+  padding: 4px;
+  background: conic-gradient(
+    from var(--rainbow-card-angle, 0deg),
+    #ff0055,
+    #ff5500,
+    #ffcc00,
+    #10b981,
+    #00c9af,
+    #0099ff,
+    #7928ca,
+    #ff0080,
+    #ff0055
+  );
+  animation: rainbowCardRotate 4.5s linear infinite;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Category Icon Animations for Checkout & Maintenance Details Modal */
+@keyframes wrenchWiggleAnim {
+  0%, 100% {
+    transform: rotate(-15deg);
+  }
+  50% {
+    transform: rotate(18deg);
+  }
+}
+
+@keyframes gearRotateAnim {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes floatNavAnim {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(-8deg);
+  }
+}
+
+.animate-wrench-wiggle {
+  animation: wrenchWiggleAnim 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.animate-gear-rotate {
+  animation: gearRotateAnim 5s linear infinite;
+  transform-origin: center;
+}
+
+.animate-float-nav {
+  animation: floatNavAnim 2.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+
 

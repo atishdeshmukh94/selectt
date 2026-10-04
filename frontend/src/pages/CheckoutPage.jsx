@@ -31,8 +31,9 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate,
   const supportPhoneClean = supportPhone.replace(/[^0-9+]/g, '');
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-slate-200/90 shadow-2xs w-full max-w-full overflow-hidden">
-      {/* ========================================================
+    <>
+      <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-slate-200/90 shadow-2xs w-full max-w-full">
+        {/* ========================================================
           DESKTOP & TABLET HEADER ONLY (md:flex, hidden on mobile)
           PC Mode is unchanged: Logo (left), 3-step stepper (center), Phone (right)
          ======================================================== */}
@@ -174,7 +175,10 @@ export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate,
         </div>
       </div>
     </header>
-  );
+    {/* Spacer so the page content flows right below the fixed header without jumping or overlap */}
+    <div className="h-[89px] md:h-[72px] w-full shrink-0" aria-hidden="true" />
+  </>
+);
 };
 
 export const getBookingAmount = (price) => {
@@ -629,12 +633,12 @@ const CheckoutPage = () => {
   const [pauseBenefitSlide, setPauseBenefitSlide] = useState(false);
 
   useEffect(() => {
-    if (!isPriceSummaryOpen || pauseBenefitSlide) return;
+    if (pauseBenefitSlide) return;
     const timer = setInterval(() => {
       setBenefitSlide((prev) => (prev + 1) % 3);
-    }, 2800);
+    }, 3200);
     return () => clearInterval(timer);
-  }, [isPriceSummaryOpen, pauseBenefitSlide]);
+  }, [pauseBenefitSlide]);
 
   // Coupon Code State
   const [couponInput, setCouponInput] = useState('');
@@ -642,7 +646,7 @@ const CheckoutPage = () => {
   const [couponError, setCouponError] = useState(null);
   const [couponSuccess, setCouponSuccess] = useState(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
-  const [isPriceBreakdownExpanded, setIsPriceBreakdownExpanded] = useState(false);
+  const [isPriceBreakdownExpanded, setIsPriceBreakdownExpanded] = useState(true);
 
   const rawBookingAmount = getBookingAmount(car?.price);
   // Booking amount is fixed (5,000 / 11,000 / 21,000) and never reduced by coupons
@@ -708,6 +712,125 @@ const CheckoutPage = () => {
     setCouponError(null);
     setCouponSuccess(null);
   };
+
+  const renderBestInClassValues = (isDesktop = false) => (
+    <div className={`pt-2 ${isDesktop ? 'mt-3 border-t border-slate-200/90' : ''}`}>
+      <div className="flex items-center justify-center gap-3 my-3">
+        <div className="h-px bg-slate-200 flex-1 max-w-[80px]" />
+        <span className="font-extrabold text-[#0C1B33] text-sm sm:text-base tracking-tight">
+          Best-in-class values
+        </span>
+        <div className="h-px bg-slate-200 flex-1 max-w-[80px]" />
+      </div>
+
+      <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200/90 shadow-2xs flex items-center gap-3.5 mb-3.5">
+        <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed flex-1">
+          Thorough inspection, expert refurbishment & cleaning has been conducted by our professionals.
+        </p>
+        <div className="shrink-0 flex items-center justify-center">
+          <img
+            src="/img/car-wash.gif"
+            alt="Car inspection, cleaning and refurbishment"
+            className="w-16 h-16 sm:w-18 sm:h-18 object-contain"
+          />
+        </div>
+      </div>
+
+      {/* SELECTT ASSURED BENEFITS — Horizontal Carousel (2 cards visible) */}
+      <div className="bg-gradient-to-br from-slate-900 via-[#0C1B33] to-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 border border-slate-800 shadow-xl relative overflow-hidden">
+        {/* Glowing decorative background */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#00C9AF]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3 relative z-10">
+          <div className="inline-flex items-center gap-1.5 bg-[#00C9AF]/15 border border-[#00C9AF]/40 px-2.5 py-1 rounded-full">
+            <Sparkles size={11} className="text-[#00C9AF]" />
+            <span className="text-[10.5px] font-black text-[#00C9AF] uppercase tracking-wider">Selectt Assured Benefits</span>
+          </div>
+          <span className="text-[9.5px] text-slate-400 font-bold uppercase tracking-widest hidden sm:inline-block">100% Peace of Mind</span>
+        </div>
+
+        {/* Auto-Slide Carousel Container — 2 cards visible */}
+        <div
+          className="relative z-10 overflow-hidden"
+          onMouseEnter={() => setPauseBenefitSlide(true)}
+          onMouseLeave={() => setPauseBenefitSlide(false)}
+          onTouchStart={() => setPauseBenefitSlide(true)}
+          onTouchEnd={() => setPauseBenefitSlide(false)}
+        >
+          <div
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${benefitSlide * 100}%)` }}
+          >
+            {ASSURED_BENEFIT_PAIRS.map((pair, pIdx) => (
+              <div key={pIdx} className="w-full shrink-0 grid grid-cols-2 gap-2 pb-1">
+                {pair.map((card) => {
+                  const Icon = card.icon;
+                  return (
+                    <div
+                      key={card.id}
+                      className={`bg-white/95 rounded-xl p-3 sm:p-3.5 border ${card.border} shadow-2xs flex flex-col justify-between`}
+                    >
+                      <div className="flex items-start gap-2">
+                        <div
+                          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-tr ${card.iconGrad} text-white flex items-center justify-center shrink-0 shadow-2xs`}
+                        >
+                          <Icon size={16} className={card.id === 'buyback' ? 'text-amber-300' : ''} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1 mb-1 flex-wrap">
+                            <h4 className="font-extrabold text-[#0C1B33] text-[11px] sm:text-xs leading-tight">
+                              {card.title}
+                            </h4>
+                            <span
+                              className={`text-[8px] sm:text-[9px] ${card.badgeColor} font-black px-1.5 py-0.5 rounded uppercase whitespace-nowrap`}
+                            >
+                              {card.badge}
+                            </span>
+                          </div>
+                          <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-snug">
+                            {card.desc}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Auto-slide indicator dots (clickable) */}
+        <div className="flex justify-center items-center gap-1.5 mt-3 relative z-10">
+          {[0, 1, 2].map((i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setBenefitSlide(i)}
+              aria-label={`Slide ${i + 1}`}
+              className="p-1 !min-h-0 !border-0 bg-transparent flex items-center justify-center cursor-pointer transition-all focus:outline-none"
+              style={{ minHeight: 'unset', height: 'auto', padding: '4px' }}
+            >
+              <span
+                className={`block h-1.5 rounded-full transition-all duration-300 ${benefitSlide === i
+                    ? 'w-6 bg-[#00C9AF] opacity-100 shadow-sm shadow-[#00C9AF]/50'
+                    : 'w-2 bg-slate-500/60 hover:bg-slate-400'
+                  }`}
+                style={{
+                  height: '6px',
+                  minHeight: '6px',
+                  maxHeight: '6px',
+                  width: benefitSlide === i ? '24px' : '8px',
+                }}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   const openTestDrive = (location = 'hub') => {
     setTestDriveLocation(location);
@@ -933,7 +1056,7 @@ const CheckoutPage = () => {
   const originalPrice = car.price + 22000;
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden min-h-screen">
+    <div className="w-full max-w-full overflow-x-clip min-h-screen">
       <PageMeta title={`Checkout - Reserve ${car.year} ${car.make} ${car.model} | Selectt`} description={`Complete booking deposit for your ${car.year} ${car.make} ${car.model}.`} />
 
       {/* Dedicated Checkout Header with Logo (left), 3-step Stepper (center), Phone Support (right) */}
@@ -945,7 +1068,7 @@ const CheckoutPage = () => {
         onOpenRefundPolicy={() => setIsRefundPolicyOpen(true)}
       />
 
-      <div className="bg-[#f9f9f9] min-h-screen pt-3 sm:pt-6 pb-56 sm:pb-64 lg:pb-20 font-sans text-slate-800 relative w-full max-w-full overflow-x-hidden">
+      <div className="bg-[#f9f9f9] min-h-screen pt-3 sm:pt-6 pb-56 sm:pb-64 lg:pb-20 font-sans text-slate-800 relative w-full max-w-full overflow-x-clip">
         {/* Mobile-Only Savings Banner (non-sticky, scrolls normally) */}
         <div className="md:hidden px-4 pt-1 pb-3">
           <ConfettiSavingsBanner
@@ -957,7 +1080,7 @@ const CheckoutPage = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 items-start">
             {/* Left Column: Flow Options (7 cols on desktop) - STICKY IN COLUMN ON DESKTOP */}
-            <div className="lg:col-span-7 flex flex-col gap-3.5 sm:gap-5 lg:sticky lg:top-22 lg:self-start lg:max-h-[calc(100vh-6.5rem)] lg:overflow-y-auto lg:scrollbar-none pr-0.5">
+            <div className="lg:col-span-7 flex flex-col gap-3.5 sm:gap-5 lg:sticky lg:top-[88px] lg:self-start pr-0.5">
 
               {/* Main Title Area (Top of left column, side-by-side with savings banner on right) */}
               <div className="flex items-end justify-between mb-0.5">
@@ -981,72 +1104,74 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              {/* 1. 1-Year Complete Maintenance Package (Screenshot 1 middle card) */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-teal-200">
-                {/* Dark Pill Badge with Light Font */}
-                <div className="inline-flex items-center gap-1.5 bg-[#0C1B33] text-[#00DFB8] border border-[#00C9AF]/30 text-[10.5px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-3 shadow-sm">
-                  <Sparkles size={11} className="text-[#00DFB8]" />
-                  <span>SAVE ₹31,263</span>
-                </div>
-
-                <div className="flex items-center justify-between gap-4">
-                  {/* Left Icon & Info */}
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="shrink-0 flex items-center justify-center">
-                      <img
-                        src="/img/doodle-outline-903-car-service.gif"
-                        alt="1-Year Complete Maintenance Package"
-                        className="w-16 h-16 sm:w-18 sm:h-18 object-contain"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-extrabold text-[#0C1B33] text-sm sm:text-base leading-snug">
-                        1-Year complete maintenance package
-                      </h3>
-                      <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
-                        Warranty, service, RSA & buyback
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setIsMaintenanceDetailsOpen(true)}
-                        className="text-xs text-[#00A38D] font-bold inline-flex items-center gap-0.5 mt-1.5 hover:underline cursor-pointer"
-                      >
-                        <span>See details</span>
-                        <ChevronRight size={13} />
-                      </button>
-                    </div>
+              {/* 1. 1-Year Complete Maintenance Package (Glowing Multicolor Animated Border - Matching Reference) */}
+              <div className="rainbow-glow-card-container my-1.5 mx-0.5">
+                <div className="bg-white rounded-[13.5px] p-4 sm:p-5 w-full transition-all">
+                  {/* Dark Pill Badge with Light Font */}
+                  <div className="inline-flex items-center gap-1.5 bg-[#0C1B33] text-[#00DFB8] border border-[#00C9AF]/30 text-[10.5px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-3 shadow-sm">
+                    <Sparkles size={11} className="text-[#00DFB8]" />
+                    <span>SAVE ₹31,263</span>
                   </div>
 
-                  {/* Right Price & Add/Added Button */}
-                  <div className="flex flex-col items-end shrink-0 gap-3">
-                    <div className="text-right flex flex-col items-end space-y-1">
-                      <span className="text-base sm:text-lg font-bold text-[#0C1B33] tracking-tight leading-snug">
-                        ₹10,801
-                      </span>
-                      <span className="text-xs text-slate-500 font-medium leading-normal tracking-normal">
-                        or <span className="font-bold text-slate-700">₹947</span>/m
-                      </span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4">
+                    {/* Left Icon & Info */}
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="shrink-0 flex items-center justify-center">
+                        <img
+                          src="/img/doodle-outline-903-car-service.gif"
+                          alt="1-Year Complete Maintenance Package"
+                          className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-extrabold text-[#0C1B33] text-sm sm:text-base leading-snug">
+                          1-Year complete maintenance package
+                        </h3>
+                        <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
+                          Warranty, service, RSA & buyback
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setIsMaintenanceDetailsOpen(true)}
+                          className="text-xs text-[#00A38D] font-bold inline-flex items-center gap-0.5 mt-1.5 hover:underline cursor-pointer"
+                        >
+                          <span>See details</span>
+                          <ChevronRight size={13} />
+                        </button>
+                      </div>
                     </div>
 
-                    {maintenancePackageAdded ? (
-                      <button
-                        type="button"
-                        onClick={() => setIsMaintenanceModalOpen(true)}
-                        className="py-1.5 px-4.5 rounded-xl border border-[#00A38D] bg-emerald-50 text-[#00A38D] font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs hover:bg-emerald-100/60"
-                      >
-                        <Check size={14} strokeWidth={2.5} />
-                        <span>Added</span>
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setIsMaintenanceModalOpen(true)}
-                        className="py-1.5 px-5 rounded-xl border border-[#00C9AF] text-[#00A38D] hover:bg-[#00C9AF]/10 bg-teal-50/40 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
-                      >
-                        <Plus size={14} strokeWidth={2.5} />
-                        <span>Add</span>
-                      </button>
-                    )}
+                    {/* Right Price & Add/Added Button */}
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center shrink-0 gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                      <div className="text-left sm:text-right flex sm:flex-col items-baseline sm:items-end gap-1.5 sm:gap-0 sm:space-y-0.5">
+                        <span className="text-base sm:text-lg font-bold text-[#0C1B33] tracking-tight leading-snug font-price">
+                          ₹10,801
+                        </span>
+                        <span className="text-xs text-slate-500 font-medium leading-normal tracking-normal">
+                          or <span className="font-bold text-slate-700">₹947</span>/m
+                        </span>
+                      </div>
+
+                      {maintenancePackageAdded ? (
+                        <button
+                          type="button"
+                          onClick={() => setIsMaintenanceModalOpen(true)}
+                          className="py-1.5 px-4.5 rounded-xl border border-[#00A38D] bg-emerald-50 text-[#00A38D] font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs hover:bg-emerald-100/60"
+                        >
+                          <Check size={14} strokeWidth={2.5} />
+                          <span>Added</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setIsMaintenanceModalOpen(true)}
+                          className="py-1.5 px-5 rounded-xl border border-[#00C9AF] text-[#00A38D] hover:bg-[#00C9AF]/10 bg-teal-50/40 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
+                        >
+                          <Plus size={14} strokeWidth={2.5} />
+                          <span>Add</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1244,11 +1369,7 @@ const CheckoutPage = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          if (window.innerWidth < 1024) {
-                            setIsPriceSummaryOpen(true);
-                          } else {
-                            document.getElementById('price-summary-section')?.scrollIntoView({ behavior: 'smooth' });
-                          }
+                          setIsPriceSummaryOpen(true);
                         }}
                         className="text-xs font-semibold text-slate-500 hover:text-[#00A38D] underline decoration-dotted underline-offset-2 flex items-center gap-1 cursor-pointer mt-1.5 transition-colors w-fit"
                       >
@@ -1278,171 +1399,172 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                {/* Price Summary Section */}
+                {/* Price Summary Section — Desktop shows a clickable trigger; breakdown opens in popup */}
                 <div id="price-summary-section" className="p-4 sm:p-5 pt-3">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-3">
                     <h4 className="font-heading font-extrabold text-[#0F172A] text-[15px] sm:text-[16px]">
                       Price breakdown
                     </h4>
                   </div>
 
-                  {/* Mobile Trigger Button: opens full breakdown popup modal on mobile */}
-                  <div className="lg:hidden">
-                    <button
-                      type="button"
-                      onClick={() => setIsPriceSummaryOpen(true)}
-                      className="w-full p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 bg-white hover:border-[#00C9AF] hover:shadow-xs transition-all flex items-center justify-between cursor-pointer group shadow-2xs text-left mb-2.5"
-                      title="Open full price breakdown"
-                    >
-                      <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#0F172A]">
-                        <FileText size={16} className="text-[#00A38D] group-hover:scale-110 transition-transform" />
-                        <span>Total on-road price</span>
+                  {/* Mobile only: Clickable button to open full popup modal */}
+                  <button
+                    type="button"
+                    onClick={() => setIsPriceSummaryOpen(true)}
+                    className="lg:hidden w-full p-3.5 rounded-2xl border border-slate-200/90 bg-white hover:border-[#00C9AF] active:scale-[0.99] transition-all flex items-center justify-between cursor-pointer group shadow-2xs text-left mb-3"
+                    title="Open full price breakdown"
+                  >
+                    <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#0F172A]">
+                      <FileText size={16} className="text-[#00A38D] group-hover:scale-110 transition-transform" />
+                      <span>Total on-road price</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-price font-extrabold text-sm text-[#0C1B33]">
+                        ₹{(totalOnRoadPrice / 100000).toFixed(2)} Lakh
+                      </span>
+                      <ChevronDown size={17} className="text-slate-400 group-hover:text-[#00A38D] transition-transform" />
+                    </div>
+                  </button>
+
+                  {/* Desktop only: Active Price Breakdown Box (directly visible as active tab) */}
+                  <div className="hidden lg:block bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs space-y-3 text-xs sm:text-[13px]">
+                    {/* Car Price */}
+                    <div className="flex justify-between items-center text-slate-700">
+                      <span className="font-medium text-slate-600">Car price</span>
+                      <span className="font-bold text-[#0C1B33] font-price">
+                        ₹{originalCarPrice.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+
+                    {/* Sale Discount */}
+                    <div className="flex justify-between items-center text-emerald-600 font-bold">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles size={14} className="text-emerald-500" />
+                        <span>Sale Discount</span>
+                      </span>
+                      <span className="font-price">
+                        - ₹{saleDiscount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+
+                    {/* RC Transfer Facilitation */}
+                    <div className="flex justify-between items-center text-slate-700">
+                      <span className="font-medium text-slate-600">RC transfer facilitation</span>
+                      <span className="font-bold text-[#0C1B33] font-price">
+                        + ₹{rcTransferFee.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+
+                    {/* TCS (Tax Collected at Source) */}
+                    <div className="flex justify-between items-start text-slate-700">
+                      <div>
+                        <div className="font-medium text-slate-600 flex items-center gap-1.5">
+                          <span>TCS (Tax Collected at Source)</span>
+                          <PriceInfoPopover
+                            title="TCS (Tax Collected at Source)"
+                            onOpenModal={() => setActiveBreakdownModal('tcs')}
+                          />
+                        </div>
+                        <p className="text-[11px] text-slate-400 font-medium mt-0.5">
+                          This amount will come back to you as a tax credit
+                        </p>
                       </div>
+                      <span className="font-bold text-[#0C1B33] font-price">
+                        + ₹{tcsAmount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+
+                    {/* Servicing, Cleaning, Fuel */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                        <span>Servicing, cleaning, fuel & more</span>
+                        <PriceInfoPopover
+                          title="Servicing, cleaning, fuel & more"
+                          onOpenModal={() => setActiveBreakdownModal('servicing')}
+                        />
+                      </span>
                       <div className="flex items-center gap-2">
-                        <span className="font-price font-extrabold text-sm sm:text-base text-[#0C1B33]">
-                          ₹{(totalOnRoadPrice / 100000).toFixed(2)} Lakh
-                        </span>
-                        <ChevronDown size={17} className="text-slate-400 group-hover:text-[#00A38D] transition-transform" />
-                      </div>
-                    </button>
-                  </div>
-
-                  {/* Desktop Inline Full Breakdown: displays directly without opening popup on desktop */}
-                  <div className="hidden lg:block mb-3">
-                    <div className="rounded-2xl p-4.5 bg-slate-50/70 border border-slate-200/90 shadow-2xs space-y-3.5 text-xs sm:text-sm">
-                      {/* Car Price */}
-                      <div className="flex justify-between items-center text-slate-700">
-                        <span className="font-medium">Car price</span>
-                        <span className="font-bold text-[#0C1B33] font-price">
-                          ₹{originalCarPrice.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-
-                      {/* Sale Discount */}
-                      <div className="flex justify-between items-center text-emerald-600 font-bold">
-                        <span className="flex items-center gap-1.5">
-                          <Sparkles size={14} className="text-emerald-500" /> Sale Discount
-                        </span>
-                        <span className="font-price">
-                          - ₹{saleDiscount.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-
-                      {/* RC Transfer Facilitation */}
-                      <div className="flex justify-between items-center text-slate-700">
-                        <span className="font-medium">RC transfer facilitation</span>
-                        <span className="font-bold text-[#0C1B33] font-price">+ ₹{rcTransferFee.toLocaleString('en-IN')}</span>
-                      </div>
-
-                      {/* TCS (Tax Collected at Source) */}
-                      <div className="flex justify-between items-start text-slate-700">
-                        <div>
-                          <div className="font-medium flex items-center gap-1.5">
-                            <span>TCS (Tax Collected at Source)</span>
-                            <PriceInfoPopover
-                              title="TCS (Tax Collected at Source)"
-                              onOpenModal={() => setActiveBreakdownModal('tcs')}
-                            />
-                          </div>
-                          <p className="text-[11px] text-slate-400 font-medium">
-                            This amount will come back to you as a tax credit
-                          </p>
-                        </div>
-                        <span className="font-bold text-[#0C1B33] font-price">
-                          + ₹{tcsAmount.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-
-                      {/* Servicing, Cleaning, Fuel */}
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 font-medium flex items-center gap-1.5">
-                          <span>Servicing, cleaning, fuel & more</span>
-                          <PriceInfoPopover
-                            title="Servicing, cleaning, fuel & more"
-                            onOpenModal={() => setActiveBreakdownModal('servicing')}
-                          />
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-400 line-through font-normal text-xs font-price">₹8,700</span>
-                          <span className="text-emerald-600 font-bold">Included</span>
-                        </div>
-                      </div>
-
-                      {/* Warranty */}
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 font-medium flex items-center gap-1.5">
-                          <span>Warranty (Protect)</span>
-                          <PriceInfoPopover
-                            title="Warranty (Protect)"
-                            onOpenModal={() => setActiveBreakdownModal('warranty')}
-                          />
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-400 line-through font-normal text-xs font-price">₹5,500</span>
-                          <span className="text-emerald-600 font-bold">Included</span>
-                        </div>
-                      </div>
-
-                      {/* Fixes & Upgrades */}
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 font-medium flex items-center gap-1.5">
-                          <span>Fixes & upgrades</span>
-                          <PriceInfoPopover
-                            title="Fixes & upgrades"
-                            onOpenModal={() => setActiveBreakdownModal('fixes')}
-                          />
-                        </span>
+                        <span className="text-slate-400 line-through font-normal text-xs font-price">₹8,700</span>
                         <span className="text-emerald-600 font-bold">Included</span>
                       </div>
+                    </div>
 
-                      {/* GST Taxes */}
-                      <div className="flex justify-between items-center text-slate-700">
-                        <span className="font-medium flex items-center gap-1.5">
-                          <span>GST (govt. taxes)</span>
-                          <PriceInfoPopover
-                            title="GST (govt. taxes)"
-                            onOpenModal={() => setActiveBreakdownModal('gst')}
-                          />
-                        </span>
-                        <span className="font-bold text-[#0C1B33] font-price">₹{gstTax.toLocaleString('en-IN')}</span>
+                    {/* Warranty */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                        <span>Warranty (Protect)</span>
+                        <PriceInfoPopover
+                          title="Warranty (Protect)"
+                          onOpenModal={() => setActiveBreakdownModal('warranty')}
+                        />
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-400 line-through font-normal text-xs font-price">₹5,500</span>
+                        <span className="text-emerald-600 font-bold">Included</span>
                       </div>
+                    </div>
 
-                      {maintenancePackageAdded && (
-                        <div className="flex justify-between items-center text-[#00A38D] font-bold pt-1 border-t border-slate-200/80">
-                          <span>1-Year Complete Maintenance ({maintenancePaymentType === 'full' ? 'Paid in Full' : 'Monthly'})</span>
-                          <span className="font-price">
-                            {maintenancePaymentType === 'full' ? '+ ₹11,287' : '+ ₹990/m'}
-                          </span>
-                        </div>
-                      )}
+                    {/* Fixes & Upgrades */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                        <span>Fixes & upgrades</span>
+                        <PriceInfoPopover
+                          title="Fixes & upgrades"
+                          onOpenModal={() => setActiveBreakdownModal('fixes')}
+                        />
+                      </span>
+                      <span className="text-emerald-600 font-bold">Included</span>
+                    </div>
 
-                      {/* Special Discount for you (Coupon Discount) */}
-                      {appliedCoupon && couponDiscount > 0 && (
-                        <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-slate-200/80">
-                          <span className="flex items-center gap-1.5">
-                            <Sparkles size={14} className="text-emerald-500" />
-                            <span>Special Discount for you</span>
-                            {appliedCoupon.code && (
-                              <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black">
-                                {appliedCoupon.code}
-                              </span>
-                            )}
-                          </span>
-                          <span className="font-price font-extrabold text-emerald-600">
-                            - ₹{couponDiscount.toLocaleString('en-IN')}
-                          </span>
-                        </div>
-                      )}
+                    {/* GST Taxes */}
+                    <div className="flex justify-between items-center text-slate-700">
+                      <span className="font-medium text-slate-600 flex items-center gap-1.5">
+                        <span>GST (govt. taxes)</span>
+                        <PriceInfoPopover
+                          title="GST (govt. taxes)"
+                          onOpenModal={() => setActiveBreakdownModal('gst')}
+                        />
+                      </span>
+                      <span className="font-bold text-[#0C1B33] font-price">
+                        ₹{gstTax.toLocaleString('en-IN')}
+                      </span>
+                    </div>
 
-                      {/* Total On-road Price Divider */}
-                      <div className="pt-3.5 mt-1 border-t border-dashed border-slate-300 flex justify-between items-center">
-                        <span className="font-heading font-extrabold text-[#0C1B33] text-sm sm:text-base">
-                          Total on-road price
-                        </span>
-                        <span className="font-heading font-black text-[#0C1B33] text-base sm:text-lg font-price">
-                          ₹{totalOnRoadPrice.toLocaleString('en-IN')}
+                    {maintenancePackageAdded && (
+                      <div className="flex justify-between items-center text-[#00A38D] font-bold pt-1.5 border-t border-slate-100">
+                        <span>1-Year Complete Maintenance ({maintenancePaymentType === 'full' ? 'Paid in Full' : 'Monthly'})</span>
+                        <span className="font-price">
+                          {maintenancePaymentType === 'full' ? '+ ₹11,287' : '+ ₹990/m'}
                         </span>
                       </div>
+                    )}
+
+                    {/* Special Discount for you (Coupon Discount) */}
+                    {appliedCoupon && couponDiscount > 0 && (
+                      <div className="flex justify-between items-center text-emerald-600 font-bold pt-1.5 border-t border-slate-100">
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles size={14} className="text-emerald-500" />
+                          <span>Special Discount for you</span>
+                          {appliedCoupon.code && (
+                            <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black">
+                              {appliedCoupon.code}
+                            </span>
+                          )}
+                        </span>
+                        <span className="font-price font-extrabold text-emerald-600">
+                          - ₹{couponDiscount.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Total On-road Price Divider */}
+                    <div className="pt-3.5 mt-1 border-t border-dashed border-slate-200 flex justify-between items-center">
+                      <span className="font-heading font-extrabold text-[#0C1B33] text-sm sm:text-base">
+                        Total on-road price
+                      </span>
+                      <span className="font-heading font-black text-[#0C1B33] text-base sm:text-lg font-price">
+                        ₹{totalOnRoadPrice.toLocaleString('en-IN')}
+                      </span>
                     </div>
                   </div>
 
@@ -2043,7 +2165,7 @@ const CheckoutPage = () => {
                   >
                     <div className="flex items-start gap-3">
                       <div className="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200/60 flex items-center justify-center shrink-0">
-                        <Wrench size={22} className="text-amber-500 transform -rotate-12" />
+                        <Wrench size={22} className="text-amber-500 animate-wrench-wiggle" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
@@ -2140,7 +2262,7 @@ const CheckoutPage = () => {
                     <div className="flex items-start gap-3">
                       {/* Icon */}
                       <div className="w-11 h-11 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center shrink-0 shadow-2xs">
-                        <Wrench size={20} className="text-[#00A38D]" />
+                        <Wrench size={20} className="text-[#00A38D] animate-gear-rotate" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
@@ -2214,7 +2336,7 @@ const CheckoutPage = () => {
                     <div className="flex items-start gap-3">
                       {/* Icon */}
                       <div className="w-11 h-11 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center shrink-0 shadow-2xs">
-                        <Navigation size={20} className="text-orange-500" />
+                        <Navigation size={20} className="text-orange-500 animate-float-nav" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
@@ -2493,9 +2615,9 @@ const CheckoutPage = () => {
         </div>
       )}
 
-      {/* Price Summary Breakdown Popup Modal (Mobile Only) */}
+      {/* Price Summary Breakdown Popup Modal (Mobile + Desktop) */}
       {isPriceSummaryOpen && car && (
-        <div className="lg:hidden fixed inset-0 z-[99999] bg-black/65 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[99999] bg-black/65 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
           <div
             className="fixed inset-0"
             onClick={() => setIsPriceSummaryOpen(false)}
@@ -2667,123 +2789,8 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              {/* Best-in-class values Section */}
-              <div className="pt-2">
-                <div className="flex items-center justify-center gap-3 my-4">
-                  <div className="h-px bg-slate-200 flex-1 max-w-[80px]" />
-                  <span className="font-extrabold text-[#0C1B33] text-base sm:text-lg tracking-tight">
-                    Best-in-class values
-                  </span>
-                  <div className="h-px bg-slate-200 flex-1 max-w-[80px]" />
-                </div>
-
-                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex items-center gap-3.5 mb-4">
-                  <p className="text-xs text-slate-600 font-medium leading-relaxed flex-1">
-                    Thorough inspection, expert refurbishment & cleaning has been conducted by our professionals.
-                  </p>
-                  <div className="shrink-0 flex items-center justify-center">
-                    <img
-                      src="/img/car-wash.gif"
-                      alt="Car inspection, cleaning and refurbishment"
-                      className="w-18 h-18 sm:w-20 sm:h-20 object-contain"
-                    />
-                  </div>
-                </div>
-
-                {/* SELECTT ASSURED BENEFITS — Horizontal Carousel (2 cards visible) */}
-                <div className="bg-gradient-to-br from-slate-900 via-[#0C1B33] to-slate-900 rounded-3xl p-4 border border-slate-800 shadow-xl relative overflow-hidden">
-                  {/* Glowing decorative background */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#00C9AF]/15 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-3 relative z-10">
-                    <div className="inline-flex items-center gap-1.5 bg-[#00C9AF]/15 border border-[#00C9AF]/40 px-2.5 py-1 rounded-full">
-                      <Sparkles size={11} className="text-[#00C9AF]" />
-                      <span className="text-[10px] font-black text-[#00C9AF] uppercase tracking-wider">Selectt Assured Benefits</span>
-                    </div>
-                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest hidden sm:inline-block">100% Peace of Mind</span>
-                  </div>
-
-                  {/* Auto-Slide Carousel Container — 2 cards visible */}
-                  <div
-                    className="relative z-10 overflow-hidden"
-                    onMouseEnter={() => setPauseBenefitSlide(true)}
-                    onMouseLeave={() => setPauseBenefitSlide(false)}
-                    onTouchStart={() => setPauseBenefitSlide(true)}
-                    onTouchEnd={() => setPauseBenefitSlide(false)}
-                  >
-                    <div
-                      className="flex transition-transform duration-500 ease-in-out"
-                      style={{ transform: `translateX(-${benefitSlide * 100}%)` }}
-                    >
-                      {ASSURED_BENEFIT_PAIRS.map((pair, pIdx) => (
-                        <div key={pIdx} className="w-full shrink-0 grid grid-cols-2 gap-2.5 pb-1">
-                          {pair.map((card) => {
-                            const Icon = card.icon;
-                            return (
-                              <div
-                                key={card.id}
-                                className={`bg-white/95 rounded-xl p-2.5 border ${card.border} shadow-sm flex flex-col justify-between`}
-                              >
-                                <div className="flex items-start gap-2">
-                                  <div
-                                    className={`w-7 h-7 rounded-lg bg-gradient-to-tr ${card.iconGrad} text-white flex items-center justify-center shrink-0 shadow-xs`}
-                                  >
-                                    <Icon size={14} className={card.id === 'buyback' ? 'text-amber-300' : ''} />
-                                  </div>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-1 mb-0.5 flex-wrap">
-                                      <h4 className="font-extrabold text-[#0C1B33] text-[10px] leading-tight">
-                                        {card.title}
-                                      </h4>
-                                      <span
-                                        className={`text-[7px] ${card.badgeColor} font-black px-1 py-0.5 rounded uppercase whitespace-nowrap`}
-                                      >
-                                        {card.badge}
-                                      </span>
-                                    </div>
-                                    <p className="text-[9px] text-slate-500 font-medium leading-snug">
-                                      {card.desc}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Auto-slide indicator dots (clickable) */}
-                  <div className="flex justify-center items-center gap-1.5 mt-3 relative z-10">
-                    {[0, 1, 2].map((i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => setBenefitSlide(i)}
-                        aria-label={`Slide ${i + 1}`}
-                        className="p-1 !min-h-0 !border-0 bg-transparent flex items-center justify-center cursor-pointer transition-all focus:outline-none"
-                        style={{ minHeight: 'unset', height: 'auto', padding: '4px' }}
-                      >
-                        <span
-                          className={`block h-1.5 rounded-full transition-all duration-300 ${benefitSlide === i
-                              ? 'w-6 bg-[#00C9AF] opacity-100 shadow-sm shadow-[#00C9AF]/50'
-                              : 'w-2 bg-slate-500/60 hover:bg-slate-400'
-                            }`}
-                          style={{
-                            height: '6px',
-                            minHeight: '6px',
-                            maxHeight: '6px',
-                            width: benefitSlide === i ? '24px' : '8px',
-                          }}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              {/* Best-in-class values Section (Reused across Mobile & Desktop with upgraded legible sizes) */}
+              {renderBestInClassValues(false)}
             </div>
           </div>
         </div>
@@ -3154,7 +3161,7 @@ const CheckoutPage = () => {
 
       {/* Cancel Anytime, Fully Refundable Bottom Sheet / Modal */}
       {isRefundPolicyOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="fixed inset-0" onClick={() => setIsRefundPolicyOpen(false)} />
           <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-lg relative z-10 shadow-2xl p-6 sm:p-7 space-y-4 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-200 max-h-[90vh] overflow-y-auto">
             {/* Top Drag Handle for Mobile */}

@@ -49,7 +49,7 @@ export default function VideoPreloader({
         }}
         className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black ${className}`}
       >
-        <div className="relative flex flex-col items-center justify-center w-full h-full p-4 bg-black">
+        <div className="relative flex flex-col items-center justify-center w-full h-full p-0 m-0 bg-black">
           <video
             ref={videoRef}
             src={PRELOADER_VIDEO_URL}
@@ -73,7 +73,12 @@ export default function VideoPreloader({
               maxWidth: '85vw',
               objectFit: 'contain',
               outline: 'none',
-              border: 'none'
+              border: 'none',
+              boxShadow: 'none',
+              mixBlendMode: 'screen',
+              clipPath: 'inset(2px)',
+              WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 96%)',
+              maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 96%)'
             }}
             className="w-72 sm:w-96 md:w-[460px] h-auto object-contain bg-black outline-none border-none pointer-events-none"
           >
@@ -119,7 +124,12 @@ export default function VideoPreloader({
           maxWidth: '80vw',
           objectFit: 'contain',
           outline: 'none',
-          border: 'none'
+          border: 'none',
+          boxShadow: 'none',
+          mixBlendMode: 'screen',
+          clipPath: 'inset(2px)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 96%)',
+          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 96%)'
         }}
         className="w-64 sm:w-80 h-auto object-contain bg-black outline-none border-none pointer-events-none"
       >

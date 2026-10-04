@@ -94,9 +94,13 @@ export default function PagePreloader({ minDisplayTime = 2400 }) {
             objectFit: 'contain',
             outline: 'none',
             border: 'none',
-            boxShadow: 'none'
+            boxShadow: 'none',
+            mixBlendMode: 'screen',
+            clipPath: 'inset(2px)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 96%)',
+            maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 96%)'
           }}
-          className="w-72 sm:w-96 md:w-[480px] h-auto object-contain max-h-[85vh] bg-black outline-none border-none"
+          className="w-72 sm:w-96 md:w-[480px] h-auto object-contain max-h-[85vh] bg-black outline-none border-none pointer-events-none"
         >
           <source src={VIDEO_CDN_URL} type="video/mp4" />
           <source src={FALLBACK_CDN_URL} type="video/mp4" />
