@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import SelecttBenefitsGrid from '../components/buy/sections/SelecttBenefitsGrid';
 import { PromoBanner, ExtraPromoCard } from '../components/buy/sections/InListingBanners';
 import TopSearchAndBanners from '../components/buy/sections/TopSearchAndBanners';
+import MobileBudgetAndBodySection from '../components/buy/MobileBudgetAndBodySection';
 import PageMeta from '../components/common/PageMeta';
 import { SemanticCarCardSkeleton, SemanticBannerSkeleton } from '../components/common/SemanticPlaceholderCard';
 import { API_URL } from '../config/api';
@@ -427,6 +428,10 @@ const BuyCarsPage = () => {
       if (filters.budget === '3 - 6 L' && (price < 300000 || price > 600000)) return false;
       if (filters.budget === '6 - 10 L' && (price < 600000 || price > 1000000)) return false;
       if (filters.budget === '10 L +' && price <= 1000000) return false;
+      if (filters.budget === 'Under ₹4L' && price >= 400000) return false;
+      if (filters.budget === '₹4L - ₹9L' && (price < 400000 || price > 900000)) return false;
+      if (filters.budget === '₹9L - ₹15L' && (price < 900000 || price > 1500000)) return false;
+      if (filters.budget === '₹15 Lakhs +' && price < 1500000) return false;
     }
     if (filters.certification && filters.certification !== 'all') {
       const certLower = filters.certification.toLowerCase();
@@ -677,8 +682,8 @@ const BuyCarsPage = () => {
               <main className="flex-1 min-w-0">
 
                 {/* Page label & SEO H1 Heading */}
-                <div className="flex flex-col gap-2 mb-8 text-left">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <div className="flex flex-col gap-2 mb-4 md:mb-8 text-left">
+                  <div className="hidden md:flex flex-wrap items-center gap-x-3 gap-y-1">
                     <Sparkles size={13} className="text-[#00C9AF]" />
                     <span className="text-xs font-extrabold text-slate-500 uppercase tracking-widest">Selectt Certified Pre-Owned</span>
                     <span className="text-slate-300">|</span>
@@ -712,11 +717,20 @@ const BuyCarsPage = () => {
                   </div>
                 )}
 
-                {/* Promo Banners */}
-                <TopSearchAndBanners />
+                {/* Promo Banners (Desktop Only) */}
+                <div className="hidden md:block">
+                  <TopSearchAndBanners />
+                </div>
+
+                {/* Mobile Budget & Body Type Navigation (Mobile Only) */}
+                <MobileBudgetAndBodySection
+                  filters={filters}
+                  setFilters={setFilters}
+                  allCars={cars}
+                />
 
                 {/* Results bar */}
-                <div className="flex items-center justify-between gap-1.5 sm:gap-2 mb-6 mt-2 w-full min-w-0 max-w-full">
+                <div id="cars-results-list" className="flex items-center justify-between gap-1.5 sm:gap-2 mb-6 mt-2 w-full min-w-0 max-w-full">
                   <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink">
                     {/* Mobile filter btn */}
                     <button
