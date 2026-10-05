@@ -862,7 +862,7 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             welcome_customer: 'welcome_customer_onboarding',
 
             // 🚗 Sell Car Workflow (Full Lifecycle)
-            sell_request: 'sell_request_received',
+            sell_request: 'car_sale_valuation_utility',
             sell_request_approved: 'sell_car_approved_listed',
             sell_request_rejected: 'sell_car_rejected_update',
             sell_inspection_booked: 'sell_inspection_scheduled',
@@ -950,6 +950,7 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             car_booking_confirmation_with_pdf: ['customer_name', 'Amount', 'Car_Model', 'booking_id', 'receipt_link', 'car_name', 'car_url'],
             schedule_test_drive_confim_clone_new: ['customer_name', 'car_name', 'date_slot', 'location'],
             schedule_test_drive_confim: ['customer_name', 'car_name', 'date_slot', 'location'],
+            car_sale_valuation_utility: ['name', 'Sell_Amount'],
             car_sale_request_confirmation: ['name', 'Sell_Amount'],
             customer_got_sell_price_for_their_car: ['name', 'Sell_Amount'],
             customer_got_sell_price_for_their_car_new: ['name', 'Sell_Amount']
