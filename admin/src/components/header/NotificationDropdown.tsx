@@ -3,6 +3,8 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import { API_URL } from "../../config/api";
+import { CheckCircle2, Trash2, Check, X, BellOff } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const API = API_URL;
 
@@ -10,7 +12,7 @@ interface Notification {
   id: number;
   type: string;
   message: string;
-  is_read: number; // usually 0 or 1 in mysql
+  is_read: number; // 0 or 1 in mysql
   created_at: string;
   reference_id: number;
 }
@@ -27,14 +29,13 @@ const timeAgo = (dateStr: string) => {
 };
 
 const getIconForType = (type: string) => {
-  // Simple color mapping based on event type
   switch (type) {
     case 'NEW_USER': return 'bg-blue-500';
     case 'CAR_SELL_REQUEST': return 'bg-purple-500';
     case 'TEST_DRIVE': return 'bg-brand-500';
     case 'PAYMENT':
-    case 'BOOKING': return 'bg-success-500';
-    case 'LOAN_APPLICATION': return 'bg-warning-500';
+    case 'BOOKING': return 'bg-emerald-500';
+    case 'LOAN_APPLICATION': return 'bg-amber-500';
     case 'WISHLIST': return 'bg-rose-500';
     case 'INSURANCE':
     case 'INSURANCE_ENQUIRY': return 'bg-indigo-500';
@@ -46,6 +47,7 @@ export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [filter, setFilter] = useState<'unread' | 'all'>('unread');
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -87,6 +89,10 @@ export default function NotificationDropdown() {
     const activeToken = token || localStorage.getItem("adminToken");
     if (!activeToken) return;
     try {
+      // Optimistic update
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: 1 } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+
       await fetch(`${API}/api/admin/notifications/${id}/read`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${activeToken}` }
@@ -101,8 +107,51 @@ export default function NotificationDropdown() {
     const activeToken = token || localStorage.getItem("adminToken");
     if (!activeToken) return;
     try {
+      // Optimistic update: mark all read locally so they clear immediately from unread view
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: 1 })));
+      setUnreadCount(0);
+
       await fetch(`${API}/api/admin/notifications/read-all`, {
         method: 'PUT',
+        headers: { Authorization: `Bearer ${activeToken}` }
+      });
+      fetchNotifications();
+      toast.success("All notifications marked as read");
+    } catch (err) {
+      console.error(err);
+      fetchNotifications();
+    }
+  };
+
+  const clearAllNotifications = async () => {
+    const activeToken = token || localStorage.getItem("adminToken");
+    if (!activeToken) return;
+    try {
+      setNotifications([]);
+      setUnreadCount(0);
+
+      await fetch(`${API}/api/admin/notifications/clear-all`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${activeToken}` }
+      });
+      fetchNotifications();
+      toast.success("All notifications cleared");
+    } catch (err) {
+      console.error(err);
+      fetchNotifications();
+    }
+  };
+
+  const deleteSingleNotification = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const activeToken = token || localStorage.getItem("adminToken");
+    if (!activeToken) return;
+    try {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+
+      await fetch(`${API}/api/admin/notifications/${id}`, {
+        method: 'DELETE',
         headers: { Authorization: `Bearer ${activeToken}` }
       });
       fetchNotifications();
@@ -127,11 +176,17 @@ export default function NotificationDropdown() {
     if (notif.type === 'INSURANCE' || notif.type === 'INSURANCE_ENQUIRY') navigate('/insurance-requests');
   };
 
+  // Filter list based on selected tab
+  const displayedNotifications = filter === 'unread'
+    ? notifications.filter(n => !n.is_read)
+    : notifications;
+
   return (
     <div className="relative">
       <button
         className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full dropdown-toggle hover:text-gray-700 h-11 w-11 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
         onClick={toggleDropdown}
+        aria-label="Open notifications"
       >
         <span
           className={`absolute right-0 top-0.5 z-10 h-2 w-2 rounded-full bg-orange-400 ${
@@ -158,77 +213,150 @@ export default function NotificationDropdown() {
       <Dropdown
         isOpen={isOpen}
         onClose={closeDropdown}
-        className="absolute -right-[240px] mt-[17px] flex h-[480px] w-[350px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:w-[361px] lg:right-0"
+        className="absolute -right-[240px] mt-[17px] flex h-[500px] w-[350px] flex-col rounded-2xl border border-gray-200 bg-white p-3.5 shadow-theme-lg dark:border-gray-800 dark:bg-gray-900 sm:w-[380px] lg:right-0"
       >
-        <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-700">
-          <h5 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-            Notifications {unreadCount > 0 && <span className="text-sm font-normal text-gray-500">({unreadCount} unread)</span>}
-          </h5>
-          <div className="flex gap-2">
+        {/* Dropdown Header */}
+        <div className="flex items-center justify-between pb-3 mb-2 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-2">
+            <h5 className="text-base font-bold text-gray-900 dark:text-white">
+              Notifications
+            </h5>
             {unreadCount > 0 && (
+              <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+                {unreadCount} unread
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {filter === 'unread' && unreadCount > 0 && (
               <button 
                 onClick={markAllAsRead} 
-                className="text-xs text-brand-500 hover:text-brand-600 transition"
+                className="text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition flex items-center gap-1 cursor-pointer hover:underline"
               >
-                Mark all read
+                <Check size={14} className="stroke-[2.5]" />
+                <span>Mark all read</span>
+              </button>
+            )}
+            {filter === 'all' && notifications.length > 0 && (
+              <button 
+                onClick={clearAllNotifications} 
+                className="text-xs font-bold text-rose-500 hover:text-rose-600 dark:text-rose-400 transition flex items-center gap-1 cursor-pointer hover:underline"
+              >
+                <Trash2 size={13} />
+                <span>Clear all</span>
               </button>
             )}
             <button
               onClick={toggleDropdown}
-              className="text-gray-500 transition dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition p-1 cursor-pointer"
             >
-              <svg
-                className="fill-current"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M6.21967 7.28131C5.92678 6.98841 5.92678 6.51354 6.21967 6.22065C6.51256 5.92775 6.98744 5.92775 7.28033 6.22065L11.999 10.9393L16.7176 6.22078C17.0105 5.92789 17.4854 5.92788 17.7782 6.22078C18.0711 6.51367 18.0711 6.98855 17.7782 7.28144L13.0597 12L17.7782 16.7186C18.0711 17.0115 18.0711 17.4863 17.7782 17.7792C17.4854 18.0721 17.0105 18.0721 16.7176 17.7792L11.999 13.0607L7.28033 17.7794C6.98744 18.0722 6.51256 18.0722 6.21967 17.7794C5.92678 17.4865 5.92678 17.0116 6.21967 16.7187L10.9384 12L6.21967 7.28131Z"
-                  fill="currentColor"
-                />
-              </svg>
+              <X size={18} />
             </button>
           </div>
         </div>
-        <ul className="flex flex-col h-auto overflow-y-auto custom-scrollbar">
-          {notifications.length === 0 ? (
-            <li className="p-4 text-center text-gray-500 text-sm">No notifications yet.</li>
+
+        {/* Unread vs All Tabs */}
+        <div className="flex items-center gap-1 mb-2.5 p-1 bg-gray-100 dark:bg-gray-800/80 rounded-xl">
+          <button
+            type="button"
+            onClick={() => setFilter('unread')}
+            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+              filter === 'unread'
+                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-xs'
+                : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
+            }`}
+          >
+            <span>Unread</span>
+            {unreadCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-blue-600 text-white text-[10px] font-extrabold">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter('all')}
+            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+              filter === 'all'
+                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-xs'
+                : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
+            }`}
+          >
+            <span>All History</span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500">
+              ({notifications.length})
+            </span>
+          </button>
+        </div>
+
+        {/* Notifications List */}
+        <ul className="flex flex-col flex-1 overflow-y-auto custom-scrollbar divide-y divide-gray-100 dark:divide-gray-800/60">
+          {displayedNotifications.length === 0 ? (
+            <li className="py-16 flex flex-col items-center justify-center text-center px-4 my-auto">
+              <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+                <CheckCircle2 size={24} className="stroke-[2]" />
+              </div>
+              <p className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                {filter === 'unread' ? "All caught up!" : "No notifications"}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-[220px]">
+                {filter === 'unread' 
+                  ? "You have reviewed all active notifications." 
+                  : "No notifications have been recorded yet."}
+              </p>
+            </li>
           ) : (
-            notifications.map((notif) => (
-              <li key={notif.id}>
+            displayedNotifications.map((notif) => (
+              <li key={notif.id} className="group relative">
                 <button
                   type="button"
                   onClick={() => handleNotificationClick(notif)}
-                  className={`w-full text-left flex gap-3 rounded-lg border-b border-gray-100 px-4 py-3 dark:border-gray-800 transition cursor-pointer ${notif.is_read ? 'opacity-70 hover:bg-gray-50 dark:hover:bg-white/5' : 'bg-brand-50/50 hover:bg-brand-50/80 dark:bg-brand-900/10'}`}
+                  className={`w-full text-left flex gap-3 rounded-xl p-3 transition cursor-pointer ${
+                    notif.is_read 
+                      ? 'opacity-70 hover:opacity-100 hover:bg-gray-50 dark:hover:bg-white/5' 
+                      : 'bg-blue-50/50 hover:bg-blue-50/90 dark:bg-blue-900/10 dark:hover:bg-blue-900/20'
+                  }`}
                 >
-                  <span className={`relative flex items-center justify-center shrink-0 w-10 h-10 rounded-full text-white ${getIconForType(notif.type)}`}>
-                    <span className="font-bold text-lg">{notif.type.charAt(0)}</span>
-                    {!notif.is_read && <span className="absolute -top-1 -right-1 z-10 h-2.5 w-2.5 rounded-full border-[1.5px] border-white bg-error-500"></span>}
+                  <span className={`relative flex items-center justify-center shrink-0 w-10 h-10 rounded-full text-white ${getIconForType(notif.type)} shadow-xs`}>
+                    <span className="font-extrabold text-sm">{notif.type.charAt(0)}</span>
+                    {!notif.is_read && (
+                      <span className="absolute -top-0.5 -right-0.5 z-10 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-gray-900 bg-orange-500"></span>
+                    )}
                   </span>
 
-                  <span className="block flex-1">
-                    <span className="mb-1 text-sm text-gray-800 dark:text-white/90 font-medium line-clamp-2 leading-snug block">
+                  <span className="block flex-1 min-w-0 pr-6">
+                    <span className="mb-1 text-xs text-gray-900 dark:text-white/95 font-semibold line-clamp-2 leading-snug block">
                       {notif.message}
                     </span>
-                    <span className="flex items-center gap-2 text-gray-500 text-xs dark:text-gray-400">
-                      <span>{notif.type.replace(/_/g, ' ')}</span>
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                    <span className="flex items-center gap-1.5 text-gray-400 text-[11px] dark:text-gray-500">
+                      <span className="font-medium text-gray-600 dark:text-gray-400 uppercase text-[10px] tracking-wider">
+                        {notif.type.replace(/_/g, ' ')}
+                      </span>
+                      <span>•</span>
                       <span>{timeAgo(notif.created_at)}</span>
                     </span>
                   </span>
+                </button>
+
+                {/* Single item dismiss / delete button on hover */}
+                <button
+                  type="button"
+                  onClick={(e) => deleteSingleNotification(notif.id, e)}
+                  title="Dismiss notification"
+                  className="absolute right-2 top-3 p-1 rounded-lg text-gray-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                >
+                  <X size={14} />
                 </button>
               </li>
             ))
           )}
         </ul>
-        <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
+
+        {/* Footer */}
+        <div className="mt-auto pt-2.5 border-t border-gray-100 dark:border-gray-800">
           <button
             onClick={closeDropdown}
-            className="block w-full px-4 py-2 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 transition"
+            className="block w-full py-2 text-xs font-bold text-center text-gray-700 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition cursor-pointer"
           >
             Close
           </button>

@@ -1527,6 +1527,22 @@ app.put(['/api/admin/notifications/read-all', '/api/notifications/read-all'], au
     });
 });
 
+// Clear all notifications
+app.delete(['/api/admin/notifications/clear', '/api/notifications/clear', '/api/admin/notifications/clear-all'], authMiddleware, isAdmin, (req, res) => {
+    db.query('DELETE FROM admin_notifications', (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, cleared: result.affectedRows });
+    });
+});
+
+// Delete single notification
+app.delete(['/api/admin/notifications/:id', '/api/notifications/:id'], authMiddleware, isAdmin, (req, res) => {
+    db.query('DELETE FROM admin_notifications WHERE id = ?', [req.params.id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, deleted: result.affectedRows });
+    });
+});
+
 // ============================================================
 // Helper: map car row to camelCase
 // ============================================================
