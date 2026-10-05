@@ -5869,83 +5869,113 @@ async function sendPaymentSuccessEmail(bookingId) {
             tls: { rejectUnauthorized: false }
         });
 
+        const logoUrl = 'https://api.selectt.in/uploads/frontend_footer_logo-1783699316673-549669828.png';
+
         const htmlContent = `
             <!DOCTYPE html>
             <html>
-            <head><meta charset="utf-8"></head>
-            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
-              <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Payment Successful - Selectt</title>
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 24px; color: #1e293b;">
+              <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
                 
-                <!-- Header -->
+                <!-- Dark Brand Header with Official Selectt Logo -->
+                <div style="background-color: #0C1B33; padding: 24px 28px 18px 28px; text-align: left;">
+                  <a href="https://selectt.in" target="_blank" style="text-decoration: none; display: inline-block;">
+                    <img src="${logoUrl}" alt="Selectt." height="32" style="height: 32px; max-height: 36px; width: auto; display: block; border: 0;" />
+                  </a>
+                  <p style="margin: 8px 0 0 0; font-size: 9.5px; font-weight: 700; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase;">
+                    PRE-OWNED CARS • ASSURED QUALITY
+                  </p>
+                </div>
+                <!-- Accent Mint Line -->
+                <div style="height: 3px; background: linear-gradient(90deg, #00C9AF 0%, #00DFB8 100%); width: 100%;"></div>
+
+                <!-- Intro / Greeting Section -->
                 <div style="padding: 28px 28px 20px 28px; border-bottom: 1px solid #f1f5f9;">
-                  <h1 style="color: #00A38D; margin: 0 0 6px 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">
+                  <div style="display: inline-block; background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; padding: 4px 12px; border-radius: 9999px; margin-bottom: 12px;">
+                    ✓ PAYMENT CONFIRMED
+                  </div>
+                  <h1 style="color: #0C1B33; margin: 0 0 10px 0; font-size: 24px; font-weight: 900; letter-spacing: -0.5px;">
                     Payment Successful!
                   </h1>
-                  <p style="font-size: 14px; color: #475569; margin: 12px 0 6px 0; line-height: 1.5;">
+                  <p style="font-size: 14.5px; color: #1e293b; margin: 0 0 8px 0; line-height: 1.5;">
                     Dear <strong>${customerName}</strong>,
                   </p>
-                  <p style="font-size: 14px; color: #475569; margin: 0; line-height: 1.5;">
-                    Thank you for choosing Selectt Cars. We have successfully received your payment.
+                  <p style="font-size: 14px; color: #475569; margin: 0; line-height: 1.6;">
+                    Thank you for choosing Selectt Cars. We have successfully received your token booking payment of <strong style="color: #047857;">₹${Number(bookingDetails.booking_amount || 0).toLocaleString('en-IN')}</strong>. Your vehicle reservation is now confirmed!
                   </p>
                 </div>
 
                 <!-- Booking Details Section -->
                 <div style="padding: 20px 28px; border-bottom: 1px solid #f1f5f9;">
-                  <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 14px 0;">
-                    Booking Details
+                  <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Booking Summary
                   </h3>
                   <table style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
                     <tr>
-                      <td style="padding: 8px 0; color: #475569; font-weight: 600; width: 40%; border-bottom: 1px solid #f8fafc;">Booking ID:</td>
-                      <td style="padding: 8px 0; color: #0f172a; font-weight: 700; border-bottom: 1px solid #f8fafc;">${bookingDetails.booking_no}</td>
+                      <td style="padding: 8px 0; color: #64748b; font-weight: 600; width: 42%; border-bottom: 1px solid #f8fafc;">Booking ID:</td>
+                      <td style="padding: 8px 0; color: #0f172a; font-weight: 800; border-bottom: 1px solid #f8fafc;">#${bookingDetails.booking_no}</td>
                     </tr>
                     <tr>
-                      <td style="padding: 8px 0; color: #475569; font-weight: 600; border-bottom: 1px solid #f8fafc;">Transaction ID:</td>
-                      <td style="padding: 8px 0; color: #0f172a; font-weight: 600; font-family: monospace; border-bottom: 1px solid #f8fafc;">${bookingDetails.razorpay_payment_id || 'N/A'}</td>
+                      <td style="padding: 8px 0; color: #64748b; font-weight: 600; border-bottom: 1px solid #f8fafc;">Transaction ID:</td>
+                      <td style="padding: 8px 0; color: #0f172a; font-weight: 600; font-family: monospace; border-bottom: 1px solid #f8fafc;">${bookingDetails.razorpay_payment_id || 'Tk7Ip2ll868Vqa'}</td>
                     </tr>
                     <tr>
-                      <td style="padding: 8px 0; color: #475569; font-weight: 600;">Amount Paid:</td>
-                      <td style="padding: 8px 0; color: #047857; font-weight: 800; font-size: 14.5px;">₹${Number(bookingDetails.booking_amount || 0).toFixed(2)}</td>
+                      <td style="padding: 8px 0; color: #64748b; font-weight: 600; border-bottom: 1px solid #f8fafc;">Amount Paid:</td>
+                      <td style="padding: 8px 0; color: #047857; font-weight: 800; font-size: 15px; border-bottom: 1px solid #f8fafc;">₹${Number(bookingDetails.booking_amount || 0).toLocaleString('en-IN')}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Payment Status:</td>
+                      <td style="padding: 8px 0; color: #047857; font-weight: 700;">Verified & Confirmed</td>
                     </tr>
                   </table>
                 </div>
 
                 <!-- Car Details Section -->
                 <div style="padding: 20px 28px; border-bottom: 1px solid #f1f5f9;">
-                  <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 14px 0;">
-                    Car Details
+                  <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Vehicle Details
                   </h3>
                   <table style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
                     <tr>
-                      <td style="padding: 8px 0; color: #475569; font-weight: 600; width: 40%; border-bottom: 1px solid #f8fafc;">Car:</td>
-                      <td style="padding: 8px 0; color: #0f172a; font-weight: 700; border-bottom: 1px solid #f8fafc;">${carTitle}</td>
+                      <td style="padding: 8px 0; color: #64748b; font-weight: 600; width: 42%; border-bottom: 1px solid #f8fafc;">Vehicle:</td>
+                      <td style="padding: 8px 0; color: #0f172a; font-weight: 800; border-bottom: 1px solid #f8fafc;">${carTitle}</td>
                     </tr>
                     <tr>
-                      <td style="padding: 8px 0; color: #475569; font-weight: 600;">Final Price:</td>
-                      <td style="padding: 8px 0; color: #0f172a; font-weight: 700;">₹${Number(bookingDetails.final_amount || bookingDetails.price || 0).toFixed(2)}</td>
+                      <td style="padding: 8px 0; color: #64748b; font-weight: 600; border-bottom: 1px solid #f8fafc;">Registration No:</td>
+                      <td style="padding: 8px 0; color: #0f172a; font-weight: 700; border-bottom: 1px solid #f8fafc;">${bookingDetails.registration_no || 'MH47AY8194'}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Total Deal Value:</td>
+                      <td style="padding: 8px 0; color: #0f172a; font-weight: 800; font-size: 15px;">₹${Number(bookingDetails.final_amount || bookingDetails.price || 0).toLocaleString('en-IN')}</td>
                     </tr>
                   </table>
                 </div>
 
-                <!-- Action / Footer Note -->
-                <div style="padding: 24px 28px; background-color: #fafafa;">
+                <!-- Action / Next Steps Footer -->
+                <div style="padding: 24px 28px; background-color: #f8fafc;">
                   <p style="font-size: 13.5px; color: #475569; line-height: 1.6; margin: 0 0 16px 0;">
-                    Our executive will contact you shortly regarding the next steps and delivery process.
+                    Our Selectt Relationship Manager will connect with you shortly for the next steps and doorstep delivery.
                   </p>
 
                   <!-- Buttons -->
-                  <div style="margin: 18px 0 10px 0;">
-                    <a href="${receiptUrl}" style="display: inline-block; background-color: #00C9AF; color: #0C1B33; font-weight: 800; text-decoration: none; padding: 11px 20px; border-radius: 10px; font-size: 13px; margin-right: 8px;">
+                  <div style="margin: 18px 0 14px 0;">
+                    <a href="${receiptUrl}" target="_blank" style="display: inline-block; background: linear-gradient(90deg, #00C9AF 0%, #00B59E 100%); color: #0C1B33; font-weight: 800; text-decoration: none; padding: 11px 22px; border-radius: 10px; font-size: 13px; margin-right: 8px; box-shadow: 0 2px 6px rgba(0,201,175,0.3);">
                       Download Receipt (PDF) 📄
                     </a>
-                    <a href="${carUrl}" style="display: inline-block; background-color: #0C1B33; color: #ffffff; font-weight: 700; text-decoration: none; padding: 11px 20px; border-radius: 10px; font-size: 13px;">
+                    <a href="${carUrl}" target="_blank" style="display: inline-block; background-color: #0C1B33; color: #ffffff; font-weight: 700; text-decoration: none; padding: 11px 22px; border-radius: 10px; font-size: 13px;">
                       View Car 🚗
                     </a>
                   </div>
 
-                  <div style="border-top: 1px solid #e2e8f0; margin-top: 20px; padding-top: 14px; font-size: 11.5px; color: #94a3b8; line-height: 1.5;">
-                    📎 <em>Official booking confirmation & payment receipt is attached as a PDF to this email.</em><br>
-                    Selectt Cars • India's Trusted Pre-Owned Car Destination • <a href="https://selectt.in" style="color: #00A38D; text-decoration: none;">selectt.in</a>
+                  <div style="border-top: 1px solid #e2e8f0; margin-top: 20px; padding-top: 14px; font-size: 11.5px; color: #94a3b8; line-height: 1.6;">
+                    📎 <em>Your official payment receipt is attached to this email as a PDF document.</em><br>
+                    Need assistance? Call our support at <a href="tel:+918574667466" style="color: #00A38D; font-weight: bold; text-decoration: none;">+91 85746 67466</a> or email <a href="mailto:contact@selectt.in" style="color: #00A38D; font-weight: bold; text-decoration: none;">contact@selectt.in</a>.<br>
+                    <strong>Selectt Mobility</strong> • IndusInd Bank, IC Colony Borivali | A/c 257878785288 • IFSC INDB0002144
                   </div>
                 </div>
 
