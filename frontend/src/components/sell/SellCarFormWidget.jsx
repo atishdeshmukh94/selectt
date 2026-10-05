@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -787,15 +787,37 @@ const currentYear = Math.max(new Date().getFullYear(), 2026);
 const minAcceptedYear = 2020; // Maximum back to 2020 only, no years below 2020
 const YEARS = Array.from({ length: currentYear - minAcceptedYear + 1 }, (_, i) => currentYear - i);
 
-const GENERATED_DATES = [
-  { day: 'Sun', date: '26 Jul', label: 'TODAY', value: '2026-07-26' },
-  { day: 'Mon', date: '27 Jul', label: 'TOMORROW', value: '2026-07-27' },
-  { day: 'Tue', date: '28 Jul', label: null, value: '2026-07-28' },
-  { day: 'Wed', date: '29 Jul', label: null, value: '2026-07-29' },
-  { day: 'Thu', date: '30 Jul', label: null, value: '2026-07-30' },
-  { day: 'Fri', date: '31 Jul', label: null, value: '2026-07-31' },
-  { day: 'Sat', date: '1 Aug', label: null, value: '2026-08-01' }
-];
+export const getDynamicInspectionDates = (count = 7) => {
+  const dates = [];
+  const now = new Date();
+  for (let i = 0; i < count; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() + i);
+
+    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+    const dayNum = d.getDate();
+    const monthShort = d.toLocaleDateString('en-US', { month: 'short' });
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(dayNum).padStart(2, '0');
+    const value = `${year}-${month}-${day}`;
+
+    let label = null;
+    if (i === 0) label = 'TODAY';
+    else if (i === 1) label = 'TOMORROW';
+
+    dates.push({
+      day: dayName,
+      date: `${dayNum} ${monthShort}`,
+      label,
+      value
+    });
+  }
+  return dates;
+};
+
+const GENERATED_DATES = getDynamicInspectionDates(7);
 
 const TIME_SLOTS = {
   MORNING: ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM'],
@@ -922,7 +944,8 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
   const [branchLocations, setBranchLocations] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [inspectionType, setInspectionType] = useState('Home');
-  const [selectedDate, setSelectedDate] = useState('2026-07-27');
+  const inspectionDates = useMemo(() => getDynamicInspectionDates(7), []);
+  const [selectedDate, setSelectedDate] = useState(() => inspectionDates[0]?.value || getDynamicInspectionDates(7)[0]?.value);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('02:00 PM - 03:00 PM');
   const [forSomeoneElse, setForSomeoneElse] = useState(false);
   const [whatsappUpdates, setWhatsappUpdates] = useState(true);
@@ -2783,7 +2806,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
               <div>
                 <label className="text-xs font-black text-slate-900 block mb-3">Select date</label>
                 <div className="flex items-center gap-2 overflow-x-auto pt-3.5 pb-2 scrollbar-hide">
-                  {GENERATED_DATES.map((d, idx) => (
+                  {inspectionDates.map((d, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedDate(d.value)}
