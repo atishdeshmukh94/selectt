@@ -2527,7 +2527,6 @@ app.post('/api/sell-requests', (req, res) => {
         });
 
         // Neodove CRM Push
-        const carTitle = `${year || ''} ${make || ''} ${model || ''} ${variant || ''}`.trim();
         pushLeadToNeodove({
             name: customer_name || 'Valued Seller',
             mobile: customer_phone,
@@ -5102,7 +5101,6 @@ app.post('/api/payments/verify', customerAuth, async (req, res) => {
                                 createNotification('PAYMENT', `Token payment of ₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')} received for booking #${info.booking_no} (${info.make} ${info.model})`, req.user.id, booking_id);
 
                                 // Neodove CRM Push (Confirmed Payment)
-                                const carTitle = `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim();
                                 pushLeadToNeodove({
                                     name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
                                     mobile: recipientPhone,
