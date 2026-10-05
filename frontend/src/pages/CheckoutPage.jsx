@@ -969,15 +969,6 @@ const CheckoutPage = () => {
             });
 
             if (verifyResp.ok) {
-              // Trigger Gallabox WhatsApp notification
-              fetch(`${API_URL}/api/bookings/${bookingId}/send-whatsapp`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('customerToken')}`
-                }
-              }).catch((e) => console.log('WhatsApp trigger status:', e));
-
               // Trigger confetti animation
               try {
                 confetti({
@@ -3386,7 +3377,7 @@ const CheckoutPage = () => {
                     onClick={() => {
                       const id = paymentSuccessData?.bookingPk || paymentSuccessData?.bookingId || bookingId;
                       const token = localStorage.getItem('customerToken') || '';
-                      window.open(`${API_URL}/api/bookings/${id}/receipt?token=${token}`, '_blank');
+                      window.open(`${API_URL}/api/bookings/${id}/receipt?token=${token}&format=pdf`, '_blank');
                     }}
                     className="py-3 px-2 sm:px-4 rounded-xl border-2 border-[#00A38D]/30 hover:border-[#00A38D] bg-teal-50/60 hover:bg-teal-50 text-[#0C1B33] font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-xs transition-all cursor-pointer active:scale-95"
                   >
