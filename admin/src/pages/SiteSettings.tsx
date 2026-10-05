@@ -1722,9 +1722,9 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
               title: "1. Sell Car Request Submitted (Under Review)",
               desc: "Sent to customer immediately when they submit their car for valuation/review on /sell-car",
               defaultTpl: "customer_got_sell_price_for_their_car",
-              vars: ["{{customer_name}}", "{{car_name}}", "{{request_id}}", "{{1}}", "{{2}}", "{{3}}"],
-              sampleText: "Namaste {{1}}, humein aapki car {{2}} bechne ki request mil gayi hai. Aapka Request ID: {{3}} hai. Humari team jald hi aapki valuation review karegi.",
-              varLegend: "{{1}}=Customer Name, {{2}}=Car Model, {{3}}=Request ID",
+              vars: ["{{name}}", "{{Sell_Amount}}", "{{customer_name}}", "{{car_name}}", "{{request_id}}", "{{1}}", "{{2}}"],
+              sampleText: "*Your car sell price is ready.* 💰🚗\n\nHi *{{name}}* 👏\n\nGood news — your car valuation is ready on Selectt.\n\nYour estimated sell price is *{{Sell_Amount}}* 💸\n\nIf you’d like, we can help you with the next step to sell it faster.😊",
+              varLegend: "{{name}}=Customer Name, {{Sell_Amount}}=Estimated Sell Price",
               recipient: "Customer"
             },
             {
@@ -1784,9 +1784,9 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
               title: "6. Car Token Booking / Deposit Paid",
               desc: "Sent when customer pays online booking deposit on frontend (includes Receipt & Car URLs)",
               defaultTpl: "car_booking_confirmation",
-              vars: ["{{customer_name}}", "{{car_name}}", "{{amount}}", "{{booking_id}}", "{{receipt_link}}", "{{car_url}}"],
-              sampleText: "Congratulations {{1}}! Aapne car {{2}} ke liye token advance ₹{{3}} ka payment successfully kar diya hai. Booking ID: {{4}}. Payment Receipt & Details download karein: {{5}}. Car details: {{6}}. Humari team aapse delivery & paperwork ke liye jald connect karegi.",
-              varLegend: "{{1}}=Customer Name, {{2}}=Car Model, {{3}}=Booking Amount, {{4}}=Booking ID, {{5}}=Receipt Link, {{6}}=Car URL",
+              vars: ["{{name}}", "{{Car_Model}}", "{{Amount}}", "{{customer_name}}", "{{car_name}}", "{{amount}}", "{{booking_id}}", "{{receipt_link}}", "{{car_url}}"],
+              sampleText: "*Your car is reserved.* 🚗✅\n\nHi {{name}} 👋\n\nYour booking for *{{Car_Model}}* is confirmed with Selectt.\n\nWe’ve received your booking amount of *{{Amount}}* 💳\n\nOur team will connect with you shortly for the next steps.😊",
+              varLegend: "{{name}}=Customer Name, {{Car_Model}}=Car Model, {{Amount}}=Booking Amount",
               recipient: "Customer"
             },
             {
@@ -1796,9 +1796,9 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
               title: "7. Booking Confirmed by Hub / Advance Cleared",
               desc: "Sent when dealer/admin confirms inventory reservation and paperwork readiness",
               defaultTpl: "car_booking_confirmation",
-              vars: ["{{customer_name}}", "{{car_name}}", "{{booking_id}}", "{{hub_location}}"],
-              sampleText: "Hello {{1}}, aapki car booking {{2}} (ID: {{3}}) Selectt Hub dwara confirm kar di gayi hai. Car Inspection & Delivery Hub: {{4}}.",
-              varLegend: "{{1}}=Customer Name, {{2}}=Car Model, {{3}}=Booking ID, {{4}}=Hub Location",
+              vars: ["{{name}}", "{{Car_Model}}", "{{Amount}}", "{{customer_name}}", "{{car_name}}", "{{booking_id}}", "{{hub_location}}"],
+              sampleText: "*Your car is reserved.* 🚗✅\n\nHi {{name}} 👋\n\nYour booking for *{{Car_Model}}* is confirmed with Selectt.\n\nWe’ve received your booking amount of *{{Amount}}* 💳\n\nOur team will connect with you shortly for the next steps.😊",
+              varLegend: "{{name}}=Customer Name, {{Car_Model}}=Car Model, {{Amount}}=Booking Amount",
               recipient: "Customer"
             },
             {

@@ -1467,6 +1467,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
     setSubmitting(true);
     setSubmitError('');
     try {
+      const estimatedPriceNumber = valuation?.bestPriceLakhs ? Math.round(parseFloat(valuation.bestPriceLakhs) * 100000) : null;
       const payload = {
         make: formData.brandName,
         model: formData.model,
@@ -1478,6 +1479,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
         customer_phone: formData.phone,
         customer_name: formData.name,
         customer_id: user?.id || null,
+        asking_price: estimatedPriceNumber,
         inspection_date: selectedDate,
         inspection_time: selectedTimeSlot,
         appointment_date: selectedDate,

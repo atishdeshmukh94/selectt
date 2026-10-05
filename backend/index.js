@@ -930,9 +930,39 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
         const fetchFn = typeof fetch !== 'undefined' ? fetch : globalThis.fetch;
         const url = 'https://server.gallabox.com/devapi/messages/whatsapp';
 
+        // Normalize standard aliases for Gallabox templates (e.g. car_booking_confirmation, customer_got_sell_price_for_their_car)
+        const resolvedName = variablesData.name || variablesData.customer_name || variablesData['1'] || 'Customer';
+        const resolvedCar = variablesData.Car_Model || variablesData.car_model || variablesData.car_name || variablesData['2'] || 'Vehicle';
+        const resolvedAmount = variablesData.Amount || variablesData.amount || variablesData['3'] || '';
+        const resolvedSellAmount = variablesData.Sell_Amount || variablesData.sell_amount || resolvedAmount || '';
+
+        const mergedVars = {
+            name: resolvedName,
+            customer_name: resolvedName,
+            Name: resolvedName,
+            Car_Model: resolvedCar,
+            car_model: resolvedCar,
+            car_name: resolvedCar,
+            1: resolvedName,
+            2: resolvedCar,
+            ...variablesData
+        };
+
+        if (resolvedAmount) {
+            mergedVars.Amount = resolvedAmount;
+            mergedVars.amount = resolvedAmount;
+            if (!mergedVars['3']) mergedVars['3'] = resolvedAmount;
+        }
+
+        if (resolvedSellAmount) {
+            mergedVars.Sell_Amount = resolvedSellAmount;
+            mergedVars.sell_amount = resolvedSellAmount;
+            if (eventType === 'sell_request') mergedVars['2'] = resolvedSellAmount;
+        }
+
         // Provide both named keys and positional 1, 2, 3... keys so any Gallabox template format works
         const bodyValues = {};
-        for (const [k, v] of Object.entries(variablesData)) {
+        for (const [k, v] of Object.entries(mergedVars)) {
             bodyValues[k] = String(v ?? '');
         }
 
@@ -940,7 +970,7 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             channelId: channelId,
             channelType: "whatsapp",
             recipient: {
-                name: variablesData.customer_name || "Customer",
+                name: resolvedName,
                 phone: cleanPhone
             },
             whatsapp: {
@@ -998,10 +1028,16 @@ app.post('/api/admin/whatsapp/test-send', authMiddleware, isAdmin, async (req, r
         return res.status(400).json({ message: 'Missing eventType or phone number' });
     }
     const sampleData = customData || {
-        customer_name: 'Rohit Kumar',
-        car_name: '2023 Hyundai Grand i10 SX(O)',
-        amount: '₹5,000',
-        booking_id: '#BK-1049',
+        name: 'Atish',
+        customer_name: 'Atish Deshmukh',
+        Car_Model: 'Toyota Hyrider',
+        car_name: '2024 Toyota Urban Cruiser Hyrider Hybrid',
+        car_model: 'Toyota Hyrider',
+        Amount: '₹25,000',
+        amount: '₹25,000',
+        Sell_Amount: '₹15,00,000',
+        sell_amount: '₹15,00,000',
+        booking_id: '#BK-104928',
         date_slot: 'Tomorrow (11:00 AM)',
         location: 'Mumbai Andheri Hub',
         request_id: '#SELL-882',
@@ -1012,9 +1048,9 @@ app.post('/api/admin/whatsapp/test-send', authMiddleware, isAdmin, async (req, r
         reason: 'Vehicle specifications verified',
         reg_no: 'MH-04-AB-1234',
         otp: '482910',
-        1: 'Rohit Kumar',
-        2: '2023 Hyundai Grand i10 SX(O)',
-        3: '₹5,000'
+        1: 'Atish',
+        2: 'Toyota Hyrider',
+        3: '₹25,000'
     };
 
     const result = await sendGallaboxWhatsAppNotification(eventType, phone, sampleData);
@@ -2464,10 +2500,22 @@ app.post('/api/sell-requests', (req, res) => {
         createNotification('CAR_SELL_REQUEST', `New car sell request from ${customer_name}`, resolvedCustomerId, result.insertId);
 
         // Gallabox WhatsApp Automated Trigger for Customer
+        const sellAmountFormatted = asking_price ? `₹${Number(asking_price).toLocaleString('en-IN')}` : 'Valuation in Progress';
+        const carTitle = `${year || ''} ${make || ''} ${model || ''} ${variant || ''}`.trim();
+        const sellerName = customer_name || 'Valued Seller';
+
         sendGallaboxWhatsAppNotification('sell_request', customer_phone, {
-            customer_name: customer_name || 'Valued Seller',
-            car_name: `${year || ''} ${make || ''} ${model || ''} ${variant || ''}`.trim(),
-            request_id: `#SELL-${result.insertId}`
+            customer_name: sellerName,
+            name: sellerName,
+            car_name: carTitle,
+            Car_Model: `${make || ''} ${model || ''}`.trim() || carTitle,
+            Sell_Amount: sellAmountFormatted,
+            sell_amount: sellAmountFormatted,
+            amount: sellAmountFormatted,
+            request_id: `#SELL-${result.insertId}`,
+            '1': sellerName,
+            '2': sellAmountFormatted,
+            '3': `#SELL-${result.insertId}`
         });
 
         // Gallabox WhatsApp Alert for Admin
@@ -5013,16 +5061,28 @@ app.post('/api/payments/verify', customerAuth, async (req, res) => {
                                 const recipientPhone = info.phone || req.user.phone;
                                 console.log(`[Payment Verified] Sending Gallabox WhatsApp booking confirmation to ${recipientPhone} for booking #${info.booking_no}...`);
                                 
+                                const customerName = `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer';
+                                const carTitle = `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim();
+                                const carModelName = `${info.make || ''} ${info.model || ''}`.trim() || carTitle;
+                                const formattedAmount = `₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')}`;
+
                                 const receiptUrl = `${req.protocol}://${req.get('host')}/api/bookings/${booking_id}/receipt`;
                                 try {
                                     await sendGallaboxWhatsAppNotification('car_booking', recipientPhone, {
-                                        customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
-                                        car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
-                                        amount: `₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')}`,
+                                        customer_name: customerName,
+                                        name: customerName,
+                                        car_name: carTitle,
+                                        Car_Model: carModelName,
+                                        car_model: carModelName,
+                                        amount: formattedAmount,
+                                        Amount: formattedAmount,
                                         booking_id: info.booking_no || `BK-${booking_id}`,
                                         receipt_link: receiptUrl,
                                         download_url: receiptUrl,
-                                        pdf_url: receiptUrl
+                                        pdf_url: receiptUrl,
+                                        '1': customerName,
+                                        '2': carModelName,
+                                        '3': formattedAmount
                                     });
                                 } catch (wErr) {
                                     console.error('[Gallabox Send Error on Verify]:', wErr);
@@ -5088,14 +5148,26 @@ app.post('/api/bookings/:id/send-whatsapp', customerAuth, async (req, res) => {
         const recipientPhone = info.phone || req.user.phone;
         const receiptUrl = `${req.protocol}://${req.get('host')}/api/bookings/${bookingId}/receipt`;
 
+        const customerName = `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer';
+        const carTitle = `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim();
+        const carModelName = `${info.make || ''} ${info.model || ''}`.trim() || carTitle;
+        const formattedAmount = `₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')}`;
+
         const result = await sendGallaboxWhatsAppNotification('car_booking', recipientPhone, {
-            customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
-            car_name: `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim(),
-            amount: `₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')}`,
+            customer_name: customerName,
+            name: customerName,
+            car_name: carTitle,
+            Car_Model: carModelName,
+            car_model: carModelName,
+            amount: formattedAmount,
+            Amount: formattedAmount,
             booking_id: info.booking_no || `BK-${bookingId}`,
             receipt_link: receiptUrl,
             download_url: receiptUrl,
-            pdf_url: receiptUrl
+            pdf_url: receiptUrl,
+            '1': customerName,
+            '2': carModelName,
+            '3': formattedAmount
         });
 
         res.json({ success: true, result, receipt_url: receiptUrl });
