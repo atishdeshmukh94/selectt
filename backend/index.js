@@ -875,8 +875,8 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             booking_cancelled: 'booking_refund_cancelled',
 
             // 🏎️ Test Drives
-            test_drive: 'test_drive_booked',
-            test_drive_confirmed: 'test_drive_hub_confirmed',
+            test_drive: 'schedule_test_drive_confim',
+            test_drive_confirmed: 'schedule_test_drive_confim',
             test_drive_completed: 'test_drive_feedback_request',
 
             // 🧮 Financial Services & Loans
@@ -891,7 +891,7 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             challan_paid: 'echallan_payment_receipt',
 
             // ❤️ Leads & Engagement
-            wishlist: 'wishlist_alert',
+            wishlist: 'price_drop_message',
             lead_inquiry: 'customer_assistance_callback',
 
             // 🚨 Admin Instant Alerts
@@ -2958,7 +2958,7 @@ const DEFAULT_EMAIL_TEMPLATES = {
         subject: "🏎️ Your Test Drive for {{car_name}} is Scheduled",
         heading: "Test Drive Appointment Scheduled",
         leadType: "Test Drives",
-        body: "Hello {{customer_name}},\n\nYour test drive appointment for {{car_name}} is scheduled.\n\nDate & Time: {{date_slot}}\nLocation: {{location}}\n\nOur representative will meet you at the scheduled time.",
+        body: "Hello {{customer_name}}, 👏\n\nYour test drive appointment for {{car_name}} has been successfully scheduled.\n\n🗓️ **Date & Time:** {{date_slot}}\n📍 **Location:** {{location}}\n\nOur team will connect with you shortly with the next steps. 😊",
         recipient: "Customer"
     },
     test_drive_confirmed: {
@@ -3025,10 +3025,10 @@ const DEFAULT_EMAIL_TEMPLATES = {
         recipient: "Customer"
     },
     wishlist: {
-        subject: "⚡ Price Drop Alert: {{car_name}} is Now ₹{{new_price}}!",
+        subject: "⚡ Price Drop Alert: Selected Cars in Inventory",
         heading: "Price Drop Alert on Saved Car",
         leadType: "Leads & Retention",
-        body: "Great news {{customer_name}}!\n\nA car you saved in your wishlist ({{car_name}}) has just had a price reduction. New Price: ₹{{new_price}}.\n\nBook before it sells out!",
+        body: "Hi, there's a *price drop* on our selected cars & *new cars* we have added in the inventory; It may fit your requirement...\n\nIf you are still confused with the cars or pricing, let's connect once again... 📞",
         recipient: "Customer"
     },
     lead_inquiry: {
@@ -3565,22 +3565,40 @@ app.post('/api/test-drives', customerAuth, (req, res) => {
             db.query('SELECT c.first_name, c.last_name, c.phone, c.email, car.make, car.model, car.variant, car.year, car.price FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
                 if (!cErr && cRows.length > 0) {
                     const info = cRows[0];
+                    const customerName = `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Customer';
                     const carTitle = `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim();
+
+                    let resolvedLocation = req.body.hub_name || '';
+                    if (!resolvedLocation || resolvedLocation === 'Doorstep Test Drive') {
+                        resolvedLocation = req.body.hub_address || (location === 'hub' ? 'Selectt Hub' : 'Doorstep Test Drive');
+                    }
+                    const resolvedDateSlot = `${date_day} | ${slot}`;
+
                     sendGallaboxWhatsAppNotification('test_drive', info.phone || req.user.phone, {
-                        customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Customer',
+                        customer_name: customerName,
+                        name: customerName,
+                        Name: customerName,
                         car_name: carTitle,
-                        date_slot: `${date_day} (${date_label}) ${slot}`,
-                        location: location
+                        Car_Model: carTitle,
+                        car_model: carTitle,
+                        date_slot: resolvedDateSlot,
+                        Date_Slot: resolvedDateSlot,
+                        location: resolvedLocation,
+                        Location: resolvedLocation,
+                        '1': customerName,
+                        '2': carTitle,
+                        '3': resolvedDateSlot,
+                        '4': resolvedLocation
                     });
 
                     // Neodove CRM Push
                     pushLeadToNeodove({
-                        name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Customer',
+                        name: customerName,
                         mobile: info.phone || req.user.phone,
                         email: info.email,
                         car_interested: carTitle,
                         urgency: 'Test Drive Scheduled',
-                        summary: `Test Drive Booking #${result.insertId} at ${location}. Date: ${date_day} (${date_label}), Slot: ${slot}`,
+                        summary: `Test Drive Booking #${result.insertId} at ${resolvedLocation}. Date: ${date_day} (${date_label}), Slot: ${slot}`,
                         budget: info.price,
                         agent: 'Test Drive System'
                     }, getSetting).catch(e => console.error('[Neodove Test Drive Error]:', e.message));

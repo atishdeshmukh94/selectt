@@ -13,6 +13,10 @@ const carBookingMsg = '*Your car is reserved.* 🚗✅\n\nHi {{name}} 👋\n\nYo
 
 const sellRequestMsg = '*Your car sell price is ready.* 💰🚗\n\nHi *{{name}}* 👏\n\nGood news — your car valuation is ready on Selectt.\n\nYour estimated sell price is *{{Sell_Amount}}* 💸\n\nIf you’d like, we can help you with the next step to sell it faster.😊';
 
+const testDriveMsg = 'Hello {{customer_name}}, 👏\n\nYour test drive appointment for {{car_name}} has been successfully scheduled.\n\n🗓️ **Date & Time:** {{date_slot}}\n📍 **Location:** {{location}}\n\nOur team will connect with you shortly with the next steps. 😊';
+
+const priceDropMsg = "Hi, there's a *price drop* on our selected cars & *new cars* we have added in the inventory; It may fit your requirement...\n\nIf you are still confused with the cars or pricing, let's connect once again... 📞";
+
 const updates = [
     { key: 'gallabox_tpl_car_booking', value: 'car_booking_confirmation' },
     { key: 'gallabox_tpl_booking_confirmed', value: 'car_booking_confirmation' },
@@ -23,6 +27,14 @@ const updates = [
     { key: 'gallabox_tpl_sell_request', value: 'customer_got_sell_price_for_their_car' },
     { key: 'gallabox_msg_sell_request', value: sellRequestMsg },
     { key: 'gallabox_event_sell_request_enabled', value: 'true' },
+
+    { key: 'gallabox_tpl_test_drive', value: 'schedule_test_drive_confim' },
+    { key: 'gallabox_msg_test_drive', value: testDriveMsg },
+    { key: 'gallabox_event_test_drive_enabled', value: 'true' },
+
+    { key: 'gallabox_tpl_wishlist', value: 'price_drop_message' },
+    { key: 'gallabox_msg_wishlist', value: priceDropMsg },
+    { key: 'gallabox_event_wishlist_enabled', value: 'true' },
 
     { key: 'gallabox_auto_notifications_enabled', value: 'true' }
 ];

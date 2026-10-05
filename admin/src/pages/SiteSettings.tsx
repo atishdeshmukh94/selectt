@@ -1642,9 +1642,9 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
 
         {activeSection === "whatsapp" && (() => {
           const GALLABOX_ACCOUNT_APPROVED_TEMPLATES = [
-            // Core Transactional & Workflow Triggers
             { name: "customer_got_sell_price_for_their_car", type: "MARKETING", desc: "Sell Car Price Offer / Valuation Ready" },
             { name: "car_booking_confirmation", type: "MARKETING", desc: "Car Token Advance / Booking Confirmed" },
+            { name: "schedule_test_drive_confim", type: "MARKETING", desc: "Test Drive Appointment Scheduled (Customer)" },
             { name: "schedule_visit_confim", type: "MARKETING", desc: "Showroom Visit / Test Drive Confirmed" },
             { name: "price_drop_message", type: "MARKETING", desc: "Price Drop Alert on Saved / Wishlisted Cars" },
             { name: "try_to_help_you", type: "MARKETING", desc: "Customer Inquiry Support & Doubt Help" },
@@ -1833,10 +1833,10 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
               categoryName: "🏎️ Test Drives",
               title: "10. Test Drive Appointment Scheduled",
               desc: "Sent when customer schedules a test drive appointment on a car",
-              defaultTpl: "schedule_visit_confim",
+              defaultTpl: "schedule_test_drive_confim",
               vars: ["{{customer_name}}", "{{car_name}}", "{{date_slot}}", "{{location}}"],
-              sampleText: "Hello {{1}}, aapki test drive appointment for {{2}} schedule ho chuki hai.\n📅 Time: {{3}}\n📍 Location: {{4}}\nHumare executive aapko time par receive karenge.",
-              varLegend: "{{1}}=Customer Name, {{2}}=Car Model, {{3}}=Date/Slot, {{4}}=Location",
+              sampleText: "Hello {{customer_name}}, 👏\n\nYour test drive appointment for {{car_name}} has been successfully scheduled.\n\n🗓️ **Date & Time:** {{date_slot}}\n📍 **Location:** {{location}}\n\nOur team will connect with you shortly with the next steps. 😊",
+              varLegend: "{{customer_name}}=Customer Name, {{car_name}}=Car Model, {{date_slot}}=Date & Time, {{location}}=Location",
               recipient: "Customer"
             },
             {
@@ -1961,8 +1961,8 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
               desc: "Sent when a saved car gets a price reduction or limited-time deal",
               defaultTpl: "price_drop_message",
               vars: ["{{customer_name}}", "{{car_name}}", "{{new_price}}"],
-              sampleText: "Great news {{1}}! Aapki pasandida car {{2}} par price drop hua hai. Naya Price: ₹{{3}}. Abhi visit karein aur book karein!",
-              varLegend: "{{1}}=Customer Name, {{2}}=Car Model, {{3}}=New Price",
+              sampleText: "Hi, there's a *price drop* on our selected cars & *new cars* we have added in the inventory; It may fit your requirement...\n\nIf you are still confused with the cars or pricing, let's connect once again... 📞",
+              varLegend: "No dynamic tokens required (Broadcast Marketing Template)",
               recipient: "Customer"
             },
             {
