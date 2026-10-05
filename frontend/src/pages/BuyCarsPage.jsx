@@ -417,21 +417,41 @@ const BuyCarsPage = () => {
     }
     const price = parseInt(car.price || 0, 10);
     const priceLakhs = price / 100000;
-    if (filters.budget_min) {
+    if (filters.budget_min != null && filters.budget_min > 0) {
       if (priceLakhs < filters.budget_min) return false;
     }
-    if (filters.budget_max && filters.budget_max < 25) {
-      if (priceLakhs > filters.budget_max) return false;
+    if (filters.budget_max != null && filters.budget_max > 0) {
+      if (filters.budget || (filters.budget_max !== 25 && filters.budget_max !== 35)) {
+        if (priceLakhs > filters.budget_max) return false;
+      }
     }
     if (filters.budget) {
-      if (filters.budget === 'Under 3 L' && price >= 300000) return false;
-      if (filters.budget === '3 - 6 L' && (price < 300000 || price > 600000)) return false;
-      if (filters.budget === '6 - 10 L' && (price < 600000 || price > 1000000)) return false;
-      if (filters.budget === '10 L +' && price <= 1000000) return false;
-      if (filters.budget === 'Under ₹4L' && price >= 400000) return false;
-      if (filters.budget === '₹4L - ₹9L' && (price < 400000 || price > 900000)) return false;
-      if (filters.budget === '₹9L - ₹15L' && (price < 900000 || price > 1500000)) return false;
-      if (filters.budget === '₹15 Lakhs +' && price < 1500000) return false;
+      const b = String(filters.budget).toLowerCase().trim();
+      if (b === 'under 10 l' || b === 'under ₹10l' || b === 'under 10 lakhs') {
+        if (priceLakhs >= 10) return false;
+      } else if (b === '10 - 20 lakhs' || b === '10 - 20 l' || b === '₹10l - ₹20l' || b === '₹10 - ₹20 lakhs') {
+        if (priceLakhs < 10 || priceLakhs > 20) return false;
+      } else if (b === '20 - 30 lakhs' || b === '20 - 30 l' || b === '₹20l - ₹30l' || b === '₹20 - ₹30 lakhs') {
+        if (priceLakhs < 20 || priceLakhs > 30) return false;
+      } else if (b === '30 lakhs +' || b === '30 l +' || b === '₹30 lakhs +' || b === '30+ lakhs') {
+        if (priceLakhs < 30) return false;
+      } else if (b === 'under 3 l') {
+        if (priceLakhs >= 3) return false;
+      } else if (b === '3 - 6 l') {
+        if (priceLakhs < 3 || priceLakhs > 6) return false;
+      } else if (b === '6 - 10 l') {
+        if (priceLakhs < 6 || priceLakhs > 10) return false;
+      } else if (b === '10 l +') {
+        if (priceLakhs < 10) return false;
+      } else if (b === 'under ₹4l') {
+        if (priceLakhs >= 4) return false;
+      } else if (b === '₹4l - ₹9l') {
+        if (priceLakhs < 4 || priceLakhs > 9) return false;
+      } else if (b === '₹9l - ₹15l') {
+        if (priceLakhs < 9 || priceLakhs > 15) return false;
+      } else if (b === '₹15 lakhs +') {
+        if (priceLakhs < 15) return false;
+      }
     }
     if (filters.certification && filters.certification !== 'all') {
       const certLower = filters.certification.toLowerCase();
@@ -638,7 +658,7 @@ const BuyCarsPage = () => {
       />
 
       {/* ── Page Shell ── */}
-      <div className="min-h-screen bg-[#f9f9f9] text-[#0C1B33] font-sans w-full max-w-full overflow-x-hidden">
+      <div className="min-h-screen bg-[#f9f9f9] text-[#0C1B33] font-sans w-full max-w-full overflow-x-clip">
 
         {/* ── Marquee Section ── */}
         {marqueeText && (
@@ -673,8 +693,8 @@ const BuyCarsPage = () => {
           <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-4 pb-8 w-full min-w-0 max-w-full">
             <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start relative w-full min-w-0 max-w-full">
 
-              {/* ── LEFT SIDEBAR ── */}
-              <aside className="hidden md:block md:w-[26%] lg:w-[24%] shrink-0 sticky top-24 self-start h-[calc(100vh-120px)] z-20">
+              {/* ── LEFT SIDEBAR (Sticky in column until end of cars section) ── */}
+              <aside className="hidden md:block md:w-[26%] lg:w-[24%] shrink-0 sticky top-20 self-start h-[calc(100vh-96px)] z-20">
                 <SidebarFilters filters={filters} setFilters={setFilters} lightBg={true} />
               </aside>
 
@@ -799,8 +819,13 @@ const BuyCarsPage = () => {
                 </div>
 
                 {/* Active filter chips */}
-                {(filters.brands?.length > 0 || filters.body_type?.length > 0 || filters.fuel || filters.transmission || filters.searchQuery) && (
+                {(filters.brands?.length > 0 || filters.body_type?.length > 0 || filters.fuel || filters.transmission || filters.searchQuery || filters.budget) && (
                   <div className="flex flex-wrap gap-2 mb-5">
+                    {filters.budget && (
+                      <span className="flex items-center gap-1.5 bg-[#00C9AF]/15 border border-[#00C9AF]/40 text-[#0C1B33] text-[10px] font-bold px-3 py-1.5 rounded-full">
+                        {filters.budget} <button onClick={() => setFilters(p => ({ ...p, budget: '', budget_min: null, budget_max: null }))}><X size={10} /></button>
+                      </span>
+                    )}
                     {filters.searchQuery && (
                       <span className="flex items-center gap-1.5 bg-[#00C9AF]/10 border border-[#00C9AF]/40 text-[#00C9AF] text-[10px] font-bold px-3 py-1.5 rounded-full">
                         "{filters.searchQuery}"

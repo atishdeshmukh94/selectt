@@ -23,13 +23,13 @@ const FilterSection = ({ id, activeSection, onToggle, title, children, lightBg =
 const SidebarFilters = ({ filters = {}, setFilters, onClose, lightBg = false }) => {
   const [brands, setBrands] = useState([]);
   const [brandSearch, setBrandSearch] = useState('');
-  const [maxBudget, setMaxBudget] = useState(25);
+  const [maxBudget, setMaxBudget] = useState(filters.budget_max || 35);
 
   // Single accordion state: opening one tab automatically closes other tabs
   const [activeSection, setActiveSection] = useState(() => {
     if (filters.brands?.length) return 'brand';
     if (filters.body_type?.length) return 'bodyType';
-    if (filters.budget || (filters.budget_max && filters.budget_max < 25)) return 'budget';
+    if (filters.budget || (filters.budget_max && filters.budget_max < 35)) return 'budget';
     if (filters.fuel) return 'fuel';
     if (filters.transmission) return 'transmission';
     if (filters.owners?.length) return 'ownership';
@@ -41,8 +41,10 @@ const SidebarFilters = ({ filters = {}, setFilters, onClose, lightBg = false }) 
   };
 
   useEffect(() => {
-    if (filters.budget_max === 25 || !filters.budget_max) {
-      setMaxBudget(25);
+    if (filters.budget_max === 35 || !filters.budget_max) {
+      setMaxBudget(35);
+    } else {
+      setMaxBudget(filters.budget_max);
     }
   }, [filters.budget_max]);
 
@@ -126,21 +128,21 @@ const SidebarFilters = ({ filters = {}, setFilters, onClose, lightBg = false }) 
           <div className="flex flex-col gap-3 px-1">
             <div className="flex justify-between text-[14px] sm:text-[15px] font-heading font-black tracking-wide">
               <span className="text-[#00A38D] dark:text-[#00C9AF]">₹0 L</span>
-              <span className="text-[#00A38D] dark:text-[#00C9AF]">₹{maxBudget} L{maxBudget == 25 ? '+' : ''}</span>
+              <span className="text-[#00A38D] dark:text-[#00C9AF]">₹{maxBudget} L{maxBudget >= 35 ? '+' : ''}</span>
             </div>
             <input
               type="range"
               className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-[#00C9AF] ${lightBg ? 'bg-slate-200' : 'bg-white/10'
                 }`}
               min="0"
-              max="25"
+              max="35"
               value={maxBudget}
               onChange={(e) => setMaxBudget(parseInt(e.target.value))}
               onMouseUp={(e) => setSingleFilter('budget_max', parseInt(e.target.value))}
               onTouchEnd={(e) => setSingleFilter('budget_max', parseInt(e.target.value))}
             />
             <div className="grid grid-cols-2 gap-2 mt-1">
-              {['Under 3 L', '3 - 6 L', '6 - 10 L', '10 L +'].map((b) => (
+              {['Under 10 L', '10 - 20 Lakhs', '20 - 30 Lakhs', '30 Lakhs +'].map((b) => (
                 <button
                   key={b}
                   onClick={() => setSingleFilter('budget', filters.budget === b ? '' : b)}

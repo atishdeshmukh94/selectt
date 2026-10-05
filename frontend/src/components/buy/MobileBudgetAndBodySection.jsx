@@ -1,46 +1,46 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 
 const BUDGET_OPTIONS = [
   {
-    id: 'under_4l',
-    label: 'Under ₹4L',
+    id: 'under_10l',
+    label: 'Under 10 L',
     badge: '₹',
     min: 0,
-    max: 4,
-    defaultCount: '250+',
+    max: 10,
+    defaultCount: '450+',
     img: '/img/budget/hatchback.webp',
-    filterValue: 'Under ₹4L',
+    filterValue: 'Under 10 L',
   },
   {
-    id: '4l_9l',
-    label: '₹4L - ₹9L',
+    id: '10l_20l',
+    label: '10 - 20 Lakhs',
     badge: '₹₹',
-    min: 4,
-    max: 9,
-    defaultCount: '470+',
+    min: 10,
+    max: 20,
+    defaultCount: '280+',
     img: '/img/budget/sedan.webp',
-    filterValue: '₹4L - ₹9L',
+    filterValue: '10 - 20 Lakhs',
   },
   {
-    id: '9l_15l',
-    label: '₹9L - ₹15L',
+    id: '20l_30l',
+    label: '20 - 30 Lakhs',
     badge: '₹₹₹',
-    min: 9,
-    max: 15,
-    defaultCount: '210+',
+    min: 20,
+    max: 30,
+    defaultCount: '120+',
     img: '/img/budget/suv.webp',
-    filterValue: '₹9L - ₹15L',
+    filterValue: '20 - 30 Lakhs',
   },
   {
-    id: '15l_plus',
-    label: '₹15 Lakhs +',
+    id: '30l_plus',
+    label: '30 Lakhs +',
     badge: '₹₹₹₹',
-    min: 15,
+    min: 30,
     max: null,
     defaultCount: '40+',
     img: '/img/budget/luxury_left.webp?v=3',
-    filterValue: '₹15 Lakhs +',
+    filterValue: '30 Lakhs +',
   },
 ];
 
@@ -56,6 +56,22 @@ const BODY_TYPES = [
 ];
 
 const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) => {
+  const [isStickyVisible, setIsStickyVisible] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      // When the top section has scrolled up past the mobile header (56px)
+      setIsStickyVisible(rect.bottom < 56);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Real dynamic count calculations with fallback to default UI numbers
   const getCarCount = (opt) => {
     if (!Array.isArray(allCars) || allCars.length === 0) return `${opt.defaultCount} Cars`;
@@ -64,18 +80,23 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
       if (opt.max === null) return p >= opt.min;
       return p >= opt.min && p <= opt.max;
     }).length;
-    return count > 0 ? `${count} Cars` : `${opt.defaultCount} Cars`;
+    return `${count} Cars`;
   };
 
   const isBudgetActive = (opt) => {
-    return filters.budget === opt.filterValue;
+    if (filters.budget === opt.filterValue) return true;
+    if (filters.budget_min === opt.min && (opt.max === null ? !filters.budget_max : filters.budget_max === opt.max)) {
+      return true;
+    }
+    return false;
   };
 
   const scrollToCars = () => {
     setTimeout(() => {
       const resultsEl = document.getElementById('cars-results-list');
       if (resultsEl) {
-        const yOffset = -65;
+        // Offset for 56px header + 72px sticky bar when sticky
+        const yOffset = isStickyVisible ? -135 : -65;
         const y = resultsEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
       }
@@ -89,7 +110,7 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
         ...prev,
         budget: '',
         budget_min: null,
-        budget_max: 25,
+        budget_max: null,
       }));
     } else {
       setFilters((prev) => ({
@@ -107,7 +128,7 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
       ...prev,
       budget: '',
       budget_min: null,
-      budget_max: 25,
+      budget_max: null,
       body_type: [],
     }));
     scrollToCars();
@@ -146,107 +167,164 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
   };
 
   return (
-    <div className="block md:hidden mb-5 text-left w-full max-w-full">
-      {/* ── Budget Section Heading ── */}
-      <h2 className="text-[17px] font-extrabold text-[#0C1B33] tracking-tight mb-3">
-        What&apos;s your budget?
-      </h2>
+    <>
+      <div ref={containerRef} className="block md:hidden mb-5 text-left w-full max-w-full">
+        {/* ── Budget Section Heading ── */}
+        <h2 className="text-[17px] font-extrabold text-[#0C1B33] tracking-tight mb-3">
+          What&apos;s your budget?
+        </h2>
 
-      {/* 2x2 Grid with responsive min-w-0 and breathing padding to prevent border cropping */}
-      <div className="grid grid-cols-2 gap-2.5 mb-3.5 w-full min-w-0 max-w-full p-0.5">
-        {BUDGET_OPTIONS.map((opt) => {
-          const active = isBudgetActive(opt);
-          return (
-            <button
-              key={opt.id}
-              onClick={() => handleBudgetClick(opt)}
-              type="button"
-              className={`p-2.5 pt-2.5 pb-0.5 flex flex-col justify-between h-[116px] sm:h-[122px] rounded-2xl relative overflow-hidden text-left transition-all cursor-pointer w-full min-w-0 ${
-                active
-                  ? 'bg-gradient-to-b from-[#d9fffe] to-[#cbfcf7] ring-2 ring-inset ring-[#00C9AF] border border-[#00C9AF] shadow-md'
-                  : 'bg-gradient-to-b from-[#d9fffea8] to-[#edfbf9] border border-slate-200/80 hover:border-[#00C9AF]/40 hover:shadow-xs active:scale-[0.98]'
-              }`}
-            >
-              {/* Header info */}
-              <div className="flex items-start justify-between w-full min-w-0 z-10 relative">
-                <div className="min-w-0 pr-1">
-                  <div
-                    style={{ fontWeight: 500, fontFamily: 'Inter, sans-serif' }}
-                    className="font-['Inter',sans-serif] text-[15px] sm:text-[15.5px] text-[#0C1B33] leading-tight tracking-normal truncate"
-                  >
-                    {opt.label}
+        {/* 2x2 Grid with responsive min-w-0 and breathing padding to prevent border cropping */}
+        <div className="grid grid-cols-2 gap-2.5 mb-3.5 w-full min-w-0 max-w-full p-0.5">
+          {BUDGET_OPTIONS.map((opt) => {
+            const active = isBudgetActive(opt);
+            return (
+              <button
+                key={opt.id}
+                onClick={() => handleBudgetClick(opt)}
+                type="button"
+                className={`p-2.5 pt-2.5 pb-0.5 flex flex-col justify-between h-[116px] sm:h-[122px] rounded-2xl relative overflow-hidden text-left transition-all cursor-pointer w-full min-w-0 ${
+                  active
+                    ? 'bg-gradient-to-b from-[#d9fffe] to-[#cbfcf7] ring-2 ring-inset ring-[#00C9AF] border border-[#00C9AF] shadow-md'
+                    : 'bg-gradient-to-b from-[#d9fffea8] to-[#edfbf9] border border-slate-200/80 hover:border-[#00C9AF]/40 hover:shadow-xs active:scale-[0.98]'
+                }`}
+              >
+                {/* Header info */}
+                <div className="flex items-start justify-between w-full min-w-0 z-10 relative">
+                  <div className="min-w-0 pr-1">
+                    <div
+                      style={{ fontWeight: 500, fontFamily: 'Inter, sans-serif' }}
+                      className="font-['Inter',sans-serif] text-[15px] sm:text-[15.5px] text-[#0C1B33] leading-tight tracking-normal truncate"
+                    >
+                      {opt.label}
+                    </div>
+                    <div
+                      style={{ fontWeight: 500, fontFamily: 'Inter, sans-serif' }}
+                      className="font-['Inter',sans-serif] text-[11.5px] text-slate-500 mt-0.5 tracking-normal"
+                    >
+                      {getCarCount(opt)}
+                    </div>
                   </div>
+
+                  {/* Badge: Selectt Teal Brand Color */}
                   <div
-                    style={{ fontWeight: 500, fontFamily: 'Inter, sans-serif' }}
-                    className="font-['Inter',sans-serif] text-[11.5px] text-slate-500 mt-0.5 tracking-normal"
+                    style={{ fontWeight: 600 }}
+                    className="shrink-0 bg-[#00C9AF] text-[#0C1B33] rounded-full flex items-center justify-center font-semibold px-1.5 py-0.5 min-w-[22px] h-[22px] text-[11.5px] leading-none shadow-xs"
                   >
-                    {getCarCount(opt)}
+                    {opt.badge}
                   </div>
                 </div>
 
-                {/* Badge: Selectt Teal Brand Color */}
-                <div
-                  style={{ fontWeight: 600 }}
-                  className="shrink-0 bg-[#00C9AF] text-[#0C1B33] rounded-full flex items-center justify-center font-semibold px-1.5 py-0.5 min-w-[22px] h-[22px] text-[11.5px] leading-none shadow-xs"
-                >
-                  {opt.badge}
+                {/* Large Car 3D Graphic */}
+                <div className="w-full flex justify-end items-end relative -mb-0.5 -mr-1 h-[68px] sm:h-[72px]">
+                  <img
+                    src={opt.img}
+                    alt={opt.label}
+                    className="h-full w-auto max-w-[96%] object-contain filter drop-shadow-[0_6px_12px_rgba(12,27,51,0.14)] pointer-events-none"
+                    loading="lazy"
+                  />
                 </div>
-              </div>
+              </button>
+            );
+          })}
+        </div>
 
-              {/* Large Car 3D Graphic */}
-              <div className="w-full flex justify-end items-end relative -mb-0.5 -mr-1 h-[68px] sm:h-[72px]">
-                <img
-                  src={opt.img}
-                  alt={opt.label}
-                  className="h-full w-auto max-w-[96%] object-contain filter drop-shadow-[0_6px_12px_rgba(12,27,51,0.14)] pointer-events-none"
-                  loading="lazy"
-                />
-              </div>
-            </button>
-          );
-        })}
-      </div>
+        {/* ── Explore All Cars Button (Selectt Navy + Teal Brand Combo) ── */}
+        <button
+          onClick={handleExploreAll}
+          type="button"
+          className="w-full py-2.5 px-4 rounded-xl border-2 border-[#0C1B33] text-[#0C1B33] bg-white hover:bg-[#0C1B33] hover:text-white active:scale-[0.99] font-extrabold text-[13.5px] flex items-center justify-center gap-1.5 transition-all mb-5 cursor-pointer shadow-xs group"
+        >
+          <span>Explore All Cars</span>
+          <ChevronRight size={16} strokeWidth={2.5} className="text-[#00C9AF] group-hover:translate-x-0.5 transition-transform" />
+        </button>
 
-      {/* ── Explore All Cars Button (Selectt Navy + Teal Brand Combo) ── */}
-      <button
-        onClick={handleExploreAll}
-        type="button"
-        className="w-full py-2.5 px-4 rounded-xl border-2 border-[#0C1B33] text-[#0C1B33] bg-white hover:bg-[#0C1B33] hover:text-white active:scale-[0.99] font-extrabold text-[13.5px] flex items-center justify-center gap-1.5 transition-all mb-5 cursor-pointer shadow-xs group"
-      >
-        <span>Explore All Cars</span>
-        <ChevronRight size={16} strokeWidth={2.5} className="text-[#00C9AF] group-hover:translate-x-0.5 transition-transform" />
-      </button>
+        {/* ── Explore Models via Body Type ── */}
+        <div className="mb-2 w-full max-w-full overflow-hidden">
+          <h3 className="text-[14.5px] font-extrabold text-[#0C1B33] mb-2.5">
+            Explore models via body type
+          </h3>
 
-      {/* ── Explore Models via Body Type ── */}
-      <div className="mb-2 w-full max-w-full overflow-hidden">
-        <h3 className="text-[14.5px] font-extrabold text-[#0C1B33] mb-2.5">
-          Explore models via body type
-        </h3>
-
-        {/* Horizontal scroll without breaking viewport width */}
-        <div className="w-full max-w-full overflow-x-auto pb-1.5 scrollbar-none overscroll-x-contain -mx-1 px-1">
-          <div className="flex items-center gap-2 w-max pr-3">
-            {BODY_TYPES.map((bt) => {
-              const active = isBodyTypeActive(bt);
-              return (
-                <button
-                  key={bt}
-                  onClick={() => handleBodyTypeClick(bt)}
-                  type="button"
-                  className={`rounded-full text-[13px] px-4 py-1.5 whitespace-nowrap transition-all cursor-pointer ${
-                    active
-                      ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#0C1B33] font-black shadow-xs ring-1 ring-[#00C9AF]/30'
-                      : 'bg-white text-slate-700 border border-slate-200 hover:border-[#00C9AF] font-bold hover:text-[#0C1B33]'
-                  }`}
-                >
-                  {bt}
-                </button>
-              );
-            })}
+          {/* Horizontal scroll without breaking viewport width */}
+          <div className="w-full max-w-full overflow-x-auto pb-1.5 scrollbar-none overscroll-x-contain -mx-1 px-1">
+            <div className="flex items-center gap-2 w-max pr-3">
+              {BODY_TYPES.map((bt) => {
+                const active = isBodyTypeActive(bt);
+                return (
+                  <button
+                    key={bt}
+                    onClick={() => handleBodyTypeClick(bt)}
+                    type="button"
+                    className={`rounded-full text-[13px] px-4 py-1.5 whitespace-nowrap transition-all cursor-pointer ${
+                      active
+                        ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#0C1B33] font-black shadow-xs ring-1 ring-[#00C9AF]/30'
+                        : 'bg-white text-slate-700 border border-slate-200 hover:border-[#00C9AF] font-bold hover:text-[#0C1B33]'
+                    }`}
+                  >
+                    {bt}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* ── Compact Sticky Filter Bar (Pins to Top on Scroll Down) ── */}
+      {isStickyVisible && (
+        <div className="md:hidden fixed top-14 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm px-3 py-2 transition-all">
+          <div className="max-w-md mx-auto space-y-1.5">
+            {/* Row 1: Budget Range Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0 mr-1">
+                Budget:
+              </span>
+              {BUDGET_OPTIONS.map((opt) => {
+                const active = isBudgetActive(opt);
+                return (
+                  <button
+                    key={`sticky-${opt.id}`}
+                    onClick={() => handleBudgetClick(opt)}
+                    type="button"
+                    className={`px-3 py-1 rounded-full text-[11.5px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                      active
+                        ? 'bg-[#00C9AF] text-[#0C1B33] font-black shadow-xs ring-1 ring-[#00C9AF]'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Row 2: Body Types */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-0.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0 mr-1">
+                Type:
+              </span>
+              {BODY_TYPES.map((bt) => {
+                const active = isBodyTypeActive(bt);
+                return (
+                  <button
+                    key={`sticky-${bt}`}
+                    onClick={() => handleBodyTypeClick(bt)}
+                    type="button"
+                    className={`px-3 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                      active
+                        ? 'bg-[#0C1B33] text-[#00C9AF] font-black shadow-xs'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    {bt}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
