@@ -775,8 +775,11 @@ const HowItWorksCarousel = () => {
 
 const NewHome = () => {
   const navigate = useNavigate();
-  const brandCarouselRef = useRef(null);
-  const resolveUrl = (url) => url?.startsWith('/') ? `${API_URL}${url}` : url;
+  const resolveUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('/uploads/')) return `${API_URL}${url}`;
+    return url;
+  };
 
   const [coords, setCoords] = useState({ x: 0, y: 0 });
 

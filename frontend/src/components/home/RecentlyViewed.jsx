@@ -86,10 +86,10 @@ const RecentlyViewed = ({
   return (
     <section className="py-8 md:py-12 px-4 bg-transparent overflow-hidden group/section">
       <div className="max-w-7xl mx-auto relative">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0C1B33] dark:text-white mb-8 flex items-center justify-center gap-5 w-full">
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700 max-w-[80px] md:max-w-none" />
-          <span className="shrink-0 text-center font-heading tracking-tight">{title}</span>
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700 max-w-[80px] md:max-w-none" />
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0C1B33] mb-8 flex items-center justify-center gap-5 w-full">
+          <div className="h-px flex-1 bg-slate-200 max-w-[80px] md:max-w-none" />
+          <span className="shrink-0 text-center font-heading tracking-tight text-[#0C1B33]">{title}</span>
+          <div className="h-px flex-1 bg-slate-200 max-w-[80px] md:max-w-none" />
         </h2>
 
         {/* Navigation Arrows (Desktop - Reveal on Hover) */}
@@ -97,7 +97,7 @@ const RecentlyViewed = ({
           <button 
             onClick={prevSlide}
             aria-label="Previous cars"
-            className="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-white hover:text-[#00C9AF] hover:scale-110 transition-all duration-300 cursor-pointer hidden lg:flex opacity-0 pointer-events-none group-hover/section:opacity-100 group-hover/section:pointer-events-auto"
+            className="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white shadow-xl border border-slate-200 flex items-center justify-center text-slate-800 hover:text-[#00C9AF] hover:scale-110 transition-all duration-300 cursor-pointer hidden lg:flex opacity-0 pointer-events-none group-hover/section:opacity-100 group-hover/section:pointer-events-auto"
           >
             <ChevronLeft size={22} strokeWidth={2.5} />
           </button>
@@ -107,7 +107,7 @@ const RecentlyViewed = ({
           <button 
             onClick={nextSlide}
             aria-label="Next cars"
-            className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-white hover:text-[#00C9AF] hover:scale-110 transition-all duration-300 cursor-pointer hidden lg:flex opacity-0 pointer-events-none group-hover/section:opacity-100 group-hover/section:pointer-events-auto"
+            className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white shadow-xl border border-slate-200 flex items-center justify-center text-slate-800 hover:text-[#00C9AF] hover:scale-110 transition-all duration-300 cursor-pointer hidden lg:flex opacity-0 pointer-events-none group-hover/section:opacity-100 group-hover/section:pointer-events-auto"
           >
             <ChevronRight size={22} strokeWidth={2.5} />
           </button>
@@ -118,18 +118,18 @@ const RecentlyViewed = ({
           <button 
             onClick={prevSlide}
             aria-label="Previous"
-            className={`w-9 h-9 rounded-full bg-white/95 dark:bg-slate-800/95 shadow-md flex items-center justify-center pointer-events-auto transition-opacity ${currentIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+            className={`w-9 h-9 rounded-full bg-white/95 shadow-md flex items-center justify-center pointer-events-auto transition-opacity ${currentIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
             disabled={currentIndex === 0}
           >
-            <ChevronLeft size={20} className="text-slate-800 dark:text-white" />
+            <ChevronLeft size={20} className="text-slate-800" />
           </button>
           <button 
             onClick={nextSlide}
             aria-label="Next"
-            className={`w-9 h-9 rounded-full bg-white/95 dark:bg-slate-800/95 shadow-md flex items-center justify-center pointer-events-auto transition-opacity ${currentIndex >= maxIndex ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+            className={`w-9 h-9 rounded-full bg-white/95 shadow-md flex items-center justify-center pointer-events-auto transition-opacity ${currentIndex >= maxIndex ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
             disabled={currentIndex >= maxIndex}
           >
-            <ChevronRight size={20} className="text-slate-800 dark:text-white" />
+            <ChevronRight size={20} className="text-slate-800" />
           </button>
         </div>
 
