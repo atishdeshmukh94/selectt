@@ -4175,7 +4175,9 @@ app.post('/api/bookings', customerAuth, (req, res) => {
                             }
                         }
                         if (err) return res.status(500).json({ error: err.message });
-                        createNotification('PAYMENT', `New car booking created: ${data.booking_no}`, req.user.id, result.insertId);
+                        if (data.payment_status === 'paid') {
+                            createNotification('PAYMENT', `Token payment of ₹${Number(data.booking_amount || 5000).toLocaleString('en-IN')} received for booking #${data.booking_no}`, req.user.id, result.insertId);
+                        }
 
                         // Increment coupon usage count if coupon was applied
                         if (data.coupon_code) {
