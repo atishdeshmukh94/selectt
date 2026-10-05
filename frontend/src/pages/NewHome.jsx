@@ -126,6 +126,20 @@ const INSPECTION_REPORTS = [
   }
 ];
 
+const STATIC_POPULAR_BRANDS = [
+  { name: 'Maruti Suzuki', logo: '/img/maruti-suzuki.png' },
+  { name: 'Hyundai', logo: '/img/hyundai.webp' },
+  { name: 'Honda', logo: '/img/honda.webp' },
+  { name: 'Tata', logo: '/img/tata.webp' },
+  { name: 'Renault', logo: '/img/renault.webp' },
+  { name: 'Kia', logo: '/img/kia.webp' },
+  { name: 'Ford', logo: '/img/Fored.webp' },
+  { name: 'Volkswagen', logo: '/img/Volkswagen_logo.webp' },
+  { name: 'Mahindra', logo: '/img/mahindra.webp' },
+  { name: 'BMW', logo: '/img/bmw.png' },
+  { name: 'Mercedes', logo: '/img/mercedes-benz.webp' },
+];
+
 const BODY_TYPES = [
   { name: 'Hatchback', icon: '/img/hatchback.png', hoverIcon: '/img/hatchback-hover.png' },
   { name: 'Sedan', icon: '/img/sedan.png', hoverIcon: '/img/sedan-hover.png' },
@@ -834,7 +848,7 @@ const NewHome = () => {
   const [allCars, setAllCars] = useState([]);
   const [featuredCars, setFeaturedCars] = useState([]);
   const [heroCars, setHeroCars] = useState(FALLBACK_CARS);
-  const [brands, setBrands] = useState([]);
+  const [brands, setBrands] = useState(STATIC_POPULAR_BRANDS);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [activeBodyType, setActiveBodyType] = useState('Hatchback');
   const [bodyTypeCarouselIdx, setBodyTypeCarouselIdx] = useState(0);
@@ -850,7 +864,7 @@ const NewHome = () => {
   const [avgSellTime, setAvgSellTime] = useState(24);
 
   const [loadingCars, setLoadingCars] = useState(true);
-  const [loadingBrands, setLoadingBrands] = useState(true);
+  const [loadingBrands, setLoadingBrands] = useState(false);
   const [carouselHovered, setCarouselHovered] = useState(false);
   const [buySteps, setBuySteps] = useState([]);
   const [buyStepIdx, setBuyStepIdx] = useState(0);
@@ -1006,29 +1020,18 @@ const NewHome = () => {
         setLoadingCars(false);
       });
 
-    // 2. Fetch live brands & counts
+    // 2. Fetch live brands & counts safely
     Promise.all([
-      fetch(`${API_URL}/api/brands`).then(res => res.json()),
-      fetch(`${API_URL}/api/car-counts-by-brand`).then(res => res.json())
+      fetch(`${API_URL}/api/brands`).then(res => res.ok ? res.json() : []).catch(() => []),
+      fetch(`${API_URL}/api/car-counts-by-brand`).then(res => res.ok ? res.json() : []).catch(() => [])
     ])
       .then(([brandList, countList]) => {
-        const STATIC_BRANDS = [
-          { name: 'Maruti Suzuki', logo: '/img/maruti-suzuki.png' },
-          { name: 'Hyundai', logo: '/img/hyundai.webp' },
-          { name: 'Honda', logo: '/img/honda.webp' },
-          { name: 'Tata', logo: '/img/tata.webp' },
-          { name: 'Renault', logo: '/img/renault.webp' },
-          { name: 'Kia', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSP_u8Wi6qwILgnAKXw6gW127b4ZKqPzw6rXw&s' },
-          { name: 'Ford', logo: '/img/Fored.webp' },
-          { name: 'Volkswagen', logo: '/img/Volkswagen_logo.webp' },
-          { name: 'Mahindra', logo: '/img/mahindra.webp' },
-          { name: 'BMW', logo: '/img/bmw.png' },
-          { name: 'Mercedes', logo: '/img/mercedes-benz.webp' },
-        ];
+        const safeBrandList = Array.isArray(brandList) ? brandList : [];
+        const safeCountList = Array.isArray(countList) ? countList : [];
 
         // 1. Map static popular brands with live counts
-        const mergedStatic = STATIC_BRANDS.map(b => {
-          const foundCount = countList.find(c => c.name.toLowerCase() === b.name.toLowerCase());
+        const mergedStatic = STATIC_POPULAR_BRANDS.map(b => {
+          const foundCount = safeCountList.find(c => c && c.name && c.name.toLowerCase() === b.name.toLowerCase());
           return {
             name: b.name,
             count: foundCount ? foundCount.count : 0,
@@ -1036,20 +1039,23 @@ const NewHome = () => {
           };
         });
 
-        // 2. Map any additional brands from brandList not in STATIC_BRANDS
-        const additionalMerged = brandList
-          .filter(brandItem => !STATIC_BRANDS.some(b => b.name.toLowerCase() === brandItem.name.toLowerCase()))
+        // 2. Map any additional brands from brandList not in STATIC_POPULAR_BRANDS
+        const additionalMerged = safeBrandList
+          .filter(brandItem => brandItem && brandItem.name && !STATIC_POPULAR_BRANDS.some(b => b.name.toLowerCase() === brandItem.name.toLowerCase()))
           .map(brandItem => {
-            const foundCount = countList.find(c => c.name.toLowerCase() === brandItem.name.toLowerCase());
+            const foundCount = safeCountList.find(c => c && c.name && c.name.toLowerCase() === brandItem.name.toLowerCase());
             return {
               name: brandItem.name,
               count: foundCount ? foundCount.count : 0,
-              logo: brandItem.logo_url?.startsWith('/') ? `${API_URL}${brandItem.logo_url}` : brandItem.logo_url
+              logo: brandItem.logo_url?.startsWith('/') ? `${API_URL}${brandItem.logo_url}` : (brandItem.logo_url || '')
             };
-          });
+          })
+          .filter(b => b.logo);
 
         const merged = [...mergedStatic, ...additionalMerged];
-        setBrands(merged);
+        if (merged.length > 0) {
+          setBrands(merged);
+        }
         setLoadingBrands(false);
       })
       .catch(err => {

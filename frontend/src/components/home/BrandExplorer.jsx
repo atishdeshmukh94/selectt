@@ -8,7 +8,7 @@ const staticBrands = [
   { name: 'Honda', logo: '/img/honda.webp' },
   { name: 'Tata', logo: '/img/tata.webp' },
   { name: 'Renault', logo: '/img/renault.webp' },
-  { name: 'Kia', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSP_u8Wi6qwILgnAKXw6gW127b4ZKqPzw6rXw&s', isUrl: true },
+  { name: 'Kia', logo: '/img/kia.webp' },
   { name: 'Ford', logo: '/img/Fored.webp' },
   { name: 'Volkswagen', logo: '/img/Volkswagen_logo.webp' },
   { name: 'Mahindra', logo: '/img/mahindra.webp' },
@@ -27,10 +27,12 @@ const BrandExplorer = () => {
     const fetchCounts = async () => {
       try {
         const response = await fetch(`${API_URL}/api/car-counts-by-brand`);
+        if (!response.ok) return;
         const data = await response.json();
+        const safeData = Array.isArray(data) ? data : [];
 
         const updatedBrands = staticBrands.map(brand => {
-          const found = data.find(d => d.name.toLowerCase() === brand.name.toLowerCase());
+          const found = safeData.find(d => d && d.name && d.name.toLowerCase() === brand.name.toLowerCase());
           return {
             ...brand,
             count: found ? `${found.count} cars` : '0 cars'

@@ -7413,31 +7413,41 @@ app.delete('/api/admin/blog/tags/:id', authMiddleware, isAdmin, (req, res) => {
 
 // Public: Get all brands with their models and variants
 app.get('/api/brands', (req, res) => {
-    db.query('SELECT * FROM brands ORDER BY order_index ASC, id ASC', (err, brands) => {
-        if (err) return res.status(500).json({ error: err.message });
-        
-        db.query('SELECT * FROM models ORDER BY id ASC', (err, models) => {
-            if (err) return res.status(500).json({ error: err.message });
+    const fetchBrandsQuery = (query) => {
+        db.query(query, (err, brands) => {
+            if (err) {
+                if (query.includes('order_index')) {
+                    return fetchBrandsQuery('SELECT * FROM brands ORDER BY id ASC');
+                }
+                return res.status(500).json({ error: err.message });
+            }
             
-            db.query('SELECT * FROM variants ORDER BY id ASC', (err, variants) => {
-                const varList = err ? [] : (variants || []);
-                const brandsWithModels = brands.map(b => ({
-                    id: b.id,
-                    name: b.name,
-                    logo_url: b.logo_url,
-                    order_index: b.order_index != null ? b.order_index : 0,
-                    models: models.filter(m => m.brand_id === b.id).map(m => ({
-                        id: m.id,
-                        brand_id: m.brand_id,
-                        name: m.name,
-                        variants: varList.filter(v => v.model_id === m.id).map(v => ({ id: v.id, model_id: v.model_id, name: v.name }))
-                    }))
-                }));
+            db.query('SELECT * FROM models ORDER BY id ASC', (err, models) => {
+                if (err) return res.status(500).json({ error: err.message });
                 
-                res.json(brandsWithModels);
+                db.query('SELECT * FROM variants ORDER BY id ASC', (err, variants) => {
+                    const varList = err ? [] : (variants || []);
+                    const modelList = models || [];
+                    const brandsWithModels = (brands || []).map(b => ({
+                        id: b.id,
+                        name: b.name,
+                        logo_url: b.logo_url,
+                        order_index: b.order_index != null ? b.order_index : 0,
+                        models: modelList.filter(m => m.brand_id === b.id).map(m => ({
+                            id: m.id,
+                            brand_id: m.brand_id,
+                            name: m.name,
+                            variants: varList.filter(v => v.model_id === m.id).map(v => ({ id: v.id, model_id: v.model_id, name: v.name }))
+                        }))
+                    }));
+                    
+                    res.json(brandsWithModels);
+                });
             });
         });
-    });
+    };
+
+    fetchBrandsQuery('SELECT * FROM brands ORDER BY order_index ASC, id ASC');
 });
 
 // Admin: Reorder brands (drag & drop reorder)
