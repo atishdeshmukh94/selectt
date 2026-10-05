@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import { ChevronRight } from 'lucide-react';
 
 const BUDGET_OPTIONS = [
@@ -56,22 +56,6 @@ const BODY_TYPES = [
 ];
 
 const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) => {
-  const [isStickyVisible, setIsStickyVisible] = useState(false);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      // When the top section has scrolled up past the mobile header (56px)
-      setIsStickyVisible(rect.bottom < 56);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   // Real dynamic count calculations with fallback to default UI numbers
   const getCarCount = (opt) => {
     if (!Array.isArray(allCars) || allCars.length === 0) return `${opt.defaultCount} Cars`;
@@ -95,8 +79,7 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
     setTimeout(() => {
       const resultsEl = document.getElementById('cars-results-list');
       if (resultsEl) {
-        // Offset for 56px header + 72px sticky bar when sticky
-        const yOffset = isStickyVisible ? -135 : -65;
+        const yOffset = -65;
         const y = resultsEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
       }
@@ -167,8 +150,7 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
   };
 
   return (
-    <>
-      <div ref={containerRef} className="block md:hidden mb-5 text-left w-full max-w-full">
+    <div className="block md:hidden mb-5 text-left w-full max-w-full">
         {/* ── Budget Section Heading ── */}
         <h2 className="text-[17px] font-extrabold text-[#0C1B33] tracking-tight mb-3">
           What&apos;s your budget?
@@ -269,63 +251,7 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
           </div>
         </div>
       </div>
-
-      {/* ── Compact Sticky Filter Bar (Pins to Top on Scroll Down) ── */}
-      {isStickyVisible && (
-        <div className="md:hidden fixed top-14 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm px-3 py-2 transition-all">
-          <div className="max-w-md mx-auto space-y-1.5">
-            {/* Row 1: Budget Range Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0 mr-1">
-                Budget:
-              </span>
-              {BUDGET_OPTIONS.map((opt) => {
-                const active = isBudgetActive(opt);
-                return (
-                  <button
-                    key={`sticky-${opt.id}`}
-                    onClick={() => handleBudgetClick(opt)}
-                    type="button"
-                    className={`px-3 py-1 rounded-full text-[11.5px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
-                      active
-                        ? 'bg-[#00C9AF] text-[#0C1B33] font-black shadow-xs ring-1 ring-[#00C9AF]'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Row 2: Body Types */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-0.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0 mr-1">
-                Type:
-              </span>
-              {BODY_TYPES.map((bt) => {
-                const active = isBodyTypeActive(bt);
-                return (
-                  <button
-                    key={`sticky-${bt}`}
-                    onClick={() => handleBodyTypeClick(bt)}
-                    type="button"
-                    className={`px-3 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
-                      active
-                        ? 'bg-[#0C1B33] text-[#00C9AF] font-black shadow-xs'
-                        : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    {bt}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-};
+    );
+  };
 
 export default MobileBudgetAndBodySection;
