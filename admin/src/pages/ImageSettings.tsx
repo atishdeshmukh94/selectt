@@ -276,12 +276,22 @@ interface ImageSlotConfig {
 // 1. BRAND LOGOS & IDENTITY
 const BRANDING_SLOTS: ImageSlotConfig[] = [
   {
-    key: "header_logo",
+    key: "frontend_header_logo",
     type: "site_setting",
-    title: "Header Main Logo (Dark Navy Navbar)",
-    placement: "Main Website Top Navigation Bar",
-    recommendedSize: "240 × 60 px PNG / SVG",
-    description: "Primary brand logo displayed in the top header on desktop and mobile screens.",
+    title: "Frontend Header Main Logo (Dark Navbar)",
+    placement: "Main Website Top Navigation Bar (Desktop & Mobile)",
+    recommendedSize: "240 × 60 px PNG / SVG (Transparent)",
+    description: "Primary brand logo displayed in the top navbar across all user-facing website pages.",
+    defaultPlaceholder: "https://selectt.in/img/light-logo.svg",
+    isDarkBackground: true,
+  },
+  {
+    key: "frontend_footer_logo",
+    type: "site_setting",
+    title: "Frontend Footer Logo",
+    placement: "Main Website Bottom Footer Section",
+    recommendedSize: "240 × 60 px PNG / SVG (Transparent)",
+    description: "Brand logo displayed in the website footer navigation area.",
     defaultPlaceholder: "https://selectt.in/img/light-logo.svg",
     isDarkBackground: true,
   },
@@ -289,19 +299,28 @@ const BRANDING_SLOTS: ImageSlotConfig[] = [
     key: "header_logo_light",
     type: "site_setting",
     title: "Header Light / Contrast Logo",
-    placement: "Light Background Header Mode",
+    placement: "Light Background Header Mode & Checkout Page",
     recommendedSize: "240 × 60 px PNG / SVG",
-    description: "Alternative dark contrast brand logo for light mode backgrounds and white headers.",
+    description: "Alternative dark-text brand logo for white / light header modes and checkout page.",
     defaultPlaceholder: "https://selectt.in/img/dark-logo.svg",
     isDarkBackground: false,
+  },
+  {
+    key: "og_image",
+    type: "site_setting",
+    title: "WhatsApp & Social Share Preview (OG Image)",
+    placement: "Social Media, WhatsApp, Facebook & Twitter Link Cards",
+    recommendedSize: "1200 × 630 px (1.91:1 Aspect Ratio)",
+    description: "Rich preview banner image generated when website URLs are shared on WhatsApp, Facebook, iMessage, and Twitter.",
+    defaultPlaceholder: "https://selectt.in/img/og-image.jpg",
   },
   {
     key: "admin_logo_icon",
     type: "site_setting",
     title: "Browser Favicon & PWA App Icon",
-    placement: "Browser Tab, Mobile Home Screen & Bookmarks",
+    placement: "Browser Tab, Bookmarks Bar & Mobile PWA Home Icon",
     recommendedSize: "64 × 64 px or 192 × 192 px PNG / ICO",
-    description: "App icon visible in browser tabs, address bars, and install dialogs.",
+    description: "Icon displayed in browser tabs, address bars, bookmarks, and mobile shortcut icons.",
     defaultPlaceholder: "https://selectt.in/favicon.png",
   },
   {
@@ -314,6 +333,25 @@ const BRANDING_SLOTS: ImageSlotConfig[] = [
     defaultPlaceholder: "https://selectt.in/img/dark-logo.svg",
   },
   {
+    key: "admin_logo",
+    type: "site_setting",
+    title: "Admin Panel Logo (Light Sidebar)",
+    placement: "Admin Management Console Navigation Sidebar",
+    recommendedSize: "240 × 60 px PNG / SVG",
+    description: "Logo shown in the top-left of the admin management console in light theme.",
+    defaultPlaceholder: "https://selectt.in/img/dark-logo.svg",
+  },
+  {
+    key: "admin_logo_dark",
+    type: "site_setting",
+    title: "Admin Panel Logo (Dark Sidebar)",
+    placement: "Admin Management Console Sidebar (Dark Theme)",
+    recommendedSize: "240 × 60 px PNG / SVG",
+    description: "Logo shown in the top-left of the admin management console when dark theme is enabled.",
+    defaultPlaceholder: "https://selectt.in/img/light-logo.svg",
+    isDarkBackground: true,
+  },
+  {
     key: "login_modal_banner",
     type: "site_setting",
     title: "Login / Signup Modal Left Side Illustration",
@@ -321,24 +359,6 @@ const BRANDING_SLOTS: ImageSlotConfig[] = [
     recommendedSize: "450 × 535 px (5:6)",
     description: "Visual banner illustration displayed on the left side of customer login and signup popup modal.",
     defaultPlaceholder: "https://selectt.in/login-banner-left-sdie.png",
-  },
-  {
-    key: "admin_logo",
-    type: "site_setting",
-    title: "Admin Panel Logo (Light Sidebar)",
-    placement: "Admin Portal Navigation Sidebar",
-    recommendedSize: "240 × 60 px PNG / SVG",
-    description: "Logo shown in the top-left of the admin management console.",
-    defaultPlaceholder: "https://selectt.in/img/dark-logo.svg",
-  },
-  {
-    key: "og_image",
-    type: "site_setting",
-    title: "WhatsApp & Social Share Preview (OpenGraph)",
-    placement: "Social Media & WhatsApp Link Cards",
-    recommendedSize: "1200 × 630 px (1.91:1)",
-    description: "Rich preview image shown when website URLs are shared on WhatsApp, Facebook, or Twitter.",
-    defaultPlaceholder: "https://selectt.in/img/og-image.jpg",
   },
 ];
 
@@ -489,13 +509,13 @@ const CAR_DETAILS_SLOTS: ImageSlotConfig[] = [
   },
 ];
 
-type ActiveTabType = "step-sliders" | "mobile-hero" | "buy-cars" | "home-sell" | "car-details" | "branding";
+type ActiveTabType = "branding" | "mobile-hero" | "step-sliders" | "buy-cars" | "home-sell" | "car-details";
 
 export default function ImageSettings() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = (searchParams.get("tab") as ActiveTabType) || "step-sliders";
+  const initialTab = (searchParams.get("tab") as ActiveTabType) || "branding";
   const [activeTab, setActiveTab] = useState<ActiveTabType>(
-    ["step-sliders", "mobile-hero", "buy-cars", "home-sell", "car-details", "branding"].includes(initialTab) ? initialTab : "step-sliders"
+    ["branding", "mobile-hero", "step-sliders", "buy-cars", "home-sell", "car-details"].includes(initialTab) ? initialTab : "branding"
   );
 
   const [stepSubTab, setStepSubTab] = useState<"sell" | "buy">("sell");
@@ -781,6 +801,12 @@ export default function ImageSettings() {
         }
       } else {
         formData.append(key, file);
+        if (key === "frontend_header_logo") {
+          formData.append("header_logo", file);
+        }
+        if (key === "frontend_footer_logo") {
+          formData.append("footer_logo", file);
+        }
 
         const res = await fetch(`${API}/api/settings/upload`, {
           method: "POST",
@@ -960,6 +986,12 @@ export default function ImageSettings() {
     if (slot.type === "site_content") {
       return siteContent[slot.key] || slot.defaultPlaceholder;
     }
+    if (slot.key === "frontend_header_logo") {
+      return siteSettings.frontend_header_logo || siteSettings.header_logo || slot.defaultPlaceholder;
+    }
+    if (slot.key === "frontend_footer_logo") {
+      return siteSettings.frontend_footer_logo || siteSettings.footer_logo || slot.defaultPlaceholder;
+    }
     return siteSettings[slot.key] || slot.defaultPlaceholder;
   };
 
@@ -1028,14 +1060,14 @@ export default function ImageSettings() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 border-b border-gray-200 dark:border-gray-800 scrollbar-none">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 border-b border-gray-200 dark:border-gray-800 scrollbar-thin">
           {[
-            { id: "step-sliders", label: "🔄 Step-by-Step Sliders (Buy & Sell)", count: 8 },
+            { id: "branding", label: "🎨 Brand Logos & OG Image", count: BRANDING_SLOTS.length },
             { id: "mobile-hero", label: "📱 Mobile Hero (3 Slides & Texts)", count: 3 },
+            { id: "step-sliders", label: "🔄 Step-by-Step Sliders (Buy & Sell)", count: 8 },
             { id: "buy-cars", label: "🚗 Buy Cars Page Banners", count: BUY_CARS_SLOTS.length },
             { id: "home-sell", label: "🏠 Home Features & Badges", count: HOME_SELL_SLOTS.length },
             { id: "car-details", label: "📄 Car Details Page Visuals", count: CAR_DETAILS_SLOTS.length },
-            { id: "branding", label: "🎨 Brand Logos & Identity", count: BRANDING_SLOTS.length },
           ].map((tab) => (
             <button
               key={tab.id}
