@@ -19,6 +19,7 @@ import {
   Eye,
   ChevronRight,
   Flame,
+  Pencil,
   X
 } from "lucide-react";
 
@@ -31,6 +32,7 @@ interface BookingConfig {
   booking_special_subtext: string;
   booking_special_learn_more: string;
   booking_standard_title: string;
+  booking_standard_amount: string;
   booking_standard_hold_days: string;
   booking_standard_learn_more: string;
 }
@@ -44,6 +46,7 @@ const defaultBookingConfig: BookingConfig = {
   booking_special_subtext: "Car held for you till Sun, 11 Oct",
   booking_special_learn_more: "Guaranteed vehicle reservation with extended festival holding period. 100% refundable token deposit with priority inspection & delivery.",
   booking_standard_title: "Standard booking",
+  booking_standard_amount: "11000",
   booking_standard_hold_days: "3",
   booking_standard_learn_more: "Standard 3-day holding period to complete vehicle inspection and paperwork. 100% refundable token deposit."
 };
@@ -52,6 +55,7 @@ const BookingSettings: React.FC = () => {
   const [config, setConfig] = useState<BookingConfig>(defaultBookingConfig);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [previewPlan, setPreviewPlan] = useState<"special" | "standard">("special");
   const [previewModal, setPreviewModal] = useState<"special" | "standard" | null>(null);
 
@@ -62,7 +66,7 @@ const BookingSettings: React.FC = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/api/settings/public`);
+      const res = await fetch(`${API_URL}/api/settings/public?_t=${Date.now()}`);
       if (res.ok) {
         const data = await res.json();
         setConfig(prev => ({
@@ -70,12 +74,13 @@ const BookingSettings: React.FC = () => {
           booking_special_enabled: data.booking_special_enabled !== undefined ? String(data.booking_special_enabled) : prev.booking_special_enabled,
           booking_special_badge: data.booking_special_badge || prev.booking_special_badge,
           booking_special_title: data.booking_special_title || prev.booking_special_title,
-          booking_special_amount: data.booking_special_amount || prev.booking_special_amount,
+          booking_special_amount: data.booking_special_amount ? String(data.booking_special_amount) : prev.booking_special_amount,
           booking_special_date: data.booking_special_date || prev.booking_special_date,
           booking_special_subtext: data.booking_special_subtext || prev.booking_special_subtext,
           booking_special_learn_more: data.booking_special_learn_more || prev.booking_special_learn_more,
           booking_standard_title: data.booking_standard_title || prev.booking_standard_title,
-          booking_standard_hold_days: data.booking_standard_hold_days || prev.booking_standard_hold_days,
+          booking_standard_amount: data.booking_standard_amount ? String(data.booking_standard_amount) : prev.booking_standard_amount,
+          booking_standard_hold_days: data.booking_standard_hold_days ? String(data.booking_standard_hold_days) : prev.booking_standard_hold_days,
           booking_standard_learn_more: data.booking_standard_learn_more || prev.booking_standard_learn_more,
         }));
       }
@@ -91,18 +96,26 @@ const BookingSettings: React.FC = () => {
     if (e) e.preventDefault();
     setSaving(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Admin session not found. Please log in again.");
+      }
       const res = await fetch(`${API_URL}/api/settings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(config)
       });
 
-      if (!res.ok) throw new Error("Failed to save settings");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || data.message || `Failed to save (Status ${res.status})`);
+      }
+
       toast.success("Booking settings saved & updated on Checkout page!");
+      setShowSuccessPopup(true);
     } catch (err: any) {
       console.error(err);
       toast.error(err.message || "Error saving booking settings");
@@ -122,6 +135,29 @@ const BookingSettings: React.FC = () => {
     const d = new Date();
     d.setDate(d.getDate() + (Number(days) || 3));
     return d.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" });
+  };
+
+  const festivalTitle = config.booking_special_title || "Reserve till Navratri";
+  const festivalName = festivalTitle
+    .replace(/^Reserve till /i, '')
+    .replace(/ Special$/i, '')
+    .trim() || 'Navratri';
+
+  const getPaperworkDate = (dateStr: string) => {
+    if (!dateStr) return 'Sat, 10 Oct';
+    try {
+      const parts = dateStr.includes(',') ? dateStr.split(',')[1].trim() : dateStr.trim();
+      const currentYear = new Date().getFullYear();
+      const parsed = new Date(`${parts} ${currentYear}`);
+      if (!isNaN(parsed.getTime())) {
+        parsed.setDate(parsed.getDate() - 1);
+        const dayName = parsed.toLocaleDateString('en-US', { weekday: 'short' });
+        const dayNum = parsed.getDate();
+        const monthName = parsed.toLocaleDateString('en-US', { month: 'short' });
+        return `${dayName}, ${dayNum} ${monthName}`;
+      }
+    } catch (e) {}
+    return '1 day before delivery';
   };
 
   const isSpecialActive = config.booking_special_enabled === "true";
@@ -293,7 +329,7 @@ const BookingSettings: React.FC = () => {
               {/* Card 2: Standard Booking Plan */}
               <ComponentCard title="Standard Booking Plan">
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <Label>Standard Plan Title</Label>
                       <Input
@@ -301,6 +337,15 @@ const BookingSettings: React.FC = () => {
                         value={config.booking_standard_title}
                         onChange={e => setConfig({ ...config, booking_standard_title: e.target.value })}
                         placeholder="Standard booking"
+                      />
+                    </div>
+                    <div>
+                      <Label>Standard Amount (₹)</Label>
+                      <Input
+                        type="number"
+                        value={config.booking_standard_amount || "11000"}
+                        onChange={e => setConfig({ ...config, booking_standard_amount: e.target.value })}
+                        placeholder="11000"
                       />
                     </div>
                     <div>
@@ -365,12 +410,12 @@ const BookingSettings: React.FC = () => {
                       onClick={() => setPreviewPlan("special")}
                       className={`relative p-4 sm:p-5 rounded-3xl transition-all cursor-pointer border-2 ${
                         previewPlan === "special"
-                          ? "border-[#7C3AED] bg-[#FAF5FF] shadow-md ring-2 ring-[#7C3AED]/20"
+                          ? "border-[#581C87] bg-[#FFF9F5] shadow-xs ring-2 ring-[#581C87]/10"
                           : "border-slate-200 bg-white hover:border-slate-300 dark:bg-gray-800 dark:border-gray-700"
                       }`}
                     >
                       {/* Pill Badge floating top-left */}
-                      <div className="absolute -top-3 left-4 px-3 py-0.5 rounded-full bg-white dark:bg-gray-800 border border-amber-300 dark:border-amber-600 shadow-xs flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300">
+                      <div className="absolute -top-3 left-4 px-3 py-0.5 rounded-full bg-white dark:bg-gray-800 border border-amber-500/80 shadow-xs flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300">
                         <span>{config.booking_special_badge || "🪔 Navratri Special"}</span>
                       </div>
 
@@ -380,16 +425,16 @@ const BookingSettings: React.FC = () => {
                           <div
                             className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
                               previewPlan === "special"
-                                ? "border-[#7C3AED] bg-white"
+                                ? "border-[#581C87] bg-white"
                                 : "border-slate-300 bg-white dark:bg-gray-800 dark:border-gray-600"
                             }`}
                           >
                             {previewPlan === "special" && (
-                              <div className="w-2.5 h-2.5 rounded-full bg-[#7C3AED]" />
+                              <div className="w-2.5 h-2.5 rounded-full bg-[#581C87]" />
                             )}
                           </div>
                           <div>
-                            <h4 className="font-extrabold text-[#0C1B33] dark:text-white text-sm sm:text-base leading-tight">
+                            <h4 className="font-extrabold text-[#2E0249] dark:text-purple-300 text-sm sm:text-base leading-tight">
                               {config.booking_special_title || "Reserve till Navratri"}
                             </h4>
                             <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 font-medium">
@@ -401,15 +446,15 @@ const BookingSettings: React.FC = () => {
                                 e.stopPropagation();
                                 setPreviewModal("special");
                               }}
-                              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#7C3AED] hover:underline mt-2 cursor-pointer"
+                              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#581C87] hover:underline mt-2 cursor-pointer"
                             >
-                              <Info size={13} />
+                              <Info size={13} className="text-[#581C87]" />
                               <span>Learn more</span>
                             </button>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="font-extrabold text-base sm:text-lg text-[#0C1B33] dark:text-white font-mono">
+                          <span className="font-extrabold text-base sm:text-lg text-[#2E0249] dark:text-white font-mono">
                             ₹ {Number(config.booking_special_amount || 25000).toLocaleString("en-IN")}
                           </span>
                         </div>
@@ -422,7 +467,7 @@ const BookingSettings: React.FC = () => {
                     onClick={() => setPreviewPlan("standard")}
                     className={`p-4 sm:p-5 rounded-3xl transition-all cursor-pointer border-2 ${
                       previewPlan === "standard"
-                        ? "border-[#00C9AF] bg-[#00C9AF]/5 shadow-md ring-2 ring-[#00C9AF]/20"
+                        ? "border-[#581C87] bg-[#FAF5FF]/30 shadow-xs"
                         : "border-slate-200 bg-white hover:border-slate-300 dark:bg-gray-800 dark:border-gray-700"
                     }`}
                   >
@@ -432,12 +477,12 @@ const BookingSettings: React.FC = () => {
                         <div
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
                             previewPlan === "standard"
-                              ? "border-[#00C9AF] bg-white"
+                              ? "border-[#581C87] bg-white"
                               : "border-slate-300 bg-white dark:bg-gray-800 dark:border-gray-600"
                           }`}
                         >
                           {previewPlan === "standard" && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-[#00C9AF]" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#581C87]" />
                           )}
                         </div>
                         <div>
@@ -453,16 +498,17 @@ const BookingSettings: React.FC = () => {
                               e.stopPropagation();
                               setPreviewModal("standard");
                             }}
-                            className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 dark:text-gray-400 hover:text-[#00C9AF] hover:underline mt-2 cursor-pointer"
+                            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#581C87] hover:underline mt-2 cursor-pointer"
                           >
-                            <Info size={13} />
+                            <Info size={13} className="text-[#581C87]" />
                             <span>Learn more</span>
                           </button>
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="font-extrabold text-base sm:text-lg text-[#0C1B33] dark:text-white font-mono">
-                          ₹ 11,000
+                        <span className="font-extrabold text-base sm:text-lg text-[#0C1B33] dark:text-white font-mono inline-flex items-center gap-1.5">
+                          <span>₹ {Number(config.booking_standard_amount || 11000).toLocaleString("en-IN")}</span>
+                          <Pencil size={12} className="text-[#581C87]" />
                         </span>
                       </div>
                     </div>
@@ -474,7 +520,7 @@ const BookingSettings: React.FC = () => {
                     <span className="text-sm font-black font-mono">
                       ₹ {previewPlan === "special" && isSpecialActive
                         ? Number(config.booking_special_amount || 25000).toLocaleString("en-IN")
-                        : "11,000"}
+                        : Number(config.booking_standard_amount || 11000).toLocaleString("en-IN")}
                     </span>
                   </div>
                 </div>
@@ -484,41 +530,168 @@ const BookingSettings: React.FC = () => {
         )}
       </div>
 
-      {/* Learn More Modal Preview */}
+      {/* Learn More Modal Preview (Matching Reference Screenshots 1 & 2) */}
       {previewModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center">
-                  <Info size={18} />
-                </div>
-                <h3 className="text-base font-black text-gray-900 dark:text-white">
-                  {previewModal === "special" ? config.booking_special_title : config.booking_standard_title}
-                </h3>
-              </div>
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+          onClick={() => setPreviewModal(null)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200 relative overflow-hidden text-slate-800"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+              <h3 className="text-base sm:text-lg font-black text-[#2E0249] tracking-tight">
+                {previewModal === "special"
+                  ? `How ${festivalName} reservation works`
+                  : "Selectt Satisfaction Assurance"}
+              </h3>
               <button
+                type="button"
                 onClick={() => setPreviewModal(null)}
-                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-900 flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 flex items-center justify-center cursor-pointer transition-colors"
+                aria-label="Close"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
-            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-5">
-              {previewModal === "special" ? config.booking_special_learn_more : config.booking_standard_learn_more}
-            </p>
+            {/* Modal Body: Special Festival Stepper (Screenshot 1) */}
+            {previewModal === "special" ? (
+              <div className="py-6 px-1 space-y-6">
+                {/* Step 1 */}
+                <div className="relative flex items-start gap-4">
+                  <div className="relative flex flex-col items-center">
+                    <div className="w-7 h-7 rounded-full bg-[#FAF5FF] border border-[#D8B4FE] text-[#6B21A8] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
+                      1
+                    </div>
+                    <div className="w-[1.5px] bg-[#E9D5FF] absolute top-7 bottom-[-24px] left-1/2 -translate-x-1/2 z-0" />
+                  </div>
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <h4 className="text-sm sm:text-[15px] font-bold text-[#1E1B4B]">
+                      Pay ₹{Number(config.booking_special_amount || 25000).toLocaleString("en-IN")} to book
+                    </h4>
+                    <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5 leading-relaxed font-normal">
+                      The car is taken off the website and held only for you till {config.booking_special_date || "Sun, 11 Oct"}.
+                    </p>
+                  </div>
+                </div>
 
-            <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 font-bold flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-              <span>100% Refundable Token Deposit anytime prior to delivery</span>
+                {/* Step 2 */}
+                <div className="relative flex items-start gap-4">
+                  <div className="relative flex flex-col items-center">
+                    <div className="w-7 h-7 rounded-full bg-[#FAF5FF] border border-[#D8B4FE] text-[#6B21A8] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
+                      2
+                    </div>
+                    <div className="w-[1.5px] bg-[#E9D5FF] absolute top-7 bottom-[-24px] left-1/2 -translate-x-1/2 z-0" />
+                  </div>
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <h4 className="text-sm sm:text-[15px] font-bold text-[#1E1B4B]">
+                      Finish paperwork before {festivalName}
+                    </h4>
+                    <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5 leading-relaxed font-normal">
+                      Upload RC documents, get your loan approved and pay the balance by {getPaperworkDate(config.booking_special_date)}.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="relative flex items-start gap-4">
+                  <div className="relative flex flex-col items-center">
+                    <div className="w-7 h-7 rounded-full bg-[#FAF5FF] border border-[#D8B4FE] text-[#6B21A8] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
+                      3
+                    </div>
+                  </div>
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <h4 className="text-sm sm:text-[15px] font-bold text-[#1E1B4B]">
+                      Drive home on {festivalName}
+                    </h4>
+                    <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5 leading-relaxed font-normal">
+                      Take delivery on {config.booking_special_date || "Sun, 11 Oct"}. We will call you to fix the time.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Modal Body: Standard Assurance (Screenshot 2) */
+              <div className="py-5 space-y-3.5 text-xs sm:text-[13.5px] text-[#2E0249] leading-relaxed">
+                <p>
+                  Placing a booking deposit allows us to reserve this car exclusively for you, for a total of {config.booking_standard_hold_days || 3} days. Use this time to freely decide if the car is your perfect fit.
+                </p>
+                <p>
+                  If you’re not 100% satisfied with the car, we’ll refund your entire booking amount no-questions-asked.
+                </p>
+              </div>
+            )}
+
+            {/* Shared Callout Box (Screenshot 1 & 2) */}
+            <div className="bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-4 sm:p-5 space-y-2 text-xs sm:text-[13px] leading-relaxed">
+              <p className="text-slate-600">
+                <strong className="font-bold text-[#1E1B4B]">100% refundable</strong>{" "}
+                Cancel any time before delivery and get the full amount back. No questions asked.
+              </p>
+              <p className="text-slate-600">
+                <strong className="font-bold text-[#1E1B4B]">Not an extra charge</strong>{" "}
+                The ₹{(previewModal === "special" ? Number(config.booking_special_amount || 25000) : Number(config.booking_standard_amount || 11000)).toLocaleString("en-IN")} is part of your car price. Think of it as a down payment on your car.
+              </p>
             </div>
 
+            {/* Bottom Full-Width "Got it" Button (Royal Purple) */}
             <button
+              type="button"
               onClick={() => setPreviewModal(null)}
-              className="w-full mt-5 py-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold cursor-pointer transition-colors"
+              className="w-full mt-5 py-3.5 rounded-xl bg-[#581C87] hover:bg-[#4A1472] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-md shadow-[#581C87]/20 transition-all cursor-pointer text-center"
             >
               Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Save Success Popup Modal */}
+      {showSuccessPopup && (
+        <div
+          className="fixed inset-0 z-[999999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setShowSuccessPopup(false)}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-gray-100 dark:border-gray-700 animate-in zoom-in-95 duration-200 relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+              <CheckCircle2 size={36} />
+            </div>
+            <h3 className="text-lg font-black text-gray-900 dark:text-white">
+              Data Saved Successfully!
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+              Booking settings have been successfully updated in the database and are now live on the customer checkout page.
+            </p>
+            <div className="mt-4 p-3 bg-slate-50 dark:bg-gray-900/60 rounded-xl text-left text-xs space-y-1.5 border border-slate-100 dark:border-gray-700 font-sans text-slate-700 dark:text-gray-300">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">Badge Tag:</span>
+                <span className="font-bold text-amber-700">{config.booking_special_badge}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">Special Amount:</span>
+                <span className="font-bold font-mono">₹{Number(config.booking_special_amount || 25000).toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">Special Date:</span>
+                <span className="font-bold">{config.booking_special_date}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">Standard Plan:</span>
+                <span className="font-bold">{config.booking_standard_title} (₹{Number(config.booking_standard_amount || 11000).toLocaleString('en-IN')})</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowSuccessPopup(false)}
+              className="w-full mt-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-sm shadow-md shadow-emerald-600/25 transition-all cursor-pointer"
+            >
+              Done / Got it
             </button>
           </div>
         </div>

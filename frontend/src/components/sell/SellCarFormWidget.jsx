@@ -784,7 +784,7 @@ const MAKES_AND_MODELS = {
 const VALUATION_MAKES_AND_MODELS = MAKES_AND_MODELS;
 
 const currentYear = Math.max(new Date().getFullYear(), 2026);
-const minAcceptedYear = currentYear - 11; // 2015 for 2026, 2016 for 2027
+const minAcceptedYear = 2020; // Maximum back to 2020 only, no years below 2020
 const YEARS = Array.from({ length: currentYear - minAcceptedYear + 1 }, (_, i) => currentYear - i);
 
 const GENERATED_DATES = [

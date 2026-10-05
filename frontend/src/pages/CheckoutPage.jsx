@@ -723,6 +723,29 @@ const CheckoutPage = () => {
     return d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
   };
 
+  const festivalTitle = settings?.booking_special_title || "Reserve till Navratri";
+  const festivalName = festivalTitle
+    .replace(/^Reserve till /i, '')
+    .replace(/ Special$/i, '')
+    .trim() || 'Navratri';
+
+  const getPaperworkDate = (dateStr) => {
+    if (!dateStr) return 'Sat, 10 Oct';
+    try {
+      const parts = dateStr.includes(',') ? dateStr.split(',')[1].trim() : dateStr.trim();
+      const currentYear = new Date().getFullYear();
+      const parsed = new Date(`${parts} ${currentYear}`);
+      if (!isNaN(parsed.getTime())) {
+        parsed.setDate(parsed.getDate() - 1);
+        const dayName = parsed.toLocaleDateString('en-US', { weekday: 'short' });
+        const dayNum = parsed.getDate();
+        const monthName = parsed.toLocaleDateString('en-US', { month: 'short' });
+        return `${dayName}, ${dayNum} ${monthName}`;
+      }
+    } catch (e) {}
+    return '1 day before delivery';
+  };
+
   const activeBookingPlan = isSpecialBookingEnabled ? selectedBookingPlan : 'standard';
   const specialBookingAmount = Number(settings?.booking_special_amount) || 25000;
   const standardBookingAmount = Number(settings?.booking_standard_amount) > 0 ? Number(settings?.booking_standard_amount) : rawBookingAmount;
@@ -1520,12 +1543,12 @@ const CheckoutPage = () => {
                       onClick={() => setSelectedBookingPlan('special')}
                       className={`relative p-4 sm:p-5 rounded-3xl transition-all cursor-pointer border-2 ${
                         activeBookingPlan === 'special'
-                          ? 'border-[#7C3AED] bg-[#FAF5FF] shadow-sm ring-2 ring-[#7C3AED]/15'
+                          ? 'border-[#581C87] bg-[#FFF9F5] shadow-xs'
                           : 'border-slate-200 bg-white hover:border-slate-300'
                       }`}
                     >
                       {/* Pill Badge floating top-left */}
-                      <div className="absolute -top-3.5 left-5 px-3 py-1 rounded-full bg-white border border-amber-300 shadow-xs flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                      <div className="absolute -top-3.5 left-5 px-3 py-1 rounded-full bg-white border border-amber-500/80 shadow-xs flex items-center gap-1.5 text-xs font-bold text-amber-900">
                         <span>{settings?.booking_special_badge || "🪔 Navratri Special"}</span>
                       </div>
 
@@ -1535,16 +1558,16 @@ const CheckoutPage = () => {
                           <div
                             className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
                               activeBookingPlan === 'special'
-                                ? 'border-[#7C3AED] bg-white'
+                                ? 'border-[#581C87] bg-white'
                                 : 'border-slate-300 bg-white'
                             }`}
                           >
                             {activeBookingPlan === 'special' && (
-                              <div className="w-2.5 h-2.5 rounded-full bg-[#7C3AED]" />
+                              <div className="w-2.5 h-2.5 rounded-full bg-[#581C87]" />
                             )}
                           </div>
                           <div>
-                            <h4 className="font-extrabold text-[#0C1B33] text-sm sm:text-base leading-tight">
+                            <h4 className="font-extrabold text-[#2E0249] text-sm sm:text-base leading-tight">
                               {settings?.booking_special_title || "Reserve till Navratri"}
                             </h4>
                             <p className="text-xs sm:text-[13px] text-slate-600 mt-1 font-medium">
@@ -1556,15 +1579,15 @@ const CheckoutPage = () => {
                                 e.stopPropagation();
                                 setBookingLearnMoreModal('special');
                               }}
-                              className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-[#7C3AED] hover:underline mt-2 cursor-pointer"
+                              className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#581C87] hover:underline mt-2 cursor-pointer"
                             >
-                              <Info size={13} />
+                              <Info size={13} className="text-[#581C87]" />
                               <span>Learn more</span>
                             </button>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="font-extrabold font-price text-base sm:text-lg text-[#0C1B33]">
+                          <span className="font-extrabold font-price text-base sm:text-lg text-[#2E0249]">
                             ₹ {specialBookingAmount.toLocaleString('en-IN')}
                           </span>
                         </div>
@@ -1577,7 +1600,7 @@ const CheckoutPage = () => {
                     onClick={() => setSelectedBookingPlan('standard')}
                     className={`p-4 sm:p-5 rounded-3xl transition-all cursor-pointer border-2 ${
                       activeBookingPlan === 'standard'
-                        ? 'border-[#00C9AF] bg-[#00C9AF]/5 shadow-sm ring-2 ring-[#00C9AF]/15'
+                        ? 'border-[#581C87] bg-[#FAF5FF]/30 shadow-xs'
                         : 'border-slate-200 bg-white hover:border-slate-300'
                     }`}
                   >
@@ -1587,12 +1610,12 @@ const CheckoutPage = () => {
                         <div
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
                             activeBookingPlan === 'standard'
-                              ? 'border-[#00C9AF] bg-white'
+                              ? 'border-[#581C87] bg-white'
                               : 'border-slate-300 bg-white'
                           }`}
                         >
                           {activeBookingPlan === 'standard' && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-[#00C9AF]" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#581C87]" />
                           )}
                         </div>
                         <div>
@@ -1608,16 +1631,17 @@ const CheckoutPage = () => {
                               e.stopPropagation();
                               setBookingLearnMoreModal('standard');
                             }}
-                            className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-slate-600 hover:text-[#00C9AF] hover:underline mt-2 cursor-pointer"
+                            className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#581C87] hover:underline mt-2 cursor-pointer"
                           >
-                            <Info size={13} />
+                            <Info size={13} className="text-[#581C87]" />
                             <span>Learn more</span>
                           </button>
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="font-extrabold font-price text-base sm:text-lg text-[#0C1B33]">
-                          ₹ {standardBookingAmount.toLocaleString('en-IN')}
+                        <span className="font-extrabold font-price text-base sm:text-lg text-[#0C1B33] inline-flex items-center gap-1.5">
+                          <span>₹ {standardBookingAmount.toLocaleString('en-IN')}</span>
+                          <Pencil size={12} className="text-[#581C87]" />
                         </span>
                       </div>
                     </div>
@@ -3696,50 +3720,120 @@ const CheckoutPage = () => {
         </div>
       )}
 
-      {/* Learn More Modal for Booking Options */}
+      {/* Learn More Modal for Booking Options (Matching Reference Screenshots 1 & 2) */}
       {bookingLearnMoreModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center">
-                  <Info size={19} />
-                </div>
-                <div>
-                  <h3 className="text-base font-extrabold text-[#0C1B33]">
-                    {bookingLearnMoreModal === 'special'
-                      ? (settings?.booking_special_title || 'Reserve till Navratri')
-                      : (settings?.booking_standard_title || 'Standard booking')}
-                  </h3>
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    {bookingLearnMoreModal === 'special' ? 'Extended Festival Reservation' : 'Standard 3-Day Vehicle Hold'}
-                  </span>
-                </div>
-              </div>
+        <div
+          className="fixed inset-0 z-[100001] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+          onClick={() => setBookingLearnMoreModal(null)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200 relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+              <h3 className="text-base sm:text-lg font-black text-[#2E0249] tracking-tight">
+                {bookingLearnMoreModal === 'special'
+                  ? `How ${festivalName} reservation works`
+                  : 'Selectt Satisfaction Assurance'}
+              </h3>
               <button
+                type="button"
                 onClick={() => setBookingLearnMoreModal(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors"
+                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 flex items-center justify-center cursor-pointer transition-colors"
+                aria-label="Close"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
-            <p className="text-sm text-slate-600 leading-relaxed mb-5">
-              {bookingLearnMoreModal === 'special'
-                ? (settings?.booking_special_learn_more || 'Guaranteed vehicle reservation with extended festival holding period. 100% refundable token deposit with priority inspection & delivery.')
-                : (settings?.booking_standard_learn_more || 'Standard 3-day holding period to complete vehicle inspection and paperwork. 100% refundable token deposit.')}
-            </p>
+            {/* Modal Body: Special Festival Stepper (Screenshot 1) */}
+            {bookingLearnMoreModal === 'special' ? (
+              <div className="py-6 px-1 space-y-6">
+                {/* Step 1 */}
+                <div className="relative flex items-start gap-4">
+                  <div className="relative flex flex-col items-center">
+                    <div className="w-7 h-7 rounded-full bg-[#FAF5FF] border border-[#D8B4FE] text-[#6B21A8] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
+                      1
+                    </div>
+                    <div className="w-[1.5px] bg-[#E9D5FF] absolute top-7 bottom-[-24px] left-1/2 -translate-x-1/2 z-0" />
+                  </div>
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <h4 className="text-sm sm:text-[15px] font-bold text-[#1E1B4B]">
+                      Pay ₹{specialBookingAmount.toLocaleString('en-IN')} to book
+                    </h4>
+                    <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5 leading-relaxed font-normal">
+                      The car is taken off the website and held only for you till {settings?.booking_special_date || 'Sun, 11 Oct'}.
+                    </p>
+                  </div>
+                </div>
 
-            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-xs text-emerald-800 font-bold flex items-center gap-2.5">
-              <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-              <span>100% Refundable Token Deposit anytime prior to delivery</span>
+                {/* Step 2 */}
+                <div className="relative flex items-start gap-4">
+                  <div className="relative flex flex-col items-center">
+                    <div className="w-7 h-7 rounded-full bg-[#FAF5FF] border border-[#D8B4FE] text-[#6B21A8] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
+                      2
+                    </div>
+                    <div className="w-[1.5px] bg-[#E9D5FF] absolute top-7 bottom-[-24px] left-1/2 -translate-x-1/2 z-0" />
+                  </div>
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <h4 className="text-sm sm:text-[15px] font-bold text-[#1E1B4B]">
+                      Finish paperwork before {festivalName}
+                    </h4>
+                    <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5 leading-relaxed font-normal">
+                      Upload RC documents, get your loan approved and pay the balance by {getPaperworkDate(settings?.booking_special_date)}.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="relative flex items-start gap-4">
+                  <div className="relative flex flex-col items-center">
+                    <div className="w-7 h-7 rounded-full bg-[#FAF5FF] border border-[#D8B4FE] text-[#6B21A8] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
+                      3
+                    </div>
+                  </div>
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <h4 className="text-sm sm:text-[15px] font-bold text-[#1E1B4B]">
+                      Drive home on {festivalName}
+                    </h4>
+                    <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5 leading-relaxed font-normal">
+                      Take delivery on {settings?.booking_special_date || 'Sun, 11 Oct'}. We will call you to fix the time.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Modal Body: Standard Assurance (Screenshot 2) */
+              <div className="py-5 space-y-3.5 text-xs sm:text-[13.5px] text-[#2E0249] leading-relaxed">
+                <p>
+                  Placing a booking deposit allows us to reserve this car exclusively for you, for a total of {settings?.booking_standard_hold_days || 3} days. Use this time to freely decide if the car is your perfect fit.
+                </p>
+                <p>
+                  If you’re not 100% satisfied with the car, we’ll refund your entire booking amount no-questions-asked.
+                </p>
+              </div>
+            )}
+
+            {/* Shared Callout Box (Screenshot 1 & 2) */}
+            <div className="bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-4 sm:p-5 space-y-2 text-xs sm:text-[13px] leading-relaxed">
+              <p className="text-slate-600">
+                <strong className="font-bold text-[#1E1B4B]">100% refundable</strong>{' '}
+                Cancel any time before delivery and get the full amount back. No questions asked.
+              </p>
+              <p className="text-slate-600">
+                <strong className="font-bold text-[#1E1B4B]">Not an extra charge</strong>{' '}
+                The ₹{(bookingLearnMoreModal === 'special' ? specialBookingAmount : standardBookingAmount).toLocaleString('en-IN')} is part of your car price. Think of it as a down payment on your car.
+              </p>
             </div>
 
+            {/* Bottom Full-Width "Got it" Button (Royal Purple) */}
             <button
+              type="button"
               onClick={() => setBookingLearnMoreModal(null)}
-              className="w-full mt-5 py-3 rounded-xl bg-[#0C1B33] hover:bg-slate-800 text-white text-xs font-bold cursor-pointer transition-all active:scale-[0.99]"
+              className="w-full mt-5 py-3.5 rounded-xl bg-[#581C87] hover:bg-[#4A1472] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-md shadow-[#581C87]/20 transition-all cursor-pointer text-center"
             >
-              Understood
+              Got it
             </button>
           </div>
         </div>
