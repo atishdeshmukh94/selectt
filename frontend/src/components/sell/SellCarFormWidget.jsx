@@ -28,7 +28,8 @@ import {
   Home,
   Building,
   Globe,
-  Loader2
+  Loader2,
+  Info
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -782,8 +783,9 @@ const MAKES_AND_MODELS = {
 
 const VALUATION_MAKES_AND_MODELS = MAKES_AND_MODELS;
 
-const currentYear = 2026;
-const YEARS = Array.from({ length: currentYear - 2008 + 1 }, (_, i) => currentYear - i);
+const currentYear = Math.max(new Date().getFullYear(), 2026);
+const minAcceptedYear = currentYear - 11; // 2015 for 2026, 2016 for 2027
+const YEARS = Array.from({ length: currentYear - minAcceptedYear + 1 }, (_, i) => currentYear - i);
 
 const GENERATED_DATES = [
   { day: 'Sun', date: '26 Jul', label: 'TODAY', value: '2026-07-26' },
@@ -2121,7 +2123,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                     <h3 className="text-lg font-black text-slate-800 mb-4">Select manufacturing year</h3>
 
                     {/* Years List */}
-                    <div className="divide-y divide-slate-100 max-h-[380px] overflow-y-auto no-scrollbar scrollbar-hide pr-1">
+                    <div className="divide-y divide-slate-100 max-h-[440px] overflow-y-auto no-scrollbar scrollbar-hide pr-1">
                       {YEARS.map((y) => (
                         <button
                           key={y}
@@ -2137,6 +2139,21 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                           <ChevronRight size={18} className="text-slate-400 group-hover:text-[#00C9AF] group-hover:translate-x-1 transition-all" />
                         </button>
                       ))}
+
+                      {/* Notice below the lowest year */}
+                      <div className="mt-4 mb-2 p-3.5 sm:p-4 rounded-2xl bg-amber-50/90 border border-amber-200/90 flex items-start gap-3 text-amber-900 shadow-xs">
+                        <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-300/80 flex items-center justify-center shrink-0 mt-0.5 text-amber-700">
+                          <Info size={18} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                          <p className="text-xs sm:text-sm font-bold text-amber-950">
+                            We do not accept cars manufactured before {minAcceptedYear}
+                          </p>
+                          <p className="text-[11px] sm:text-xs text-amber-800/90 mt-0.5 leading-relaxed">
+                            Selectt currently procures and lists verified vehicles from <strong>{minAcceptedYear} to {currentYear}</strong> only to ensure quality standards and warranty assurance.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
