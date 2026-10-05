@@ -869,30 +869,30 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             sell_car_sold: 'sell_car_sold_out',
 
             // 🛍️ Buy Car & Booking Workflow
-            car_booking: 'car_booking_confirmation_with_pdf',
-            booking_confirmed: 'car_booking_confirmation_with_pdf',
-            car_delivered: 'car_delivered_success',
-            booking_cancelled: 'booking_refund_cancelled',
+            car_booking: 'car_booking_confirmation',
+            booking_confirmed: 'car_booking_confirmation',
+            car_delivered: 'happy_customers_clinch',
+            booking_cancelled: 'try_to_help_you',
 
             // 🏎️ Test Drives
             test_drive: 'schedule_test_drive_confim',
             test_drive_confirmed: 'schedule_test_drive_confim',
-            test_drive_completed: 'test_drive_feedback_request',
+            test_drive_completed: 'visted_sequence_6',
 
             // 🧮 Financial Services & Loans
-            emi_query: 'loan_application_received',
-            loan_approved: 'loan_pre_approved_notice',
-            loan_rejected: 'loan_application_update',
+            emi_query: 'hot_lead_sequence_3_2026',
+            loan_approved: 'hot_lead_sequence_1_2026',
+            loan_rejected: 'try_to_help_you',
 
             // 🛡️ Insurance, Warranty & Challan
-            insurance_query: 'insurance_enquiry_received',
-            warranty_inquiry: 'warranty_plan_enquiry',
-            buyback_inquiry: 'buyback_assurance_enquiry',
-            challan_paid: 'echallan_payment_receipt',
+            insurance_query: 'try_to_help_you',
+            warranty_inquiry: 'sequenceutlity_1',
+            buyback_inquiry: 'try_to_help_you',
+            challan_paid: 'try_to_help_you',
 
             // ❤️ Leads & Engagement
             wishlist: 'price_drop_message',
-            lead_inquiry: 'customer_assistance_callback',
+            lead_inquiry: 'try_to_help_you',
 
             // 🚨 Admin Instant Alerts
             admin_sell_request: 'admin_alert_sell_request',
@@ -930,50 +930,68 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
         const fetchFn = typeof fetch !== 'undefined' ? fetch : globalThis.fetch;
         const url = 'https://server.gallabox.com/devapi/messages/whatsapp';
 
-        // Normalize standard aliases for Gallabox templates (e.g. car_booking_confirmation_with_pdf, schedule_test_drive_confim, customer_got_sell_price_for_their_car)
+        // Normalize standard aliases for Gallabox templates
         const resolvedName = variablesData.name || variablesData.customer_name || variablesData['1'] || 'Customer';
         const resolvedCar = variablesData.Car_Model || variablesData.car_model || variablesData.car_name || variablesData['2'] || 'Vehicle';
-        const resolvedAmount = variablesData.Amount || variablesData.amount || variablesData['3'] || '5000';
-        const resolvedSellAmount = variablesData.Sell_Amount || variablesData.sell_amount || resolvedAmount || '';
+        const numAmount = String(variablesData.Amount || variablesData.amount || variablesData['3'] || '5000').replace(/[^0-9]/g, '') || '5000';
+        const formattedAmount = `₹${Number(numAmount).toLocaleString('en-IN')}`;
+        const resolvedSellAmount = variablesData.Sell_Amount || variablesData.sell_amount || formattedAmount;
         const resolvedBookingId = variablesData.booking_id || variablesData['booking_id'] || '#BK-448351';
         const resolvedReceiptLink = variablesData.receipt_link || variablesData['receipt_link'] || 'https://api.selectt.in/api/bookings/19/receipt';
-        const resolvedCarUrl = variablesData.car_url || variablesData['car_url'] || 'https://selectt.in/car/40';
+        const resolvedCarUrl = variablesData.car_url || variablesData['car_url'] || 'https://selectt.in/inventory';
         const resolvedDateSlot = variablesData.date_slot || variablesData['date_slot'] || 'Tomorrow | 04:00 PM';
         const resolvedLocation = variablesData.location || variablesData['location'] || 'Selectt Hub, Borivali West';
 
-        const mergedVars = {
-            customer_name: resolvedName,
-            name: resolvedName,
-            Name: resolvedName,
-            Car_Model: resolvedCar,
-            car_model: resolvedCar,
-            car_name: resolvedCar,
-            Amount: String(resolvedAmount).replace(/[^0-9]/g, '') || '5000',
-            amount: String(resolvedAmount).replace(/[^0-9]/g, '') || '5000',
-            booking_id: resolvedBookingId,
-            receipt_link: resolvedReceiptLink,
-            car_url: resolvedCarUrl,
-            date_slot: resolvedDateSlot,
-            Date_Slot: resolvedDateSlot,
-            location: resolvedLocation,
-            Location: resolvedLocation,
-            1: resolvedName,
-            2: resolvedCar,
-            3: String(resolvedAmount).replace(/[^0-9]/g, '') || '5000',
-            4: resolvedBookingId,
-            ...variablesData
+        // Known exact variable structures for approved Gallabox templates
+        const templateVarSpecs = {
+            car_booking_confirmation: ['name', 'Car_Model', 'Amount'],
+            car_booking_confirmation_with_pdf: ['customer_name', 'Amount', 'Car_Model', 'booking_id', 'receipt_link', 'car_name', 'car_url'],
+            schedule_test_drive_confim: ['customer_name', 'car_name', 'date_slot', 'location'],
+            customer_got_sell_price_for_their_car: ['name', 'Sell_Amount']
         };
 
-        if (resolvedSellAmount) {
-            mergedVars.Sell_Amount = resolvedSellAmount;
-            mergedVars.sell_amount = resolvedSellAmount;
-            if (eventType === 'sell_request') mergedVars['2'] = resolvedSellAmount;
-        }
-
-        // Provide both named keys and positional 1, 2, 3... keys so any Gallabox template format works
         const bodyValues = {};
-        for (const [k, v] of Object.entries(mergedVars)) {
-            bodyValues[k] = String(v ?? '');
+        if (templateVarSpecs[templateName]) {
+            templateVarSpecs[templateName].forEach(param => {
+                switch (param) {
+                    case 'name':
+                    case 'customer_name':
+                        bodyValues[param] = String(resolvedName);
+                        break;
+                    case 'Car_Model':
+                    case 'car_name':
+                        bodyValues[param] = String(resolvedCar);
+                        break;
+                    case 'Amount':
+                        bodyValues[param] = String(formattedAmount);
+                        break;
+                    case 'Sell_Amount':
+                        bodyValues[param] = String(resolvedSellAmount);
+                        break;
+                    case 'booking_id':
+                        bodyValues[param] = String(resolvedBookingId);
+                        break;
+                    case 'receipt_link':
+                        bodyValues[param] = String(resolvedReceiptLink);
+                        break;
+                    case 'car_url':
+                        bodyValues[param] = String(resolvedCarUrl);
+                        break;
+                    case 'date_slot':
+                        bodyValues[param] = String(resolvedDateSlot);
+                        break;
+                    case 'location':
+                        bodyValues[param] = String(resolvedLocation);
+                        break;
+                    default:
+                        bodyValues[param] = String(variablesData[param] ?? '');
+                }
+            });
+        } else {
+            // Generic fallback: pass all provided variables
+            for (const [k, v] of Object.entries(variablesData)) {
+                bodyValues[k] = String(v ?? '');
+            }
         }
 
         const payload = {
