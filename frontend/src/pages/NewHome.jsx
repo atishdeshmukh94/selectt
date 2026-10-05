@@ -858,6 +858,7 @@ const NewHome = () => {
   const [itemsPerView, setItemsPerView] = useState(4);
   const [bodyTypeHovered, setBodyTypeHovered] = useState(false);
   const bodyTypeTabsContainerRef = useRef(null);
+  const brandCarouselRef = useRef(null);
   const [selectedForYouCars, setSelectedForYouCars] = useState([]);
   const [featuredTab, setFeaturedTab] = useState('featured');
 
