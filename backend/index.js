@@ -869,14 +869,14 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             sell_car_sold: 'sell_car_sold_out',
 
             // 🛍️ Buy Car & Booking Workflow
-            car_booking: 'car_booking_confirmation',
-            booking_confirmed: 'car_booking_confirmation',
+            car_booking: 'car_booking_confirmation_with_pdf_new',
+            booking_confirmed: 'car_booking_confirmation_with_pdf_new',
             car_delivered: 'happy_customers_clinch',
             booking_cancelled: 'try_to_help_you',
 
             // 🏎️ Test Drives
-            test_drive: 'schedule_test_drive_confim',
-            test_drive_confirmed: 'schedule_test_drive_confim',
+            test_drive: 'schedule_test_drive_confim_clone_new',
+            test_drive_confirmed: 'schedule_test_drive_confim_clone_new',
             test_drive_completed: 'visted_sequence_6',
 
             // 🧮 Financial Services & Loans
@@ -935,6 +935,7 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
         const resolvedCar = variablesData.Car_Model || variablesData.car_model || variablesData.car_name || variablesData['2'] || 'Vehicle';
         const numAmount = String(variablesData.Amount || variablesData.amount || variablesData['3'] || '5000').replace(/[^0-9]/g, '') || '5000';
         const formattedAmount = `₹${Number(numAmount).toLocaleString('en-IN')}`;
+        const rawAmountOnlyNum = Number(numAmount).toLocaleString('en-IN');
         const resolvedSellAmount = variablesData.Sell_Amount || variablesData.sell_amount || formattedAmount;
         const resolvedBookingId = variablesData.booking_id || variablesData['booking_id'] || '#BK-448351';
         const resolvedReceiptLink = variablesData.receipt_link || variablesData['receipt_link'] || 'https://api.selectt.in/api/bookings/19/receipt';
@@ -944,10 +945,14 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
 
         // Known exact variable structures for approved Gallabox templates
         const templateVarSpecs = {
+            car_booking_confirmation_with_pdf_new: ['customer_name', 'Amount', 'Car_Model', 'booking_id', 'receipt_link', 'car_name', 'car_url'],
             car_booking_confirmation: ['name', 'Car_Model', 'Amount'],
             car_booking_confirmation_with_pdf: ['customer_name', 'Amount', 'Car_Model', 'booking_id', 'receipt_link', 'car_name', 'car_url'],
+            schedule_test_drive_confim_clone_new: ['customer_name', 'car_name', 'date_slot', 'location'],
             schedule_test_drive_confim: ['customer_name', 'car_name', 'date_slot', 'location'],
-            customer_got_sell_price_for_their_car: ['name', 'Sell_Amount']
+            car_sale_request_confirmation: ['name', 'Sell_Amount'],
+            customer_got_sell_price_for_their_car: ['name', 'Sell_Amount'],
+            customer_got_sell_price_for_their_car_new: ['name', 'Sell_Amount']
         };
 
         const bodyValues = {};
@@ -963,7 +968,7 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
                         bodyValues[param] = String(resolvedCar);
                         break;
                     case 'Amount':
-                        bodyValues[param] = String(formattedAmount);
+                        bodyValues[param] = templateName.includes('with_pdf') ? String(rawAmountOnlyNum) : String(formattedAmount);
                         break;
                     case 'Sell_Amount':
                         bodyValues[param] = String(resolvedSellAmount);
