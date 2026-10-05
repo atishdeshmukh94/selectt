@@ -4125,81 +4125,123 @@ app.post('/api/bookings', customerAuth, (req, res) => {
             return res.status(400).json({ message: 'Car bookings are not available for vehicles with Coming Soon status.' });
         }
 
-        const safeInsertBooking = (data) => {
-            db.query('INSERT INTO bookings SET ?', data, (err, result) => {
-                if (err && (err.code === 'ER_BAD_FIELD_ERROR' || (err.message && err.message.includes('Unknown column')))) {
-                    const match = err.message.match(/Unknown column '([^']+)'/);
-                    if (match && match[1]) {
-                        const missingCol = match[1];
-                        console.log(`Auto-adding missing column '${missingCol}' to bookings table...`);
-                        db.query(`ALTER TABLE bookings ADD COLUMN \`${missingCol}\` VARCHAR(255) NULL`, (alterErr) => {
-                            if (!alterErr) {
-                                return safeInsertBooking(data);
-                            } else {
-                                const sanitized = { ...data };
-                                delete sanitized[missingCol];
-                                return safeInsertBooking(sanitized);
+        // Check if customer already paid booking amount for this car
+        db.query(
+            "SELECT id, booking_no, payment_status FROM bookings WHERE car_id = ? AND customer_id = ? AND payment_status = 'paid' ORDER BY id DESC LIMIT 1",
+            [car_id, req.user.id],
+            (chkErr, chkRows) => {
+                if (!chkErr && chkRows && chkRows.length > 0) {
+                    return res.status(409).json({
+                        already_paid: true,
+                        message: 'You have already paid the booking amount for this car. Please wait for confirmation.',
+                        booking_no: chkRows[0].booking_no,
+                        booking_id: chkRows[0].id
+                    });
+                }
+
+                const safeInsertBooking = (data) => {
+                    db.query('INSERT INTO bookings SET ?', data, (err, result) => {
+                        if (err && (err.code === 'ER_BAD_FIELD_ERROR' || (err.message && err.message.includes('Unknown column')))) {
+                            const match = err.message.match(/Unknown column '([^']+)'/);
+                            if (match && match[1]) {
+                                const missingCol = match[1];
+                                console.log(`Auto-adding missing column '${missingCol}' to bookings table...`);
+                                db.query(`ALTER TABLE bookings ADD COLUMN \`${missingCol}\` VARCHAR(255) NULL`, (alterErr) => {
+                                    if (!alterErr) {
+                                        return safeInsertBooking(data);
+                                    } else {
+                                        const sanitized = { ...data };
+                                        delete sanitized[missingCol];
+                                        return safeInsertBooking(sanitized);
+                                    }
+                                });
+                                return;
                             }
-                        });
-                        return;
-                    }
-                }
-                if (err) return res.status(500).json({ error: err.message });
-                createNotification('PAYMENT', `New car booking created: ${data.booking_no}`, req.user.id, result.insertId);
+                        }
+                        if (err) return res.status(500).json({ error: err.message });
+                        createNotification('PAYMENT', `New car booking created: ${data.booking_no}`, req.user.id, result.insertId);
 
-                // Increment coupon usage count if coupon was applied
-                if (data.coupon_code) {
-                    db.query('UPDATE coupons SET used_count = used_count + 1 WHERE UPPER(code) = UPPER(?)', [data.coupon_code], () => {});
-                }
-
-                // Gallabox WhatsApp Automated Trigger
-                db.query('SELECT c.first_name, c.last_name, c.phone, c.email, car.id AS car_id, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
-                    if (!cErr && cRows.length > 0) {
-                        const info = cRows[0];
-                        const receiptUrl = `${req.protocol}://${req.get('host')}/api/bookings/${result.insertId}/receipt`;
-                        const carUrl = `https://selectt.in/car/${car_id}`;
-                        const pdfUrl = `${receiptUrl}?format=pdf`;
-                        // Only send booking confirmation WhatsApp if payment is already completed (e.g. offline/admin).
-                        // Online checkouts have payment_status === 'pending' and are notified upon payment verification.
-                        if (data.payment_status === 'paid') {
-                            sendGallaboxWhatsAppNotification('car_booking', info.phone || req.user.phone, {
-                                customer_name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
-                                car_name: carTitle,
-                                Car_Model: carTitle,
-                                car_model: carTitle,
-                                amount: `₹${Number(data.booking_amount).toLocaleString('en-IN')}`,
-                                Amount: `₹${Number(data.booking_amount).toLocaleString('en-IN')}`,
-                                booking_id: data.booking_no,
-                                receipt_link: receiptUrl,
-                                download_url: pdfUrl,
-                                pdf_url: pdfUrl,
-                                car_url: carUrl
-                            });
+                        // Increment coupon usage count if coupon was applied
+                        if (data.coupon_code) {
+                            db.query('UPDATE coupons SET used_count = used_count + 1 WHERE UPPER(code) = UPPER(?)', [data.coupon_code], () => {});
                         }
 
-                        // Neodove CRM Push
-                        pushLeadToNeodove({
-                            name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
-                            mobile: info.phone || req.user.phone,
-                            email: info.email,
-                            car_interested: carTitle,
-                            urgency: 'Car Booking Initiated',
-                            summary: `Car Booking #${data.booking_no} for ${carTitle}. Token: ₹${Number(data.booking_amount).toLocaleString('en-IN')}, Final: ₹${Number(data.final_amount).toLocaleString('en-IN')}. Loan: ${data.interested_in_loan ? 'Yes' : 'No'}`,
-                            budget: data.final_amount,
-                            agent: 'Booking System'
-                        }, getSetting).catch(e => console.error('[Neodove Booking Error]:', e.message));
-                    }
-                    res.status(201).json({ 
-                        message: 'Booking created successfully', 
-                        id: result.insertId,
-                        booking_no: data.booking_no 
-                    });
-                });
-            });
-        };
+                        // Respond immediately to prevent request timeouts
+                        res.status(201).json({ 
+                            message: 'Booking created successfully', 
+                            id: result.insertId,
+                            booking_no: data.booking_no 
+                        });
 
-        safeInsertBooking(bookingData);
+                        // Gallabox WhatsApp Automated Trigger & CRM Push (async)
+                        db.query('SELECT c.first_name, c.last_name, c.phone, c.email, car.id AS car_id, car.make, car.model, car.variant, car.year FROM customers c JOIN cars car ON car.id = ? WHERE c.id = ?', [car_id, req.user.id], (cErr, cRows) => {
+                            if (!cErr && cRows.length > 0) {
+                                const info = cRows[0];
+                                const customerName = `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer';
+                                const carTitle = `${info.year || ''} ${info.make || ''} ${info.model || ''} ${info.variant || ''}`.trim() || 'Selected Vehicle';
+                                const receiptUrl = `${req.protocol}://${req.get('host')}/api/bookings/${result.insertId}/receipt`;
+                                const carUrl = `https://selectt.in/car/${car_id}`;
+                                const pdfUrl = `${receiptUrl}?format=pdf`;
+
+                                // Only send booking confirmation WhatsApp if payment is already completed (e.g. offline/admin).
+                                // Online checkouts have payment_status === 'pending' and are notified upon payment verification.
+                                if (data.payment_status === 'paid') {
+                                    sendGallaboxWhatsAppNotification('car_booking', info.phone || req.user.phone, {
+                                        customer_name: customerName,
+                                        name: customerName,
+                                        Name: customerName,
+                                        car_name: carTitle,
+                                        Car_Model: carTitle,
+                                        car_model: carTitle,
+                                        amount: `₹${Number(data.booking_amount).toLocaleString('en-IN')}`,
+                                        Amount: `₹${Number(data.booking_amount).toLocaleString('en-IN')}`,
+                                        booking_id: data.booking_no,
+                                        receipt_link: receiptUrl,
+                                        download_url: pdfUrl,
+                                        pdf_url: pdfUrl,
+                                        car_url: carUrl,
+                                        '1': customerName,
+                                        '2': carTitle,
+                                        '3': `₹${Number(data.booking_amount).toLocaleString('en-IN')}`
+                                    }).catch(e => console.error('[Gallabox Booking WhatsApp Error]:', e.message));
+                                }
+
+                                // Neodove CRM Push
+                                pushLeadToNeodove({
+                                    name: customerName,
+                                    mobile: info.phone || req.user.phone,
+                                    email: info.email,
+                                    car_interested: carTitle,
+                                    urgency: 'Car Booking Initiated',
+                                    summary: `Car Booking #${data.booking_no} for ${carTitle}. Token: ₹${Number(data.booking_amount).toLocaleString('en-IN')}, Final: ₹${Number(data.final_amount).toLocaleString('en-IN')}. Loan: ${data.interested_in_loan ? 'Yes' : 'No'}`,
+                                    budget: data.final_amount,
+                                    agent: 'Booking System'
+                                }, getSetting).catch(e => console.error('[Neodove Booking Error]:', e.message));
+                            }
+                        });
+                    });
+                };
+
+                safeInsertBooking(bookingData);
+            }
+        );
     });
+});
+
+// Check if a car has already been booked by the customer
+app.get('/api/bookings/check-car/:carId', customerAuth, (req, res) => {
+    const { carId } = req.params;
+    db.query(
+        "SELECT id, booking_no, booking_amount, payment_status, booking_status, created_at FROM bookings WHERE car_id = ? AND customer_id = ? AND payment_status = 'paid' ORDER BY id DESC LIMIT 1",
+        [carId, req.user.id],
+        (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (rows && rows.length > 0) {
+                return res.json({ isBooked: true, booking: rows[0] });
+            }
+            return res.json({ isBooked: false });
+        }
+    );
 });
 
 app.get('/api/bookings', (req, res) => {

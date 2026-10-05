@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X, Smartphone, Sparkles, Share, PlusSquare, ShieldCheck, Zap, Bell, MoreVertical } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const PWAInstallPrompt = () => {
   const location = useLocation();
+  const { isLoginModalOpen } = useAuth();
   const [deferredPrompt, setDeferredPrompt] = useState(() => {
     if (typeof window !== 'undefined' && window.__pwaInstallPrompt) {
       return window.__pwaInstallPrompt;
@@ -23,8 +25,34 @@ const PWAInstallPrompt = () => {
     return Boolean(isStandalone);
   });
 
+  // Helper to check if any other modal / popup / login overlay is currently active
+  const isAnyOtherModalActive = useCallback(() => {
+    if (typeof document === 'undefined') return false;
+    if (isLoginModalOpen) return true;
+
+    // Route check: Never interrupt users on checkout or auth flows
+    if (location.pathname.startsWith('/checkout')) return true;
+
+    // Check for login modal or auth modal in DOM
+    const authModal = document.querySelector('.auth-modal-overlay, #login-modal, [data-modal="login"], [data-testid="login-modal"]');
+    if (authModal) return true;
+
+    // Check for other open dialogs/modals (excluding our own PWA install modal)
+    const otherModals = document.querySelectorAll(
+      'div[role="dialog"]:not(.pwa-install-modal), .modal-backdrop, .test-drive-modal, [data-modal]:not([data-modal="pwa"])'
+    );
+    if (otherModals.length > 0) return true;
+
+    // Check if body has scroll locked by another modal
+    if (!showPrompt && (document.body.classList.contains('overflow-hidden') || document.body.style.overflow === 'hidden')) {
+      return true;
+    }
+
+    return false;
+  }, [isLoginModalOpen, location.pathname, showPrompt]);
+
   // Helper to check if PWA is already installed or dismissed within 30 mins
-  const isInstalledOrCooldown = () => {
+  const isInstalledOrCooldown = useCallback(() => {
     if (typeof window === 'undefined') return true;
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
@@ -39,7 +67,7 @@ const PWAInstallPrompt = () => {
     }
 
     return false;
-  };
+  }, []);
 
   // Global listeners for beforeinstallprompt & appinstalled events
   useEffect(() => {
@@ -84,21 +112,30 @@ const PWAInstallPrompt = () => {
     };
   }, []);
 
+  // Close or hide PWA prompt immediately if login modal or any other modal becomes active
+  useEffect(() => {
+    if (isLoginModalOpen || isAnyOtherModalActive()) {
+      if (showPrompt) {
+        setShowPrompt(false);
+      }
+    }
+  }, [isLoginModalOpen, isAnyOtherModalActive, showPrompt]);
+
   // Trigger 15-second timer on page open (only once per session/page, respected by 30-min cooldown)
   useEffect(() => {
-    if (isInstalledOrCooldown()) {
+    if (isInstalledOrCooldown() || isAnyOtherModalActive()) {
       setShowPrompt(false);
       return;
     }
 
     const timer = setTimeout(() => {
-      if (!isInstalledOrCooldown()) {
+      if (!isInstalledOrCooldown() && !isAnyOtherModalActive()) {
         setShowPrompt(true);
       }
     }, 15000); // 15 seconds
 
     return () => clearTimeout(timer);
-  }, [location.pathname]);
+  }, [location.pathname, isInstalledOrCooldown, isAnyOtherModalActive]);
 
   const handleInstallClick = async () => {
     const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? window.__pwaInstallPrompt : null);
@@ -137,19 +174,19 @@ const PWAInstallPrompt = () => {
     localStorage.setItem('selectt_pwa_dismissed_until', String(thirtyMinutesLater));
   };
 
-  if (isInstalled || !showPrompt) {
+  if (isInstalled || !showPrompt || isLoginModalOpen || isAnyOtherModalActive()) {
     return null;
   }
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="pwa-install-overlay fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-[370px] sm:max-w-[400px] overflow-hidden rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.18),0_6px_16px_rgba(0,0,0,0.06)] text-slate-900 text-center"
+          className="pwa-install-modal relative w-full max-w-[370px] sm:max-w-[400px] overflow-hidden rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.18),0_6px_16px_rgba(0,0,0,0.06)] text-slate-900 text-center"
         >
           {/* Close button */}
           <button
