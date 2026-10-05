@@ -499,6 +499,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
             { id: "crm", label: "🚀 Neodove CRM" },
             { id: "maintenance", label: "🚧 Maintenance Mode" },
             { id: "location", label: "📍 Location & Contact" },
+            { id: "branding", label: "🎨 Brand Logos & OG Image" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -2843,7 +2844,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
           </div>
         )}
 
-        {section === "branding" && (
+        {activeSection === "branding" && (
           <div className="space-y-6">
             <ComponentCard title="Brand Logos & Navigation Images">
               <div className="space-y-8">
@@ -2894,6 +2895,21 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
                     currentValue={settings.admin_logo_icon}
                     defaultValue="/images/logo/app-logo.png"
                     isIcon={true}
+                    onUploadSuccess={fetchSettings}
+                  />
+                </div>
+
+                {/* OG / Social Share Image — full width */}
+                <div>
+                  <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                    <span>🌐 WhatsApp & Social Media Preview Image (OG Image)</span>
+                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-extrabold rounded-full uppercase">1200 × 630 px recommended</span>
+                  </p>
+                  <LogoUploadField
+                    label="OG / Social Share Preview Image"
+                    settingKey="og_image"
+                    currentValue={settings.og_image}
+                    defaultValue="/img/og-image.jpg"
                     onUploadSuccess={fetchSettings}
                   />
                 </div>
