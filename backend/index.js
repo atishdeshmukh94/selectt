@@ -869,8 +869,8 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             sell_car_sold: 'sell_car_sold_out',
 
             // 🛍️ Buy Car & Booking Workflow
-            car_booking: 'car_booking_confirmed',
-            booking_confirmed: 'booking_dealer_confirmed',
+            car_booking: 'car_booking_confirmation_with_pdf',
+            booking_confirmed: 'car_booking_confirmation_with_pdf',
             car_delivered: 'car_delivered_success',
             booking_cancelled: 'booking_refund_cancelled',
 
@@ -930,29 +930,39 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
         const fetchFn = typeof fetch !== 'undefined' ? fetch : globalThis.fetch;
         const url = 'https://server.gallabox.com/devapi/messages/whatsapp';
 
-        // Normalize standard aliases for Gallabox templates (e.g. car_booking_confirmation, customer_got_sell_price_for_their_car)
+        // Normalize standard aliases for Gallabox templates (e.g. car_booking_confirmation_with_pdf, schedule_test_drive_confim, customer_got_sell_price_for_their_car)
         const resolvedName = variablesData.name || variablesData.customer_name || variablesData['1'] || 'Customer';
         const resolvedCar = variablesData.Car_Model || variablesData.car_model || variablesData.car_name || variablesData['2'] || 'Vehicle';
-        const resolvedAmount = variablesData.Amount || variablesData.amount || variablesData['3'] || '';
+        const resolvedAmount = variablesData.Amount || variablesData.amount || variablesData['3'] || '5000';
         const resolvedSellAmount = variablesData.Sell_Amount || variablesData.sell_amount || resolvedAmount || '';
+        const resolvedBookingId = variablesData.booking_id || variablesData['booking_id'] || '#BK-448351';
+        const resolvedReceiptLink = variablesData.receipt_link || variablesData['receipt_link'] || 'https://api.selectt.in/api/bookings/19/receipt';
+        const resolvedCarUrl = variablesData.car_url || variablesData['car_url'] || 'https://selectt.in/car/40';
+        const resolvedDateSlot = variablesData.date_slot || variablesData['date_slot'] || 'Tomorrow | 04:00 PM';
+        const resolvedLocation = variablesData.location || variablesData['location'] || 'Selectt Hub, Borivali West';
 
         const mergedVars = {
-            name: resolvedName,
             customer_name: resolvedName,
+            name: resolvedName,
             Name: resolvedName,
             Car_Model: resolvedCar,
             car_model: resolvedCar,
             car_name: resolvedCar,
+            Amount: String(resolvedAmount).replace(/[^0-9]/g, '') || '5000',
+            amount: String(resolvedAmount).replace(/[^0-9]/g, '') || '5000',
+            booking_id: resolvedBookingId,
+            receipt_link: resolvedReceiptLink,
+            car_url: resolvedCarUrl,
+            date_slot: resolvedDateSlot,
+            Date_Slot: resolvedDateSlot,
+            location: resolvedLocation,
+            Location: resolvedLocation,
             1: resolvedName,
             2: resolvedCar,
+            3: String(resolvedAmount).replace(/[^0-9]/g, '') || '5000',
+            4: resolvedBookingId,
             ...variablesData
         };
-
-        if (resolvedAmount) {
-            mergedVars.Amount = resolvedAmount;
-            mergedVars.amount = resolvedAmount;
-            if (!mergedVars['3']) mergedVars['3'] = resolvedAmount;
-        }
 
         if (resolvedSellAmount) {
             mergedVars.Sell_Amount = resolvedSellAmount;
@@ -993,7 +1003,7 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
         });
 
         const resData = await res.json().catch(() => ({}));
-        console.log(`[Gallabox API Result]:`, resData);
+        console.log(`[Gallabox API Result for ${templateName}]:`, resData);
         return { success: res.ok, data: resData, template: templateName };
 
     } catch (err) {
@@ -1028,18 +1038,20 @@ app.post('/api/admin/whatsapp/test-send', authMiddleware, isAdmin, async (req, r
         return res.status(400).json({ message: 'Missing eventType or phone number' });
     }
     const sampleData = customData || {
-        name: 'Atish',
-        customer_name: 'Atish Deshmukh',
-        Car_Model: 'Toyota Hyrider',
-        car_name: '2024 Toyota Urban Cruiser Hyrider Hybrid',
-        car_model: 'Toyota Hyrider',
-        Amount: '₹25,000',
-        amount: '₹25,000',
+        customer_name: 'Rohit Yadav',
+        name: 'Rohit Yadav',
+        Car_Model: '2025 Skoda Kylaq',
+        car_name: '2025 Skoda Kylaq',
+        car_model: '2025 Skoda Kylaq',
+        Amount: '5000',
+        amount: '5000',
+        booking_id: '#BK-448351',
+        receipt_link: 'https://api.selectt.in/api/bookings/19/receipt',
+        car_url: 'https://selectt.in/car/40',
+        date_slot: '06 Oct 2026 | 04:00 PM',
+        location: 'Selectt Hub, Borivali West, Mumbai',
         Sell_Amount: '₹15,00,000',
         sell_amount: '₹15,00,000',
-        booking_id: '#BK-104928',
-        date_slot: 'Tomorrow (11:00 AM)',
-        location: 'Mumbai Andheri Hub',
         request_id: '#SELL-882',
         loan_amount: '₹5,00,000',
         monthly_emi: '₹9,500',
@@ -1048,9 +1060,13 @@ app.post('/api/admin/whatsapp/test-send', authMiddleware, isAdmin, async (req, r
         reason: 'Vehicle specifications verified',
         reg_no: 'MH-04-AB-1234',
         otp: '482910',
-        1: 'Atish',
-        2: 'Toyota Hyrider',
-        3: '₹25,000'
+        1: 'Rohit Yadav',
+        2: '2025 Skoda Kylaq',
+        3: '5000',
+        4: '#BK-448351',
+        5: 'https://api.selectt.in/api/bookings/19/receipt',
+        6: '2025 Skoda Kylaq',
+        7: 'https://selectt.in/car/40'
     };
 
     const result = await sendGallaboxWhatsAppNotification(eventType, phone, sampleData);

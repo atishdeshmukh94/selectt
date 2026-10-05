@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MOCK_CARS } from '../data/mockCars';
-import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil, Building2, Tag, AlertCircle, Copy, Download } from 'lucide-react';
+import { CheckCircle2, Phone, CreditCard, Gift, ShieldCheck, MapPin, Search, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, Star, X, FileText, ArrowDown, ArrowRight, Check, Sparkles, RotateCcw, Car, Info, Navigation, Wrench, Plus, Calendar, Pencil, Building2, Tag, AlertCircle, Copy, Download, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
@@ -659,13 +659,56 @@ const CheckoutPage = () => {
     return () => clearInterval(timer);
   }, [pauseBenefitSlide]);
 
-  // Coupon Code State
+  // Coupon Code State & 30-Minute Expiry Countdown
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState(null);
   const [couponSuccess, setCouponSuccess] = useState(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [isPriceBreakdownExpanded, setIsPriceBreakdownExpanded] = useState(true);
+  const [couponTimeLeft, setCouponTimeLeft] = useState(30 * 60);
+
+  // Initialize or resume 30-minute countdown when coupon is applied
+  useEffect(() => {
+    if (!appliedCoupon) {
+      setCouponTimeLeft(30 * 60);
+      return;
+    }
+
+    const storageKey = `selectt_coupon_exp_${appliedCoupon.code}_${car?.id || 'default'}`;
+    const savedExp = localStorage.getItem(storageKey);
+    let targetExp;
+
+    if (savedExp && Number(savedExp) > Date.now()) {
+      targetExp = Number(savedExp);
+    } else {
+      targetExp = Date.now() + 30 * 60 * 1000; // 30 minutes
+      localStorage.setItem(storageKey, String(targetExp));
+    }
+
+    const updateTimer = () => {
+      const remainingSecs = Math.max(0, Math.floor((targetExp - Date.now()) / 1000));
+      setCouponTimeLeft(remainingSecs);
+
+      if (remainingSecs <= 0) {
+        setAppliedCoupon(null);
+        setCouponInput('');
+        setCouponSuccess(null);
+        setCouponError(`Coupon code "${appliedCoupon.code}" expired after 30 minutes.`);
+        localStorage.removeItem(storageKey);
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [appliedCoupon, car?.id]);
+
+  const formatCountdown = (totalSeconds) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
 
   const rawBookingAmount = getBookingAmount(car?.price);
   // Booking amount is fixed (5,000 / 11,000 / 21,000) and never reduced by coupons
@@ -726,6 +769,9 @@ const CheckoutPage = () => {
   };
 
   const handleRemoveCoupon = () => {
+    if (appliedCoupon) {
+      localStorage.removeItem(`selectt_coupon_exp_${appliedCoupon.code}_${car?.id || 'default'}`);
+    }
     setAppliedCoupon(null);
     setCouponInput('');
     setCouponError(null);
@@ -1687,32 +1733,45 @@ const CheckoutPage = () => {
                         )}
                       </div>
                     ) : (
-                      <div className="p-2.5 rounded-xl bg-emerald-50/90 border border-emerald-200/90 flex items-center justify-between shadow-2xs animate-in fade-in zoom-in-95 duration-200">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-6 h-6 rounded-md bg-emerald-500 text-white flex items-center justify-center text-xs shadow-xs shrink-0">
-                            <Check size={12} strokeWidth={3} />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono font-black text-xs text-emerald-950 tracking-wider">
-                                {appliedCoupon.code}
-                              </span>
-                              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-900 tracking-wider">
-                                APPLIED
-                              </span>
+                      <div className="p-3 rounded-xl bg-emerald-50/90 border border-emerald-200/90 shadow-2xs animate-in fade-in zoom-in-95 duration-200 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-6 h-6 rounded-md bg-emerald-500 text-white flex items-center justify-center text-xs shadow-xs shrink-0">
+                              <Check size={12} strokeWidth={3} />
                             </div>
-                            <p className="text-[11px] text-emerald-700 font-semibold truncate leading-tight mt-0.5">
-                              Special discount of ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')} applied on car price!
-                            </p>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono font-black text-xs text-emerald-950 tracking-wider">
+                                  {appliedCoupon.code}
+                                </span>
+                                <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-900 tracking-wider">
+                                  APPLIED
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-emerald-700 font-semibold truncate leading-tight mt-0.5">
+                                Special discount of ₹{appliedCoupon.discount_amount.toLocaleString('en-IN')} applied on car price!
+                              </p>
+                            </div>
                           </div>
+                          <button
+                            type="button"
+                            onClick={handleRemoveCoupon}
+                            className="text-xs font-bold text-rose-500 hover:text-rose-700 hover:underline px-2 py-1 cursor-pointer shrink-0 transition-colors"
+                          >
+                            Remove
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={handleRemoveCoupon}
-                          className="text-xs font-bold text-rose-500 hover:text-rose-700 hover:underline px-2 py-1 cursor-pointer shrink-0 transition-colors"
-                        >
-                          Remove
-                        </button>
+
+                        {/* ⏱️ 30 Mins Coupon Validity Countdown in Red */}
+                        <div className="pt-2 border-t border-red-200/80 flex items-center justify-between text-xs font-bold bg-red-50/90 px-2.5 py-1.5 rounded-lg border border-red-200/70">
+                          <span className="flex items-center gap-1.5 text-[11.5px] text-red-600 font-bold">
+                            <Clock size={13} className="animate-pulse text-red-600 shrink-0" />
+                            <span>Coupon valid for:</span>
+                          </span>
+                          <span className="font-mono font-black text-xs text-red-600 bg-white px-2 py-0.5 rounded border border-red-300 tracking-wider shadow-2xs">
+                            {formatCountdown(couponTimeLeft)}
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>

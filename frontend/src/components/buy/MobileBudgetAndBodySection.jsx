@@ -175,8 +175,8 @@ const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) 
                 <div className="flex items-start justify-between w-full min-w-0 z-10 relative">
                   <div className="min-w-0 pr-1">
                     <div
-                      style={{ fontWeight: 500, fontFamily: 'Inter, sans-serif' }}
-                      className="font-['Inter',sans-serif] text-[15px] sm:text-[15.5px] text-[#0C1B33] leading-tight tracking-normal truncate"
+                      style={{ fontWeight: 700, fontFamily: 'Inter, sans-serif' }}
+                      className="font-['Inter',sans-serif] font-bold text-[15px] sm:text-[15.5px] text-[#0C1B33] leading-tight tracking-tight truncate"
                     >
                       {opt.label}
                     </div>
