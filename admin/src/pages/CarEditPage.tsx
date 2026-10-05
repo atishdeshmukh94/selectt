@@ -601,8 +601,15 @@ const CarEditPage = () => {
       return;
     }
 
+    const finalRtoCode = formData.rto_code ? String(formData.rto_code).trim().toUpperCase() : "";
+    if (!finalRtoCode) {
+      toast.error("Please enter a valid RTO Code in Step 2 (e.g. MH01, DL3C)");
+      setActiveTab("specs");
+      return;
+    }
+
     const finalRegYear = formData.regYear ? Number(formData.regYear) : finalYear;
-    const finalRegState = (formData.regState && String(formData.regState).trim()) ? String(formData.regState).trim() : "MH";
+    const finalRegState = finalRtoCode.length >= 2 ? finalRtoCode.slice(0, 2) : "MH";
     const finalBodyType = (formData.bodyType && String(formData.bodyType).trim()) ? String(formData.bodyType).trim() : "Hatchback";
     const finalFuelType = (formData.fuelType && String(formData.fuelType).trim()) ? String(formData.fuelType).trim() : "Petrol";
     const finalTransmission = (formData.transmission && String(formData.transmission).trim()) ? String(formData.transmission).trim() : "Manual";
@@ -1586,27 +1593,20 @@ const CarEditPage = () => {
 
                 <div>
                   <label className={labelClass}>
-                    Reg. State <span className="text-rose-500 font-black ml-1">*</span>
-                  </label>
-                  <input 
-                    type="text" 
-                    className={inpClass} 
-                    value={formData.regState || ""} 
-                    onChange={e => setFormData({...formData, regState: e.target.value.toUpperCase()})} 
-                    placeholder="e.g. MH, DL, CG" 
-                  />
-                </div>
-
-                <div>
-                  <label className={labelClass}>
-                    RTO Code <span className="text-gray-400 text-xs font-normal">(e.g. MH01, DL3C)</span>
+                    RTO Code <span className="text-rose-500 font-black ml-1">*</span>
+                    <span className="text-gray-400 text-xs font-normal ml-1.5">(e.g. MH01, DL3C)</span>
                   </label>
                   <input 
                     type="text" 
                     className={inpClass} 
                     value={formData.rto_code || ""} 
-                    onChange={e => setFormData({...formData, rto_code: e.target.value.toUpperCase()})} 
+                    onChange={e => setFormData({
+                      ...formData, 
+                      rto_code: e.target.value.toUpperCase(),
+                      regState: e.target.value.slice(0, 2).toUpperCase()
+                    })} 
                     placeholder="e.g. MH01" 
+                    required
                   />
                 </div>
 

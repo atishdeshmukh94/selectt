@@ -842,7 +842,6 @@ const CarDetailsPage = () => {
                       { icon: <UserCheck size={18} />, label: 'Ownership', value: car.ownership || '1st Owner' },
                       { icon: <ShieldCheck size={18} />, label: 'Insurance', value: car.insuranceStatus || 'Active' },
                       { icon: <Key size={18} />, label: 'Spare key', value: car.spareKey || 'Yes' },
-                      { icon: <MapPin size={18} />, label: 'Reg State', value: car.regState || 'Delhi' },
                       { icon: <FileText size={18} />, label: 'RTO Code', value: car.rto_code || car.rto || car.registration_no || car.registrationNo || '-' },
                     ].map((item, idx) => (
                       <div key={idx} className="flex gap-3 group">
