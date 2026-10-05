@@ -1777,111 +1777,55 @@ const CheckoutPage = () => {
                   </div>
 
                   {/* CTA Proceed to Pay inside right card */}
-                  <div className="mt-4 pt-3.5 border-t border-slate-100 space-y-3">
-                    <style>{`
-                      @keyframes btnShine {
-                        0%   { transform: translateX(-100%) skewX(-15deg); }
-                        100% { transform: translateX(250%) skewX(-15deg); }
-                      }
-                      .btn-shine::after {
-                        content: '';
-                        position: absolute;
-                        top: 0; left: 0;
-                        width: 40%;
-                        height: 100%;
-                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-                        animation: btnShine 2.2s ease-in-out infinite;
-                        pointer-events: none;
-                      }
-                    `}</style>
-                    {existingBooking ? (
-                      <div className="bg-gradient-to-b from-emerald-50 to-teal-50/50 border-2 border-emerald-500/60 rounded-2xl p-4 sm:p-5 text-center space-y-3.5 shadow-sm">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
-                          <CheckCircle2 size={14} className="text-emerald-600" />
-                          <span>Booking Amount Paid</span>
-                        </div>
-
-                        <div className="space-y-1">
-                          <h4 className="text-sm sm:text-base font-extrabold text-[#0C1B33] leading-snug">
-                            You have already paid the booking amount for this car
-                          </h4>
-                          <p className="text-xs text-slate-600 leading-relaxed">
-                            Please wait for confirmation — our team will connect with you shortly. You can also check your registered WhatsApp or Email ID for your booking receipt and updates.
-                          </p>
-                        </div>
-
-                        <div className="bg-white rounded-xl border border-emerald-200/90 p-3 text-xs space-y-1.5 text-left shadow-2xs">
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-500 font-medium">Booking ID:</span>
-                            <span className="font-extrabold text-[#0C1B33]">#{existingBooking.booking_no}</span>
+                  {!existingBooking && (
+                    <div className="mt-4 pt-3.5 border-t border-slate-100 space-y-3">
+                      <style>{`
+                        @keyframes btnShine {
+                          0%   { transform: translateX(-100%) skewX(-15deg); }
+                          100% { transform: translateX(250%) skewX(-15deg); }
+                        }
+                        .btn-shine::after {
+                          content: '';
+                          position: absolute;
+                          top: 0; left: 0;
+                          width: 40%;
+                          height: 100%;
+                          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+                          animation: btnShine 2.2s ease-in-out infinite;
+                          pointer-events: none;
+                        }
+                      `}</style>
+                      <button
+                        onClick={handleBooking}
+                        disabled={isBooking}
+                        className={`btn-shine relative overflow-hidden w-full bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-black py-3.5 px-5 rounded-2xl transition-all duration-300 shadow-lg shadow-[#00C9AF]/30 hover:shadow-xl hover:shadow-[#00C9AF]/40 flex items-center justify-between cursor-pointer text-sm uppercase tracking-wider ${isBooking ? 'opacity-70 cursor-not-allowed' : 'active:scale-[0.99]'}`}
+                      >
+                        {isBooking ? (
+                          <div className="flex items-center justify-center gap-2.5 w-full py-0.5">
+                            <div className="w-4 h-4 border-2 border-[#0C1B33] border-t-transparent rounded-full animate-spin" />
+                            <span>Processing...</span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-500 font-medium">Amount Paid:</span>
-                            <span className="font-extrabold text-emerald-700">₹{Number(existingBooking.booking_amount || rawBookingAmount).toLocaleString('en-IN')}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-500 font-medium">Payment Status:</span>
-                            <span className="inline-flex items-center gap-1 font-bold text-emerald-700">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              Verified & Paid
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 pt-1">
-                          <a
-                            href={`${API_URL}/api/bookings/${existingBooking.id}/receipt?token=${localStorage.getItem('customerToken')}&format=pdf`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="py-2.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-colors"
-                          >
-                            <Download size={14} />
-                            <span>Download Receipt</span>
-                          </a>
-                          <button
-                            type="button"
-                            onClick={() => navigate('/profile?tab=bookings')}
-                            className="py-2.5 px-2 bg-[#0C1B33] hover:bg-[#1a2d4c] text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1 transition-colors"
-                          >
-                            <span>My Bookings</span>
-                            <ArrowRight size={13} />
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <button
-                          onClick={handleBooking}
-                          disabled={isBooking}
-                          className={`btn-shine relative overflow-hidden w-full bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-black py-3.5 px-5 rounded-2xl transition-all duration-300 shadow-lg shadow-[#00C9AF]/30 hover:shadow-xl hover:shadow-[#00C9AF]/40 flex items-center justify-between cursor-pointer text-sm uppercase tracking-wider ${isBooking ? 'opacity-70 cursor-not-allowed' : 'active:scale-[0.99]'}`}
-                        >
-                          {isBooking ? (
-                            <div className="flex items-center justify-center gap-2.5 w-full py-0.5">
-                              <div className="w-4 h-4 border-2 border-[#0C1B33] border-t-transparent rounded-full animate-spin" />
-                              <span>Processing...</span>
-                            </div>
-                          ) : (
-                            <>
-                              <span className="font-black text-sm tracking-wider">PROCEED TO PAY</span>
-                              <div className="flex items-center gap-2 font-price">
-                                {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
-                                  <span className="line-through text-slate-700/70 text-xs font-bold">
-                                    ₹{rawBookingAmount.toLocaleString('en-IN')}
-                                  </span>
-                                )}
-                                <span className="bg-[#0C1B33] text-white px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-sm tracking-tight">
-                                  ₹{finalPayableBookingAmount.toLocaleString('en-IN')}
+                        ) : (
+                          <>
+                            <span className="font-black text-sm tracking-wider">PROCEED TO PAY</span>
+                            <div className="flex items-center gap-2 font-price">
+                              {appliedCoupon && appliedCoupon.applies_to === 'booking_amount' && (
+                                <span className="line-through text-slate-700/70 text-xs font-bold">
+                                  ₹{rawBookingAmount.toLocaleString('en-IN')}
                                 </span>
-                              </div>
-                            </>
-                          )}
-                        </button>
-                        <p className="text-center text-[11px] text-slate-400 font-semibold">
-                          100% refundable deposit • Cancel anytime
-                        </p>
-                      </>
-                    )}
-                  </div>
+                              )}
+                              <span className="bg-[#0C1B33] text-white px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-sm tracking-tight">
+                                ₹{finalPayableBookingAmount.toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </button>
+                      <p className="text-center text-[11px] text-slate-400 font-semibold">
+                        100% refundable deposit • Cancel anytime
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Security Footer */}
