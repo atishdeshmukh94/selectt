@@ -4703,7 +4703,17 @@ app.get('/api/settings/public', (req, res) => {
             extra_card_btn_link: settings.extra_card_btn_link || "#",
             extra_card_logo_url: settings.extra_card_logo_url || "",
             extra_card_bg_gradient: settings.extra_card_bg_gradient || "linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)",
-            extra_card_is_active: settings.extra_card_is_active !== 'false'
+            extra_card_is_active: settings.extra_card_is_active !== 'false',
+            booking_special_enabled: settings.booking_special_enabled !== 'false',
+            booking_special_badge: settings.booking_special_badge || "🪔 Navratri Special",
+            booking_special_title: settings.booking_special_title || "Reserve till Navratri",
+            booking_special_amount: settings.booking_special_amount || "25000",
+            booking_special_date: settings.booking_special_date || "Sun, 11 Oct",
+            booking_special_subtext: settings.booking_special_subtext || "Car held for you till Sun, 11 Oct",
+            booking_special_learn_more: settings.booking_special_learn_more || "Guaranteed vehicle reservation with extended festival holding period. 100% refundable token deposit with priority inspection & delivery.",
+            booking_standard_title: settings.booking_standard_title || "Standard booking",
+            booking_standard_hold_days: settings.booking_standard_hold_days || "3",
+            booking_standard_learn_more: settings.booking_standard_learn_more || "Standard 3-day holding period to complete vehicle inspection and paperwork. 100% refundable token deposit."
         });
     });
 });

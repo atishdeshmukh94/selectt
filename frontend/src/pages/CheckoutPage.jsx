@@ -711,8 +711,24 @@ const CheckoutPage = () => {
   };
 
   const rawBookingAmount = getBookingAmount(car?.price);
-  // Booking amount is fixed (5,000 / 11,000 / 21,000) and never reduced by coupons
-  const finalPayableBookingAmount = rawBookingAmount;
+
+  // Booking Plan Settings (Dynamic Festive Special vs Standard Booking)
+  const isSpecialBookingEnabled = settings?.booking_special_enabled !== 'false' && settings?.booking_special_enabled !== false;
+  const [selectedBookingPlan, setSelectedBookingPlan] = useState('special'); // 'special' | 'standard'
+  const [bookingLearnMoreModal, setBookingLearnMoreModal] = useState(null); // 'special' | 'standard' | null
+
+  const getDynamicHoldDate = (days = 3) => {
+    const d = new Date();
+    d.setDate(d.getDate() + (Number(days) || 3));
+    return d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+  };
+
+  const activeBookingPlan = isSpecialBookingEnabled ? selectedBookingPlan : 'standard';
+  const specialBookingAmount = Number(settings?.booking_special_amount) || 25000;
+  const standardBookingAmount = Number(settings?.booking_standard_amount) > 0 ? Number(settings?.booking_standard_amount) : rawBookingAmount;
+
+  // Final booking amount to pay based on chosen option
+  const finalPayableBookingAmount = activeBookingPlan === 'special' ? specialBookingAmount : standardBookingAmount;
 
   const carPrice = Number(car?.price) || 0;
   const originalCarPrice = Number(car?.original_price || car?.originalPrice) || (carPrice > 0 ? carPrice + 5000 : 0);
@@ -973,6 +989,8 @@ const CheckoutPage = () => {
           car_id: car.id,
           final_amount: totalVehicleAmount,
           booking_amount: bookingAmount,
+          booking_plan: activeBookingPlan === 'special' ? (settings?.booking_special_title || 'Special Reservation') : (settings?.booking_standard_title || 'Standard booking'),
+          hold_until: activeBookingPlan === 'special' ? (settings?.booking_special_date || 'Sun, 11 Oct') : getDynamicHoldDate(settings?.booking_standard_hold_days || 3),
           interested_in_loan: interestedInLoan ? 1 : 0,
           maintenance_package: maintenancePackageAdded ? 1 : 0,
           maintenance_plan_type: maintenancePackageAdded ? maintenancePaymentType : null,
@@ -1200,7 +1218,7 @@ const CheckoutPage = () => {
               <div className="flex items-end justify-between mb-0.5">
                 <div>
                   <h1 className="text-2xl sm:text-3xl lg:text-[28px] xl:text-3xl font-heading font-bold text-[#0F172A] mb-1.5 leading-tight">
-                    Reserve this car for <span className="text-[#00C9AF] font-bold font-price">₹{rawBookingAmount.toLocaleString('en-IN')}</span>
+                    Reserve this car for <span className="text-[#00C9AF] font-bold font-price">₹{finalPayableBookingAmount.toLocaleString('en-IN')}</span>
                   </h1>
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm sm:text-base text-slate-600 font-normal">and find out if it's your perfect match</p>
@@ -1494,22 +1512,115 @@ const CheckoutPage = () => {
                   </div>
                 </Link>
 
-                {/* Booking Amount Card (Matching Reference Screenshot) */}
-                <div className="p-4 pb-0">
-                  <div className="p-3.5 rounded-xl border border-slate-200/90 bg-white flex items-center justify-between shadow-2xs">
-                    <div className="flex items-center gap-2 text-sm font-bold text-[#0F172A]">
-                      <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs shadow-xs">
-                        <Check size={12} strokeWidth={3} />
+                {/* Booking Options Selection (Special Festive Plan & Standard Booking) */}
+                <div className="p-4 pb-1 space-y-4">
+                  {/* Option 1: Special Festive Reservation */}
+                  {isSpecialBookingEnabled && (
+                    <div
+                      onClick={() => setSelectedBookingPlan('special')}
+                      className={`relative p-4 sm:p-5 rounded-3xl transition-all cursor-pointer border-2 ${
+                        activeBookingPlan === 'special'
+                          ? 'border-[#7C3AED] bg-[#FAF5FF] shadow-sm ring-2 ring-[#7C3AED]/15'
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                      }`}
+                    >
+                      {/* Pill Badge floating top-left */}
+                      <div className="absolute -top-3.5 left-5 px-3 py-1 rounded-full bg-white border border-amber-300 shadow-xs flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                        <span>{settings?.booking_special_badge || "🪔 Navratri Special"}</span>
                       </div>
-                      <span>Booking Amount</span>
+
+                      <div className="flex items-start justify-between gap-3 pt-1">
+                        <div className="flex items-start gap-3">
+                          {/* Custom Radio Button */}
+                          <div
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
+                              activeBookingPlan === 'special'
+                                ? 'border-[#7C3AED] bg-white'
+                                : 'border-slate-300 bg-white'
+                            }`}
+                          >
+                            {activeBookingPlan === 'special' && (
+                              <div className="w-2.5 h-2.5 rounded-full bg-[#7C3AED]" />
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-extrabold text-[#0C1B33] text-sm sm:text-base leading-tight">
+                              {settings?.booking_special_title || "Reserve till Navratri"}
+                            </h4>
+                            <p className="text-xs sm:text-[13px] text-slate-600 mt-1 font-medium">
+                              {settings?.booking_special_subtext || `Car held for you till ${settings?.booking_special_date || "Sun, 11 Oct"}`}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setBookingLearnMoreModal('special');
+                              }}
+                              className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-[#7C3AED] hover:underline mt-2 cursor-pointer"
+                            >
+                              <Info size={13} />
+                              <span>Learn more</span>
+                            </button>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="font-extrabold font-price text-base sm:text-lg text-[#0C1B33]">
+                            ₹ {specialBookingAmount.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5 font-extrabold text-sm sm:text-base text-[#0C1B33] font-price">
-                      <span>₹{rawBookingAmount.toLocaleString('en-IN')}</span>
+                  )}
+
+                  {/* Option 2: Standard Booking */}
+                  <div
+                    onClick={() => setSelectedBookingPlan('standard')}
+                    className={`p-4 sm:p-5 rounded-3xl transition-all cursor-pointer border-2 ${
+                      activeBookingPlan === 'standard'
+                        ? 'border-[#00C9AF] bg-[#00C9AF]/5 shadow-sm ring-2 ring-[#00C9AF]/15'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        {/* Custom Radio Button */}
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
+                            activeBookingPlan === 'standard'
+                              ? 'border-[#00C9AF] bg-white'
+                              : 'border-slate-300 bg-white'
+                          }`}
+                        >
+                          {activeBookingPlan === 'standard' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#00C9AF]" />
+                          )}
+                        </div>
+                        <div>
+                          <h4 className="font-extrabold text-[#0C1B33] text-sm sm:text-base leading-tight">
+                            {settings?.booking_standard_title || "Standard booking"}
+                          </h4>
+                          <p className="text-xs sm:text-[13px] text-slate-600 mt-1 font-medium">
+                            Car held for {settings?.booking_standard_hold_days || 3} days until {getDynamicHoldDate(settings?.booking_standard_hold_days || 3)}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setBookingLearnMoreModal('standard');
+                            }}
+                            className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-slate-600 hover:text-[#00C9AF] hover:underline mt-2 cursor-pointer"
+                          >
+                            <Info size={13} />
+                            <span>Learn more</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="font-extrabold font-price text-base sm:text-lg text-[#0C1B33]">
+                          ₹ {standardBookingAmount.toLocaleString('en-IN')}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium pt-2 pb-1 px-1">
-                    <Info size={13} className="text-slate-400 shrink-0" />
-                    <span>Discount valid only for deliveries within 3 days of booking.</span>
                   </div>
                 </div>
 
@@ -3581,6 +3692,55 @@ const CheckoutPage = () => {
               </div>
 
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Learn More Modal for Booking Options */}
+      {bookingLearnMoreModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center">
+                  <Info size={19} />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-[#0C1B33]">
+                    {bookingLearnMoreModal === 'special'
+                      ? (settings?.booking_special_title || 'Reserve till Navratri')
+                      : (settings?.booking_standard_title || 'Standard booking')}
+                  </h3>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {bookingLearnMoreModal === 'special' ? 'Extended Festival Reservation' : 'Standard 3-Day Vehicle Hold'}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setBookingLearnMoreModal(null)}
+                className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p className="text-sm text-slate-600 leading-relaxed mb-5">
+              {bookingLearnMoreModal === 'special'
+                ? (settings?.booking_special_learn_more || 'Guaranteed vehicle reservation with extended festival holding period. 100% refundable token deposit with priority inspection & delivery.')
+                : (settings?.booking_standard_learn_more || 'Standard 3-day holding period to complete vehicle inspection and paperwork. 100% refundable token deposit.')}
+            </p>
+
+            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-xs text-emerald-800 font-bold flex items-center gap-2.5">
+              <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+              <span>100% Refundable Token Deposit anytime prior to delivery</span>
+            </div>
+
+            <button
+              onClick={() => setBookingLearnMoreModal(null)}
+              className="w-full mt-5 py-3 rounded-xl bg-[#0C1B33] hover:bg-slate-800 text-white text-xs font-bold cursor-pointer transition-all active:scale-[0.99]"
+            >
+              Understood
+            </button>
           </div>
         </div>
       )}

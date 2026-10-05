@@ -13,7 +13,7 @@ import {
   TableIcon,
   UserCircleIcon,
 } from "../icons";
-import { BookmarkCheck, UserCog, Images, Settings, ShieldCheck, Briefcase, Inbox, Ticket } from "lucide-react";
+import { BookmarkCheck, UserCog, Images, Settings, ShieldCheck, Briefcase, Inbox, Ticket, CalendarCheck } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
@@ -107,6 +107,12 @@ const navItems: NavItem[] = [
     permissionKey: "coupons",
   },
   {
+    icon: <CalendarCheck className="w-5 h-5" />,
+    name: "Booking Settings",
+    path: "/settings/booking",
+    permissionKey: "site_settings",
+  },
+  {
     icon: <UserCog />,
     name: "Users",
     path: "/staff",
@@ -155,6 +161,7 @@ const navItems: NavItem[] = [
       { name: "Neodove CRM", path: "/settings/crm", permissionKey: "site_settings" },
       { name: "Payment Receipt", path: "/settings/receipt", permissionKey: "site_settings" },
       { name: "Maintenance Mode", path: "/settings/maintenance", permissionKey: "site_settings" },
+      { name: "Booking Settings", path: "/settings/booking", permissionKey: "site_settings" },
       { name: "Meta Catalog Setup", path: "/settings/meta-catalog", permissionKey: "site_settings" },
     ],
   },
