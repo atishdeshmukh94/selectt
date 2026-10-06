@@ -2150,6 +2150,14 @@ app.post('/api/customers/register', async (req, res) => {
         db.query('INSERT INTO customers SET ?', customer, (err, result) => {
             if (err) return res.status(500).json({ error: err.message });
             createNotification('NEW_USER', `New customer registered: ${first_name || ''} ${last_name || ''} (${phone})`, result.insertId);
+
+            // Auto-sync newly registered customer to Neodove CRM
+            pushCustomerToNeodove({ id: result.insertId, ...customer }, getSetting).then(res => {
+                if (res && res.success) {
+                    db.query('UPDATE customers SET neodove_synced_at = NOW() WHERE id = ?', [result.insertId], () => {});
+                }
+            }).catch(e => console.error('[Neodove Customer Register Hook Error]:', e.message));
+
             const token = jwt.sign({ id: result.insertId, phone, role: 'customer' }, process.env.JWT_SECRET, { expiresIn: '7d' });
             res.status(201).json({ token, customer: { id: result.insertId, ...customer, password: undefined } });
         });
@@ -2502,6 +2510,30 @@ app.post('/api/wishlist/:carId', customerAuth, (req, res) => {
             db.query('INSERT INTO wishlists (customer_id, car_id) VALUES (?, ?)', [customerId, carId], (err) => {
                 if (err) return res.status(500).json({ error: err.message });
                 createNotification('WISHLIST', `Customer wishlisted a car`, customerId, carId);
+
+                // Neodove CRM Push (Wishlist Activity)
+                db.query(
+                    'SELECT c.first_name, c.last_name, c.phone, c.email, car.year, car.make, car.model, car.variant, car.price FROM customers c, cars car WHERE c.id = ? AND car.id = ?',
+                    [customerId, carId],
+                    (cErr, cRows) => {
+                        if (!cErr && cRows && cRows.length > 0) {
+                            const row = cRows[0];
+                            const carTitle = `${row.year || ''} ${row.make || ''} ${row.model || ''} ${row.variant || ''}`.trim() || 'Selected Vehicle';
+                            const customerName = `${row.first_name || ''} ${row.last_name || ''}`.trim() || 'Valued Customer';
+                            pushLeadToNeodove({
+                                name: customerName,
+                                mobile: row.phone,
+                                email: row.email,
+                                car_interested: carTitle,
+                                urgency: 'Car Wishlisted',
+                                summary: `Customer wishlisted ${carTitle} (₹${Number(row.price || 0).toLocaleString('en-IN')}) on selectt.in`,
+                                budget: row.price,
+                                agent: 'Wishlist Activity'
+                            }, getSetting).catch(e => console.error('[Neodove Wishlist Push Error]:', e.message));
+                        }
+                    }
+                );
+
                 res.json({ message: 'Added to wishlist', isWishlisted: true });
             });
         }
@@ -5196,7 +5228,7 @@ app.post('/api/payments/verify', customerAuth, async (req, res) => {
 
                     // Gallabox WhatsApp & Admin Notification
                     db.query(
-                        'SELECT b.id AS booking_pk, b.booking_no, b.booking_amount, b.final_amount, c.first_name, c.last_name, c.phone, car.make, car.model, car.variant, car.year FROM bookings b JOIN customers c ON b.customer_id = c.id JOIN cars car ON b.car_id = car.id WHERE b.id = ?',
+                        'SELECT b.id AS booking_pk, b.booking_no, b.booking_amount, b.final_amount, c.first_name, c.last_name, c.phone, c.email, car.make, car.model, car.variant, car.year FROM bookings b JOIN customers c ON b.customer_id = c.id JOIN cars car ON b.car_id = car.id WHERE b.id = ?',
                         [booking_id],
                         async (bErr, bRows) => {
                             if (!bErr && bRows.length > 0) {
@@ -5247,13 +5279,14 @@ app.post('/api/payments/verify', customerAuth, async (req, res) => {
 
                                 // Neodove CRM Push (Confirmed Payment)
                                 pushLeadToNeodove({
-                                    name: `${info.first_name || ''} ${info.last_name || ''}`.trim() || 'Valued Buyer',
+                                    name: customerName,
                                     mobile: recipientPhone,
+                                    email: info.email,
                                     car_interested: carTitle,
                                     urgency: 'Car Booking Confirmed (Token Paid)',
                                     summary: `Payment Confirmed! Booking #${info.booking_no || booking_id} for ${carTitle}. Token: ₹${Number(info.booking_amount || 5000).toLocaleString('en-IN')}, Final: ₹${Number(info.final_amount || 0).toLocaleString('en-IN')}. Razorpay Order: ${razorpay_order_id}`,
                                     budget: info.final_amount,
-                                    agent: 'Payment Verified'
+                                    agent: 'Car Booking (Paid)'
                                 }, getSetting).catch(e => console.error('[Neodove Payment Verify Error]:', e.message));
                             }
                         }

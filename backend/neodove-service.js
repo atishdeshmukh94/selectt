@@ -134,22 +134,36 @@ async function pushLeadToNeodove(lead, getSettingFn) {
             payload.detail5 = String(lead.agent || lead.source).trim().slice(0, 100);
         }
 
-        // Target webhook endpoint (do NOT append update=true for new leads)
+        // Target webhook endpoint
         let targetUrl = config.webhookUrl;
-        if (config.updateExisting && !targetUrl.includes('update=')) {
-            // Only if explicitly required
-            // targetUrl += (targetUrl.includes('?') ? '&' : '?') + 'update=true';
-        }
 
         // Clean any existing query params if present in webhookUrl
         const cleanEndpoint = targetUrl.replace(/[?&]update=true/g, '');
+        const updateEndpoint = cleanEndpoint + (cleanEndpoint.includes('?') ? '&' : '?') + 'update=true';
 
+        // 1. Send to base creation endpoint (creates new lead in Neodove)
         const response = await axios.post(cleanEndpoint, payload, {
             headers: {
                 'Content-Type': 'application/json'
             },
             timeout: 8000
         });
+
+        // 2. Also send to update endpoint if updateExisting is enabled (default true)
+        // This ensures if the customer already exists in Neodove, their contact record and
+        // Custom Contact Properties (detail1-5) are actively updated with the latest activity.
+        if (config.updateExisting) {
+            try {
+                await axios.post(updateEndpoint, payload, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 8000
+                });
+            } catch (updErr) {
+                console.warn('⚠️ [Neodove CRM] Update endpoint warning:', updErr.message);
+            }
+        }
 
         console.log(`✅ [Neodove CRM] Lead dispatched for ${payload.name} (${payload.mobile}): HTTP ${response.status}`);
         return { success: true, status: response.status, data: response.data };
