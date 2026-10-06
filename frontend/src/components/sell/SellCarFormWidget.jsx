@@ -937,8 +937,19 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
     kmValue: 35000,
     location: 'Andheri West, Link Road, Mumbai, Maharashtra 400053, India',
     phone: user?.phone || '',
-    name: user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : 'Rohit Sharma'
+    name: user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : ''
   });
+
+  // Keep formData phone and name synchronized whenever user authentication state updates
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        phone: user.phone || prev.phone || '',
+        name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || prev.name || 'Valued Seller'
+      }));
+    }
+  }, [user]);
 
   const [BRANDS, setBRANDS] = useState([]);
   const [branchLocations, setBranchLocations] = useState([]);
@@ -1462,6 +1473,43 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
     console.error('Valuation calculation error:', err);
   }
 
+  const triggerValuationLead = (loggedInUser) => {
+    try {
+      const u = loggedInUser || user;
+      const phone = formData.phone || u?.phone;
+      if (!phone) return;
+      const estimatedPriceNumber = valuation?.bestPriceLakhs ? Math.round(parseFloat(valuation.bestPriceLakhs) * 100000) : null;
+      const effectiveName = formData.name || `${u?.first_name || ''} ${u?.last_name || ''}`.trim() || 'Valued Seller';
+      const payload = {
+        make: formData.brandName || formData.brand,
+        model: formData.model,
+        variant: formData.variant,
+        year: formData.year,
+        km: formData.kmValue,
+        ownership: formData.ownership,
+        location: formData.location,
+        customer_phone: phone,
+        customer_name: effectiveName,
+        customer_email: u?.email || '',
+        customer_id: u?.id || null,
+        asking_price: estimatedPriceNumber,
+        inspection_notes: 'Valuation Checked on selectt.in/sell-car',
+        status: 'pending'
+      };
+      const authToken = localStorage.getItem('token') || token;
+      fetch(`${API_URL}/api/sell-requests`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+        },
+        body: JSON.stringify(payload)
+      }).then(r => r.json()).then(data => {
+        if (data?.id) setCreatedRequestId(data.id);
+      }).catch(() => {});
+    } catch (_) {}
+  };
+
   const handleSelectKmRange = (item) => {
     setFormData(prev => ({
       ...prev,
@@ -1476,6 +1524,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
         setTimeout(() => {
           setIsCalculatingValuation(false);
           setStep(4);
+          triggerValuationLead();
         }, 7500);
       });
       return;
@@ -1485,6 +1534,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
     setTimeout(() => {
       setIsCalculatingValuation(false);
       setStep(4);
+      triggerValuationLead();
     }, 7500);
   };
 
@@ -1493,16 +1543,19 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
     setSubmitError('');
     try {
       const estimatedPriceNumber = valuation?.bestPriceLakhs ? Math.round(parseFloat(valuation.bestPriceLakhs) * 100000) : null;
+      const effectivePhone = formData.phone || user?.phone || '';
+      const effectiveName = formData.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Valued Seller';
       const payload = {
-        make: formData.brandName,
+        make: formData.brandName || formData.brand,
         model: formData.model,
         variant: formData.variant,
         year: formData.year,
         km: formData.kmValue,
         ownership: formData.ownership,
         location: formData.location,
-        customer_phone: formData.phone,
-        customer_name: formData.name,
+        customer_phone: effectivePhone,
+        customer_name: effectiveName,
+        customer_email: user?.email || '',
         customer_id: user?.id || null,
         asking_price: estimatedPriceNumber,
         inspection_date: selectedDate,

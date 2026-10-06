@@ -266,6 +266,16 @@ db.query("ALTER TABLE customers ADD COLUMN neodove_synced_at TIMESTAMP NULL", (e
     if (!err) console.log("✅ [Neodove CRM] Verified/Added neodove_synced_at column to customers table");
 });
 
+// Global Site Setting Lookup Helper (Available to all route handlers)
+function getSetting(key) {
+    return new Promise((resolve, reject) => {
+        db.query('SELECT setting_value FROM site_settings WHERE setting_key = ?', [key], (err, results) => {
+            if (err) return reject(err);
+            resolve(results.length > 0 ? results[0].setting_value : null);
+        });
+    });
+}
+
 // Media Alt Store JSON Fallback
 const MEDIA_ALT_PATH = path.join(__dirname, 'media_alt.json');
 function readAltStore() {
@@ -2520,6 +2530,7 @@ app.post('/api/wishlist/:carId', customerAuth, (req, res) => {
                             const row = cRows[0];
                             const carTitle = `${row.year || ''} ${row.make || ''} ${row.model || ''} ${row.variant || ''}`.trim() || 'Selected Vehicle';
                             const customerName = `${row.first_name || ''} ${row.last_name || ''}`.trim() || 'Valued Customer';
+                            console.log(`[Neodove Wishlist Push] Dispatching lead for ${customerName} (${row.phone}) - ${carTitle}`);
                             pushLeadToNeodove({
                                 name: customerName,
                                 mobile: row.phone,
@@ -2564,6 +2575,10 @@ app.post('/api/sell-requests', (req, res) => {
     if (!make || !model) return res.status(400).json({ message: 'Make and model are required' });
 
     let resolvedCustomerId = customer_id || null;
+    let resolvedPhone = customer_phone;
+    let resolvedName = customer_name;
+    let resolvedEmail = customer_email;
+
     if (!resolvedCustomerId && req.headers.authorization) {
         try {
             const token = req.headers.authorization.split(' ')[1];
@@ -2572,63 +2587,89 @@ app.post('/api/sell-requests', (req, res) => {
         } catch (e) {}
     }
 
-    const data = {
-        make, model, variant, year, km,
-        fuel_type: fuelType || fuel_type,
-        transmission, ownership, location, asking_price, description,
-        customer_name, customer_phone, customer_email,
-        customer_id: resolvedCustomerId,
-        inspection_date: inspection_date || appointment_date || null,
-        inspection_time: inspection_time || appointment_time || null,
-        inspection_notes: inspection_notes || (inspection_type ? `Type: ${inspection_type}` : null),
-        status: 'pending'
+    const processInsert = (custPhone, custName, custEmail) => {
+        const finalPhone = custPhone || resolvedPhone;
+        const finalName = custName || resolvedName || 'Valued Seller';
+        const finalEmail = custEmail || resolvedEmail;
+
+        const data = {
+            make, model, variant, year, km,
+            fuel_type: fuelType || fuel_type,
+            transmission, ownership, location, asking_price, description,
+            customer_name: finalName,
+            customer_phone: finalPhone,
+            customer_email: finalEmail,
+            customer_id: resolvedCustomerId,
+            inspection_date: inspection_date || appointment_date || null,
+            inspection_time: inspection_time || appointment_time || null,
+            inspection_notes: inspection_notes || (inspection_type ? `Type: ${inspection_type}` : null),
+            status: 'pending'
+        };
+
+        db.query('INSERT INTO sell_requests SET ?', data, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            createNotification('CAR_SELL_REQUEST', `New car sell request from ${finalName}`, resolvedCustomerId, result.insertId);
+
+            // Gallabox WhatsApp Automated Trigger for Customer
+            const sellAmountFormatted = asking_price ? `₹${Number(asking_price).toLocaleString('en-IN')}` : 'Valuation in Progress';
+            const carTitle = `${year || ''} ${make || ''} ${model || ''} ${variant || ''}`.trim() || `${make || ''} ${model || ''}`.trim();
+
+            if (finalPhone) {
+                sendGallaboxWhatsAppNotification('sell_request', finalPhone, {
+                    customer_name: finalName,
+                    name: finalName,
+                    car_name: carTitle,
+                    Car_Model: `${make || ''} ${model || ''}`.trim() || carTitle,
+                    Sell_Amount: sellAmountFormatted,
+                    sell_amount: sellAmountFormatted,
+                    amount: sellAmountFormatted,
+                    request_id: `#SELL-${result.insertId}`,
+                    '1': finalName,
+                    '2': sellAmountFormatted,
+                    '3': `#SELL-${result.insertId}`
+                }).catch(() => {});
+            }
+
+            // Gallabox WhatsApp Alert for Admin
+            sendAdminWhatsAppAlert('admin_sell_request', {
+                customer_name: finalName,
+                customer_phone: finalPhone || 'N/A',
+                car_name: carTitle,
+                request_id: `#SELL-${result.insertId}`
+            }).catch(() => {});
+
+            // Neodove CRM Push
+            if (finalPhone) {
+                console.log(`[Neodove Sell Request] Dispatching lead for ${finalName} (${finalPhone}) - ${carTitle}`);
+                pushLeadToNeodove({
+                    name: finalName,
+                    mobile: finalPhone,
+                    email: finalEmail,
+                    car_interested: carTitle || 'Sell Car',
+                    urgency: 'Car Sell Request / Listing',
+                    summary: `Sell Car: ${carTitle} (${year || ''}). Valuation: ${sellAmountFormatted}. KM: ${km || 'N/A'}. Location: ${location || 'N/A'}. Inspection: ${inspection_date || appointment_date || 'TBD'} ${inspection_time || appointment_time || ''}`.trim(),
+                    budget: asking_price,
+                    agent: 'Sell Car Portal'
+                }, getSetting).catch(e => console.error('[Neodove Sell Request Error]:', e.message));
+            }
+
+            res.status(201).json({ id: result.insertId, ...data });
+        });
     };
 
-    db.query('INSERT INTO sell_requests SET ?', data, (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        createNotification('CAR_SELL_REQUEST', `New car sell request from ${customer_name}`, resolvedCustomerId, result.insertId);
-
-        // Gallabox WhatsApp Automated Trigger for Customer
-        const sellAmountFormatted = asking_price ? `₹${Number(asking_price).toLocaleString('en-IN')}` : 'Valuation in Progress';
-        const carTitle = `${year || ''} ${make || ''} ${model || ''} ${variant || ''}`.trim();
-        const sellerName = customer_name || 'Valued Seller';
-
-        sendGallaboxWhatsAppNotification('sell_request', customer_phone, {
-            customer_name: sellerName,
-            name: sellerName,
-            car_name: carTitle,
-            Car_Model: `${make || ''} ${model || ''}`.trim() || carTitle,
-            Sell_Amount: sellAmountFormatted,
-            sell_amount: sellAmountFormatted,
-            amount: sellAmountFormatted,
-            request_id: `#SELL-${result.insertId}`,
-            '1': sellerName,
-            '2': sellAmountFormatted,
-            '3': `#SELL-${result.insertId}`
+    if (resolvedCustomerId && (!resolvedPhone || !resolvedName)) {
+        db.query('SELECT phone, first_name, last_name, email FROM customers WHERE id = ?', [resolvedCustomerId], (cErr, cRows) => {
+            if (!cErr && cRows && cRows.length > 0) {
+                const c = cRows[0];
+                const fullName = `${c.first_name || ''} ${c.last_name || ''}`.trim();
+                processInsert(c.phone, fullName, c.email);
+            } else {
+                processInsert(resolvedPhone, resolvedName, resolvedEmail);
+            }
         });
-
-        // Gallabox WhatsApp Alert for Admin
-        sendAdminWhatsAppAlert('admin_sell_request', {
-            customer_name: customer_name || 'Valued Seller',
-            customer_phone: customer_phone || 'N/A',
-            car_name: `${year || ''} ${make || ''} ${model || ''} ${variant || ''}`.trim(),
-            request_id: `#SELL-${result.insertId}`
-        });
-
-        // Neodove CRM Push
-        pushLeadToNeodove({
-            name: customer_name || 'Valued Seller',
-            mobile: customer_phone,
-            email: customer_email,
-            car_interested: carTitle || 'Sell Car',
-            urgency: 'Sell Car Request',
-            summary: `Sell Car: ${carTitle} (${year || ''}). Asking: ₹${Number(asking_price || 0).toLocaleString('en-IN')}. KM: ${km || 'N/A'}. Location: ${location || 'N/A'}. Inspection: ${inspection_date || appointment_date || 'N/A'} ${inspection_time || appointment_time || ''}`.trim(),
-            budget: asking_price,
-            agent: 'Sell Portal'
-        }, getSetting).catch(e => console.error('[Neodove Sell Request Error]:', e.message));
-
-        res.status(201).json({ id: result.insertId, ...data });
-    });
+    } else {
+        processInsert(resolvedPhone, resolvedName, resolvedEmail);
+    }
 });
 
 app.put('/api/sell-requests/:id/inspection', (req, res) => {
@@ -2651,13 +2692,28 @@ app.put('/api/sell-requests/:id/inspection', (req, res) => {
             if (!sErr && sRows.length > 0) {
                 const sr = sRows[0];
                 const targetPhone = phone || sr.customer_phone;
+                const carTitle = `${sr.year || ''} ${sr.make || ''} ${sr.model || ''} ${sr.variant || ''}`.trim() || 'Sell Car';
+                const sellerName = name || sr.customer_name || 'Valued Seller';
+
                 if (targetPhone) {
                     sendGallaboxWhatsAppNotification('sell_inspection_scheduled', targetPhone, {
-                        customer_name: name || sr.customer_name || 'Valued Seller',
-                        car_name: `${sr.year || ''} ${sr.make || ''} ${sr.model || ''} ${sr.variant || ''}`.trim(),
+                        customer_name: sellerName,
+                        car_name: carTitle,
                         date_slot: `${appointmentDate || sr.inspection_date || ''} ${time || appointmentTime || sr.inspection_time || ''}`.trim(),
                         request_id: `#SELL-${reqId}`
-                    });
+                    }).catch(() => {});
+
+                    // Neodove CRM Push (Inspection Scheduled)
+                    pushLeadToNeodove({
+                        name: sellerName,
+                        mobile: targetPhone,
+                        email: sr.customer_email,
+                        car_interested: carTitle,
+                        urgency: 'Sell Car Inspection Scheduled',
+                        summary: `Inspection Booked! Request #${reqId} for ${carTitle}. Date: ${appointmentDate || sr.inspection_date}, Slot: ${time || appointmentTime || sr.inspection_time}. Notes: ${notes || sr.inspection_notes || 'N/A'}`,
+                        budget: sr.asking_price,
+                        agent: 'Sell Car Inspection'
+                    }, getSetting).catch(e => console.error('[Neodove Inspection Error]:', e.message));
                 }
                 createNotification('CAR_SELL_REQUEST', `Inspection scheduled for Sell Request #${reqId} on ${appointmentDate || sr.inspection_date} (${time || appointmentTime || sr.inspection_time})`, sr.customer_id, reqId);
             }
@@ -4619,14 +4675,7 @@ app.post('/api/dashboard/target', authMiddleware, isAdmin, async (req, res) => {
 // SITE SETTINGS & PAYMENTS
 // ============================================================
 
-const getSetting = (key) => {
-    return new Promise((resolve, reject) => {
-        db.query('SELECT setting_value FROM site_settings WHERE setting_key = ?', [key], (err, results) => {
-            if (err) return reject(err);
-            resolve(results.length > 0 ? results[0].setting_value : null);
-        });
-    });
-};
+// Note: getSetting is defined at the top of the file for global availability
 
 app.get('/api/settings', authMiddleware, isAdmin, (req, res) => {
     db.query('SELECT * FROM site_settings', (err, results) => {
