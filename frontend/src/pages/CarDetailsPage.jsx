@@ -24,7 +24,6 @@ import {
   History,
   UserCheck,
   Cpu,
-  Key,
   Umbrella,
   FileText,
   X,
@@ -841,7 +840,6 @@ const CarDetailsPage = () => {
                       { icon: <Cpu size={18} />, label: 'Engine', value: car.engineCapacity || '-' },
                       { icon: <UserCheck size={18} />, label: 'Ownership', value: car.ownership || '1st Owner' },
                       { icon: <ShieldCheck size={18} />, label: 'Insurance', value: car.insuranceStatus || 'Active' },
-                      { icon: <Key size={18} />, label: 'Spare key', value: car.spareKey || 'Yes' },
                       { icon: <FileText size={18} />, label: 'RTO Code', value: car.rto_code || car.rto || car.registration_no || car.registrationNo || '-' },
                     ].map((item, idx) => (
                       <div key={idx} className="flex gap-3 group">

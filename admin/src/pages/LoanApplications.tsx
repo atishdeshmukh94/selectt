@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Check, X, AlertCircle, Clock, ExternalLink, User, Briefcase, FileText, Filter, RotateCcw, Calendar, Download, Landmark, ShieldCheck, FileCheck2 } from "lucide-react";
+import { Search, Check, X, AlertCircle, Clock, ExternalLink, User, Briefcase, FileText, Filter, RotateCcw, Calendar, Download, Landmark, ShieldCheck, FileCheck2, Trash2, CheckSquare } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import PageMeta from "../components/common/PageMeta";
 
@@ -31,11 +31,17 @@ export default function LoanApplications() {
   const [endDate, setEndDate] = useState("");
   const [professionFilter, setProfessionFilter] = useState("all");
 
+  // Selection & Bulk Actions State
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
   // Pagination State (50 per page default)
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
 
   const [updating, setUpdating] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingDocField, setDeletingDocField] = useState<string | null>(null);
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
 
   const activeToken = token || localStorage.getItem("adminToken");
@@ -71,6 +77,143 @@ export default function LoanApplications() {
     } catch (err) {
       console.error("Error updating status:", err);
     } finally { setUpdating(null); }
+  };
+
+  const handleDeleteApplication = async (id: number, appNo: string) => {
+    if (!window.confirm(`Are you sure you want to delete loan application #${appNo}? This will permanently remove the record and all attached documents.`)) {
+      return;
+    }
+    setDeletingId(id);
+    try {
+      const res = await fetch(`${API}/api/loan-applications/${id}`, {
+        method: "DELETE",
+        headers,
+      });
+      if (res.ok) {
+        setSelectedIds(prev => prev.filter(item => item !== id));
+        if (selectedApp?.id === id) setSelectedApp(null);
+        fetchApplications();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.message || "Failed to delete loan application.");
+      }
+    } catch (err) {
+      console.error("Error deleting loan application:", err);
+      alert("Failed to delete loan application.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleDeleteDocument = async (appId: number, docField: string, docLabel: string) => {
+    if (!window.confirm(`Are you sure you want to remove the ${docLabel} document?`)) {
+      return;
+    }
+    setDeletingDocField(docField);
+    try {
+      const res = await fetch(`${API}/api/loan-applications/${appId}/documents/${docField}`, {
+        method: "DELETE",
+        headers,
+      });
+      if (res.ok) {
+        setSelectedApp((prev: any) => prev ? { ...prev, [docField]: null } : null);
+        fetchApplications();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.message || "Failed to remove document.");
+      }
+    } catch (err) {
+      console.error("Error removing document:", err);
+      alert("Failed to remove document.");
+    } finally {
+      setDeletingDocField(null);
+    }
+  };
+
+  // Toggle individual row selection
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  // Toggle selection for current page
+  const handleToggleSelectPage = (pageIds: number[]) => {
+    const allPageSelected = pageIds.length > 0 && pageIds.every(id => selectedIds.includes(id));
+    if (allPageSelected) {
+      setSelectedIds(prev => prev.filter(id => !pageIds.includes(id)));
+    } else {
+      setSelectedIds(prev => Array.from(new Set([...prev, ...pageIds])));
+    }
+  };
+
+  // Select all filtered items
+  const handleSelectAllFiltered = (filteredItems: any[]) => {
+    setSelectedIds(filteredItems.map(a => a.id));
+  };
+
+  // Clear all selections
+  const handleClearSelection = () => {
+    setSelectedIds([]);
+  };
+
+  // Delete all selected
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`Are you sure you want to delete ${selectedIds.length} selected loan applications? All submitted documents will be permanently deleted.`)) {
+      return;
+    }
+    setBulkDeleting(true);
+    try {
+      const res = await fetch(`${API}/api/loan-applications/bulk-delete`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ ids: selectedIds }),
+      });
+      if (res.ok) {
+        setSelectedIds([]);
+        if (selectedApp && selectedIds.includes(selectedApp.id)) setSelectedApp(null);
+        fetchApplications();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.message || "Failed to delete selected applications.");
+      }
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      alert("Failed to delete selected applications.");
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  // Delete all applications (complete wipe)
+  const handleDeleteAll = async () => {
+    if (applications.length === 0) return;
+    if (!window.confirm(`⚠️ WARNING: Are you sure you want to DELETE ALL ${applications.length} loan applications? This action CANNOT be undone!`)) {
+      return;
+    }
+    const allIds = applications.map(a => a.id);
+    setBulkDeleting(true);
+    try {
+      const res = await fetch(`${API}/api/loan-applications/bulk-delete`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ ids: allIds }),
+      });
+      if (res.ok) {
+        setSelectedIds([]);
+        setSelectedApp(null);
+        fetchApplications();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.message || "Failed to delete all applications.");
+      }
+    } catch (err) {
+      console.error("Delete all error:", err);
+      alert("Failed to delete all applications.");
+    } finally {
+      setBulkDeleting(false);
+    }
   };
 
   const uniqueProfessions = Array.from(new Set(applications.map(a => a.profession_type).filter(Boolean))).sort();
@@ -210,6 +353,44 @@ export default function LoanApplications() {
                 </button>
               ))}
             </div>
+
+            {/* Bulk Selection & Action Controls */}
+            {applications.length > 0 && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={selectedIds.length === applications.length ? handleClearSelection : () => setSelectedIds(applications.map(a => a.id))}
+                  className="flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-200 px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer shadow-2xs"
+                  title={selectedIds.length === applications.length ? "Deselect All" : "Select All Applications"}
+                >
+                  <CheckSquare size={14} className={selectedIds.length > 0 ? "text-[#1C3EB9]" : "text-slate-400"} />
+                  <span>{selectedIds.length === applications.length ? "Deselect All" : `Select All (${applications.length})`}</span>
+                </button>
+
+                {selectedIds.length > 0 ? (
+                  <button
+                    type="button"
+                    onClick={handleDeleteSelected}
+                    disabled={bulkDeleting}
+                    className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl text-xs font-black transition-all shadow-md shadow-rose-600/20 active:scale-95 cursor-pointer disabled:opacity-50"
+                  >
+                    <Trash2 size={14} />
+                    <span>{bulkDeleting ? "Deleting..." : `Delete Selected (${selectedIds.length})`}</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleDeleteAll}
+                    disabled={bulkDeleting}
+                    className="flex items-center gap-1.5 border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer"
+                    title="Delete all loan applications"
+                  >
+                    <Trash2 size={14} />
+                    <span>Delete All</span>
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Export CSV Button */}
             <button
@@ -403,6 +584,56 @@ export default function LoanApplications() {
           )}
         </div>
 
+        {/* Bulk Selection Actions Bar */}
+        {selectedIds.length > 0 && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border border-blue-200/80 dark:border-blue-900/60 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-2xs animate-in fade-in duration-150">
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-xs font-black text-[#1C3EB9] dark:text-blue-300">
+                {selectedIds.length} of {applications.length} loan applications selected
+              </span>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              {selectedIds.length < filtered.length ? (
+                <button
+                  type="button"
+                  onClick={() => handleSelectAllFiltered(filtered)}
+                  className="text-xs font-extrabold text-[#1C3EB9] dark:text-blue-400 hover:underline cursor-pointer"
+                >
+                  Select all {filtered.length} matching
+                </button>
+              ) : (
+                <span className="text-xs font-semibold text-slate-500">All matching selected</span>
+              )}
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <button
+                type="button"
+                onClick={handleClearSelection}
+                className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white cursor-pointer"
+              >
+                Clear selection
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleClearSelection}
+                className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-black text-slate-700 dark:text-gray-300 hover:bg-slate-100 cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteSelected}
+                disabled={bulkDeleting}
+                className="px-4 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-rose-600/20 cursor-pointer disabled:opacity-50 transition-all active:scale-95"
+              >
+                <Trash2 size={14} />
+                <span>{bulkDeleting ? "Deleting..." : `Delete Selected (${selectedIds.length})`}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Data Table */}
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200/80 dark:border-gray-800 overflow-hidden shadow-2xs">
           {loading ? (
@@ -425,6 +656,15 @@ export default function LoanApplications() {
               <table className="w-full text-xs text-left">
                 <thead className="bg-slate-50 dark:bg-gray-800 text-[11px] font-black text-slate-500 dark:text-gray-400 uppercase tracking-wider border-b border-slate-200/80 dark:border-gray-700">
                   <tr>
+                    <th className="px-4 py-3.5 w-10 text-center">
+                      <input
+                        type="checkbox"
+                        checked={paginatedApplications.length > 0 && paginatedApplications.every(a => selectedIds.includes(a.id))}
+                        onChange={() => handleToggleSelectPage(paginatedApplications.map(a => a.id))}
+                        className="w-4 h-4 rounded text-[#1C3EB9] focus:ring-[#1C3EB9] border-gray-300 dark:border-gray-700 cursor-pointer accent-[#1C3EB9]"
+                        title="Select / Deselect all on current page"
+                      />
+                    </th>
                     {["App No", "Customer Details", "Profession", "Documents", "Submitted Date", "Status", "Actions"].map(h => (
                       <th key={h} className="px-5 py-3.5 text-left whitespace-nowrap">{h}</th>
                     ))}
@@ -434,9 +674,18 @@ export default function LoanApplications() {
                   {paginatedApplications.map(a => {
                     const docFields = ['pan_card', 'aadhar_card', 'bank_statement', 'salary_slip', 'gst_certificate', 'gumasta_license', 'electricity_bill', 'msme_certificate'];
                     const docCount = docFields.filter(f => a[f]).length;
+                    const isSelected = selectedIds.includes(a.id);
                     
                     return (
-                      <tr key={a.id} className="hover:bg-slate-50/70 dark:hover:bg-gray-800/40 transition-colors">
+                      <tr key={a.id} className={`transition-colors ${isSelected ? 'bg-blue-50/70 dark:bg-blue-950/30' : 'hover:bg-slate-50/70 dark:hover:bg-gray-800/40'}`}>
+                        <td className="px-4 py-4 w-10 text-center">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelect(a.id)}
+                            className="w-4 h-4 rounded text-[#1C3EB9] focus:ring-[#1C3EB9] border-gray-300 dark:border-gray-700 cursor-pointer accent-[#1C3EB9]"
+                          />
+                        </td>
                         <td className="px-5 py-4 font-mono text-xs font-black text-[#1C3EB9]">
                           {a.application_no}
                         </td>
@@ -463,9 +712,23 @@ export default function LoanApplications() {
                           </span>
                         </td>
                         <td className="px-5 py-4 whitespace-nowrap">
-                          <button onClick={() => setSelectedApp(a)} className="text-xs font-black px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-800 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors cursor-pointer shadow-2xs">
-                            View Docs
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => setSelectedApp(a)} 
+                              className="text-xs font-black px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-800 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
+                            >
+                              <FileText size={13} className="text-[#1C3EB9]" />
+                              View Docs
+                            </button>
+                            <button
+                              onClick={() => handleDeleteApplication(a.id, a.application_no)}
+                              disabled={deletingId === a.id}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50 disabled:opacity-40"
+                              title="Delete Loan Application"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -585,24 +848,41 @@ export default function LoanApplications() {
                     if (!url) return null;
                     
                     return (
-                      <a key={doc.field} href={url} target="_blank" rel="noopener noreferrer" 
-                        className="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 dark:border-gray-800 hover:border-[#1C3EB9] transition-all group bg-white dark:bg-gray-800/40">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-[#1C3EB9]/10 flex items-center justify-center text-[#1C3EB9] group-hover:bg-[#1C3EB9] group-hover:text-white transition-colors">
+                      <div key={doc.field} className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 dark:border-gray-800 hover:border-[#1C3EB9] transition-all group bg-white dark:bg-gray-800/40">
+                        <a 
+                          href={url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="flex items-center gap-3 flex-1 min-w-0"
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-[#1C3EB9]/10 flex items-center justify-center text-[#1C3EB9] group-hover:bg-[#1C3EB9] group-hover:text-white transition-colors shrink-0">
                             <FileText size={20} />
                           </div>
-                          <span className="text-xs font-black text-slate-800 dark:text-gray-200">{doc.label}</span>
-                        </div>
-                        <ExternalLink size={16} className="text-slate-400 group-hover:text-[#1C3EB9]" />
-                      </a>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-xs font-black text-slate-800 dark:text-gray-200 truncate">{doc.label}</span>
+                            <span className="text-[10px] text-slate-400 flex items-center gap-1 font-semibold">
+                              Open file <ExternalLink size={10} />
+                            </span>
+                          </div>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteDocument(selectedApp.id, doc.field, doc.label)}
+                          disabled={deletingDocField === doc.field}
+                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer ml-2 shrink-0 border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50"
+                          title={`Delete ${doc.label}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Status Update Section */}
-              <div className="pt-4 border-t border-slate-100 dark:border-gray-800">
-                <label className="block text-[10px] font-black text-slate-400 uppercase mb-3 text-center tracking-wider">Update Loan Application Status</label>
+              {/* Status Update & Delete Section */}
+              <div className="pt-4 border-t border-slate-100 dark:border-gray-800 space-y-3">
+                <label className="block text-[10px] font-black text-slate-400 uppercase text-center tracking-wider">Update Loan Application Status</label>
                 <div className="flex gap-3">
                   <button onClick={() => updateStatus(selectedApp.id, "rejected")} disabled={updating === selectedApp.id}
                     className="flex-1 flex items-center justify-center gap-2 border border-rose-200 text-rose-600 hover:bg-rose-50 py-3 rounded-2xl font-black text-xs transition-colors disabled:opacity-60 cursor-pointer">
@@ -613,6 +893,14 @@ export default function LoanApplications() {
                     <Check size={16} /> Approve Loan
                   </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteApplication(selectedApp.id, selectedApp.application_no)}
+                  disabled={deletingId === selectedApp.id}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-black transition-colors cursor-pointer border border-rose-200/80 dark:border-rose-900/50 hover:border-rose-300"
+                >
+                  <Trash2 size={14} /> Delete This Loan File
+                </button>
               </div>
             </div>
           </div>

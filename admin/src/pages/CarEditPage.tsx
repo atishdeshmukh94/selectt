@@ -1657,18 +1657,6 @@ const CarEditPage = () => {
                 </div>
 
                 <div>
-                  <label className={labelClass}>Spare Key</label>
-                  <select 
-                    className={inpClass} 
-                    value={formData.spareKey || "Yes"} 
-                    onChange={e => setFormData({...formData, spareKey: e.target.value})}
-                  >
-                    <option value="Yes">Yes (Available)</option>
-                    <option value="No">No (Single Key)</option>
-                  </select>
-                </div>
-
-                <div>
                   <label className={labelClass}>Insurance Status</label>
                   <select 
                     className={inpClass} 
@@ -1679,16 +1667,6 @@ const CarEditPage = () => {
                     <option value="Third Party">Third Party Only</option>
                     <option value="Expired">Expired</option>
                   </select>
-                </div>
-
-                <div className="sm:col-span-2 md:col-span-3">
-                  <label className={labelClass}>Vehicle Description & Overview</label>
-                  <textarea 
-                    className={inpClass + " min-h-[90px] resize-none"} 
-                    value={formData.description || ""} 
-                    onChange={e => setFormData({...formData, description: e.target.value})} 
-                    placeholder="Provide highlights about car condition, service history, tyre condition, battery, warranty, etc."
-                  />
                 </div>
               </div>
             </section>

@@ -4074,6 +4074,97 @@ app.put('/api/loan-applications/:id/status', authMiddleware, isAdmin, (req, res)
     });
 });
 
+// Delete loan application (Admin only)
+app.delete(['/api/loan-applications/:id', '/api/admin/loan-applications/:id'], authMiddleware, isAdmin, (req, res) => {
+    const loanId = req.params.id;
+    db.query('SELECT * FROM loan_applications WHERE id = ?', [loanId], (getErr, rows) => {
+        if (getErr) return res.status(500).json({ error: getErr.message });
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ message: 'Loan application not found' });
+        }
+        
+        const appRecord = rows[0];
+        const docFields = ['pan_card', 'aadhar_card', 'bank_statement', 'salary_slip', 'gst_certificate', 'gumasta_license', 'electricity_bill', 'msme_certificate'];
+        
+        docFields.forEach(f => {
+            const filePath = appRecord[f];
+            if (filePath && typeof filePath === 'string' && filePath.startsWith('/uploads/')) {
+                const fullPath = path.join(__dirname, filePath);
+                if (fs.existsSync(fullPath)) {
+                    try { fs.unlinkSync(fullPath); } catch (e) { /* ignore cleanup error */ }
+                }
+            }
+        });
+
+        db.query('DELETE FROM loan_applications WHERE id = ?', [loanId], (delErr) => {
+            if (delErr) return res.status(500).json({ error: delErr.message });
+            res.json({ message: 'Loan application deleted successfully' });
+        });
+    });
+});
+
+// Bulk delete loan applications (Admin only)
+app.post(['/api/loan-applications/bulk-delete', '/api/admin/loan-applications/bulk-delete'], authMiddleware, isAdmin, (req, res) => {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ message: 'No IDs provided for deletion' });
+    }
+
+    db.query('SELECT * FROM loan_applications WHERE id IN (?)', [ids], (getErr, rows) => {
+        if (getErr) return res.status(500).json({ error: getErr.message });
+        
+        const docFields = ['pan_card', 'aadhar_card', 'bank_statement', 'salary_slip', 'gst_certificate', 'gumasta_license', 'electricity_bill', 'msme_certificate'];
+        
+        if (rows && rows.length > 0) {
+            rows.forEach(appRecord => {
+                docFields.forEach(f => {
+                    const filePath = appRecord[f];
+                    if (filePath && typeof filePath === 'string' && filePath.startsWith('/uploads/')) {
+                        const fullPath = path.join(__dirname, filePath);
+                        if (fs.existsSync(fullPath)) {
+                            try { fs.unlinkSync(fullPath); } catch (e) { /* ignore cleanup error */ }
+                        }
+                    }
+                });
+            });
+        }
+
+        db.query('DELETE FROM loan_applications WHERE id IN (?)', [ids], (delErr) => {
+            if (delErr) return res.status(500).json({ error: delErr.message });
+            res.json({ message: `Successfully deleted ${ids.length} loan applications` });
+        });
+    });
+});
+
+// Delete specific document file from a loan application (Admin only)
+app.delete(['/api/loan-applications/:id/documents/:docField', '/api/admin/loan-applications/:id/documents/:docField'], authMiddleware, isAdmin, (req, res) => {
+    const loanId = req.params.id;
+    const { docField } = req.params;
+    const allowedFields = ['pan_card', 'aadhar_card', 'bank_statement', 'salary_slip', 'gst_certificate', 'gumasta_license', 'electricity_bill', 'msme_certificate'];
+    
+    if (!allowedFields.includes(docField)) {
+        return res.status(400).json({ message: 'Invalid document field' });
+    }
+
+    db.query('SELECT ?? FROM loan_applications WHERE id = ?', [docField, loanId], (getErr, rows) => {
+        if (getErr) return res.status(500).json({ error: getErr.message });
+        if (!rows || rows.length === 0) return res.status(404).json({ message: 'Loan application not found' });
+
+        const filePath = rows[0][docField];
+        if (filePath && typeof filePath === 'string' && filePath.startsWith('/uploads/')) {
+            const fullPath = path.join(__dirname, filePath);
+            if (fs.existsSync(fullPath)) {
+                try { fs.unlinkSync(fullPath); } catch (e) { /* ignore cleanup error */ }
+            }
+        }
+
+        db.query('UPDATE loan_applications SET ?? = NULL WHERE id = ?', [docField, loanId], (updErr) => {
+            if (updErr) return res.status(500).json({ error: updErr.message });
+            res.json({ message: 'Document file removed successfully' });
+        });
+    });
+});
+
 // ============================================================
 // CAR INSURANCE REQUESTS API
 // ============================================================

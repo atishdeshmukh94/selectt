@@ -1625,13 +1625,6 @@ export default function ManageCars() {
                           </span>
                         </div>
 
-                        <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200/70 dark:border-gray-700/60">
-                          <span className="text-gray-400 font-bold uppercase block text-[10px]">Spare Key</span>
-                          <span className="font-extrabold text-gray-900 dark:text-white text-sm capitalize">
-                            {quickViewCar.spareKey || quickViewCar.spare_key || "Yes"}
-                          </span>
-                        </div>
-
                         {quickViewCar.listedBy && (
                           <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200/70 dark:border-gray-700/60 col-span-2">
                             <span className="text-gray-400 font-bold uppercase block text-[10px]">Source / Listed By</span>
