@@ -150,7 +150,6 @@ const navItems: NavItem[] = [
     name: "Site Settings",
     permissionKey: "site_settings",
     subItems: [
-      { name: "Brand Logos & OG Image", path: "/image-settings?tab=branding", permissionKey: "site_settings" },
       { name: "Banners & Images", path: "/image-settings", permissionKey: "site_settings" },
       { name: "Video Reviews", path: "/testimonials-video", permissionKey: "site_settings" },
       { name: "Service Locations", path: "/locations", permissionKey: "site_settings" },
