@@ -310,22 +310,6 @@ const CarCard = ({ car, lightBg = false }) => {
             </div>
           ))}
 
-          {/* Subtle Slide Indicators */}
-          {carImages.length > 1 && (
-            <div className="absolute bottom-2 inset-x-0 flex items-center justify-center gap-1 z-20 pointer-events-none">
-              {carImages.map((_, idx) => (
-                <span
-                  key={idx}
-                  className={`h-1 rounded-full transition-all duration-500 ${
-                    idx === activeImageIndex
-                      ? 'w-4 bg-white shadow-xs'
-                      : 'w-1.5 bg-white/50 backdrop-blur-xs'
-                  }`}
-                />
-              ))}
-            </div>
-          )}
-
           {/* Sold Out Overlay */}
           {car.status === 'sold_out' && (
             <div className="absolute inset-0 bg-slate-950/70 flex items-center justify-center z-10">
