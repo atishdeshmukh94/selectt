@@ -1925,6 +1925,33 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             insurance_status, color, bodyType, body_type, description, videoUrl, video_url, status, registrationNo, registration_no, rto_code, rto } = req.body;
 
         if (!make || !model) {
+            // Check if this is a partial update (e.g. quick status or price change from admin table)
+            const fieldMap = {
+                status: 'status',
+                isAssured: 'is_assured',
+                is_assured: 'is_assured',
+                listingType: 'listing_type',
+                listing_type: 'listing_type',
+                price: 'price',
+                tag: 'tag',
+                hub: 'hub',
+                location: 'location'
+            };
+            const partialData = {};
+            Object.keys(req.body).forEach(key => {
+                if (fieldMap[key] !== undefined) {
+                    partialData[fieldMap[key]] = req.body[key];
+                }
+            });
+
+            if (Object.keys(partialData).length > 0) {
+                return db.query('UPDATE cars SET ? WHERE id = ?', [partialData, req.params.id], (err) => {
+                    if (err) return res.status(500).json({ error: err.message });
+                    try { triggerMetaAutoSync(req.params.id, 'UPDATE'); } catch (_) {}
+                    return res.json({ message: 'Car updated successfully', updated: partialData });
+                });
+            }
+
             return res.status(400).json({ error: 'Make and Model are required' });
         }
 

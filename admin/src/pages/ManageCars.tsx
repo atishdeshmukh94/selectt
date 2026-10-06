@@ -186,7 +186,7 @@ export default function ManageCars() {
   const handleInlineStatusChange = async (carId: number, newStatus: string) => {
     try {
       const res = await fetch(`${API}/api/cars/${carId}`, {
-        method: "PUT",
+        method: "PATCH",
         headers,
         body: JSON.stringify({ status: newStatus })
       });
@@ -200,7 +200,8 @@ export default function ManageCars() {
           'Coming Soon';
         showToast(`Car #${carId} status set to "${statusLabel}"`);
       } else {
-        showToast("Failed to update status", "error");
+        const errData = await res.json().catch(() => ({}));
+        showToast(errData.error || errData.message || "Failed to update status", "error");
       }
     } catch {
       showToast("Network error updating status", "error");
@@ -438,7 +439,7 @@ export default function ManageCars() {
     } catch (e) {
       await Promise.all(selectedIds.map(id =>
         fetch(`${API}/api/cars/${id}`, {
-          method: "PUT",
+          method: "PATCH",
           headers,
           body: JSON.stringify({ status: newStatus })
         }).catch(() => {})
