@@ -46,6 +46,7 @@ const mysql = require('mysql2/promise');
   });
   const entries = [
     ['meta_catalog_id', '${catalogId}'],
+    ['meta_secondary_catalog_id', '1096255408500197'],
     ['meta_access_token', '${token}'],
     ['meta_pixel_id', '${pixelId}'],
     ['meta_business_id', '${businessId}'],
