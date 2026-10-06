@@ -1639,9 +1639,8 @@ const CheckoutPage = () => {
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="font-extrabold font-price text-base sm:text-lg text-[#0C1B33] inline-flex items-center gap-1.5">
-                          <span>₹ {standardBookingAmount.toLocaleString('en-IN')}</span>
-                          <Pencil size={12} className="text-[#00A38D]" />
+                        <span className="font-extrabold font-price text-base sm:text-lg text-[#0C1B33]">
+                          ₹ {standardBookingAmount.toLocaleString('en-IN')}
                         </span>
                       </div>
                     </div>
