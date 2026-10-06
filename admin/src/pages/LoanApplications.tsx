@@ -44,15 +44,17 @@ export default function LoanApplications() {
   const [deletingDocField, setDeletingDocField] = useState<string | null>(null);
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
 
-  const activeToken = token || localStorage.getItem("adminToken");
-  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${activeToken}` };
+  const getHeaders = () => {
+    const currentToken = token || localStorage.getItem("adminToken") || "";
+    return { "Content-Type": "application/json", Authorization: `Bearer ${currentToken}` };
+  };
 
   const fetchApplications = () => {
     const currentToken = token || localStorage.getItem("adminToken");
     if (!currentToken) return;
     setLoading(true);
     fetch(`${API}/api/loan-applications`, { 
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${currentToken}` } 
+      headers: getHeaders()
     })
       .then(r => r.json())
       .then(data => setApplications(Array.isArray(data) ? data : []))
@@ -67,7 +69,7 @@ export default function LoanApplications() {
     try {
       const res = await fetch(`${API}/api/loan-applications/${id}/status`, {
         method: "PUT", 
-        headers: { ...headers, "Content-Type": "application/json" },
+        headers: getHeaders(),
         body: JSON.stringify({ status })
       });
       if (res.ok) {
@@ -87,7 +89,7 @@ export default function LoanApplications() {
     try {
       const res = await fetch(`${API}/api/loan-applications/${id}`, {
         method: "DELETE",
-        headers,
+        headers: getHeaders(),
       });
       if (res.ok) {
         setSelectedIds(prev => prev.filter(item => item !== id));
@@ -113,7 +115,7 @@ export default function LoanApplications() {
     try {
       const res = await fetch(`${API}/api/loan-applications/${appId}/documents/${docField}`, {
         method: "DELETE",
-        headers,
+        headers: getHeaders(),
       });
       if (res.ok) {
         setSelectedApp((prev: any) => prev ? { ...prev, [docField]: null } : null);
@@ -160,23 +162,32 @@ export default function LoanApplications() {
   // Delete all selected
   const handleDeleteSelected = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Are you sure you want to delete ${selectedIds.length} selected loan applications? All submitted documents will be permanently deleted.`)) {
+    if (!window.confirm(`Are you sure you want to delete ${selectedIds.length} selected loan application${selectedIds.length > 1 ? 's' : ''}? All submitted documents will be permanently deleted.`)) {
       return;
     }
     setBulkDeleting(true);
+    const authHeaders = getHeaders();
     try {
       const res = await fetch(`${API}/api/loan-applications/bulk-delete`, {
         method: "POST",
-        headers,
+        headers: authHeaders,
         body: JSON.stringify({ ids: selectedIds }),
-      });
-      if (res.ok) {
+      }).catch(() => null);
+
+      if (res && res.ok) {
         setSelectedIds([]);
         if (selectedApp && selectedIds.includes(selectedApp.id)) setSelectedApp(null);
         fetchApplications();
       } else {
-        const data = await res.json().catch(() => ({}));
-        alert(data.message || "Failed to delete selected applications.");
+        // Fallback: delete sequentially
+        await Promise.all(
+          selectedIds.map(id =>
+            fetch(`${API}/api/loan-applications/${id}`, { method: "DELETE", headers: authHeaders }).catch(() => null)
+          )
+        );
+        setSelectedIds([]);
+        if (selectedApp && selectedIds.includes(selectedApp.id)) setSelectedApp(null);
+        fetchApplications();
       }
     } catch (err) {
       console.error("Bulk delete error:", err);
@@ -194,19 +205,27 @@ export default function LoanApplications() {
     }
     const allIds = applications.map(a => a.id);
     setBulkDeleting(true);
+    const authHeaders = getHeaders();
     try {
       const res = await fetch(`${API}/api/loan-applications/bulk-delete`, {
         method: "POST",
-        headers,
+        headers: authHeaders,
         body: JSON.stringify({ ids: allIds }),
-      });
-      if (res.ok) {
+      }).catch(() => null);
+
+      if (res && res.ok) {
         setSelectedIds([]);
         setSelectedApp(null);
         fetchApplications();
       } else {
-        const data = await res.json().catch(() => ({}));
-        alert(data.message || "Failed to delete all applications.");
+        await Promise.all(
+          allIds.map(id =>
+            fetch(`${API}/api/loan-applications/${id}`, { method: "DELETE", headers: authHeaders }).catch(() => null)
+          )
+        );
+        setSelectedIds([]);
+        setSelectedApp(null);
+        fetchApplications();
       }
     } catch (err) {
       console.error("Delete all error:", err);
@@ -366,29 +385,6 @@ export default function LoanApplications() {
                   <CheckSquare size={14} className={selectedIds.length > 0 ? "text-[#1C3EB9]" : "text-slate-400"} />
                   <span>{selectedIds.length === applications.length ? "Deselect All" : `Select All (${applications.length})`}</span>
                 </button>
-
-                {selectedIds.length > 0 ? (
-                  <button
-                    type="button"
-                    onClick={handleDeleteSelected}
-                    disabled={bulkDeleting}
-                    className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl text-xs font-black transition-all shadow-md shadow-rose-600/20 active:scale-95 cursor-pointer disabled:opacity-50"
-                  >
-                    <Trash2 size={14} />
-                    <span>{bulkDeleting ? "Deleting..." : `Delete Selected (${selectedIds.length})`}</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleDeleteAll}
-                    disabled={bulkDeleting}
-                    className="flex items-center gap-1.5 border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer"
-                    title="Delete all loan applications"
-                  >
-                    <Trash2 size={14} />
-                    <span>Delete All</span>
-                  </button>
-                )}
               </div>
             )}
 

@@ -212,12 +212,70 @@ const CarCard = ({ car, lightBg = false }) => {
       ? 'bg-slate-50 text-slate-500 hover:text-red-500 hover:bg-slate-100 border-slate-200/60 shadow-sm'
       : 'bg-slate-950/40 text-white/80 hover:text-red-500 hover:bg-white/10 border-white/10';
 
-  const primaryImage = car.image || 
-    (Array.isArray(car.moreImages) && car.moreImages[0]) || 
-    (Array.isArray(car.images) && car.images[0]) || 
-    car.image_url || 
-    '';
-  const imageSrc = getCarImageUrl(primaryImage);
+  // Filter out any video embeds / iframes / streaming URLs so only real car photos loop
+  const isImageOnly = (url) => {
+    if (!url || typeof url !== 'string') return false;
+    const trimmed = url.trim().toLowerCase();
+    if (
+      trimmed.includes('iframe') ||
+      trimmed.includes('embed') ||
+      trimmed.includes('mediadelivery.net') ||
+      trimmed.includes('youtube') ||
+      trimmed.includes('youtu.be') ||
+      trimmed.includes('vimeo') ||
+      trimmed.endsWith('.mp4') ||
+      trimmed.endsWith('.webm') ||
+      trimmed.endsWith('.mov') ||
+      trimmed.includes('/video/')
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  // Collect 3 to 4 genuine car photos in loop
+  const carImages = React.useMemo(() => {
+    const list = [];
+    if (isImageOnly(car.image)) {
+      list.push(car.image);
+    }
+    const extraList = Array.isArray(car.moreImages) 
+      ? car.moreImages 
+      : (Array.isArray(car.images) ? car.images : []);
+
+    for (const img of extraList) {
+      if (isImageOnly(img) && !list.includes(img)) {
+        list.push(img);
+        if (list.length >= 4) break; // Limit to 3-4 photos as requested
+      }
+    }
+    if (list.length === 0 && car.image) {
+      list.push(car.image);
+    }
+    return list;
+  }, [car.image, car.moreImages, car.images]);
+
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  // Slow-mode automatic image slide loop (changes every 3.8s)
+  useEffect(() => {
+    if (carImages.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveImageIndex(prev => (prev + 1) % carImages.length);
+    }, 3800);
+    return () => clearInterval(interval);
+  }, [carImages.length]);
+
+  // Preload additional images in background
+  useEffect(() => {
+    if (carImages.length <= 1) return;
+    carImages.forEach(img => {
+      if (img) {
+        const preload = new Image();
+        preload.src = getCarImageUrl(img);
+      }
+    });
+  }, [carImages]);
 
   return (
     <motion.div
@@ -233,14 +291,40 @@ const CarCard = ({ car, lightBg = false }) => {
         className="block flex-grow flex flex-col h-full w-full"
       >
 
-        {/* Image Container with Skeleton & Subtle Hover Zoom */}
+        {/* Image Container with Slow-Mode Image Loop */}
         <div className={`relative h-[155px] overflow-hidden shrink-0 m-3 rounded-[14px] ${lightBg ? 'bg-slate-100' : 'bg-slate-950/20'}`}>
-          <SkeletonImage
-            src={imageSrc}
-            alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''} - Certified Pre-Owned Car in ${car.location ? car.location.split(',')[0] : 'India'} | Selectt`}
-            aspectRatio="h-full w-full"
-            hoverZoom={true}
-          />
+          {carImages.map((img, idx) => (
+            <div
+              key={`${img}-${idx}`}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                idx === activeImageIndex ? 'opacity-100 z-[1]' : 'opacity-0 z-0 pointer-events-none'
+              }`}
+            >
+              <SkeletonImage
+                src={getCarImageUrl(img)}
+                alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''} - Photo ${idx + 1}`}
+                aspectRatio="h-full w-full"
+                hoverZoom={true}
+                priority={idx === 0}
+              />
+            </div>
+          ))}
+
+          {/* Subtle Slide Indicators */}
+          {carImages.length > 1 && (
+            <div className="absolute bottom-2 inset-x-0 flex items-center justify-center gap-1 z-20 pointer-events-none">
+              {carImages.map((_, idx) => (
+                <span
+                  key={idx}
+                  className={`h-1 rounded-full transition-all duration-500 ${
+                    idx === activeImageIndex
+                      ? 'w-4 bg-white shadow-xs'
+                      : 'w-1.5 bg-white/50 backdrop-blur-xs'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Sold Out Overlay */}
           {car.status === 'sold_out' && (
