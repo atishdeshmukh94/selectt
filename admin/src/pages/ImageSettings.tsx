@@ -828,10 +828,10 @@ export default function ImageSettings() {
         mobile_home_video_url: embedUrl,
         mobile_home_video_enabled: "true",
       }));
-      toast.success("Video uploaded to Bunny.net Stream successfully!");
+      toast.success("Video uploaded successfully!");
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || "Bunny.net upload failed");
+      toast.error(err.message || "Video upload failed");
     } finally {
       setUploadingBunnyVideo(false);
       if (e.target) e.target.value = "";
@@ -1739,18 +1739,6 @@ export default function ImageSettings() {
                         <h3 className="font-extrabold text-base text-slate-900 dark:text-white leading-tight">
                           Mobile Home Highlight Video
                         </h3>
-                        {siteContent.mobile_home_video_enabled !== "false" ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            Live on Mobile Site
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800 shadow-2xs">
-                            <Power size={11} />
-                            Disabled / Hidden
-                          </span>
-                        )}
-                        {getVideoTypeBadge(siteContent.mobile_home_video_url)}
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         Placement: <strong>Mobile Home Page</strong> between Quick Services and Customer Trust Ratings ("Sell your car, best price always").
@@ -1806,16 +1794,16 @@ export default function ImageSettings() {
 
                   {/* Right: Controls & Upload Options */}
                   <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
-                    {/* Method 1: Bunny.net Stream Upload */}
-                    <div className="p-4 rounded-xl border border-amber-200/80 dark:border-amber-900/40 bg-amber-50/40 dark:bg-amber-950/20">
+                    {/* Method 1: Video File Upload */}
+                    <div className="p-4 rounded-xl border border-slate-200 dark:border-gray-800 bg-slate-50/70 dark:bg-gray-800/40">
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div>
-                          <div className="flex items-center gap-1.5 font-bold text-xs text-amber-900 dark:text-amber-200">
-                            <span>🐰</span>
-                            <span>Option 1: Direct Bunny.net Stream Upload</span>
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-white">
+                            <Upload size={13} className="text-blue-600" />
+                            <span>Option 1: Upload Video</span>
                           </div>
-                          <p className="text-[11px] text-amber-700/80 dark:text-amber-300/70 mt-0.5">
-                            Upload high-definition video directly to your Bunny.net Stream CDN library. Automatically embeds with adaptive bitrates.
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                            Upload high-definition video directly. Automatically optimized for fast mobile streaming.
                           </p>
                         </div>
                       </div>
@@ -1837,29 +1825,29 @@ export default function ImageSettings() {
                         {uploadingBunnyVideo ? (
                           <>
                             <span className="animate-spin text-xs">⏳</span>
-                            <span>Uploading to Bunny.net Stream CDN...</span>
+                            <span>Uploading Video...</span>
                           </>
                         ) : (
                           <>
                             <Upload size={14} />
-                            <span>Upload Video to Bunny.net</span>
+                            <span>Upload Video</span>
                           </>
                         )}
                       </button>
                     </div>
 
-                    {/* Method 2: YouTube / Bunny Embed / Direct Video URL Input */}
+                    {/* Method 2: YouTube / Direct Video URL Input */}
                     <div className="p-4 rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 space-y-3">
                       <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
                         <LinkIcon size={13} className="text-blue-500" />
-                        <span>Option 2: YouTube Link, Bunny Stream Embed, or Direct MP4 URL</span>
+                        <span>Option 2: Video URL or YouTube Link</span>
                       </div>
 
                       <div>
                         <input
                           type="text"
                           value={siteContent.mobile_home_video_url || ""}
-                          placeholder="https://www.youtube.com/watch?v=... or https://iframe.mediadelivery.net/embed/..."
+                          placeholder="https://www.youtube.com/watch?v=... or direct video URL"
                           onChange={(e) => {
                             const val = e.target.value;
                             setSiteContent((prev) => ({
@@ -1879,7 +1867,7 @@ export default function ImageSettings() {
                           <span className="font-semibold text-slate-600 dark:text-slate-400">Supported:</span>
                           <span className="px-1.5 py-0.5 rounded bg-red-50 dark:bg-red-950/40 text-red-600 font-mono">youtube.com/watch?v=</span>
                           <span className="px-1.5 py-0.5 rounded bg-red-50 dark:bg-red-950/40 text-red-600 font-mono">youtu.be/...</span>
-                          <span className="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 font-mono">iframe.mediadelivery.net/...</span>
+                          <span className="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 font-mono">Stream Embed / CDN URL</span>
                           <span className="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-700 font-mono">.mp4 / .webm</span>
                         </div>
                       </div>
