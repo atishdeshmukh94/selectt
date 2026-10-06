@@ -1208,11 +1208,11 @@ const {
     analyzeCatalogHealth
 } = require('./meta-catalog-service');
 
-// Asynchronous Auto-Sync Trigger for Meta Catalog
+// Asynchronous Auto-Sync Trigger for Meta Catalog (Supports Multiple Catalogs simultaneously)
 async function triggerMetaAutoSync(carIdOrIds, action = 'UPDATE') {
     try {
-        const settingsRows = await queryAsync('SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN (?, ?, ?, ?)', [
-            'meta_catalog_id', 'meta_access_token', 'meta_catalog_auto_sync', 'meta_catalog_fallback_brand'
+        const settingsRows = await queryAsync('SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN (?, ?, ?, ?, ?, ?)', [
+            'meta_catalog_id', 'meta_secondary_catalog_id', 'meta_access_token', 'meta_secondary_access_token', 'meta_catalog_auto_sync', 'meta_catalog_fallback_brand'
         ]);
         const settings = {};
         if (Array.isArray(settingsRows)) {
@@ -1220,19 +1220,48 @@ async function triggerMetaAutoSync(carIdOrIds, action = 'UPDATE') {
         }
 
         if (settings.meta_catalog_auto_sync !== 'true') return;
-        if (!settings.meta_catalog_id || !settings.meta_access_token) return;
 
-        console.log(`[Meta Auto-Sync Triggered]: Car ID(s) ${JSON.stringify(carIdOrIds)}, Action: ${action}`);
+        // Build list of target catalogs
+        const targets = [];
+        if (settings.meta_catalog_id && settings.meta_access_token) {
+            const ids = settings.meta_catalog_id.split(/[\s,]+/).filter(Boolean);
+            ids.forEach(id => {
+                targets.push({ catalogId: id, accessToken: settings.meta_access_token });
+            });
+        }
+        if (settings.meta_secondary_catalog_id) {
+            const secIds = settings.meta_secondary_catalog_id.split(/[\s,]+/).filter(Boolean);
+            secIds.forEach(id => {
+                if (!targets.some(t => t.catalogId === id)) {
+                    targets.push({
+                        catalogId: id,
+                        accessToken: settings.meta_secondary_access_token || settings.meta_access_token
+                    });
+                }
+            });
+        }
+
+        if (targets.length === 0) return;
+
+        console.log(`[Meta Multi-Catalog Auto-Sync]: Car ID(s) ${JSON.stringify(carIdOrIds)}, Action: ${action}, Target Catalogs: ${targets.map(t => t.catalogId).join(', ')}`);
 
         const ids = Array.isArray(carIdOrIds) ? carIdOrIds : [carIdOrIds];
+        let syncResults = [];
+
         if (action === 'DELETE') {
             const deleteItems = ids.map(id => ({ id: `SELECTT-CAR-${id}` }));
-            await pushBatchToMetaGraphApi({
-                catalogId: settings.meta_catalog_id,
-                accessToken: settings.meta_access_token,
-                items: deleteItems,
-                method: 'DELETE'
-            });
+            for (const t of targets) {
+                try {
+                    await pushBatchToMetaGraphApi({
+                        catalogId: t.catalogId,
+                        accessToken: t.accessToken,
+                        items: deleteItems,
+                        method: 'DELETE'
+                    });
+                } catch (e) {
+                    console.error(`[Meta Auto-Sync Delete Error for ${t.catalogId}]:`, e.message);
+                }
+            }
             return;
         }
 
@@ -1240,16 +1269,25 @@ async function triggerMetaAutoSync(carIdOrIds, action = 'UPDATE') {
         if (!cars || cars.length === 0) return;
 
         const formattedItems = cars.map(c => formatCarForMeta(c, SITE_URL, settings.meta_catalog_fallback_brand));
-        const syncResult = await pushBatchToMetaGraphApi({
-            catalogId: settings.meta_catalog_id,
-            accessToken: settings.meta_access_token,
-            items: formattedItems,
-            method: action
-        });
+        for (const t of targets) {
+            try {
+                const res = await pushBatchToMetaGraphApi({
+                    catalogId: t.catalogId,
+                    accessToken: t.accessToken,
+                    items: formattedItems,
+                    method: action
+                });
+                syncResults.push({ catalogId: t.catalogId, success: res.success, message: res.message });
+            } catch (e) {
+                syncResults.push({ catalogId: t.catalogId, success: false, message: e.message });
+            }
+        }
 
         const nowStr = new Date().toISOString();
+        const overallSuccess = syncResults.some(r => r.success);
         await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_synced_at', nowStr, nowStr]);
-        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_sync_status', syncResult.success ? 'success' : 'failed', syncResult.success ? 'success' : 'failed']);
+        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_sync_status', overallSuccess ? 'success' : 'failed', overallSuccess ? 'success' : 'failed']);
+        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_sync_result', JSON.stringify(syncResults), JSON.stringify(syncResults)]);
     } catch (e) {
         console.error('[Meta Auto-Sync Error]:', e.message);
     }
@@ -1401,9 +1439,12 @@ app.get('/api/admin/meta-catalog/status', authMiddleware, isAdmin, async (req, r
         res.json({
             settings: {
                 catalog_id: settings.meta_catalog_id || '',
+                secondary_catalog_id: settings.meta_secondary_catalog_id || '',
                 pixel_id: settings.meta_pixel_id || '',
                 access_token: settings.meta_access_token ? '••••••••' + settings.meta_access_token.slice(-6) : '',
+                secondary_access_token: settings.meta_secondary_access_token ? '••••••••' + settings.meta_secondary_access_token.slice(-6) : '',
                 has_token: Boolean(settings.meta_access_token),
+                has_secondary_token: Boolean(settings.meta_secondary_access_token),
                 business_id: settings.meta_business_id || '',
                 auto_sync: settings.meta_catalog_auto_sync === 'true',
                 fallback_brand: settings.meta_catalog_fallback_brand || 'Selectt Cars',
@@ -1434,8 +1475,10 @@ app.post('/api/admin/meta-catalog/settings', authMiddleware, isAdmin, async (req
     try {
         const {
             catalog_id,
+            secondary_catalog_id,
             pixel_id,
             access_token,
+            secondary_access_token,
             business_id,
             auto_sync,
             fallback_brand,
@@ -1444,6 +1487,7 @@ app.post('/api/admin/meta-catalog/settings', authMiddleware, isAdmin, async (req
 
         const updates = [
             ['meta_catalog_id', catalog_id !== undefined ? String(catalog_id).trim() : ''],
+            ['meta_secondary_catalog_id', secondary_catalog_id !== undefined ? String(secondary_catalog_id).trim() : ''],
             ['meta_pixel_id', pixel_id !== undefined ? String(pixel_id).trim() : ''],
             ['meta_business_id', business_id !== undefined ? String(business_id).trim() : ''],
             ['meta_catalog_auto_sync', auto_sync ? 'true' : 'false'],
@@ -1451,9 +1495,16 @@ app.post('/api/admin/meta-catalog/settings', authMiddleware, isAdmin, async (req
             ['meta_catalog_currency', currency || 'INR']
         ];
 
-        // Only update access token if a new one was provided (not masked)
+        // Only update primary access token if a new one was provided (not masked)
         if (access_token && !access_token.startsWith('••••')) {
             updates.push(['meta_access_token', String(access_token).trim()]);
+        }
+
+        // Only update secondary access token if provided and not masked
+        if (secondary_access_token !== undefined) {
+            if (!secondary_access_token.startsWith('••••')) {
+                updates.push(['meta_secondary_access_token', String(secondary_access_token).trim()]);
+            }
         }
 
         for (const [k, v] of updates) {
@@ -1470,10 +1521,10 @@ app.post('/api/admin/meta-catalog/settings', authMiddleware, isAdmin, async (req
     }
 });
 
-// Admin Test Meta API Connection
+// Admin Test Meta API Connection (Supports Both Catalogs)
 app.post('/api/admin/meta-catalog/test-connection', authMiddleware, isAdmin, async (req, res) => {
     try {
-        let { catalog_id, access_token } = req.body;
+        let { catalog_id, secondary_catalog_id, access_token, secondary_access_token } = req.body;
 
         if (!access_token || access_token.startsWith('••••')) {
             const [tokRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_access_token'");
@@ -1484,48 +1535,141 @@ app.post('/api/admin/meta-catalog/test-connection', authMiddleware, isAdmin, asy
             catalog_id = catRow ? catRow.setting_value : '';
         }
 
-        const result = await testMetaCatalogConnection({ catalogId: catalog_id, accessToken: access_token });
-        res.json(result);
+        if (!secondary_access_token || secondary_access_token.startsWith('••••')) {
+            const [secTokRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_secondary_access_token'");
+            secondary_access_token = secTokRow ? secTokRow.setting_value : '';
+        }
+        if (secondary_catalog_id === undefined) {
+            const [secCatRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_secondary_catalog_id'");
+            secondary_catalog_id = secCatRow ? secCatRow.setting_value : '';
+        }
+
+        const primaryResult = await testMetaCatalogConnection({ catalogId: catalog_id, accessToken: access_token });
+        
+        let secondaryResult = null;
+        if (secondary_catalog_id) {
+            const secToken = secondary_access_token || access_token;
+            secondaryResult = await testMetaCatalogConnection({ catalogId: secondary_catalog_id, accessToken: secToken });
+        }
+
+        const overallSuccess = primaryResult.success && (!secondary_catalog_id || (secondaryResult && secondaryResult.success));
+        let message = primaryResult.message;
+        if (secondary_catalog_id && secondaryResult) {
+            if (primaryResult.success && secondaryResult.success) {
+                message = `Both Catalogs (${catalog_id} & ${secondary_catalog_id}) successfully connected!`;
+            } else if (primaryResult.success && !secondaryResult.success) {
+                message = `Primary Catalog connected (${primaryResult.catalog_name || catalog_id})! Secondary Catalog (${secondary_catalog_id}) requires either its own System User Token or adding the CSV feed URL into Gallabox Commerce Manager.`;
+            } else {
+                message = `Connection test: Primary failed: ${primaryResult.message}`;
+            }
+        }
+
+        res.json({
+            success: overallSuccess,
+            primary: primaryResult,
+            secondary: secondaryResult,
+            catalog_id: primaryResult.catalog_id,
+            catalog_name: primaryResult.catalog_name,
+            product_count: primaryResult.product_count,
+            message
+        });
     } catch (err) {
         console.error('Test Meta Connection Error:', err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// Admin Force Sync All Cars to Meta Catalog
+// Admin Force Sync All Cars to Both Meta Catalogs
 app.post('/api/admin/meta-catalog/sync-all', authMiddleware, isAdmin, async (req, res) => {
     try {
-        const [catRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_catalog_id'");
-        const [tokRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_access_token'");
-        const [brandRow] = await queryAsync("SELECT setting_value FROM site_settings WHERE setting_key = 'meta_catalog_fallback_brand'");
+        const settingsRows = await queryAsync(
+            "SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('meta_catalog_id', 'meta_secondary_catalog_id', 'meta_access_token', 'meta_secondary_access_token', 'meta_catalog_fallback_brand')"
+        );
+        const settings = {};
+        if (Array.isArray(settingsRows)) {
+            settingsRows.forEach(r => { settings[r.setting_key] = r.setting_value; });
+        }
 
-        const catalogId = catRow ? catRow.setting_value : '';
-        const accessToken = tokRow ? tokRow.setting_value : '';
-        const defaultBrand = brandRow ? brandRow.setting_value : 'Selectt Cars';
+        const catalogId = settings.meta_catalog_id || '';
+        const secondaryCatalogId = settings.meta_secondary_catalog_id || '';
+        const accessToken = settings.meta_access_token || '';
+        const secondaryAccessToken = settings.meta_secondary_access_token || '';
+        const defaultBrand = settings.meta_catalog_fallback_brand || 'Selectt Cars';
 
-        if (!catalogId || !accessToken) {
+        if (!catalogId && !secondaryCatalogId) {
             return res.status(400).json({
                 success: false,
-                message: 'Meta Catalog ID and System User Access Token must be configured first in Meta Catalog Setup.'
+                message: 'No Meta Catalog ID is configured. Please enter at least one Catalog ID in settings.'
+            });
+        }
+
+        const targets = [];
+        if (catalogId && accessToken) {
+            const ids = catalogId.split(/[\s,]+/).filter(Boolean);
+            ids.forEach(id => {
+                targets.push({ id, token: accessToken, label: 'Official Selectt Catalog' });
+            });
+        }
+        if (secondaryCatalogId) {
+            const secIds = secondaryCatalogId.split(/[\s,]+/).filter(Boolean);
+            secIds.forEach(id => {
+                if (!targets.some(t => t.id === id)) {
+                    targets.push({
+                        id,
+                        token: secondaryAccessToken || accessToken,
+                        label: 'Gallabox / Secondary Catalog'
+                    });
+                }
             });
         }
 
         const cars = await queryAsync("SELECT * FROM cars WHERE (status = 'active' OR status = 'in_stock' OR status IS NULL OR status = '')");
         const formattedItems = cars.map(c => formatCarForMeta(c, SITE_URL, defaultBrand));
 
-        const syncResult = await pushBatchToMetaGraphApi({
-            catalogId,
-            accessToken,
-            items: formattedItems,
-            method: 'UPDATE'
-        });
+        const syncResults = [];
+        for (const t of targets) {
+            try {
+                const resBatch = await pushBatchToMetaGraphApi({
+                    catalogId: t.id,
+                    accessToken: t.token,
+                    items: formattedItems,
+                    method: 'UPDATE'
+                });
+                syncResults.push({
+                    catalogId: t.id,
+                    label: t.label,
+                    success: resBatch.success,
+                    message: resBatch.message,
+                    count: resBatch.synced_count || 0
+                });
+            } catch (err) {
+                syncResults.push({
+                    catalogId: t.id,
+                    label: t.label,
+                    success: false,
+                    message: err.message,
+                    count: 0
+                });
+            }
+        }
 
+        const overallSuccess = syncResults.some(r => r.success);
         const nowStr = new Date().toISOString();
         await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_synced_at', nowStr, nowStr]);
-        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_sync_status', syncResult.success ? 'success' : 'failed', syncResult.success ? 'success' : 'failed']);
-        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_sync_result', JSON.stringify(syncResult), JSON.stringify(syncResult)]);
+        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_sync_status', overallSuccess ? 'success' : 'failed', overallSuccess ? 'success' : 'failed']);
+        await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', ['meta_catalog_last_sync_result', JSON.stringify(syncResults), JSON.stringify(syncResults)]);
 
-        res.json(syncResult);
+        const summaryParts = syncResults.map(r => `${r.label} (${r.catalogId}): ${r.success ? 'Synced ' + r.count + ' cars' : 'Failed (' + r.message + ')'}`);
+        const summaryMsg = summaryParts.join(' | ');
+
+        res.json({
+            success: overallSuccess,
+            synced_count: formattedItems.length,
+            targets: syncResults,
+            message: overallSuccess 
+                ? `Sync complete! ${summaryMsg}`
+                : `Sync failed: ${summaryMsg}`
+        });
     } catch (err) {
         console.error('Meta Sync All Error:', err.message);
         res.status(500).json({ success: false, message: err.message });

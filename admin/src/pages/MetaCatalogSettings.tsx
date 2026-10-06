@@ -34,9 +34,12 @@ const API = API_URL;
 interface MetaCatalogStatus {
   settings: {
     catalog_id: string;
+    secondary_catalog_id: string;
     pixel_id: string;
     access_token: string;
+    secondary_access_token: string;
     has_token: boolean;
+    has_secondary_token: boolean;
     business_id: string;
     auto_sync: boolean;
     fallback_brand: string;
@@ -77,15 +80,18 @@ export default function MetaCatalogSettings() {
   const [testing, setTesting] = useState(false);
   const [syncingAll, setSyncingAll] = useState(false);
   
-  // Form State
+  // Form State - Dual Meta Catalogs (Official Selectt + Gallabox)
   const [catalogId, setCatalogId] = useState("");
+  const [secondaryCatalogId, setSecondaryCatalogId] = useState("");
   const [pixelId, setPixelId] = useState("");
   const [accessToken, setAccessToken] = useState("");
+  const [secondaryAccessToken, setSecondaryAccessToken] = useState("");
   const [businessId, setBusinessId] = useState("");
   const [autoSync, setAutoSync] = useState(false);
   const [fallbackBrand, setFallbackBrand] = useState("Selectt Cars");
   const [currency, setCurrency] = useState("INR");
   const [showToken, setShowToken] = useState(false);
+  const [showSecondaryToken, setShowSecondaryToken] = useState(false);
   
   // UI states
   const [copiedFeed, setCopiedFeed] = useState<string | null>(null);
@@ -108,8 +114,10 @@ export default function MetaCatalogSettings() {
         const json = await res.json();
         setData(json);
         setCatalogId(json.settings?.catalog_id || "");
+        setSecondaryCatalogId(json.settings?.secondary_catalog_id || "1096255408500197");
         setPixelId(json.settings?.pixel_id || "");
         setAccessToken(json.settings?.access_token || "");
+        setSecondaryAccessToken(json.settings?.secondary_access_token || "");
         setBusinessId(json.settings?.business_id || "");
         setAutoSync(Boolean(json.settings?.auto_sync));
         setFallbackBrand(json.settings?.fallback_brand || "Selectt Cars");
@@ -140,8 +148,10 @@ export default function MetaCatalogSettings() {
         },
         body: JSON.stringify({
           catalog_id: catalogId,
+          secondary_catalog_id: secondaryCatalogId,
           pixel_id: pixelId,
           access_token: accessToken,
+          secondary_access_token: secondaryAccessToken,
           business_id: businessId,
           auto_sync: autoSync,
           fallback_brand: fallbackBrand,
@@ -175,7 +185,9 @@ export default function MetaCatalogSettings() {
         },
         body: JSON.stringify({
           catalog_id: catalogId,
-          access_token: accessToken
+          secondary_catalog_id: secondaryCatalogId,
+          access_token: accessToken,
+          secondary_access_token: secondaryAccessToken
         })
       });
       const resJson = await res.json();
@@ -183,7 +195,7 @@ export default function MetaCatalogSettings() {
       if (resJson.success) {
         toast.success(resJson.message || "Meta Catalog connection verified!");
       } else {
-        toast.error(resJson.message || "Meta connection test failed");
+        toast.error(resJson.message || "Meta connection test reported an issue");
       }
     } catch (err: any) {
       toast.error(err.message || "Error testing Meta connection");
@@ -555,18 +567,62 @@ export default function MetaCatalogSettings() {
 
           {/* Test Connection / Sync Response Feedback */}
           {testResult && (
-            <div className={`p-4 rounded-xl border text-xs flex items-start gap-3 ${
-              testResult.success
-                ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
-                : "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300"
-            }`}>
-              {testResult.success ? <CheckCircle2 size={17} className="shrink-0 text-emerald-600 mt-0.5" /> : <AlertCircle size={17} className="shrink-0 text-rose-600 mt-0.5" />}
-              <div className="space-y-1">
-                <p className="font-semibold">{testResult.message}</p>
-                {testResult.success && (
-                  <p className="text-[11px] opacity-90">
-                    Catalog ID: <b>{testResult.catalog_id}</b> | Name: <b>{testResult.catalog_name}</b> | Existing Items in Meta: <b>{testResult.product_count}</b>
-                  </p>
+            <div className="space-y-2.5">
+              <div className={`p-4 rounded-xl border text-xs flex items-start gap-3 ${
+                testResult.success
+                  ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
+                  : "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300"
+              }`}>
+                {testResult.success ? <CheckCircle2 size={17} className="shrink-0 text-emerald-600 mt-0.5" /> : <AlertCircle size={17} className="shrink-0 text-amber-600 mt-0.5" />}
+                <div className="space-y-1">
+                  <p className="font-semibold">{testResult.message}</p>
+                </div>
+              </div>
+
+              {/* Individual Catalog Status Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                {/* Primary Official Selectt */}
+                {testResult.primary && (
+                  <div className={`p-3.5 rounded-xl border ${
+                    testResult.primary.success 
+                      ? "bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60" 
+                      : "bg-rose-50/60 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/60"
+                  }`}>
+                    <div className="flex items-center justify-between font-bold mb-1">
+                      <span className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${testResult.primary.success ? "bg-emerald-500" : "bg-rose-500"}`} />
+                        1. Official Selectt Catalog
+                      </span>
+                      <span className="text-[11px] font-mono opacity-80">{catalogId}</span>
+                    </div>
+                    <p className="text-[11px] text-gray-600 dark:text-gray-300">
+                      {testResult.primary.success 
+                        ? `Connected! "${testResult.primary.catalog_name}" (${testResult.primary.product_count} products)`
+                        : testResult.primary.message}
+                    </p>
+                  </div>
+                )}
+
+                {/* Secondary Gallabox */}
+                {secondaryCatalogId && (
+                  <div className={`p-3.5 rounded-xl border ${
+                    testResult.secondary?.success 
+                      ? "bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60" 
+                      : "bg-blue-50/60 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800/60"
+                  }`}>
+                    <div className="flex items-center justify-between font-bold mb-1">
+                      <span className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${testResult.secondary?.success ? "bg-emerald-500" : "bg-blue-500"}`} />
+                        2. Gallabox WhatsApp Catalog
+                      </span>
+                      <span className="text-[11px] font-mono opacity-80">{secondaryCatalogId}</span>
+                    </div>
+                    <p className="text-[11px] text-gray-600 dark:text-gray-300">
+                      {testResult.secondary?.success 
+                        ? `Connected via API! (${testResult.secondary.product_count} products)`
+                        : "Ready for Scheduled Data Feed import in Gallabox Commerce Manager."}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -579,116 +635,242 @@ export default function MetaCatalogSettings() {
                 : "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300"
             }`}>
               {syncResult.success ? <CheckCircle2 size={17} className="shrink-0 text-blue-600 mt-0.5" /> : <AlertCircle size={17} className="shrink-0 text-rose-600 mt-0.5" />}
-              <div>
+              <div className="space-y-1">
                 <p className="font-semibold">{syncResult.message}</p>
+                {syncResult.targets && Array.isArray(syncResult.targets) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 pt-2 border-t border-blue-200/60 dark:border-blue-800/60 text-[11px]">
+                    {syncResult.targets.map((t: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between bg-white/70 dark:bg-gray-800/70 p-2 rounded-lg">
+                        <span className="font-medium">{t.label || t.catalogId}</span>
+                        <span className={t.success ? "text-emerald-600 font-semibold" : "text-rose-600 font-semibold"}>
+                          {t.success ? `✓ ${t.count} Cars Synced` : `✗ Failed`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {/* Form Fields Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Meta Catalog ID */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                Meta Catalog ID <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={catalogId}
-                onChange={e => setCatalogId(e.target.value)}
-                placeholder="e.g. 123456789012345"
-                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
-              />
-              <span className="text-[11px] text-gray-400 mt-1 block">
-                Found in Meta Commerce Manager under <b>Catalog Settings &gt; Catalog ID</b>.
-              </span>
-            </div>
-
-            {/* Meta Pixel ID */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                Meta Pixel ID (Optional for DPA)
-              </label>
-              <input
-                type="text"
-                value={pixelId}
-                onChange={e => setPixelId(e.target.value)}
-                placeholder="e.g. 987654321098765"
-                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
-              />
-              <span className="text-[11px] text-gray-400 mt-1 block">
-                Links website visitor viewing events to catalog cars for retargeting ads.
-              </span>
-            </div>
-
-            {/* System User Access Token */}
-            <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                Meta System User / Page Access Token
-              </label>
-              <div className="relative">
-                <input
-                  type={showToken ? "text" : "password"}
-                  value={accessToken}
-                  onChange={e => setAccessToken(e.target.value)}
-                  placeholder="e.g. EAAX..."
-                  className="w-full pl-3.5 pr-10 py-2.5 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowToken(!showToken)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                >
-                  {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-              <span className="text-[11px] text-gray-400 mt-1 block">
-                Requires <code>catalog_management</code> and <code>ads_management</code> permissions. Generated in Meta Business Manager &gt; System Users.
-              </span>
-            </div>
-
-            {/* Meta Business ID */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                Meta Business Account ID (Optional)
-              </label>
-              <input
-                type="text"
-                value={businessId}
-                onChange={e => setBusinessId(e.target.value)}
-                placeholder="e.g. 543210987654321"
-                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
-              />
-            </div>
-
-            {/* Currency & Brand */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                  Currency
-                </label>
-                <select
-                  value={currency}
-                  onChange={e => setCurrency(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white"
-                >
-                  <option value="INR">INR (₹)</option>
-                  <option value="USD">USD ($)</option>
-                  <option value="AED">AED</option>
-                </select>
+          {/* DUAL CATALOG SETUP TABS / CARDS */}
+          <div className="space-y-6">
+            {/* CATALOG 1: Official Selectt */}
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-50/50 to-indigo-50/20 dark:from-blue-950/20 dark:to-indigo-950/10 border border-blue-200/70 dark:border-blue-800/50 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-blue-100 dark:border-blue-900/40">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
+                    1
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                      Primary Catalog: Official Selectt
+                    </h3>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                      Owned by <b>Selectt Official</b> (Used for Facebook & Instagram Ads & Commerce Manager)
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                  Selectt Official
+                </span>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                    Meta Catalog ID <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={catalogId}
+                    onChange={e => setCatalogId(e.target.value)}
+                    placeholder="2206855529763290"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                  />
+                  <span className="text-[11px] text-gray-400 mt-1 block">
+                    Catalog ID for Official Selectt Catalogue_Products (e.g. <b>2206855529763290</b>)
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                    Meta Pixel ID (Optional for DPA)
+                  </label>
+                  <input
+                    type="text"
+                    value={pixelId}
+                    onChange={e => setPixelId(e.target.value)}
+                    placeholder="1289001699087868"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                  />
+                  <span className="text-[11px] text-gray-400 mt-1 block">
+                    Links website visitors to dynamic retargeting ads
+                  </span>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                    System User / Page Access Token (Selectt Official)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showToken ? "text" : "password"}
+                      value={accessToken}
+                      onChange={e => setAccessToken(e.target.value)}
+                      placeholder="e.g. EAAX..."
+                      className="w-full pl-3.5 pr-10 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowToken(!showToken)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    >
+                      {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  <span className="text-[11px] text-gray-400 mt-1 block">
+                    Generated in Meta Business Suite &gt; Selectt Official &gt; System Users (with <code>catalog_management</code>).
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* CATALOG 2: Gallabox / WhatsApp Commerce */}
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/50 to-teal-50/20 dark:from-emerald-950/20 dark:to-teal-950/10 border border-emerald-200/70 dark:border-emerald-800/50 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-emerald-100 dark:border-emerald-900/40">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
+                    2
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                      Secondary Catalog: Gallabox WhatsApp Catalog
+                    </h3>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                      Owned by <b>Gallabox Selectt Page</b> (Used for WhatsApp Catalog & Messaging)
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">
+                  Gallabox WhatsApp
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                    Gallabox Meta Catalog ID
+                  </label>
+                  <input
+                    type="text"
+                    value={secondaryCatalogId}
+                    onChange={e => setSecondaryCatalogId(e.target.value)}
+                    placeholder="1096255408500197"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  />
+                  <span className="text-[11px] text-gray-400 mt-1 block">
+                    Catalog ID for <b>Gallabox No Catalogue_Products</b> (ID: <b>1096255408500197</b>)
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                    Gallabox Access Token (Optional)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showSecondaryToken ? "text" : "password"}
+                      value={secondaryAccessToken}
+                      onChange={e => setSecondaryAccessToken(e.target.value)}
+                      placeholder="Leave empty if using Scheduled Data Feed"
+                      className="w-full pl-3.5 pr-10 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSecondaryToken(!showSecondaryToken)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    >
+                      {showSecondaryToken ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  <span className="text-[11px] text-gray-400 mt-1 block">
+                    Optional token if Gallabox business portfolio has its own System User.
+                  </span>
+                </div>
+              </div>
+
+              {/* Direct Scheduled Feed Connection Tip Box for Gallabox */}
+              <div className="p-3.5 rounded-xl bg-white/80 dark:bg-gray-900/60 border border-emerald-200 dark:border-emerald-800 text-xs space-y-2">
+                <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold">
+                  <Sparkles size={15} />
+                  <span>How to connect this with Gallabox Catalog (100% Guaranteed & Automatic):</span>
+                </div>
+                <ol className="text-[11px] text-gray-600 dark:text-gray-300 space-y-1 list-decimal list-inside pl-1 leading-relaxed">
+                  <li>In Meta Business Suite under <b>Gallabox Selectt Page</b>, open <b>Gallabox No Catalogue_Products</b> in Commerce Manager.</li>
+                  <li>Go to <b>Catalog &gt; Data Sources &gt; Add Items &gt; Data Feed</b>.</li>
+                  <li>Choose <b>Set a Schedule</b> (Daily or Hourly) and paste this URL:
+                    <div className="mt-1 flex items-center gap-2">
+                      <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-[11px] font-mono text-emerald-700 dark:text-emerald-400 select-all">
+                        {data?.feed_urls?.csv || "https://api.selectt.in/api/feeds/meta-catalog.csv"}
+                      </code>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(data?.feed_urls?.csv || "https://api.selectt.in/api/feeds/meta-catalog.csv", "csv")}
+                        className="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-semibold hover:bg-emerald-700"
+                      >
+                        Copy URL
+                      </button>
+                    </div>
+                  </li>
+                  <li>Click <b>Upload Now</b>. All Selectt cars will instantly appear in Gallabox Catalog!</li>
+                </ol>
+              </div>
+            </div>
+
+            {/* General Settings Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                  Default Brand Name
+                  Meta Business Account ID (Optional)
                 </label>
                 <input
                   type="text"
-                  value={fallbackBrand}
-                  onChange={e => setFallbackBrand(e.target.value)}
-                  placeholder="Selectt Cars"
-                  className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white"
+                  value={businessId}
+                  onChange={e => setBusinessId(e.target.value)}
+                  placeholder="535964300375557"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                    Currency
+                  </label>
+                  <select
+                    value={currency}
+                    onChange={e => setCurrency(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white"
+                  >
+                    <option value="INR">INR (₹)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="AED">AED</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                    Default Brand Name
+                  </label>
+                  <input
+                    type="text"
+                    value={fallbackBrand}
+                    onChange={e => setFallbackBrand(e.target.value)}
+                    placeholder="Selectt Cars"
+                    className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white"
+                  />
+                </div>
               </div>
             </div>
           </div>
