@@ -1481,11 +1481,11 @@ const CheckoutPage = () => {
                   to={`/car/${car?.id || carId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-4 sm:p-5 flex items-center gap-4 border-b border-slate-100 hover:bg-slate-50/80 transition-colors group cursor-pointer block text-left"
+                  className="p-3.5 sm:p-5 block border-b border-slate-100 hover:bg-slate-50/80 transition-colors group cursor-pointer text-left w-full overflow-hidden"
                   title="View car details"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-28 h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-100 relative group-hover:shadow-xs transition-shadow">
+                  <div className="flex items-center gap-3 sm:gap-4 w-full min-w-0">
+                    <div className="w-20 h-16 sm:w-28 sm:h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-100 relative group-hover:shadow-xs transition-shadow">
                       <img
                         src={getCarImageUrl(car?.image || car?.images?.[0])}
                         alt={car?.model || 'Car'}
@@ -1495,27 +1495,27 @@ const CheckoutPage = () => {
                         }}
                       />
                     </div>
-                    <div className="flex flex-col justify-center min-w-0 flex-1">
-                      <h3 className="font-heading font-extrabold text-[#0F172A] text-[15px] sm:text-[16px] leading-snug mb-1 truncate group-hover:text-[#00A38D] transition-colors">
+                    <div className="flex flex-col justify-center min-w-0 flex-1 overflow-hidden">
+                      <h3 className="font-heading font-extrabold text-[#0F172A] text-sm sm:text-[16px] leading-snug mb-0.5 truncate group-hover:text-[#00A38D] transition-colors">
                         {car.year} {car.make} {car.model} {car.variant || ''}
                       </h3>
-                      <div className="text-[12px] text-slate-500 font-medium flex items-center gap-1.5 mb-1.5 truncate">
+                      <div className="text-[11.5px] sm:text-[12px] text-slate-500 font-medium flex items-center gap-1.5 mb-1 truncate">
                         <span>{(car.km || 73000).toLocaleString()} Km</span> • <span>{car.fuelType || 'Petrol'}</span> • <span>{car.transmission || 'Manual'}</span>
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-price font-extrabold text-[#0F172A] text-lg sm:text-xl whitespace-nowrap leading-none">
+                      <div className="flex items-center gap-x-2 gap-y-1 flex-wrap">
+                        <div className="flex items-baseline gap-1.5 shrink-0">
+                          <span className="font-price font-extrabold text-[#0F172A] text-[15px] sm:text-xl whitespace-nowrap leading-none">
                             ₹{(carPrice / 100000).toFixed(2)} Lakh
                           </span>
                           {originalCarPrice > carPrice && (
-                            <span className="text-xs sm:text-[13px] text-slate-400 line-through font-normal font-price whitespace-nowrap">
+                            <span className="text-[11px] sm:text-[13px] text-slate-400 line-through font-normal font-price whitespace-nowrap">
                               ₹{(originalCarPrice / 100000).toFixed(2)} Lakh
                             </span>
                           )}
                         </div>
 
                         {/* EMI Badge matching reference screenshot: EMI ₹17,500/mo */}
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200/90 whitespace-nowrap shadow-2xs font-sans">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200/90 whitespace-nowrap shadow-2xs font-sans shrink-0">
                           EMI ₹{Number(monthlyEmi).toLocaleString('en-IN')}/mo
                         </span>
                       </div>
@@ -1526,7 +1526,7 @@ const CheckoutPage = () => {
                           e.stopPropagation();
                           setIsPriceSummaryOpen(true);
                         }}
-                        className="text-xs font-semibold text-slate-500 hover:text-[#00A38D] underline decoration-dotted underline-offset-2 flex items-center gap-1 cursor-pointer mt-1.5 transition-colors w-fit"
+                        className="text-[11.5px] sm:text-xs font-semibold text-slate-500 hover:text-[#00A38D] underline decoration-dotted underline-offset-2 flex items-center gap-1 cursor-pointer mt-1 transition-colors w-fit"
                       >
                         <span>View breakup</span>
                         <ChevronDown size={13} className="text-slate-400" />
