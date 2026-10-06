@@ -175,7 +175,7 @@ const BookingSettings: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xs">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-[#00A38D] dark:text-teal-400 flex items-center justify-center">
                 <CalendarCheck size={22} />
               </div>
               <div>
@@ -183,7 +183,7 @@ const BookingSettings: React.FC = () => {
                   Checkout Booking Plan Settings
                 </h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Configure the selectable booking plans on the customer checkout page (<code className="text-purple-600 dark:text-purple-400">/checkout/:id</code>)
+                  Configure the selectable booking plans on the customer checkout page (<code className="text-[#00A38D] dark:text-teal-400">/checkout/:id</code>)
                 </p>
               </div>
             </div>
@@ -219,9 +219,9 @@ const BookingSettings: React.FC = () => {
               <ComponentCard title="Festive / Special Reservation Plan">
                 <div className="space-y-5">
                   {/* Enable / Disable Toggle */}
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/50">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/50">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-lg bg-[#00A38D] text-white flex items-center justify-center">
                         <Sparkles size={16} />
                       </div>
                       <div>
@@ -240,7 +240,7 @@ const BookingSettings: React.FC = () => {
                         onChange={e => setConfig({ ...config, booking_special_enabled: e.target.checked ? "true" : "false" })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00A38D]"></div>
                     </label>
                   </div>
 
@@ -410,7 +410,7 @@ const BookingSettings: React.FC = () => {
                       onClick={() => setPreviewPlan("special")}
                       className={`relative p-4 sm:p-5 rounded-3xl transition-all cursor-pointer border-2 ${
                         previewPlan === "special"
-                          ? "border-[#581C87] bg-[#FFF9F5] shadow-xs ring-2 ring-[#581C87]/10"
+                          ? "border-[#00A38D] bg-[#F0FDF9] shadow-xs ring-2 ring-[#00A38D]/10"
                           : "border-slate-200 bg-white hover:border-slate-300 dark:bg-gray-800 dark:border-gray-700"
                       }`}
                     >
@@ -425,16 +425,16 @@ const BookingSettings: React.FC = () => {
                           <div
                             className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
                               previewPlan === "special"
-                                ? "border-[#581C87] bg-white"
+                                ? "border-[#00A38D] bg-white"
                                 : "border-slate-300 bg-white dark:bg-gray-800 dark:border-gray-600"
                             }`}
                           >
                             {previewPlan === "special" && (
-                              <div className="w-2.5 h-2.5 rounded-full bg-[#581C87]" />
+                              <div className="w-2.5 h-2.5 rounded-full bg-[#00A38D]" />
                             )}
                           </div>
                           <div>
-                            <h4 className="font-extrabold text-[#2E0249] dark:text-purple-300 text-sm sm:text-base leading-tight">
+                            <h4 className="font-extrabold text-[#0C1B33] dark:text-white text-sm sm:text-base leading-tight">
                               {config.booking_special_title || "Reserve till Navratri"}
                             </h4>
                             <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 font-medium">
@@ -446,15 +446,15 @@ const BookingSettings: React.FC = () => {
                                 e.stopPropagation();
                                 setPreviewModal("special");
                               }}
-                              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#581C87] hover:underline mt-2 cursor-pointer"
+                              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#00A38D] hover:underline mt-2 cursor-pointer"
                             >
-                              <Info size={13} className="text-[#581C87]" />
+                              <Info size={13} className="text-[#00A38D]" />
                               <span>Learn more</span>
                             </button>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="font-extrabold text-base sm:text-lg text-[#2E0249] dark:text-white font-mono">
+                          <span className="font-extrabold text-base sm:text-lg text-[#0C1B33] dark:text-white font-mono">
                             ₹ {Number(config.booking_special_amount || 25000).toLocaleString("en-IN")}
                           </span>
                         </div>
@@ -467,7 +467,7 @@ const BookingSettings: React.FC = () => {
                     onClick={() => setPreviewPlan("standard")}
                     className={`p-4 sm:p-5 rounded-3xl transition-all cursor-pointer border-2 ${
                       previewPlan === "standard"
-                        ? "border-[#581C87] bg-[#FAF5FF]/30 shadow-xs"
+                        ? "border-[#00A38D] bg-[#F0FDF9] shadow-xs"
                         : "border-slate-200 bg-white hover:border-slate-300 dark:bg-gray-800 dark:border-gray-700"
                     }`}
                   >
@@ -477,12 +477,12 @@ const BookingSettings: React.FC = () => {
                         <div
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
                             previewPlan === "standard"
-                              ? "border-[#581C87] bg-white"
+                              ? "border-[#00A38D] bg-white"
                               : "border-slate-300 bg-white dark:bg-gray-800 dark:border-gray-600"
                           }`}
                         >
                           {previewPlan === "standard" && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-[#581C87]" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#00A38D]" />
                           )}
                         </div>
                         <div>
@@ -498,9 +498,9 @@ const BookingSettings: React.FC = () => {
                               e.stopPropagation();
                               setPreviewModal("standard");
                             }}
-                            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#581C87] hover:underline mt-2 cursor-pointer"
+                            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#00A38D] hover:underline mt-2 cursor-pointer"
                           >
-                            <Info size={13} className="text-[#581C87]" />
+                            <Info size={13} className="text-[#00A38D]" />
                             <span>Learn more</span>
                           </button>
                         </div>
@@ -508,7 +508,7 @@ const BookingSettings: React.FC = () => {
                       <div className="text-right shrink-0">
                         <span className="font-extrabold text-base sm:text-lg text-[#0C1B33] dark:text-white font-mono inline-flex items-center gap-1.5">
                           <span>₹ {Number(config.booking_standard_amount || 11000).toLocaleString("en-IN")}</span>
-                          <Pencil size={12} className="text-[#581C87]" />
+                          <Pencil size={12} className="text-[#00A38D]" />
                         </span>
                       </div>
                     </div>
@@ -542,7 +542,7 @@ const BookingSettings: React.FC = () => {
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <h3 className="text-base sm:text-lg font-black text-[#2E0249] tracking-tight">
+              <h3 className="text-base sm:text-lg font-black text-[#0C1B33] tracking-tight">
                 {previewModal === "special"
                   ? `How ${festivalName} reservation works`
                   : "Selectt Satisfaction Assurance"}
@@ -563,13 +563,13 @@ const BookingSettings: React.FC = () => {
                 {/* Step 1 */}
                 <div className="relative flex items-start gap-4">
                   <div className="relative flex flex-col items-center">
-                    <div className="w-7 h-7 rounded-full bg-[#FAF5FF] border border-[#D8B4FE] text-[#6B21A8] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
+                    <div className="w-7 h-7 rounded-full bg-teal-50 border border-teal-200 text-[#00A38D] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
                       1
                     </div>
-                    <div className="w-[1.5px] bg-[#E9D5FF] absolute top-7 bottom-[-24px] left-1/2 -translate-x-1/2 z-0" />
+                    <div className="w-[1.5px] bg-teal-200 absolute top-7 bottom-[-24px] left-1/2 -translate-x-1/2 z-0" />
                   </div>
                   <div className="min-w-0 flex-1 pt-0.5">
-                    <h4 className="text-sm sm:text-[15px] font-bold text-[#1E1B4B]">
+                    <h4 className="text-sm sm:text-[15px] font-bold text-[#0C1B33]">
                       Pay ₹{Number(config.booking_special_amount || 25000).toLocaleString("en-IN")} to book
                     </h4>
                     <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5 leading-relaxed font-normal">
@@ -581,13 +581,13 @@ const BookingSettings: React.FC = () => {
                 {/* Step 2 */}
                 <div className="relative flex items-start gap-4">
                   <div className="relative flex flex-col items-center">
-                    <div className="w-7 h-7 rounded-full bg-[#FAF5FF] border border-[#D8B4FE] text-[#6B21A8] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
+                    <div className="w-7 h-7 rounded-full bg-teal-50 border border-teal-200 text-[#00A38D] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
                       2
                     </div>
-                    <div className="w-[1.5px] bg-[#E9D5FF] absolute top-7 bottom-[-24px] left-1/2 -translate-x-1/2 z-0" />
+                    <div className="w-[1.5px] bg-teal-200 absolute top-7 bottom-[-24px] left-1/2 -translate-x-1/2 z-0" />
                   </div>
                   <div className="min-w-0 flex-1 pt-0.5">
-                    <h4 className="text-sm sm:text-[15px] font-bold text-[#1E1B4B]">
+                    <h4 className="text-sm sm:text-[15px] font-bold text-[#0C1B33]">
                       Finish paperwork before {festivalName}
                     </h4>
                     <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5 leading-relaxed font-normal">
@@ -599,12 +599,12 @@ const BookingSettings: React.FC = () => {
                 {/* Step 3 */}
                 <div className="relative flex items-start gap-4">
                   <div className="relative flex flex-col items-center">
-                    <div className="w-7 h-7 rounded-full bg-[#FAF5FF] border border-[#D8B4FE] text-[#6B21A8] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
+                    <div className="w-7 h-7 rounded-full bg-teal-50 border border-teal-200 text-[#00A38D] font-bold text-xs flex items-center justify-center shrink-0 z-10 shadow-2xs">
                       3
                     </div>
                   </div>
                   <div className="min-w-0 flex-1 pt-0.5">
-                    <h4 className="text-sm sm:text-[15px] font-bold text-[#1E1B4B]">
+                    <h4 className="text-sm sm:text-[15px] font-bold text-[#0C1B33]">
                       Drive home on {festivalName}
                     </h4>
                     <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5 leading-relaxed font-normal">
@@ -615,7 +615,7 @@ const BookingSettings: React.FC = () => {
               </div>
             ) : (
               /* Modal Body: Standard Assurance (Screenshot 2) */
-              <div className="py-5 space-y-3.5 text-xs sm:text-[13.5px] text-[#2E0249] leading-relaxed">
+              <div className="py-5 space-y-3.5 text-xs sm:text-[13.5px] text-slate-700 leading-relaxed">
                 <p>
                   Placing a booking deposit allows us to reserve this car exclusively for you, for a total of {config.booking_standard_hold_days || 3} days. Use this time to freely decide if the car is your perfect fit.
                 </p>
@@ -628,20 +628,20 @@ const BookingSettings: React.FC = () => {
             {/* Shared Callout Box (Screenshot 1 & 2) */}
             <div className="bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-4 sm:p-5 space-y-2 text-xs sm:text-[13px] leading-relaxed">
               <p className="text-slate-600">
-                <strong className="font-bold text-[#1E1B4B]">100% refundable</strong>{" "}
+                <strong className="font-bold text-[#0C1B33]">100% refundable</strong>{" "}
                 Cancel any time before delivery and get the full amount back. No questions asked.
               </p>
               <p className="text-slate-600">
-                <strong className="font-bold text-[#1E1B4B]">Not an extra charge</strong>{" "}
+                <strong className="font-bold text-[#0C1B33]">Not an extra charge</strong>{" "}
                 The ₹{(previewModal === "special" ? Number(config.booking_special_amount || 25000) : Number(config.booking_standard_amount || 11000)).toLocaleString("en-IN")} is part of your car price. Think of it as a down payment on your car.
               </p>
             </div>
 
-            {/* Bottom Full-Width "Got it" Button (Royal Purple) */}
+            {/* Bottom Full-Width "Got it" Button (Selectt Brand Teal) */}
             <button
               type="button"
               onClick={() => setPreviewModal(null)}
-              className="w-full mt-5 py-3.5 rounded-xl bg-[#581C87] hover:bg-[#4A1472] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-md shadow-[#581C87]/20 transition-all cursor-pointer text-center"
+              className="w-full mt-5 py-3.5 rounded-xl bg-[#00A38D] hover:bg-[#008f7b] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-md shadow-[#00A38D]/25 transition-all cursor-pointer text-center"
             >
               Got it
             </button>
