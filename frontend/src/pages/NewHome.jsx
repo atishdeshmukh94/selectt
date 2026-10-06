@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import PageMeta from '../components/common/PageMeta';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -29,7 +29,7 @@ import {
   CreditCard,
   Star
 } from 'lucide-react';
-import { API_URL, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
+import { API_URL, DEFAULT_CAR_FALLBACK_IMAGE, getCarImageUrl } from '../config/api';
 import NewTestimonials from '../components/home/NewTestimonials';
 import FAQ from '../components/home/FAQ';
 import CarCard from '../components/buy/CarCard';
@@ -770,6 +770,143 @@ const HowItWorksCarousel = () => {
         ))}
       </div>
     </div>
+  );
+};
+
+// Filter out any video embeds / iframes / streaming URLs so only real car photos loop
+const isImageOnly = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim().toLowerCase();
+  if (
+    trimmed.includes('iframe') ||
+    trimmed.includes('embed') ||
+    trimmed.includes('mediadelivery.net') ||
+    trimmed.includes('youtube') ||
+    trimmed.includes('youtu.be') ||
+    trimmed.includes('vimeo') ||
+    trimmed.endsWith('.mp4') ||
+    trimmed.endsWith('.webm') ||
+    trimmed.endsWith('.mov') ||
+    trimmed.includes('/video/')
+  ) {
+    return false;
+  }
+  return true;
+};
+
+// Mobile Recommended Car Card with Slow-Mode Image Loop (no dots, no video embeds)
+const MobileRecommendedCarCard = ({ car }) => {
+  const badge = getBadgeStyles(car.badgeText || car.tag);
+
+  const carImages = useMemo(() => {
+    const list = [];
+    if (isImageOnly(car.image)) {
+      list.push(car.image);
+    }
+    const extraList = Array.isArray(car.moreImages)
+      ? car.moreImages
+      : (Array.isArray(car.images)
+        ? car.images
+        : (Array.isArray(car.more_images)
+          ? car.more_images
+          : (typeof car.more_images === 'string' && car.more_images.startsWith('[')
+            ? (() => { try { return JSON.parse(car.more_images); } catch (e) { return []; } })()
+            : [])));
+
+    for (const img of extraList) {
+      if (isImageOnly(img) && !list.includes(img)) {
+        list.push(img);
+        if (list.length >= 4) break; // Limit to 3-4 photos in slow loop
+      }
+    }
+    if (list.length === 0 && car.image) {
+      list.push(car.image);
+    }
+    return list;
+  }, [car.image, car.moreImages, car.images, car.more_images]);
+
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  // Slow-mode automatic image slide loop (changes every 3.8s)
+  useEffect(() => {
+    if (carImages.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveImageIndex((prev) => (prev + 1) % carImages.length);
+    }, 3800);
+    return () => clearInterval(interval);
+  }, [carImages.length]);
+
+  // Preload remaining images in background
+  useEffect(() => {
+    if (carImages.length <= 1) return;
+    carImages.forEach((img) => {
+      if (img) {
+        const preload = new Image();
+        preload.src = getCarImageUrl(img);
+      }
+    });
+  }, [carImages]);
+
+  return (
+    <Link
+      to={getCarDetailsUrl(car)}
+      className="bg-white border border-slate-200/70 rounded-2xl p-3.5 flex gap-4 hover:shadow-md transition-all duration-300 text-slate-900"
+    >
+      {/* Left: Car Image inside soft background with Slow-Mode Crossfade Image Loop */}
+      <div className={`w-[115px] h-[90px] rounded-xl overflow-hidden shrink-0 relative flex items-center justify-center ${car.fuelType === 'EV' ? 'bg-[#EBF7F2]' : 'bg-[#EBF3FC]'}`}>
+        {carImages.map((img, idx) => (
+          <img
+            key={`${img}-${idx}`}
+            src={getCarImageUrl(img)}
+            alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} - Photo ${idx + 1}`}
+            className={`absolute inset-0 w-full h-full object-cover mix-blend-multiply transition-opacity duration-1000 ease-in-out ${
+              idx === activeImageIndex ? 'opacity-100 z-[1]' : 'opacity-0 z-0 pointer-events-none'
+            }`}
+            onError={(e) => {
+              e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Right: Info */}
+      <div className="flex-grow flex flex-col justify-between min-w-0">
+        <div>
+          <div className="flex items-center justify-between gap-1.5 min-w-0">
+            <span className="text-xs font-black text-[#00C9AF] tracking-wider uppercase leading-none truncate min-w-0">
+              {car.make}
+            </span>
+            {badge.label && (
+              <div className={`${badge.bg} ${badge.color} ${badge.border || 'border-slate-200'} border px-2.5 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 whitespace-nowrap shadow-xs max-w-[140px]`}>
+                <span className="truncate">{badge.label}</span>
+              </div>
+            )}
+          </div>
+
+          <h4 className="text-[15px] font-extrabold text-[#0C1B33] leading-snug mt-0.5 truncate w-full">
+            {car.model}
+          </h4>
+
+          <span className="text-xs font-semibold text-slate-600 block leading-none mt-1 truncate">
+            {car.year} · {car.km ? car.km.toLocaleString('en-IN') : '18,200'} km · {car.fuelType}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-lg font-black text-[#0C1B33] leading-none">
+              ₹{(car.price / 100000).toFixed(2)}L
+            </span>
+            {hasPriceDrop(car) && (
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
+                <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                <span>Price Drop</span>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 };
 
@@ -1726,66 +1863,9 @@ const NewHome = () => {
           <h3 className="text-sm sm:text-base font-extrabold text-[#0C1B33] uppercase tracking-wider mb-3">Recommended for you</h3>
 
           <div className="flex flex-col gap-3">
-            {getMobileRecommendedCars().map((car) => {
-              const badge = getBadgeStyles(car.badgeText || car.tag);
-              return (
-                <Link
-                  key={car.id}
-                  to={getCarDetailsUrl(car)}
-                  className="bg-white border border-slate-200/70 rounded-2xl p-3.5 flex gap-4 hover:shadow-md transition-all duration-300 text-slate-900"
-                >
-                  {/* Left: Car Image inside soft background */}
-                  <div className={`w-[115px] h-[90px] rounded-xl overflow-hidden shrink-0 flex items-center justify-center ${car.fuelType === 'EV' ? 'bg-[#EBF7F2]' : 'bg-[#EBF3FC]'}`}>
-                    <img
-                      src={car.image?.startsWith('/') ? `${API_URL}${car.image}` : car.image}
-                      alt={`${car.year} ${car.make} ${car.model}`}
-                      className="w-full h-full object-cover mix-blend-multiply"
-                      onError={(e) => {
-                        e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
-                      }}
-                    />
-                  </div>
-
-                  {/* Right: Info */}
-                  <div className="flex-grow flex flex-col justify-between min-w-0">
-                    <div>
-                      <div className="flex items-center justify-between gap-1.5 min-w-0">
-                        <span className="text-xs font-black text-[#00C9AF] tracking-wider uppercase leading-none truncate min-w-0">
-                          {car.make}
-                        </span>
-                        {badge.label && (
-                          <div className={`${badge.bg} ${badge.color} ${badge.border || 'border-slate-200'} border px-2.5 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 whitespace-nowrap shadow-xs max-w-[140px]`}>
-                            <span className="truncate">{badge.label}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <h4 className="text-[15px] font-extrabold text-[#0C1B33] leading-snug mt-0.5 truncate w-full">
-                        {car.model}
-                      </h4>
-
-                      <span className="text-xs font-semibold text-slate-600 block leading-none mt-1 truncate">
-                        {car.year} · {car.km ? car.km.toLocaleString('en-IN') : '18,200'} km · {car.fuelType}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-lg font-black text-[#0C1B33] leading-none">
-                          ₹{(car.price / 100000).toFixed(2)}L
-                        </span>
-                        {hasPriceDrop(car) && (
-                          <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
-                            <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
-                            <span>Price Drop</span>
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+            {getMobileRecommendedCars().map((car) => (
+              <MobileRecommendedCarCard key={car.id} car={car} />
+            ))}
           </div>
         </div>
 
@@ -1918,14 +1998,66 @@ const NewHome = () => {
           </div>
         </div>
 
-        {/* Highlight Video */}
-        <div className="w-full aspect-video bg-black my-6 rounded-2xl overflow-hidden shadow-md">
-          <video
-            src="https://mda-dev.spinny.com/sp-file-system/public/2026-02-16/3f7957ad509b4fc888114ae91d3690be/raw/file.mp4"
-            autoPlay loop muted playsInline
-            className="w-full h-full object-cover"
-          />
-        </div>
+        {/* Dynamic Highlight Video (Configured in Admin > Image Settings > Home & Sell) */}
+        {(() => {
+          const isVideoEnabled = heroContent.mobile_home_video_enabled !== 'false' && 
+                                 heroContent.mobile_home_video_enabled !== false && 
+                                 heroContent.mobile_home_video_enabled !== '0';
+          if (!isVideoEnabled) return null;
+
+          const rawUrl = (heroContent.mobile_home_video_url || heroContent.mobile_home_video || '').trim();
+          const videoUrl = rawUrl || (heroContent.mobile_home_video_enabled === undefined ? 'https://mda-dev.spinny.com/sp-file-system/public/2026-02-16/3f7957ad509b4fc888114ae91d3690be/raw/file.mp4' : '');
+          if (!videoUrl) return null;
+
+          // YouTube check
+          const ytMatch = videoUrl.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/);
+          if (ytMatch && ytMatch[2]?.length === 11) {
+            const ytId = ytMatch[2];
+            return (
+              <div className="w-full aspect-video bg-black my-6 rounded-2xl overflow-hidden shadow-md relative">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&playsinline=1&controls=0&rel=0`}
+                  title="Mobile Highlight Video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full border-0 pointer-events-auto"
+                />
+              </div>
+            );
+          }
+
+          // Bunny Stream or generic iframe check
+          if (videoUrl.includes('mediadelivery.net') || videoUrl.includes('bunnycdn.com') || videoUrl.includes('iframe')) {
+            const embedSrc = videoUrl.includes('?') ? videoUrl : `${videoUrl}?autoplay=true&loop=true&muted=true`;
+            return (
+              <div className="w-full aspect-video bg-black my-6 rounded-2xl overflow-hidden shadow-md relative">
+                <iframe
+                  src={embedSrc}
+                  title="Mobile Highlight Video"
+                  loading="lazy"
+                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full border-0"
+                />
+              </div>
+            );
+          }
+
+          // Direct MP4 / Video
+          const resolvedSrc = videoUrl.startsWith('/uploads/') ? `${API_URL}${videoUrl}` : videoUrl;
+          return (
+            <div className="w-full aspect-video bg-black my-6 rounded-2xl overflow-hidden shadow-md relative">
+              <video
+                src={resolvedSrc}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            </div>
+          );
+        })()}
 
         {/* Numbers That Trust Us - Auto-Sliding Generated Banner Carousel */}
         <div className="py-4">

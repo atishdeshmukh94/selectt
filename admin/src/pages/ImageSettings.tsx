@@ -19,7 +19,12 @@ import {
   Navigation,
   Layers,
   ArrowRight,
-  HelpCircle
+  HelpCircle,
+  Video,
+  Play,
+  Trash2,
+  Power,
+  Youtube
 } from "lucide-react";
 import PageMeta from "../components/common/PageMeta";
 import PageBreadCrumb from "../components/common/PageBreadCrumb";
@@ -511,6 +516,94 @@ const CAR_DETAILS_SLOTS: ImageSlotConfig[] = [
 
 type ActiveTabType = "branding" | "mobile-hero" | "step-sliders" | "buy-cars" | "home-sell" | "car-details";
 
+const DEFAULT_MOBILE_HOME_VIDEO = "https://mda-dev.spinny.com/sp-file-system/public/2026-02-16/3f7957ad509b4fc888114ae91d3690be/raw/file.mp4";
+
+const renderMobileVideoPreview = (url: string, enabled: boolean) => {
+  if (!url || !url.trim()) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2 p-4 text-center">
+        <Video size={36} className="text-slate-300 dark:text-slate-600" />
+        <p className="text-xs font-semibold">No video configured</p>
+        <p className="text-[11px] text-slate-400">Enter a YouTube link, Bunny.net embed URL, or upload a video below</p>
+      </div>
+    );
+  }
+
+  const trimmed = url.trim();
+  const ytMatch = trimmed.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/);
+  let player = null;
+
+  if (ytMatch && ytMatch[2]?.length === 11) {
+    const videoId = ytMatch[2];
+    player = (
+      <iframe
+        src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=0&controls=1&rel=0`}
+        title="YouTube Preview"
+        className="w-full h-full border-0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  } else if (trimmed.includes("mediadelivery.net") || trimmed.includes("bunnycdn.com") || trimmed.includes("iframe")) {
+    player = (
+      <iframe
+        src={trimmed}
+        title="Bunny.net Stream Preview"
+        className="w-full h-full border-0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  } else {
+    const resolved = resolveImgUrl(trimmed);
+    player = (
+      <video
+        src={resolved}
+        controls
+        playsInline
+        className="w-full h-full object-cover"
+      />
+    );
+  }
+
+  return (
+    <div className="relative w-full h-full">
+      {player}
+      {!enabled && (
+        <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center z-10 pointer-events-none">
+          <Power size={24} className="text-rose-400 mb-1.5" />
+          <span className="text-xs font-bold text-white">Video is Disabled</span>
+          <span className="text-[11px] text-slate-300 mt-0.5">This video will not appear on the mobile website</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const getVideoTypeBadge = (url?: string) => {
+  if (!url) return null;
+  const trimmed = url.trim().toLowerCase();
+  if (trimmed.includes("youtube") || trimmed.includes("youtu.be")) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 border border-red-200">
+        <Youtube size={12} /> YouTube
+      </span>
+    );
+  }
+  if (trimmed.includes("mediadelivery.net") || trimmed.includes("bunnycdn.com") || trimmed.includes("bunny")) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200">
+        🐰 Bunny.net Stream
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200">
+      <Video size={12} /> Direct Video (MP4)
+    </span>
+  );
+};
+
 export default function ImageSettings() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as ActiveTabType) || "branding";
@@ -523,6 +616,9 @@ export default function ImageSettings() {
   const [buySteps, setBuySteps] = useState<StepBannerItem[]>(DEFAULT_BUY_STEPS);
   const [uploadingStepIdx, setUploadingStepIdx] = useState<{ target: "sell" | "buy"; index: number } | null>(null);
   const stepFileInputRef = useRef<HTMLInputElement>(null);
+
+  const [uploadingBunnyVideo, setUploadingBunnyVideo] = useState(false);
+  const bunnyVideoInputRef = useRef<HTMLInputElement>(null);
 
   const [siteContent, setSiteContent] = useState<Record<string, string>>({});
   const [siteSettings, setSiteSettings] = useState<Record<string, string>>({});
@@ -675,6 +771,14 @@ export default function ImageSettings() {
         if (!contentData[s.btnLinkKey]) contentData[s.btnLinkKey] = s.defaultBtnLink;
       });
 
+      // Default fallback for mobile home video
+      if (!contentData.mobile_home_video_url && !settingsData.mobile_home_video_url) {
+        contentData.mobile_home_video_url = DEFAULT_MOBILE_HOME_VIDEO;
+      }
+      if (contentData.mobile_home_video_enabled === undefined && settingsData.mobile_home_video_enabled === undefined) {
+        contentData.mobile_home_video_enabled = "true";
+      }
+
       setSiteContent(contentData || {});
       setSiteSettings(settingsData || {});
     } catch (err) {
@@ -688,6 +792,51 @@ export default function ImageSettings() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Upload video directly to Bunny.net Stream CDN
+  const handleUploadBunnyVideo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingBunnyVideo(true);
+    const token = getAuthToken();
+    try {
+      const formData = new FormData();
+      formData.append("video", file);
+      formData.append("title", `mobile_home_video_${Date.now()}`);
+
+      const res = await fetch(`${API}/api/admin/videos/upload-bunny`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to upload video to Bunny.net");
+      }
+
+      const embedUrl = data.embedUrl || data.hlsUrl;
+      setSiteContent((prev) => ({
+        ...prev,
+        mobile_home_video_url: embedUrl,
+        mobile_home_video_enabled: "true",
+      }));
+      setSiteSettings((prev) => ({
+        ...prev,
+        mobile_home_video_url: embedUrl,
+        mobile_home_video_enabled: "true",
+      }));
+      toast.success("Video uploaded to Bunny.net Stream successfully!");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Bunny.net upload failed");
+    } finally {
+      setUploadingBunnyVideo(false);
+      if (e.target) e.target.value = "";
+    }
+  };
 
   // Save changes to backend
   const handleSaveAll = async () => {
@@ -1576,7 +1725,224 @@ export default function ImageSettings() {
               </div>
             )}
 
-            {/* 2. OTHER TABS (BUY CARS, HOME FEATURES, CAR DETAILS, BRANDING) */}
+            {/* 2. MOBILE HOME HIGHLIGHT VIDEO (HOME-SELL TAB) */}
+            {activeTab === "home-sell" && (
+              <div className="mb-8 rounded-2xl border border-blue-200/90 dark:border-blue-900/50 bg-gradient-to-br from-white via-blue-50/25 to-slate-50 dark:from-gray-900 dark:via-gray-900/90 dark:to-gray-800 p-6 shadow-sm">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-gray-100 dark:border-gray-800 mb-6">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                      <Video size={20} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2.5 flex-wrap">
+                        <h3 className="font-extrabold text-base text-slate-900 dark:text-white leading-tight">
+                          Mobile Home Highlight Video
+                        </h3>
+                        {siteContent.mobile_home_video_enabled !== "false" ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            Live on Mobile Site
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800 shadow-2xs">
+                            <Power size={11} />
+                            Disabled / Hidden
+                          </span>
+                        )}
+                        {getVideoTypeBadge(siteContent.mobile_home_video_url)}
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Placement: <strong>Mobile Home Page</strong> between Quick Services and Customer Trust Ratings ("Sell your car, best price always").
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Enable / Disable Toggle Switch */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const isCurrentlyEnabled = siteContent.mobile_home_video_enabled !== "false";
+                        setSiteContent((prev) => ({
+                          ...prev,
+                          mobile_home_video_enabled: isCurrentlyEnabled ? "false" : "true",
+                        }));
+                        setSiteSettings((prev) => ({
+                          ...prev,
+                          mobile_home_video_enabled: isCurrentlyEnabled ? "false" : "true",
+                        }));
+                        toast.success(isCurrentlyEnabled ? "Video disabled (hidden from mobile home)" : "Video enabled on mobile home");
+                      }}
+                      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ${
+                        siteContent.mobile_home_video_enabled !== "false"
+                          ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                          : "bg-slate-200 dark:bg-gray-800 hover:bg-slate-300 dark:hover:bg-gray-700 text-slate-700 dark:text-slate-300"
+                      }`}
+                    >
+                      <Power size={14} />
+                      <span>{siteContent.mobile_home_video_enabled !== "false" ? "Enabled (Click to Disable)" : "Disabled (Click to Enable)"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2-Column Content: Preview on Left, Controls on Right */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* Left: Interactive Preview Player */}
+                  <div className="lg:col-span-5 flex flex-col">
+                    <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-2">
+                      Live Video Player Preview:
+                    </label>
+                    <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-slate-200 dark:border-gray-800 shadow-inner flex items-center justify-center">
+                      {renderMobileVideoPreview(
+                        siteContent.mobile_home_video_url || "",
+                        siteContent.mobile_home_video_enabled !== "false"
+                      )}
+                    </div>
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-2 text-center">
+                      Responsive 16:9 aspect ratio matches exact mobile viewport display
+                    </span>
+                  </div>
+
+                  {/* Right: Controls & Upload Options */}
+                  <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
+                    {/* Method 1: Bunny.net Stream Upload */}
+                    <div className="p-4 rounded-xl border border-amber-200/80 dark:border-amber-900/40 bg-amber-50/40 dark:bg-amber-950/20">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div>
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-amber-900 dark:text-amber-200">
+                            <span>🐰</span>
+                            <span>Option 1: Direct Bunny.net Stream Upload</span>
+                          </div>
+                          <p className="text-[11px] text-amber-700/80 dark:text-amber-300/70 mt-0.5">
+                            Upload high-definition video directly to your Bunny.net Stream CDN library. Automatically embeds with adaptive bitrates.
+                          </p>
+                        </div>
+                      </div>
+
+                      <input
+                        ref={bunnyVideoInputRef}
+                        type="file"
+                        accept="video/mp4,video/webm,video/quicktime,video/mov"
+                        className="hidden"
+                        onChange={handleUploadBunnyVideo}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => bunnyVideoInputRef.current?.click()}
+                        disabled={uploadingBunnyVideo}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {uploadingBunnyVideo ? (
+                          <>
+                            <span className="animate-spin text-xs">⏳</span>
+                            <span>Uploading to Bunny.net Stream CDN...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={14} />
+                            <span>Upload Video to Bunny.net</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Method 2: YouTube / Bunny Embed / Direct Video URL Input */}
+                    <div className="p-4 rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 space-y-3">
+                      <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
+                        <LinkIcon size={13} className="text-blue-500" />
+                        <span>Option 2: YouTube Link, Bunny Stream Embed, or Direct MP4 URL</span>
+                      </div>
+
+                      <div>
+                        <input
+                          type="text"
+                          value={siteContent.mobile_home_video_url || ""}
+                          placeholder="https://www.youtube.com/watch?v=... or https://iframe.mediadelivery.net/embed/..."
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setSiteContent((prev) => ({
+                              ...prev,
+                              mobile_home_video_url: val,
+                              mobile_home_video_enabled: "true",
+                            }));
+                            setSiteSettings((prev) => ({
+                              ...prev,
+                              mobile_home_video_url: val,
+                              mobile_home_video_enabled: "true",
+                            }));
+                          }}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 text-slate-800 dark:text-slate-200 font-mono"
+                        />
+                        <div className="flex flex-wrap items-center gap-2 mt-2 text-[10.5px] text-slate-500">
+                          <span className="font-semibold text-slate-600 dark:text-slate-400">Supported:</span>
+                          <span className="px-1.5 py-0.5 rounded bg-red-50 dark:bg-red-950/40 text-red-600 font-mono">youtube.com/watch?v=</span>
+                          <span className="px-1.5 py-0.5 rounded bg-red-50 dark:bg-red-950/40 text-red-600 font-mono">youtu.be/...</span>
+                          <span className="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 font-mono">iframe.mediadelivery.net/...</span>
+                          <span className="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-700 font-mono">.mp4 / .webm</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons: Delete / Reset */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm("Are you sure you want to delete and remove the mobile home video?")) {
+                              setSiteContent((prev) => ({
+                                ...prev,
+                                mobile_home_video_url: "",
+                                mobile_home_video_enabled: "false",
+                              }));
+                              setSiteSettings((prev) => ({
+                                ...prev,
+                                mobile_home_video_url: "",
+                                mobile_home_video_enabled: "false",
+                              }));
+                              toast.success("Mobile home video removed and disabled");
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 transition-all cursor-pointer"
+                        >
+                          <Trash2 size={13} />
+                          <span>Delete Video</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSiteContent((prev) => ({
+                              ...prev,
+                              mobile_home_video_url: DEFAULT_MOBILE_HOME_VIDEO,
+                              mobile_home_video_enabled: "true",
+                            }));
+                            setSiteSettings((prev) => ({
+                              ...prev,
+                              mobile_home_video_url: DEFAULT_MOBILE_HOME_VIDEO,
+                              mobile_home_video_enabled: "true",
+                            }));
+                            toast.success("Reset to default vintage car video");
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-gray-800 border border-slate-200 dark:border-gray-700 transition-all cursor-pointer"
+                        >
+                          <RotateCcw size={13} />
+                          <span>Reset Default</span>
+                        </button>
+                      </div>
+
+                      <div className="text-[11px] text-slate-400 italic">
+                        Remember to click "Save All Changes" at the bottom to commit.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. OTHER TABS (BUY CARS, HOME FEATURES, CAR DETAILS, BRANDING) */}
             {activeTab !== "mobile-hero" && activeTab !== "step-sliders" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {(activeTab === "buy-cars"
