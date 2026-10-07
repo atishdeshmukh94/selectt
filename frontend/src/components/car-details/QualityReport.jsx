@@ -24,19 +24,25 @@ const QualityReport = ({ report, theme = 'white' }) => {
     <div className={`mb-6 border rounded-[24px] p-5 lg:p-6 ${containerClass}`}>
       <div className="mb-3 text-left">
         <h2 className={`text-lg md:text-xl font-bold mb-0.5 ${titleClass}`}>Quality Report</h2>
-        <p className={`text-xs ${subtitleClass}`}>1452 parts evaluated by 5 automotive experts</p>
+        <p className={`text-xs ${subtitleClass}`}>{report?.subtitle || '1452 parts evaluated by 5 automotive experts'}</p>
       </div>
 
       <div className="flex flex-wrap gap-1.5 mb-4 justify-start">
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${pillClass}`}>
-          <Check size={12} className="text-[#00C9AF] stroke-[3]" /> Meter not tampered
-        </span>
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${pillClass}`}>
-          <Check size={12} className="text-[#00C9AF] stroke-[3]" /> Non-flooded
-        </span>
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${pillClass}`}>
-          <Check size={12} className="text-[#00C9AF] stroke-[3]" /> Core structure intact
-        </span>
+        {report?.meterTampered !== false && report?.meterTampered !== "false" && (
+          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${pillClass}`}>
+            <Check size={12} className="text-[#00C9AF] stroke-[3]" /> Meter not tampered
+          </span>
+        )}
+        {report?.nonFlooded !== false && report?.nonFlooded !== "false" && (
+          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${pillClass}`}>
+            <Check size={12} className="text-[#00C9AF] stroke-[3]" /> Non-flooded
+          </span>
+        )}
+        {report?.coreStructureIntact !== false && report?.coreStructureIntact !== "false" && (
+          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${pillClass}`}>
+            <Check size={12} className="text-[#00C9AF] stroke-[3]" /> Core structure intact
+          </span>
+        )}
       </div>
 
       {hasCustomReport && report.summary && (
@@ -60,7 +66,7 @@ const QualityReport = ({ report, theme = 'white' }) => {
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-center gap-0.5">
                 <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.coreScore || '9.9'}</span>
-                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>Excellent</span>
+                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>{report?.coreLabel || 'Excellent'}</span>
               </div>
               <ChevronRight size={14} className="text-slate-400" />
             </div>
@@ -77,7 +83,7 @@ const QualityReport = ({ report, theme = 'white' }) => {
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-center gap-0.5">
                 <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.supportingScore || '9.5'}</span>
-                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>Excellent</span>
+                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>{report?.supportingLabel || 'Excellent'}</span>
               </div>
               <ChevronRight size={14} className="text-slate-400" />
             </div>
@@ -94,7 +100,7 @@ const QualityReport = ({ report, theme = 'white' }) => {
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-center gap-0.5">
                 <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.interiorsScore || '9.6'}</span>
-                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>Excellent</span>
+                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>{report?.interiorsLabel || 'Excellent'}</span>
               </div>
               <ChevronRight size={14} className="text-slate-400" />
             </div>
@@ -111,7 +117,7 @@ const QualityReport = ({ report, theme = 'white' }) => {
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-center gap-0.5">
                 <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.exteriorsScore || '9.2'}</span>
-                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>Excellent</span>
+                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>{report?.exteriorsLabel || 'Excellent'}</span>
               </div>
               <ChevronRight size={14} className="text-slate-400" />
             </div>
@@ -128,7 +134,7 @@ const QualityReport = ({ report, theme = 'white' }) => {
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-center gap-0.5">
                 <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.wearTearScore || '8.7'}</span>
-                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>Good</span>
+                <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>{report?.wearTearLabel || 'Good'}</span>
               </div>
               <ChevronRight size={14} className="text-slate-400" />
             </div>
@@ -136,7 +142,7 @@ const QualityReport = ({ report, theme = 'white' }) => {
 
           <div className="flex flex-col items-center justify-center pt-1 md:pt-2">
             <p className={`text-xs text-center mb-2 font-bold ${theme === 'dark' ? 'text-[#00C9AF]' : 'text-teal-700'}`}>
-              Next service due after 12 months or 10,000 km<br />
+              {report?.nextServiceText || 'Next service due after 12 months or 10,000 km'}<br />
               <span className={`font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>(whichever comes first post delivery)</span>
             </p>
             {(() => {

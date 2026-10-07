@@ -509,12 +509,22 @@ const CarEditPage = () => {
     },
     qualityReport: {
       summary: "",
-      fullReportUrl: "",
-      coreScore: "",
-      supportingScore: "",
-      interiorsScore: "",
-      exteriorsScore: "",
-      wearTearScore: ""
+      subtitle: "1452 parts evaluated by 5 automotive experts",
+      meterTampered: true,
+      nonFlooded: true,
+      coreStructureIntact: true,
+      coreScore: "9.9",
+      coreLabel: "Excellent",
+      supportingScore: "9.5",
+      supportingLabel: "Excellent",
+      interiorsScore: "9.6",
+      interiorsLabel: "Excellent",
+      exteriorsScore: "9.2",
+      exteriorsLabel: "Excellent",
+      wearTearScore: "8.7",
+      wearTearLabel: "Good",
+      nextServiceText: "Next service due after 12 months or 10,000 km",
+      fullReportUrl: ""
     },
     moreImages: [],
     videoUrl: "",
@@ -613,7 +623,25 @@ const CarEditPage = () => {
         features: features,
         moreImages: moreImages,
         videoUrl: data.videoUrl || "",
-        qualityReport: data.qualityReport || { summary: "", fullReportUrl: "", coreScore: "", supportingScore: "", interiorsScore: "", exteriorsScore: "", wearTearScore: "" }
+        qualityReport: {
+          summary: data.qualityReport?.summary || "",
+          subtitle: data.qualityReport?.subtitle || "1452 parts evaluated by 5 automotive experts",
+          meterTampered: data.qualityReport?.meterTampered !== undefined ? (data.qualityReport.meterTampered !== false && data.qualityReport.meterTampered !== "false") : true,
+          nonFlooded: data.qualityReport?.nonFlooded !== undefined ? (data.qualityReport.nonFlooded !== false && data.qualityReport.nonFlooded !== "false") : true,
+          coreStructureIntact: data.qualityReport?.coreStructureIntact !== undefined ? (data.qualityReport.coreStructureIntact !== false && data.qualityReport.coreStructureIntact !== "false") : true,
+          coreScore: data.qualityReport?.coreScore || "9.9",
+          coreLabel: data.qualityReport?.coreLabel || "Excellent",
+          supportingScore: data.qualityReport?.supportingScore || "9.5",
+          supportingLabel: data.qualityReport?.supportingLabel || "Excellent",
+          interiorsScore: data.qualityReport?.interiorsScore || "9.6",
+          interiorsLabel: data.qualityReport?.interiorsLabel || "Excellent",
+          exteriorsScore: data.qualityReport?.exteriorsScore || "9.2",
+          exteriorsLabel: data.qualityReport?.exteriorsLabel || "Excellent",
+          wearTearScore: data.qualityReport?.wearTearScore || "8.7",
+          wearTearLabel: data.qualityReport?.wearTearLabel || "Good",
+          nextServiceText: data.qualityReport?.nextServiceText || "Next service due after 12 months or 10,000 km",
+          fullReportUrl: data.qualityReport?.fullReportUrl || ""
+        }
       });
 
       if (data.videoUrl) {
@@ -1821,6 +1849,394 @@ const CarEditPage = () => {
               title="Exterior" 
               options={["Fog Lights", "Alloy Wheels", "Rear Spoiler", "Moonroof", "LED Headlights", "Roof Rails", "Turn Indicators on ORVM"]} 
             />
+
+            {/* QUALITY & INSPECTION REPORT SECTION */}
+            <div className="mt-8 bg-white dark:bg-gray-900 p-6 md:p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-800 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base text-gray-900 dark:text-white leading-tight">
+                      Vehicle Quality & Inspection Report
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      Configure the quality score ratings, evaluation summary, and upload the official PDF inspection report.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={pdfInputRef}
+                    type="file"
+                    accept="application/pdf,.pdf"
+                    className="hidden"
+                    onChange={handlePdfUpload}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => pdfInputRef.current?.click()}
+                    disabled={uploadingPdf}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                  >
+                    {uploadingPdf ? (
+                      <>
+                        <span className="animate-spin text-xs">⏳</span>
+                        <span>Uploading PDF...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={14} />
+                        <span>Upload PDF Report</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* 1. PDF Upload / Attachment Display */}
+              <div className="p-4 rounded-2xl bg-gray-50/70 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                    <FileText size={14} className="text-indigo-600" />
+                    <span>Inspection PDF Document (for "View full report" button)</span>
+                  </label>
+                  {formData.qualityReport?.fullReportUrl && (
+                    <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                      PDF Attached
+                    </span>
+                  )}
+                </div>
+
+                {formData.qualityReport?.fullReportUrl ? (
+                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-white dark:bg-gray-900 border border-emerald-300 dark:border-emerald-800 shadow-2xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                        <FileText size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                          {formData.qualityReport.fullReportUrl.split('/').pop() || 'Inspection_Report.pdf'}
+                        </p>
+                        <p className="text-[10.5px] text-emerald-600 dark:text-emerald-400 font-mono truncate">
+                          {formData.qualityReport.fullReportUrl}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 ml-3">
+                      <a
+                        href={formData.qualityReport.fullReportUrl.startsWith('/uploads/') ? `${API}${formData.qualityReport.fullReportUrl}` : formData.qualityReport.fullReportUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 transition-colors"
+                      >
+                        <ExternalLink size={12} /> View PDF
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setFormData((prev: any) => ({
+                          ...prev,
+                          qualityReport: { ...prev.qualityReport, fullReportUrl: '' }
+                        }))}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900 transition-colors cursor-pointer"
+                      >
+                        <Trash2 size={12} /> Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 text-xs flex items-center justify-between gap-3">
+                    <span>No PDF uploaded yet for this vehicle. Click <strong>Upload PDF Report</strong> above or paste a direct link below.</span>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                    Or Enter PDF / External Report URL manually:
+                  </label>
+                  <input
+                    type="text"
+                    className={inpClass}
+                    value={formData.qualityReport?.fullReportUrl || ""}
+                    onChange={e => setFormData({
+                      ...formData,
+                      qualityReport: { ...formData.qualityReport, fullReportUrl: e.target.value }
+                    })}
+                    placeholder="https://... or /uploads/report.pdf"
+                  />
+                </div>
+              </div>
+
+              {/* 2. Subtitle & Expert Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Header Evaluation Subtitle</label>
+                  <input
+                    type="text"
+                    className={inpClass}
+                    value={formData.qualityReport?.subtitle || ""}
+                    onChange={e => setFormData({
+                      ...formData,
+                      qualityReport: { ...formData.qualityReport, subtitle: e.target.value }
+                    })}
+                    placeholder="e.g. 1452 parts evaluated by 5 automotive experts"
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Next Service Due Notice</label>
+                  <input
+                    type="text"
+                    className={inpClass}
+                    value={formData.qualityReport?.nextServiceText || ""}
+                    onChange={e => setFormData({
+                      ...formData,
+                      qualityReport: { ...formData.qualityReport, nextServiceText: e.target.value }
+                    })}
+                    placeholder="e.g. Next service due after 12 months or 10,000 km"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>Expert Summary (Detailed Notes)</label>
+                <textarea
+                  className={inpClass + " min-h-[90px]"}
+                  value={formData.qualityReport?.summary || ""}
+                  onChange={e => setFormData({
+                    ...formData,
+                    qualityReport: { ...formData.qualityReport, summary: e.target.value }
+                  })}
+                  placeholder="e.g. 1452 parts evaluated. Core structure intact. No flood damage found."
+                />
+              </div>
+
+              {/* 3. Inspection Check Badges */}
+              <div>
+                <label className={labelClass}>Inspection Badges & Guarantees</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <label className="flex items-center gap-2.5 p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.qualityReport?.meterTampered !== false && formData.qualityReport?.meterTampered !== "false"}
+                      onChange={e => setFormData({
+                        ...formData,
+                        qualityReport: { ...formData.qualityReport, meterTampered: e.target.checked }
+                      })}
+                      className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                    />
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Meter not tampered</span>
+                  </label>
+
+                  <label className="flex items-center gap-2.5 p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.qualityReport?.nonFlooded !== false && formData.qualityReport?.nonFlooded !== "false"}
+                      onChange={e => setFormData({
+                        ...formData,
+                        qualityReport: { ...formData.qualityReport, nonFlooded: e.target.checked }
+                      })}
+                      className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                    />
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Non-flooded</span>
+                  </label>
+
+                  <label className="flex items-center gap-2.5 p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.qualityReport?.coreStructureIntact !== false && formData.qualityReport?.coreStructureIntact !== "false"}
+                      onChange={e => setFormData({
+                        ...formData,
+                        qualityReport: { ...formData.qualityReport, coreStructureIntact: e.target.checked }
+                      })}
+                      className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                    />
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Core structure intact</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* 4. The 5 Quality Category Scores & Ratings */}
+              <div className="pt-2">
+                <h4 className="text-sm font-extrabold text-gray-900 dark:text-white mb-3">
+                  Quality Category Scores & Ratings (Out of 10)
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                  {/* Category 1 */}
+                  <div className="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/30 space-y-2">
+                    <div className="font-bold text-xs text-gray-900 dark:text-white">Core systems</div>
+                    <p className="text-[10px] text-gray-400">Engine, transmission</p>
+                    <div>
+                      <label className="text-[10px] text-gray-500 block mb-0.5">Score (e.g. 9.9)</label>
+                      <input
+                        type="text"
+                        className={inpClass}
+                        value={formData.qualityReport?.coreScore || ""}
+                        onChange={e => setFormData({
+                          ...formData,
+                          qualityReport: { ...formData.qualityReport, coreScore: e.target.value }
+                        })}
+                        placeholder="9.9"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-500 block mb-0.5">Rating Label</label>
+                      <select
+                        className={inpClass}
+                        value={formData.qualityReport?.coreLabel || "Excellent"}
+                        onChange={e => setFormData({
+                          ...formData,
+                          qualityReport: { ...formData.qualityReport, coreLabel: e.target.value }
+                        })}
+                      >
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Average">Average</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Category 2 */}
+                  <div className="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/30 space-y-2">
+                    <div className="font-bold text-xs text-gray-900 dark:text-white">Supporting systems</div>
+                    <p className="text-[10px] text-gray-400">Fuel supply, ignition</p>
+                    <div>
+                      <label className="text-[10px] text-gray-500 block mb-0.5">Score (e.g. 9.5)</label>
+                      <input
+                        type="text"
+                        className={inpClass}
+                        value={formData.qualityReport?.supportingScore || ""}
+                        onChange={e => setFormData({
+                          ...formData,
+                          qualityReport: { ...formData.qualityReport, supportingScore: e.target.value }
+                        })}
+                        placeholder="9.5"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-500 block mb-0.5">Rating Label</label>
+                      <select
+                        className={inpClass}
+                        value={formData.qualityReport?.supportingLabel || "Excellent"}
+                        onChange={e => setFormData({
+                          ...formData,
+                          qualityReport: { ...formData.qualityReport, supportingLabel: e.target.value }
+                        })}
+                      >
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Average">Average</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Category 3 */}
+                  <div className="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/30 space-y-2">
+                    <div className="font-bold text-xs text-gray-900 dark:text-white">Interiors & AC</div>
+                    <p className="text-[10px] text-gray-400">Seats, AC, audio</p>
+                    <div>
+                      <label className="text-[10px] text-gray-500 block mb-0.5">Score (e.g. 9.6)</label>
+                      <input
+                        type="text"
+                        className={inpClass}
+                        value={formData.qualityReport?.interiorsScore || ""}
+                        onChange={e => setFormData({
+                          ...formData,
+                          qualityReport: { ...formData.qualityReport, interiorsScore: e.target.value }
+                        })}
+                        placeholder="9.6"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-500 block mb-0.5">Rating Label</label>
+                      <select
+                        className={inpClass}
+                        value={formData.qualityReport?.interiorsLabel || "Excellent"}
+                        onChange={e => setFormData({
+                          ...formData,
+                          qualityReport: { ...formData.qualityReport, interiorsLabel: e.target.value }
+                        })}
+                      >
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Average">Average</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Category 4 */}
+                  <div className="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/30 space-y-2">
+                    <div className="font-bold text-xs text-gray-900 dark:text-white">Exteriors & lights</div>
+                    <p className="text-[10px] text-gray-400">Panels, glasses, lights</p>
+                    <div>
+                      <label className="text-[10px] text-gray-500 block mb-0.5">Score (e.g. 9.2)</label>
+                      <input
+                        type="text"
+                        className={inpClass}
+                        value={formData.qualityReport?.exteriorsScore || ""}
+                        onChange={e => setFormData({
+                          ...formData,
+                          qualityReport: { ...formData.qualityReport, exteriorsScore: e.target.value }
+                        })}
+                        placeholder="9.2"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-500 block mb-0.5">Rating Label</label>
+                      <select
+                        className={inpClass}
+                        value={formData.qualityReport?.exteriorsLabel || "Excellent"}
+                        onChange={e => setFormData({
+                          ...formData,
+                          qualityReport: { ...formData.qualityReport, exteriorsLabel: e.target.value }
+                        })}
+                      >
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Average">Average</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Category 5 */}
+                  <div className="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/30 space-y-2">
+                    <div className="font-bold text-xs text-gray-900 dark:text-white">Wear & tear parts</div>
+                    <p className="text-[10px] text-gray-400">Tyres, clutch, brakes</p>
+                    <div>
+                      <label className="text-[10px] text-gray-500 block mb-0.5">Score (e.g. 8.7)</label>
+                      <input
+                        type="text"
+                        className={inpClass}
+                        value={formData.qualityReport?.wearTearScore || ""}
+                        onChange={e => setFormData({
+                          ...formData,
+                          qualityReport: { ...formData.qualityReport, wearTearScore: e.target.value }
+                        })}
+                        placeholder="8.7"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-500 block mb-0.5">Rating Label</label>
+                      <select
+                        className={inpClass}
+                        value={formData.qualityReport?.wearTearLabel || "Good"}
+                        onChange={e => setFormData({
+                          ...formData,
+                          qualityReport: { ...formData.qualityReport, wearTearLabel: e.target.value }
+                        })}
+                      >
+                        <option value="Good">Good</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Average">Average</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -2207,146 +2623,6 @@ const CarEditPage = () => {
           </section>
         )}
 
-        {/* Quality Report Section */}
-        {activeTab === "report" && (
-          <section className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-[2rem] shadow-sm border border-gray-50 dark:border-gray-800 max-w-4xl mx-auto">
-            <h2 className="text-xl font-bold mb-8 flex items-center gap-3 text-gray-900 dark:text-white">
-              <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-              Expert Quality Report
-            </h2>
-            <div className="space-y-6">
-              <div>
-                <label className={labelClass}>Expert Summary</label>
-                <textarea 
-                  className={inpClass + " min-h-[120px]"} 
-                  value={formData.qualityReport.summary} 
-                  onChange={e => setFormData({...formData, qualityReport: {...formData.qualityReport, summary: e.target.value}})}
-                  placeholder="e.g. 1452 parts evaluated. Core structure intact. No flood damage found."
-                />
-              </div>
-              <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-800/40 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-900 dark:text-white mb-0.5">
-                      Full Inspection PDF Report
-                    </label>
-                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                      Upload the official vehicle inspection PDF report, or link to a report URL. This opens when buyers click "View full report" on the car page.
-                    </p>
-                  </div>
-
-                  <input
-                    ref={pdfInputRef}
-                    type="file"
-                    accept="application/pdf,.pdf"
-                    className="hidden"
-                    onChange={handlePdfUpload}
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => pdfInputRef.current?.click()}
-                    disabled={uploadingPdf}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer shrink-0"
-                  >
-                    {uploadingPdf ? (
-                      <>
-                        <span className="animate-spin text-xs">⏳</span>
-                        <span>Uploading PDF...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Upload size={14} />
-                        <span>Upload PDF Report</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {formData.qualityReport?.fullReportUrl && (
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-white dark:bg-gray-900 border border-emerald-200 dark:border-emerald-900/60 shadow-xs">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
-                        <FileText size={18} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
-                          {formData.qualityReport.fullReportUrl.split('/').pop() || 'Inspection Report.pdf'}
-                        </p>
-                        <p className="text-[10.5px] text-emerald-600 dark:text-emerald-400 font-mono truncate">
-                          {formData.qualityReport.fullReportUrl}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0 ml-3">
-                      <a
-                        href={formData.qualityReport.fullReportUrl.startsWith('/uploads/') ? `${API}${formData.qualityReport.fullReportUrl}` : formData.qualityReport.fullReportUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 transition-colors"
-                      >
-                        <ExternalLink size={12} /> View PDF
-                      </a>
-                      <button
-                        type="button"
-                        onClick={() => setFormData((prev: any) => ({
-                          ...prev,
-                          qualityReport: { ...prev.qualityReport, fullReportUrl: '' }
-                        }))}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900 transition-colors cursor-pointer"
-                      >
-                        <Trash2 size={12} /> Remove
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                    Direct Report URL / PDF Link (or edit manually):
-                  </label>
-                  <input 
-                    type="text" 
-                    className={inpClass} 
-                    value={formData.qualityReport?.fullReportUrl || ""} 
-                    onChange={e => setFormData({
-                      ...formData, 
-                      qualityReport: { ...formData.qualityReport, fullReportUrl: e.target.value }
-                    })}
-                    placeholder="https://... or /uploads/..."
-                  />
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
-                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4">Quality Scores (out of 10)</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className={labelClass}>Core Systems</label>
-                    <input type="number" step="0.1" max="10" className={inpClass} value={formData.qualityReport.coreScore || ""} onChange={e => setFormData({...formData, qualityReport: {...formData.qualityReport, coreScore: e.target.value}})} placeholder="e.g. 9.9" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Supporting Systems</label>
-                    <input type="number" step="0.1" max="10" className={inpClass} value={formData.qualityReport.supportingScore || ""} onChange={e => setFormData({...formData, qualityReport: {...formData.qualityReport, supportingScore: e.target.value}})} placeholder="e.g. 9.5" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Interiors & AC</label>
-                    <input type="number" step="0.1" max="10" className={inpClass} value={formData.qualityReport.interiorsScore || ""} onChange={e => setFormData({...formData, qualityReport: {...formData.qualityReport, interiorsScore: e.target.value}})} placeholder="e.g. 9.6" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Exteriors & Lights</label>
-                    <input type="number" step="0.1" max="10" className={inpClass} value={formData.qualityReport.exteriorsScore || ""} onChange={e => setFormData({...formData, qualityReport: {...formData.qualityReport, exteriorsScore: e.target.value}})} placeholder="e.g. 9.2" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Wear & Tear Parts</label>
-                    <input type="number" step="0.1" max="10" className={inpClass} value={formData.qualityReport.wearTearScore || ""} onChange={e => setFormData({...formData, qualityReport: {...formData.qualityReport, wearTearScore: e.target.value}})} placeholder="e.g. 8.7" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* Media Library Selector Modal */}
         {isLibraryOpen && (
