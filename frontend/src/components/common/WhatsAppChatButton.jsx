@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 
-const MESSAGES = [
+const DEFAULT_MESSAGES = [
   "🎁 Free Doorstep Inspection!",
   "🚗 500+ Certified Used Cars!",
   "⚡ Instant Valuation in 2 Mins!",
@@ -10,8 +11,36 @@ const MESSAGES = [
 ];
 
 const WhatsAppChatButton = () => {
+  const { settings } = useSiteSettings();
   const location = useLocation();
   const isCheckoutPage = location.pathname.startsWith('/checkout');
+
+  // Check if enabled (default true)
+  const isEnabled = settings?.whatsapp_chat_enabled !== 'false' && settings?.whatsapp_chat_enabled !== false;
+
+  // Phone number (default: +91 85919 69394)
+  const rawPhone = settings?.whatsapp_chat_phone || '+91 85919 69394';
+  const cleanDigits = rawPhone.replace(/\D/g, '') || '918591969394';
+  const phoneNum = cleanDigits.length === 10 ? `91${cleanDigits}` : cleanDigits;
+
+  // Offer badge text (default: 'Get Extra Discount')
+  const offerText = settings?.whatsapp_chat_offer_text || 'Get Extra Discount';
+
+  // Rotating messages list
+  const messagesList = useMemo(() => {
+    if (settings?.whatsapp_chat_messages && typeof settings.whatsapp_chat_messages === 'string') {
+      const parsed = settings.whatsapp_chat_messages
+        .split('\n')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (parsed.length > 0) return parsed;
+    }
+    return DEFAULT_MESSAGES;
+  }, [settings?.whatsapp_chat_messages]);
+
+  // Pre-filled customer greeting
+  const defaultPreFill = settings?.whatsapp_chat_default_message || 'Hi Selectt, I would like to know more about buying/selling a certified car.';
+
   const [currentText, setCurrentText] = useState('');
   const [messageIndex, setMessageIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -87,7 +116,8 @@ const WhatsAppChatButton = () => {
 
   // Smooth expand -> typewriter -> hold -> delete -> collapse lifecycle loop (NO BOUNCING)
   useEffect(() => {
-    const fullText = MESSAGES[messageIndex];
+    if (!messagesList || messagesList.length === 0) return;
+    const fullText = messagesList[messageIndex % messagesList.length] || '';
 
     const handleStep = () => {
       // 1. If currently collapsed, expand first and then begin typing
@@ -118,7 +148,7 @@ const WhatsAppChatButton = () => {
           // Finished deleting: collapse back to compact round icon smoothly
           setIsDeleting(false);
           setIsExpanded(false);
-          setMessageIndex((prev) => (prev + 1) % MESSAGES.length);
+          setMessageIndex((prev) => (prev + 1) % messagesList.length);
           // Stay collapsed as circular icon for 2.2 seconds before next expand
           setTypingSpeed(2200);
         } else {
@@ -129,15 +159,15 @@ const WhatsAppChatButton = () => {
 
     const timer = setTimeout(handleStep, typingSpeed);
     return () => clearTimeout(timer);
-  }, [currentText, isDeleting, isExpanded, isHovered, messageIndex, typingSpeed]);
+  }, [currentText, isDeleting, isExpanded, isHovered, messageIndex, typingSpeed, messagesList]);
 
-  // Open WhatsApp directly with pre-filled message
+  // Open WhatsApp directly with configured phone number and pre-filled message
   const handleChatClick = () => {
-    const waUrl = `https://wa.me/918574667466?text=${encodeURIComponent(
-      'Hi Selectt, I would like to know more about buying/selling a certified car.'
-    )}`;
+    const waUrl = `https://wa.me/${phoneNum}?text=${encodeURIComponent(defaultPreFill)}`;
     window.open(waUrl, '_blank', 'noopener,noreferrer');
   };
+
+  if (!isEnabled) return null;
 
   const showText = isExpanded || isHovered;
 
@@ -185,12 +215,12 @@ const WhatsAppChatButton = () => {
             {/* Top Line: Status / Subtitle */}
             <div className="flex items-center gap-1.5 text-[9px] sm:text-[11px] font-bold text-emerald-200 tracking-wide leading-none whitespace-nowrap wa-chat-font">
               <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] inline-block shadow-[0_0_8px_#25D366] animate-pulse shrink-0" />
-              <span>Get Extra Discount</span>
+              <span>{offerText}</span>
             </div>
 
             {/* Bottom Line: Typing message with cursor */}
             <div className="text-[11px] sm:text-[13px] font-bold text-white tracking-tight flex items-center whitespace-nowrap min-w-[130px] sm:min-w-[195px] leading-tight mt-0.5 sm:mt-1 wa-chat-font">
-              <span className="truncate">{currentText || (isHovered ? '💬 Chat with Selectt Experts!' : '')}</span>
+              <span className="truncate">{currentText || (isHovered ? (messagesList[0] || '💬 Chat with Selectt Experts!') : '')}</span>
               <span className="text-[#FFB703] font-bold text-xs sm:text-sm ml-0.5 animate-[pulse_1.2s_ease-in-out_infinite] inline-block">
                 |
               </span>

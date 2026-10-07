@@ -102,6 +102,8 @@ export default function App() {
                   <Route path="/settings/smtp" element={<SiteSettings section="smtp" />} />
                   <Route path="/settings/maintenance" element={<SiteSettings section="maintenance" />} />
                   <Route path="/settings/whatsapp" element={<SiteSettings section="whatsapp" />} />
+                  <Route path="/settings/whatsapp-chat" element={<SiteSettings section="whatsapp_chat" />} />
+                  <Route path="/whatsapp-chat-settings" element={<SiteSettings section="whatsapp_chat" />} />
                   <Route path="/settings/crm" element={<SiteSettings section="crm" />} />
                   <Route path="/crm-settings" element={<SiteSettings section="crm" />} />
                   <Route path="/settings/receipt" element={<ReceiptSettings />} />

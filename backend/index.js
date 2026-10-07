@@ -5107,7 +5107,12 @@ app.get('/api/settings/public', (req, res) => {
             booking_special_learn_more: settings.booking_special_learn_more || "Guaranteed vehicle reservation with extended festival holding period. 100% refundable token deposit with priority inspection & delivery.",
             booking_standard_title: settings.booking_standard_title || "Standard booking",
             booking_standard_hold_days: settings.booking_standard_hold_days || "3",
-            booking_standard_learn_more: settings.booking_standard_learn_more || "Standard 3-day holding period to complete vehicle inspection and paperwork. 100% refundable token deposit."
+            booking_standard_learn_more: settings.booking_standard_learn_more || "Standard 3-day holding period to complete vehicle inspection and paperwork. 100% refundable token deposit.",
+            whatsapp_chat_phone: settings.whatsapp_chat_phone || "+91 85919 69394",
+            whatsapp_chat_offer_text: settings.whatsapp_chat_offer_text || "Get Extra Discount",
+            whatsapp_chat_messages: settings.whatsapp_chat_messages || "🎁 Free Doorstep Inspection!\n🚗 500+ Certified Used Cars!\n⚡ Instant Valuation in 2 Mins!\n💬 Chat with Selectt Experts!\n🛡️ 1-Year Warranty & Easy EMI!",
+            whatsapp_chat_default_message: settings.whatsapp_chat_default_message || "Hi Selectt, I would like to know more about buying/selling a certified car.",
+            whatsapp_chat_enabled: settings.whatsapp_chat_enabled !== 'false'
         });
     });
 });
