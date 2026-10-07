@@ -1318,19 +1318,6 @@ const CarDetailsPage = () => {
                             <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                           </svg>
                         </a>
-                        {/* Copy Link */}
-                        <button
-                          type="button"
-                          onClick={handleCopyCarUrl}
-                          className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer ${
-                            copied
-                              ? 'bg-emerald-600 text-white border-emerald-600'
-                              : 'bg-slate-100 hover:bg-[#00C9AF] border-slate-200 text-slate-700 hover:text-white'
-                          }`}
-                          title="Copy Link to Clipboard"
-                        >
-                          {copied ? <Check size={14} className="stroke-[2.5]" /> : <Copy size={14} />}
-                        </button>
                       </div>
                     </div>
                   </div>
