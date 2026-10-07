@@ -796,8 +796,8 @@ div[class*="chatty"],
     letter-spacing: 0.03em !important;
   }
 
-  /* Buttons & CTAs Tap Targets */
-  button:not([aria-label*="Slide"]):not([data-no-min-h]):not(.\!min-h-0), a.btn, input[type="button"], input[type="submit"] {
+  /* Buttons & CTAs Tap Targets (exclude circular icon buttons) */
+  button:not([aria-label*="Slide"]):not([data-no-min-h]):not(.\!min-h-0):not(.rounded-full):not([class*="rounded-full"]), a.btn, input[type="button"], input[type="submit"] {
     min-height: 40px;
     font-weight: 700;
   }

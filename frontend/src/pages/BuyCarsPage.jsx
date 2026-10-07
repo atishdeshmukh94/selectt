@@ -710,13 +710,9 @@ const BuyCarsPage = () => {
 
                 {/* Page label & SEO H1 Heading */}
                 <div className="flex flex-col gap-2 mb-4 md:mb-8 text-left">
-                  <div className="hidden md:flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="hidden md:flex flex-wrap items-center gap-x-2 gap-y-1">
                     <Sparkles size={13} className="text-[#00C9AF]" />
                     <span className="text-xs font-extrabold text-slate-500 uppercase tracking-widest">Selectt Certified Pre-Owned</span>
-                    <span className="text-slate-300">|</span>
-                    <span className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
-                      {filteredCars.length} Cars Available
-                    </span>
                   </div>
                   <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
                     Find Certified Used Cars in {displayCity}
