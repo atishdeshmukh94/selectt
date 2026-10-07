@@ -5814,7 +5814,7 @@ app.get('/api/bookings/:id/receipt', async (req, res) => {
         const txnId = rawTxnId ? rawTxnId.replace(/^pay_/, '') : 'Tk7Ip2ll868Vqa';
 
         const companyName = receiptSettings.receipt_company_name || 'SELECTT FIRST PVT LTD';
-        const companyPhone = receiptSettings.receipt_company_phone || '+91 85746 67466';
+        const companyPhone = receiptSettings.receipt_company_phone || '+91 85919 69394';
         const companyEmail = receiptSettings.receipt_company_email || 'hello@selectt.in';
         const companyWebsite = receiptSettings.receipt_company_website || 'https://selectt.in';
         const companyAddress = receiptSettings.receipt_company_address || 'Selectt Experience Hub, Andheri East, Mumbai, Maharashtra 400069';
@@ -6425,7 +6425,7 @@ async function sendPaymentSuccessEmail(bookingId) {
 
                   <div style="border-top: 1px solid #e2e8f0; margin-top: 20px; padding-top: 14px; font-size: 11.5px; color: #94a3b8; line-height: 1.6;">
                     📎 <em>Your official payment receipt is attached to this email as a PDF document.</em><br>
-                    Need assistance? Call our support at <a href="tel:+918574667466" style="color: #00A38D; font-weight: bold; text-decoration: none;">+91 85746 67466</a> or email <a href="mailto:contact@selectt.in" style="color: #00A38D; font-weight: bold; text-decoration: none;">contact@selectt.in</a>.<br>
+                    Need assistance? Call our support at <a href="tel:+918591969394" style="color: #00A38D; font-weight: bold; text-decoration: none;">+91 85919 69394</a> or email <a href="mailto:contact@selectt.in" style="color: #00A38D; font-weight: bold; text-decoration: none;">contact@selectt.in</a>.<br>
                     <strong>Selectt Mobility</strong> • IndusInd Bank, IC Colony Borivali | A/c 257878785288 • IFSC INDB0002144
                   </div>
                 </div>

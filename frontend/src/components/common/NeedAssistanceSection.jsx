@@ -15,7 +15,7 @@ const NeedAssistanceSection = ({ className = '' }) => {
           {/* Card 1: Call Us */}
           <StaggerItem>
             <a
-              href="tel:+918574667466"
+              href="tel:+918591969394"
               className="flex items-center gap-3.5 p-4 md:p-5 rounded-2xl bg-[#0C1B33] border border-slate-200/80 shadow-sm hover:border-[#00C9AF] hover:shadow-md transition-all text-left group"
             >
               <div className="w-10 h-10 rounded-full bg-[#1DFEEC] text-[#0C1B33] flex items-center justify-center shrink-0">
@@ -26,7 +26,7 @@ const NeedAssistanceSection = ({ className = '' }) => {
                   Call us on
                 </span>
                 <span className="text-xs md:text-sm font-heading font-black text-[#ffffff]">
-                  +91-857466-7466
+                  +91 85919 69394
                 </span>
               </div>
             </a>

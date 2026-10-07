@@ -32,7 +32,7 @@ interface Setting {
 
 const defaultReceiptSettings = {
   receipt_company_name: "SELECTT FIRST PVT LTD",
-  receipt_company_phone: "+91 85746 67466",
+  receipt_company_phone: "+91 85919 69394",
   receipt_company_email: "hello@selectt.in",
   receipt_company_website: "https://selectt.in",
   receipt_company_address: "Selectt Experience Hub, Andheri East, Mumbai, Maharashtra 400069",
@@ -267,7 +267,7 @@ const ReceiptSettings: React.FC = () => {
                       type="text"
                       value={settings.receipt_company_phone}
                       onChange={(e) => handleChange("receipt_company_phone", e.target.value)}
-                      placeholder="+91 85746 67466"
+                      placeholder="+91 85919 69394"
                     />
                   </div>
                   <div>

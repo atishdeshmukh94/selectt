@@ -41,7 +41,7 @@ export default function CarHubs() {
     open_hours: "10am - 8pm (Mon - Sun)",
     image_path: "",
     car_count: 0,
-    phone: "+91-857466-7466"
+    phone: "+91 85919 69394"
   });
 
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
@@ -98,7 +98,7 @@ export default function CarHubs() {
       open_hours: "10am - 8pm (Mon - Sun)",
       image_path: "",
       car_count: 0,
-      phone: "+91-857466-7466"
+      phone: "+91 85919 69394"
     });
     setIsAdding(true);
   };
@@ -562,7 +562,7 @@ export default function CarHubs() {
                     className={inp}
                     value={form.phone || ""}
                     onChange={(e) => setForm((f: any) => ({ ...f, phone: e.target.value }))}
-                    placeholder="e.g. +91-857466-7466"
+                    placeholder="e.g. +91 85919 69394"
                   />
                 </div>
                 <div>

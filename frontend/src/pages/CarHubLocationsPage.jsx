@@ -24,7 +24,7 @@ const DEFAULT_HUBS = [
     city: 'Pune',
     address: 'Phoenix Marketcity Mall Road, Viman Nagar, Pune, Maharashtra 411014',
     open_hours: '09:30 AM - 08:00 PM (All 7 Days)',
-    phone: '+91-857466-7466',
+    phone: '+91 85919 69394',
     image_path: null,
     car_count: 60,
     maps_query: 'Phoenix Marketcity Mall Viman Nagar Pune'
@@ -35,7 +35,7 @@ const DEFAULT_HUBS = [
     city: 'Pune',
     address: 'Kalyani Nagar Road, near KP Mall, Pune, Maharashtra 411001',
     open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
-    phone: '+91-857466-7466',
+    phone: '+91 85919 69394',
     image_path: null,
     car_count: 78,
     maps_query: 'Koregaon Park Kalyani Nagar Pune'
@@ -46,7 +46,7 @@ const DEFAULT_HUBS = [
     city: 'Pune',
     address: 'Baner Road, Near Balewadi High Street, Baner, Pune, Maharashtra 411045',
     open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
-    phone: '+91-857466-7466',
+    phone: '+91 85919 69394',
     image_path: null,
     car_count: 45,
     maps_query: 'Balewadi High Street Baner Pune'
@@ -57,7 +57,7 @@ const DEFAULT_HUBS = [
     city: 'Mumbai',
     address: 'Infinity Mall Link Road, Next to Oshiwara Metro, Andheri West, Mumbai, Maharashtra 400053',
     open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
-    phone: '+91-857466-7466',
+    phone: '+91 85919 69394',
     image_path: null,
     car_count: 85,
     maps_query: 'Infinity Mall Link Road Oshiwara Andheri West Mumbai'
@@ -68,7 +68,7 @@ const DEFAULT_HUBS = [
     city: 'Mumbai',
     address: 'G Block, Bandra Kurla Complex, Bandra East, Mumbai, Maharashtra 400051',
     open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
-    phone: '+91-857466-7466',
+    phone: '+91 85919 69394',
     image_path: null,
     car_count: 92,
     maps_query: 'Bandra Kurla Complex BKC Bandra East Mumbai'
@@ -79,7 +79,7 @@ const DEFAULT_HUBS = [
     city: 'Mumbai',
     address: 'Near Inorbit Mall, Sector 30A, Vashi, Navi Mumbai, Maharashtra 400703',
     open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
-    phone: '+91-857466-7466',
+    phone: '+91 85919 69394',
     image_path: null,
     car_count: 65,
     maps_query: 'Inorbit Mall Sector 30A Vashi Navi Mumbai'
@@ -90,7 +90,7 @@ const DEFAULT_HUBS = [
     city: 'Mumbai',
     address: 'Eastern Express Highway, Near Viviana Mall, Majiwada, Thane West, Maharashtra 400601',
     open_hours: '10:00 AM - 08:30 PM (All 7 Days)',
-    phone: '+91-857466-7466',
+    phone: '+91 85919 69394',
     image_path: null,
     car_count: 58,
     maps_query: 'Viviana Mall Eastern Express Highway Thane West'
@@ -101,7 +101,7 @@ const DEFAULT_HUBS = [
     city: 'Bengaluru',
     address: 'Mantri Commercio Parking, Tower-A, Outer Ring Rd, Bellandur, Bengaluru, Karnataka 560103',
     open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
-    phone: '+91-857466-7466',
+    phone: '+91 85919 69394',
     image_path: null,
     car_count: 67,
     maps_query: 'Mantri Commercio Outer Ring Road Bellandur Bangalore'
@@ -112,7 +112,7 @@ const DEFAULT_HUBS = [
     city: 'Bengaluru',
     address: 'VR Bengaluru, Floor L2, Whitefield Main Road, Mahadevapura, Bengaluru, Karnataka 560048',
     open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
-    phone: '+91-857466-7466',
+    phone: '+91 85919 69394',
     image_path: null,
     car_count: 56,
     maps_query: 'VR Bengaluru Whitefield Main Road Mahadevapura Bangalore'
@@ -123,7 +123,7 @@ const DEFAULT_HUBS = [
     city: 'Bengaluru',
     address: 'Phase 1, Hosur Main Road, Near Infosys Gate 1, Electronic City, Bengaluru, Karnataka 560100',
     open_hours: '10:00 AM - 08:00 PM (All 7 Days)',
-    phone: '+91-857466-7466',
+    phone: '+91 85919 69394',
     image_path: null,
     car_count: 48,
     maps_query: 'Infosys Gate 1 Electronic City Bangalore'
@@ -401,8 +401,8 @@ export default function CarHubLocationsPage() {
                               </div>
                               <div className="flex items-center gap-1.5 text-slate-700">
                                 <Phone size={13} className="text-[#00a892] shrink-0" />
-                                <a href={`tel:${hub.phone || '+918574667466'}`} className="hover:text-[#00a892] transition-colors font-bold">
-                                  {hub.phone || '+91-857466-7466'}
+                                <a href={`tel:${hub.phone || '+918591969394'}`} className="hover:text-[#00a892] transition-colors font-bold">
+                                  {hub.phone || '+91 85919 69394'}
                                 </a>
                               </div>
                             </div>

@@ -27,7 +27,7 @@ export const RupeeSignIcon = ({ className = "w-3 h-3 fill-current", ...props }) 
 export const CheckoutDedicatedHeader = ({ currentStep = 2, car, carId, navigate, onOpenRefundPolicy }) => {
   const { getSiteImage, settings } = useSiteSettings();
   const siteLogo = getSiteImage('header_logo_light', '') || '/img/dark-logo.svg';
-  const supportPhone = settings?.contact_phone || settings?.maintenance_phone || '+91 85746 67466';
+  const supportPhone = settings?.contact_phone || settings?.maintenance_phone || '+91 85919 69394';
   const supportPhoneClean = supportPhone.replace(/[^0-9+]/g, '');
 
   return (
@@ -567,7 +567,7 @@ const CheckoutPage = () => {
   const { settings } = useSiteSettings();
   const [car, setCar] = useState(null);
 
-  const supportPhone = settings?.contact_phone || settings?.maintenance_phone || '+91 85746 67466';
+  const supportPhone = settings?.contact_phone || settings?.maintenance_phone || '+91 85919 69394';
   const supportPhoneClean = supportPhone.replace(/[^0-9+]/g, '');
   const supportEmail = settings?.contact_email || 'contact@selectt.in';
 
@@ -2130,10 +2130,10 @@ const CheckoutPage = () => {
             <p className="text-[11px] text-slate-500 font-medium">
               This car will be booked on{' '}
               <a
-                href={`tel:+91${user?.phone || '8574667466'}`}
+                href={`tel:+91${user?.phone || '8591969394'}`}
                 className="text-[#0C1B33] font-bold hover:underline"
               >
-                {user?.phone || '8574667466'}
+                {user?.phone || '8591969394'}
               </a>
             </p>
             <button
@@ -3492,7 +3492,7 @@ const CheckoutPage = () => {
               <p>
                 You can avail a 100% refund by requesting return from Selectt app or by visiting your nearest Selectt Car Hub or requesting a home pick-up by calling us on our after sales support helpline number{' '}
                 <a href={`tel:${supportPhoneClean}`} className="text-[#00A38D] font-bold hover:underline">
-                  +91 85746 67466
+                  +91 85919 69394
                 </a>{' '}
                 or writing to us at{' '}
                 <a href="mailto:contact@selectt.in" className="text-[#00A38D] font-bold hover:underline">

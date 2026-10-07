@@ -625,9 +625,9 @@ export const PremiumHeader: React.FC = () => {
             </button>
           )}
 
-          <a href="tel:+91-857466-7466" className={styles.phoneLink} aria-label="Call Support at +91-857466-7466">
+          <a href="tel:+918591969394" className={styles.phoneLink} aria-label="Call Support at +91 85919 69394">
             <IconPhone size={18} />
-            <span>+91-857466-7466</span>
+            <span>+91 85919 69394</span>
           </a>
         </div>
 
@@ -1459,7 +1459,7 @@ export const PremiumHeader: React.FC = () => {
               {/* Brand Color #13EDE5 Help Banner at Bottom */}
               <div className="pb-2">
                 <a
-                  href="tel:+91-857466-7466"
+                  href="tel:+918591969394"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3.5 p-3.5 bg-[#13EDE5]/20 border border-[#13EDE5]/50 rounded-2xl shadow-xs text-left no-underline group hover:bg-[#13EDE5]/30 transition-colors"
                 >
@@ -1468,7 +1468,7 @@ export const PremiumHeader: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-[11px] font-black text-[#0C1B33] uppercase tracking-wider">NEED HELP?</div>
-                    <div className="text-[15px] sm:text-base font-extrabold text-[#0C1B33] tracking-tight">Call us at 8574667466</div>
+                    <div className="text-[15px] sm:text-base font-extrabold text-[#0C1B33] tracking-tight">Call us at +91 85919 69394</div>
                   </div>
                 </a>
               </div>

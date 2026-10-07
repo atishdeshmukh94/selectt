@@ -3,8 +3,8 @@ import { Phone, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageMeta from '../components/common/PageMeta';
 
-const MaintenancePage = ({ message, phone = "+91-857466-7466" }) => {
-  const cleanPhone = phone ? phone.replace(/[^0-9+]/g, '') : '+918574667466';
+const MaintenancePage = ({ message, phone = "+91 85919 69394" }) => {
+  const cleanPhone = phone ? phone.replace(/[^0-9+]/g, '') : '+918591969394';
 
   return (
     <>

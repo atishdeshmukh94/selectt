@@ -326,7 +326,7 @@ async function generateInspectionReportPdf(car) {
       doc.font(FONT_BLD).fontSize(7.5).fillColor(C_NAVY)
         .text('Customer Support & Inquiries:', 360, fInfoY, { width: 203, align: 'right' });
       doc.font(FONT_REG).fontSize(7).fillColor(C_MUTED)
-        .text('Phone: +91 85746 67466   |   Email: hello@selectt.in', 360, fInfoY + 12, { width: 203, align: 'right' });
+        .text('Phone: +91 85919 69394   |   Email: hello@selectt.in', 360, fInfoY + 12, { width: 203, align: 'right' });
       doc.font(FONT_BLD).fontSize(7.5).fillColor(C_TEAL_DARK)
         .text('Official Website: https://selectt.in', 360, fInfoY + 24, { width: 203, align: 'right' });
 

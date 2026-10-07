@@ -149,7 +149,7 @@ function LoadingFallback() {
 function App() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
-  const [maintenancePhone, setMaintenancePhone] = useState('+91-857466-7466');
+  const [maintenancePhone, setMaintenancePhone] = useState('+91 85919 69394');
   const [logo, setLogo] = useState('');
 
   useEffect(() => {

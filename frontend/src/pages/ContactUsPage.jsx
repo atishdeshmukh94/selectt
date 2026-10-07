@@ -97,7 +97,11 @@ const ContactUsPage = () => {
               </div>
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Direct Helpline</span>
-                <h3 className="text-lg font-bold text-slate-900 mt-1">+91 85746 67466</h3>
+                <h3 className="text-lg font-bold text-slate-900 mt-1">
+                  <a href="tel:+918591969394" className="hover:text-[#00C9AF] transition-colors">
+                    +91 85919 69394
+                  </a>
+                </h3>
               </div>
               <p className="text-slate-500 text-xs font-normal leading-relaxed pt-1">
                 Available Monday to Sunday, 9:00 AM to 8:00 PM for instant call support.

@@ -316,7 +316,7 @@ const PrivacyPolicyPage = () => {
                     <p><strong>Entity:</strong> Selectt Technologies Private Limited</p>
                     <p><strong>Address:</strong> Selectt Auto Hub, Capital Business Park, Sector 48, Gurugram, Haryana - 122018</p>
                     <p><strong>Direct Email:</strong> <a href="mailto:grievance@selectt.in" className="text-[#00C9AF] underline">grievance@selectt.in</a></p>
-                    <p><strong>Support Phone:</strong> +91-8574667466 (10:00 AM – 7:00 PM IST, Monday to Saturday)</p>
+                    <p><strong>Support Phone:</strong> +91 85919 69394 (10:00 AM – 7:00 PM IST, Monday to Saturday)</p>
                   </div>
                 </section>
 
