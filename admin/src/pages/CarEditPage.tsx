@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { toast } from "react-hot-toast";
 import { 
@@ -26,7 +26,9 @@ import {
   AlertCircle,
   UploadCloud,
   Car,
-  ExternalLink
+  ExternalLink,
+  FileText,
+  Upload
 } from "lucide-react";
 
 import { API_URL } from "../config/api";
@@ -62,6 +64,61 @@ const CarEditPage = () => {
   const [libraryTarget, setLibraryTarget] = useState<'main' | 'gallery'>('main');
   const [librarySearch, setLibrarySearch] = useState("");
   const [selectedLibraryUrls, setSelectedLibraryUrls] = useState<string[]>([]);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+      toast.error('Please select a valid PDF file.');
+      return;
+    }
+
+    setUploadingPdf(true);
+    const uploadToast = toast.loading('Uploading inspection PDF report...');
+    try {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token") || "";
+      const uFormData = new FormData();
+      uFormData.append("file", file);
+
+      const response = await fetch(`${API}/api/upload`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        body: uFormData
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to upload PDF");
+      }
+
+      const data = await response.json();
+      const uploadedUrl = data.url || data.path || "";
+      if (!uploadedUrl) throw new Error("No URL returned from upload server");
+
+      setFormData((prev: any) => ({
+        ...prev,
+        qualityReport: {
+          ...(prev?.qualityReport || {}),
+          fullReportUrl: uploadedUrl
+        }
+      }));
+
+      toast.dismiss(uploadToast);
+      toast.success("✅ Inspection PDF report uploaded successfully!");
+    } catch (err: any) {
+      toast.dismiss(uploadToast);
+      toast.error(err.message || "Error uploading inspection report PDF");
+    } finally {
+      setUploadingPdf(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
   const [successModal, setSuccessModal] = useState<{
     isOpen: boolean;
     type: 'create' | 'edit';
@@ -2167,15 +2224,99 @@ const CarEditPage = () => {
                   placeholder="e.g. 1452 parts evaluated. Core structure intact. No flood damage found."
                 />
               </div>
-              <div>
-                <label className={labelClass}>Full Report PDF/Link URL</label>
-                <input 
-                  type="text" 
-                  className={inpClass} 
-                  value={formData.qualityReport.fullReportUrl} 
-                  onChange={e => setFormData({...formData, qualityReport: {...formData.qualityReport, fullReportUrl: e.target.value}})}
-                  placeholder="https://selectt.in/reports/car-123"
-                />
+              <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-800/40 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-900 dark:text-white mb-0.5">
+                      Full Inspection PDF Report
+                    </label>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                      Upload the official vehicle inspection PDF report, or link to a report URL. This opens when buyers click "View full report" on the car page.
+                    </p>
+                  </div>
+
+                  <input
+                    ref={pdfInputRef}
+                    type="file"
+                    accept="application/pdf,.pdf"
+                    className="hidden"
+                    onChange={handlePdfUpload}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => pdfInputRef.current?.click()}
+                    disabled={uploadingPdf}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer shrink-0"
+                  >
+                    {uploadingPdf ? (
+                      <>
+                        <span className="animate-spin text-xs">⏳</span>
+                        <span>Uploading PDF...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={14} />
+                        <span>Upload PDF Report</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {formData.qualityReport?.fullReportUrl && (
+                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-white dark:bg-gray-900 border border-emerald-200 dark:border-emerald-900/60 shadow-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                        <FileText size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                          {formData.qualityReport.fullReportUrl.split('/').pop() || 'Inspection Report.pdf'}
+                        </p>
+                        <p className="text-[10.5px] text-emerald-600 dark:text-emerald-400 font-mono truncate">
+                          {formData.qualityReport.fullReportUrl}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 ml-3">
+                      <a
+                        href={formData.qualityReport.fullReportUrl.startsWith('/uploads/') ? `${API}${formData.qualityReport.fullReportUrl}` : formData.qualityReport.fullReportUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 transition-colors"
+                      >
+                        <ExternalLink size={12} /> View PDF
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setFormData((prev: any) => ({
+                          ...prev,
+                          qualityReport: { ...prev.qualityReport, fullReportUrl: '' }
+                        }))}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900 transition-colors cursor-pointer"
+                      >
+                        <Trash2 size={12} /> Remove
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">
+                    Direct Report URL / PDF Link (or edit manually):
+                  </label>
+                  <input 
+                    type="text" 
+                    className={inpClass} 
+                    value={formData.qualityReport?.fullReportUrl || ""} 
+                    onChange={e => setFormData({
+                      ...formData, 
+                      qualityReport: { ...formData.qualityReport, fullReportUrl: e.target.value }
+                    })}
+                    placeholder="https://... or /uploads/..."
+                  />
+                </div>
               </div>
 
               <div className="pt-4 border-t border-gray-100 dark:border-gray-800">

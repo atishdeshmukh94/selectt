@@ -1,5 +1,6 @@
 import React from 'react';
-import { Check, Settings, Cog, Key, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Check, Settings, Cog, Key, ShieldCheck, ChevronRight, FileText } from 'lucide-react';
+import { API_URL } from '../../config/api';
 
 const QualityReport = ({ report, theme = 'white' }) => {
   const hasCustomReport = report && (report.summary || report.fullReportUrl);
@@ -138,13 +139,29 @@ const QualityReport = ({ report, theme = 'white' }) => {
               Next service due after 12 months or 10,000 km<br />
               <span className={`font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>(whichever comes first post delivery)</span>
             </p>
-            <button
-              type="button"
-              onClick={() => report?.fullReportUrl && window.open(report.fullReportUrl, '_blank')}
-              className={`w-full px-6 py-2.5 rounded-2xl font-heading font-semibold text-xs md:text-sm cursor-pointer transition-all shadow-sm outline-none flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-[#00C9AF] text-[#0C1B33] hover:bg-white' : 'bg-[#0C1B33] text-white hover:bg-[#00C9AF] hover:text-[#0C1B33]'}`}
-            >
-              <span className={theme === 'dark' ? 'text-[#0C1B33]' : 'text-white'}>View full report</span>
-            </button>
+            {(() => {
+              const rawReportUrl = report?.fullReportUrl?.trim();
+              const resolvedReportUrl = rawReportUrl
+                ? (rawReportUrl.startsWith('/uploads/') ? `${API_URL}${rawReportUrl}` : rawReportUrl)
+                : null;
+
+              return (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (resolvedReportUrl) {
+                      window.open(resolvedReportUrl, '_blank', 'noopener,noreferrer');
+                    } else {
+                      alert('Detailed inspection report is available upon test drive request.');
+                    }
+                  }}
+                  className={`w-full px-6 py-2.5 rounded-2xl font-heading font-semibold text-xs md:text-sm cursor-pointer transition-all shadow-sm outline-none flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-[#00C9AF] text-[#0C1B33] hover:bg-white' : 'bg-[#0C1B33] text-white hover:bg-[#00C9AF] hover:text-[#0C1B33]'}`}
+                >
+                  <FileText size={14} className={theme === 'dark' ? 'text-[#0C1B33]' : 'text-white'} />
+                  <span className={theme === 'dark' ? 'text-[#0C1B33]' : 'text-white'}>View full report</span>
+                </button>
+              );
+            })()}
           </div>
 
         </div>

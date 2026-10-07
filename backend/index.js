@@ -1845,9 +1845,19 @@ app.get('/api/cars', (req, res) => {
     }
     
     if (search && search.trim()) {
-        const searchPattern = `%${search.trim()}%`;
-        whereClauses.push("(cars.make LIKE ? OR cars.model LIKE ? OR cars.variant LIKE ? OR cars.fuel_type LIKE ? OR cars.transmission LIKE ? OR cars.body_type LIKE ? OR cars.color LIKE ?)");
-        params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+        const rawSearch = search.trim();
+        const searchWords = rawSearch.split(/[\s,+/_-]+/).filter(w => w.length > 0);
+        const carSearchTarget = "CONCAT_WS(' ', COALESCE(cars.title, ''), COALESCE(cars.year, ''), COALESCE(cars.make, ''), COALESCE(cars.model, ''), COALESCE(cars.variant, ''), COALESCE(cars.fuel_type, ''), COALESCE(cars.transmission, ''), COALESCE(cars.body_type, ''), COALESCE(cars.color, ''), COALESCE(cars.location, ''))";
+
+        if (searchWords.length > 1) {
+            const wordClauses = searchWords.map(() => `${carSearchTarget} LIKE ?`);
+            const wordParams = searchWords.map(w => `%${w}%`);
+            whereClauses.push(`(${carSearchTarget} LIKE ? OR (${wordClauses.join(' AND ')}))`);
+            params.push(`%${rawSearch}%`, ...wordParams);
+        } else {
+            whereClauses.push(`${carSearchTarget} LIKE ?`);
+            params.push(`%${rawSearch}%`);
+        }
     }
     
     if (whereClauses.length > 0) {
@@ -6719,7 +6729,42 @@ app.post('/api/upload', authMiddleware, isAdmin, upload.single('file'), convertR
         }
     }
 
-    // 2. IMAGE UPLOAD: Direct to ImageKit CDN (Never stored on VPS)
+    const isPdf = ext === '.pdf' || (req.file.mimetype && req.file.mimetype === 'application/pdf');
+
+    // 2. PDF DOCUMENT UPLOAD: Vehicle Inspection & Quality Reports
+    if (isPdf) {
+        try {
+            console.log(`[Upload] Uploading PDF document: ${req.file.filename} (${(req.file.size / 1024).toFixed(1)} KB)`);
+            const fileBuffer = fs.readFileSync(filePath);
+            const ikResult = await uploadToImageKit({
+                file: fileBuffer,
+                fileName: req.file.filename,
+                folder: '/selectt/reports'
+            });
+
+            try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch (_) {}
+
+            return res.json({
+                success: true,
+                mediaType: 'pdf',
+                provider: 'imagekit',
+                url: ikResult.url,
+                fileId: ikResult.fileId,
+                name: req.file.originalname || ikResult.name
+            });
+        } catch (ikErr) {
+            console.warn('[Upload] ImageKit PDF upload fallback to local static URL:', ikErr.message);
+            return res.json({
+                success: true,
+                mediaType: 'pdf',
+                provider: 'local',
+                url: `/uploads/${req.file.filename}`,
+                name: req.file.originalname || req.file.filename
+            });
+        }
+    }
+
+    // 3. IMAGE UPLOAD: Direct to ImageKit CDN (Never stored on VPS)
     try {
         const fileBuffer = fs.readFileSync(filePath);
         const ikResult = await uploadToImageKit({

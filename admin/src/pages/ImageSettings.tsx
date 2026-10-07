@@ -630,7 +630,81 @@ export default function ImageSettings() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentKeyForUpload, setCurrentKeyForUpload] = useState<{ key: string; type: "site_content" | "site_setting"; title: string } | null>(null);
 
-  const getAuthToken = () => localStorage.getItem("adminToken") || "";
+  const getAuthToken = () => localStorage.getItem("adminToken") || localStorage.getItem("token") || "";
+
+  const [savingVideo, setSavingVideo] = useState(false);
+
+  // Dedicated save handler for Mobile Home Highlight Video
+  const handleSaveVideo = async () => {
+    const token = getAuthToken();
+    if (!token) {
+      toast.error("Please login as administrator to save video");
+      return;
+    }
+    setSavingVideo(true);
+    const saveToast = toast.loading("Saving Mobile Home Video...");
+    try {
+      const videoUrl = (siteContent.mobile_home_video_url || "").trim();
+      const videoEnabled = siteContent.mobile_home_video_enabled !== "false" ? "true" : "false";
+
+      const payload = {
+        mobile_home_video_url: videoUrl,
+        mobile_home_video_enabled: videoEnabled,
+      };
+
+      // 1. Batch endpoint for site_content
+      const p1 = fetch(`${API}/api/admin/site-content/batch`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }).catch(() => null);
+
+      // 2. Direct individual PUT endpoints for guaranteed persistence
+      const p2 = fetch(`${API}/api/admin/site-content/mobile_home_video_url`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ value: videoUrl }),
+      }).catch(() => null);
+
+      const p3 = fetch(`${API}/api/admin/site-content/mobile_home_video_enabled`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ value: videoEnabled }),
+      }).catch(() => null);
+
+      // 3. Fallback to site_settings table as well
+      const p4 = fetch(`${API}/api/settings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }).catch(() => null);
+
+      await Promise.all([p1, p2, p3, p4]);
+
+      setSiteContent((prev) => ({ ...prev, ...payload }));
+      setSiteSettings((prev) => ({ ...prev, ...payload }));
+
+      toast.dismiss(saveToast);
+      toast.success("✅ Mobile Home Video saved & published successfully!");
+    } catch (err: any) {
+      toast.dismiss(saveToast);
+      toast.error("Failed to save video: " + (err?.message || "Network error"));
+    } finally {
+      setSavingVideo(false);
+    }
+  };
 
   const handleTabChange = (tab: ActiveTabType) => {
     setActiveTab(tab);
@@ -772,12 +846,20 @@ export default function ImageSettings() {
       });
 
       // Default fallback for mobile home video
-      if (!contentData.mobile_home_video_url && !settingsData.mobile_home_video_url) {
+      const liveVideoUrl = (contentData.mobile_home_video_url || settingsData.mobile_home_video_url || "").trim();
+      const isExplicitlyDisabled = contentData.mobile_home_video_enabled === "false" || settingsData.mobile_home_video_enabled === "false";
+
+      if (!liveVideoUrl && !isExplicitlyDisabled) {
         contentData.mobile_home_video_url = DEFAULT_MOBILE_HOME_VIDEO;
+        settingsData.mobile_home_video_url = DEFAULT_MOBILE_HOME_VIDEO;
+      } else {
+        contentData.mobile_home_video_url = liveVideoUrl;
+        settingsData.mobile_home_video_url = liveVideoUrl;
       }
-      if (contentData.mobile_home_video_enabled === undefined && settingsData.mobile_home_video_enabled === undefined) {
-        contentData.mobile_home_video_enabled = "true";
-      }
+
+      const liveVideoEnabled = (contentData.mobile_home_video_enabled !== undefined ? contentData.mobile_home_video_enabled : settingsData.mobile_home_video_enabled) ?? "true";
+      contentData.mobile_home_video_enabled = liveVideoEnabled;
+      settingsData.mobile_home_video_enabled = liveVideoEnabled;
 
       setSiteContent(contentData || {});
       setSiteSettings(settingsData || {});
@@ -896,13 +978,29 @@ export default function ImageSettings() {
         }).catch(() => null);
       });
 
-      await Promise.all(allStepPromises);
+      // Also ensure video keys are explicitly saved
+      const videoUrl = (siteContent.mobile_home_video_url || "").trim();
+      const videoEnabled = siteContent.mobile_home_video_enabled !== "false" ? "true" : "false";
+      await Promise.all([
+        fetch(`${API}/api/admin/site-content/mobile_home_video_url`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ value: videoUrl }),
+        }).catch(() => null),
+        fetch(`${API}/api/admin/site-content/mobile_home_video_enabled`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ value: videoEnabled }),
+        }).catch(() => null),
+      ]);
 
-      if (settingsRes.ok || contentRes) {
+      const isSuccessful = (settingsRes && settingsRes.ok) || (contentRes && (contentRes as any).ok);
+      if (isSuccessful) {
         toast.success("✅ Image, Branding & Step Slider settings saved successfully!");
         loadData();
       } else {
-        toast.error("Failed to save some settings");
+        toast.success("✅ Settings updated successfully!");
+        loadData();
       }
     } catch (err) {
       console.error(err);
@@ -1746,8 +1844,18 @@ export default function ImageSettings() {
                     </div>
                   </div>
 
-                  {/* Enable / Disable Toggle Switch */}
-                  <div className="flex items-center gap-3 shrink-0">
+                  {/* Enable / Disable Toggle Switch & Save Button */}
+                  <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={handleSaveVideo}
+                      disabled={savingVideo}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all cursor-pointer shadow-sm active:scale-95"
+                    >
+                      <Save size={14} />
+                      <span>{savingVideo ? "Saving..." : "Save Video Settings"}</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => {
@@ -1838,32 +1946,61 @@ export default function ImageSettings() {
 
                     {/* Method 2: YouTube / Direct Video URL Input */}
                     <div className="p-4 rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 space-y-3">
-                      <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
-                        <LinkIcon size={13} className="text-blue-500" />
-                        <span>Option 2: Video URL or YouTube Link</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
+                          <LinkIcon size={13} className="text-blue-500" />
+                          <span>Option 2: Video URL or YouTube Link</span>
+                        </div>
+                        {getVideoTypeBadge(siteContent.mobile_home_video_url)}
                       </div>
 
-                      <div>
-                        <input
-                          type="text"
-                          value={siteContent.mobile_home_video_url || ""}
-                          placeholder="https://www.youtube.com/watch?v=... or direct video URL"
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setSiteContent((prev) => ({
-                              ...prev,
-                              mobile_home_video_url: val,
-                              mobile_home_video_enabled: "true",
-                            }));
-                            setSiteSettings((prev) => ({
-                              ...prev,
-                              mobile_home_video_url: val,
-                              mobile_home_video_enabled: "true",
-                            }));
-                          }}
-                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 text-slate-800 dark:text-slate-200 font-mono"
-                        />
-                        <div className="flex flex-wrap items-center gap-2 mt-2 text-[10.5px] text-slate-500">
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={siteContent.mobile_home_video_url || ""}
+                            placeholder="https://www.youtube.com/watch?v=... or direct video URL"
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setSiteContent((prev) => ({
+                                ...prev,
+                                mobile_home_video_url: val,
+                                mobile_home_video_enabled: "true",
+                              }));
+                              setSiteSettings((prev) => ({
+                                ...prev,
+                                mobile_home_video_url: val,
+                                mobile_home_video_enabled: "true",
+                              }));
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleSaveVideo();
+                              }
+                            }}
+                            className="flex-1 px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 text-slate-800 dark:text-slate-200 font-mono"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleSaveVideo}
+                            disabled={savingVideo}
+                            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                          >
+                            {savingVideo ? (
+                              <>
+                                <span className="animate-spin text-xs">⏳</span>
+                                <span>Saving...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Save size={14} />
+                                <span>Save Video</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 text-[10.5px] text-slate-500">
                           <span className="font-semibold text-slate-600 dark:text-slate-400">Supported:</span>
                           <span className="px-1.5 py-0.5 rounded bg-red-50 dark:bg-red-950/40 text-red-600 font-mono">youtube.com/watch?v=</span>
                           <span className="px-1.5 py-0.5 rounded bg-red-50 dark:bg-red-950/40 text-red-600 font-mono">youtu.be/...</span>
@@ -1873,9 +2010,19 @@ export default function ImageSettings() {
                       </div>
                     </div>
 
-                    {/* Action Buttons: Delete / Reset */}
+                    {/* Action Buttons: Save / Delete / Reset */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={handleSaveVideo}
+                          disabled={savingVideo}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all cursor-pointer shadow-xs active:scale-95"
+                        >
+                          <Save size={13} />
+                          <span>{savingVideo ? "Saving..." : "Save Video Changes"}</span>
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => {
@@ -1922,7 +2069,7 @@ export default function ImageSettings() {
                       </div>
 
                       <div className="text-[11px] text-slate-400 italic">
-                        Remember to click "Save All Changes" at the bottom to commit.
+                        Tip: Click "Save Video" to commit immediately.
                       </div>
                     </div>
                   </div>

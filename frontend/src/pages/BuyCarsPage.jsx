@@ -465,15 +465,22 @@ const BuyCarsPage = () => {
       if (certLower === 'standard' && isLuxury) return false;
     }
     if (filters.searchQuery) {
-      const q = filters.searchQuery.toLowerCase();
-      const match = (
-        (car.make || '').toLowerCase().includes(q) ||
-        (car.model || '').toLowerCase().includes(q) ||
-        (car.variant || '').toLowerCase().includes(q) ||
-        (car.bodyType || car.body_type || '').toLowerCase().includes(q) ||
-        (car.fuelType || car.fuel_type || '').toLowerCase().includes(q) ||
-        (car.transmission || '').toLowerCase().includes(q)
-      );
+      const terms = filters.searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      const compositeCarText = [
+        car.title,
+        car.year,
+        car.make,
+        car.model,
+        car.variant,
+        car.bodyType || car.body_type,
+        car.fuelType || car.fuel_type,
+        car.transmission,
+        car.color,
+        car.location,
+        car.city
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      const match = terms.every(term => compositeCarText.includes(term));
       if (!match) return false;
     }
     if (filters.brands?.length > 0 && !filters.brands.some(b => b.toLowerCase() === (car.make || '').toLowerCase())) return false;
