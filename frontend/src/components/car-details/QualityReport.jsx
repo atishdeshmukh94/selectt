@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Settings, Cog, Key, ShieldCheck, ChevronRight, FileText, Download, Lock } from 'lucide-react';
+import { Check, Settings, Cog, Key, ShieldCheck, FileText, Download, Lock } from 'lucide-react';
 import { API_URL } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../animation/ToastSystem';
@@ -143,12 +143,11 @@ const QualityReport = ({ report, car, theme = 'white' }) => {
                 <p className={`text-xs ${itemDescClass}`}>Engine, transmission & chassis</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center shrink-0">
               <div className="flex flex-col items-center gap-0.5">
                 <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.coreScore || '9.9'}</span>
                 <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>{report?.coreLabel || 'Excellent'}</span>
               </div>
-              <ChevronRight size={14} className="text-slate-400" />
             </div>
           </div>
 
@@ -160,12 +159,11 @@ const QualityReport = ({ report, car, theme = 'white' }) => {
                 <p className={`text-xs ${itemDescClass}`}>Fuel supply, ignition & other systems</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center shrink-0">
               <div className="flex flex-col items-center gap-0.5">
                 <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.supportingScore || '9.5'}</span>
                 <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>{report?.supportingLabel || 'Excellent'}</span>
               </div>
-              <ChevronRight size={14} className="text-slate-400" />
             </div>
           </div>
 
@@ -177,12 +175,11 @@ const QualityReport = ({ report, car, theme = 'white' }) => {
                 <p className={`text-xs ${itemDescClass}`}>Seats, AC, audio & other features</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center shrink-0">
               <div className="flex flex-col items-center gap-0.5">
                 <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.interiorsScore || '9.6'}</span>
                 <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>{report?.interiorsLabel || 'Excellent'}</span>
               </div>
-              <ChevronRight size={14} className="text-slate-400" />
             </div>
           </div>
 
@@ -194,12 +191,11 @@ const QualityReport = ({ report, car, theme = 'white' }) => {
                 <p className={`text-xs ${itemDescClass}`}>Panels, glasses, lights & fixtures</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center shrink-0">
               <div className="flex flex-col items-center gap-0.5">
                 <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.exteriorsScore || '9.2'}</span>
                 <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>{report?.exteriorsLabel || 'Excellent'}</span>
               </div>
-              <ChevronRight size={14} className="text-slate-400" />
             </div>
           </div>
 
@@ -211,12 +207,11 @@ const QualityReport = ({ report, car, theme = 'white' }) => {
                 <p className={`text-xs ${itemDescClass}`}>Tyres, clutch, brakes & more</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center shrink-0">
               <div className="flex flex-col items-center gap-0.5">
                 <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-[#00C9AF] text-[#0C1B33] text-[11px] md:text-[13px] font-extrabold rounded-md shadow-2xs">{report?.wearTearScore || '8.7'}</span>
                 <span className={`text-[10px] md:text-[11.5px] font-bold ${scoreLabelClass}`}>{report?.wearTearLabel || 'Good'}</span>
               </div>
-              <ChevronRight size={14} className="text-slate-400" />
             </div>
           </div>
 
