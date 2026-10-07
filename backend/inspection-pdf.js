@@ -124,10 +124,6 @@ async function generateInspectionReportPdf(car) {
         doc.font(FONT_BLD).fontSize(20).fillColor(C_NAVY).text('SELECTT', 32, 28);
       }
 
-      // Header Tagline
-      doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED)
-        .text('India\'s Most Trusted Pre-Owned Car Platform', 32, 56);
-
       // Certificate Info Box (Right side)
       doc.roundedRect(365, 24, 198, 42, 6).fillAndStroke('#F1F5F9', C_BORDER);
       doc.font(FONT_BLD).fontSize(8.5).fillColor(C_NAVY)
