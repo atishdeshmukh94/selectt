@@ -872,7 +872,7 @@ const CarDetailsPage = () => {
               </div>
 
               <CarSpecifications specifications={car.specifications} theme="light" />
-              <QualityReport report={car.qualityReport} theme="light" />
+              <QualityReport report={car.qualityReport} car={car} theme="light" />
 
               {/* Top Features */}
               <TopFeatures features={car.features} theme="light" />

@@ -1,8 +1,20 @@
-import React from 'react';
-import { Check, Settings, Cog, Key, ShieldCheck, ChevronRight, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, Settings, Cog, Key, ShieldCheck, ChevronRight, FileText, Download, Lock } from 'lucide-react';
 import { API_URL } from '../../config/api';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../animation/ToastSystem';
 
-const QualityReport = ({ report, theme = 'white' }) => {
+const QualityReport = ({ report, car, theme = 'white' }) => {
+  const { user, openLoginModal } = useAuth();
+  
+  // Safely use toast context
+  let addToast = null;
+  try {
+    const toastContext = useToast();
+    addToast = toastContext?.addToast;
+  } catch (_) {}
+
+  const [isDownloading, setIsDownloading] = useState(false);
   const hasCustomReport = report && (report.summary || report.fullReportUrl);
 
   const containerClass = theme === 'dark'
@@ -19,6 +31,74 @@ const QualityReport = ({ report, theme = 'white' }) => {
   const itemTitleClass = theme === 'dark' ? 'text-white' : 'text-slate-800';
   const itemDescClass = theme === 'dark' ? 'text-slate-400' : 'text-slate-500 font-medium';
   const scoreLabelClass = theme === 'dark' ? 'text-[#00C9AF]' : 'text-teal-650';
+
+  const executeDownload = async () => {
+    try {
+      setIsDownloading(true);
+      const rawReportUrl = report?.fullReportUrl?.trim();
+      let targetUrl = '';
+
+      if (rawReportUrl) {
+        targetUrl = rawReportUrl.startsWith('/uploads/') ? `${API_URL}${rawReportUrl}` : rawReportUrl;
+      } else if (car?.id) {
+        targetUrl = `${API_URL}/api/cars/${car.id}/inspection-report`;
+      } else {
+        targetUrl = `${API_URL}/api/cars/inspection-report`;
+      }
+
+      const safeName = (car?.title || 'Vehicle').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `${safeName}_Inspection_Report.pdf`;
+
+      try {
+        const response = await fetch(targetUrl);
+        if (!response.ok) throw new Error('Download failed');
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+
+        if (addToast) {
+          addToast('Inspection report downloaded successfully!', 'success');
+        }
+      } catch (fetchErr) {
+        // Fallback in case fetch/CORS is restricted
+        const link = document.createElement('a');
+        link.href = targetUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (e) {
+      console.error('[Download Inspection Report Error]:', e);
+      if (addToast) {
+        addToast('Unable to download report. Please try again.', 'error');
+      }
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleReportButtonClick = () => {
+    if (!user) {
+      if (addToast) {
+        addToast('Please login to view and download the official vehicle inspection report', 'info');
+      }
+      openLoginModal(() => {
+        executeDownload();
+      });
+      return;
+    }
+
+    executeDownload();
+  };
 
   return (
     <div className={`mb-6 border rounded-[24px] p-5 lg:p-6 ${containerClass}`}>
@@ -89,7 +169,7 @@ const QualityReport = ({ report, theme = 'white' }) => {
             </div>
           </div>
 
-          <div className={`flex justify-between items-start pb-4 border-b ${dividerClass} md:border-b-0`}>
+          <div className={`flex justify-between items-start pb-4 border-b ${dividerClass}`}>
             <div className="flex gap-2.5">
               <ShieldCheck className="text-slate-450 mt-0.5" size={18} />
               <div>
@@ -106,7 +186,7 @@ const QualityReport = ({ report, theme = 'white' }) => {
             </div>
           </div>
 
-          <div className={`flex justify-between items-start pb-4 border-b ${dividerClass} md:border-b-0`}>
+          <div className={`flex justify-between items-start pb-4 border-b ${dividerClass}`}>
             <div className="flex gap-2.5">
               <Key className="text-slate-450 mt-0.5" size={18} />
               <div>
@@ -123,9 +203,9 @@ const QualityReport = ({ report, theme = 'white' }) => {
             </div>
           </div>
 
-          <div className="flex justify-between items-start pt-1 md:pt-2">
+          <div className={`flex justify-between items-start pb-4 border-b md:border-b-0 ${dividerClass}`}>
             <div className="flex gap-2.5">
-              <Cog className="text-slate-450 mt-0.5" size={18} />
+              <Settings className="text-slate-450 mt-0.5" size={18} />
               <div>
                 <h3 className={`text-sm font-medium mb-0.5 ${itemTitleClass}`}>Wear & tear parts</h3>
                 <p className={`text-xs ${itemDescClass}`}>Tyres, clutch, brakes & more</p>
@@ -145,29 +225,34 @@ const QualityReport = ({ report, theme = 'white' }) => {
               {report?.nextServiceText || 'Next service due after 12 months or 10,000 km'}<br />
               <span className={`font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>(whichever comes first post delivery)</span>
             </p>
-            {(() => {
-              const rawReportUrl = report?.fullReportUrl?.trim();
-              const resolvedReportUrl = rawReportUrl
-                ? (rawReportUrl.startsWith('/uploads/') ? `${API_URL}${rawReportUrl}` : rawReportUrl)
-                : null;
 
-              return (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (resolvedReportUrl) {
-                      window.open(resolvedReportUrl, '_blank', 'noopener,noreferrer');
-                    } else {
-                      alert('Detailed inspection report is available upon test drive request.');
-                    }
-                  }}
-                  className={`w-full px-6 py-2.5 rounded-2xl font-heading font-semibold text-xs md:text-sm cursor-pointer transition-all shadow-sm outline-none flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-[#00C9AF] text-[#0C1B33] hover:bg-white' : 'bg-[#0C1B33] text-white hover:bg-[#00C9AF] hover:text-[#0C1B33]'}`}
-                >
-                  <FileText size={14} className={theme === 'dark' ? 'text-[#0C1B33]' : 'text-white'} />
-                  <span className={theme === 'dark' ? 'text-[#0C1B33]' : 'text-white'}>View full report</span>
-                </button>
-              );
-            })()}
+            <button
+              type="button"
+              disabled={isDownloading}
+              onClick={handleReportButtonClick}
+              className={`w-full px-6 py-2.5 rounded-2xl font-heading font-semibold text-xs md:text-sm cursor-pointer transition-all shadow-sm outline-none flex items-center justify-center gap-2 disabled:opacity-75 ${theme === 'dark' ? 'bg-[#00C9AF] text-[#0C1B33] hover:bg-white' : 'bg-[#0C1B33] text-white hover:bg-[#00C9AF] hover:text-[#0C1B33]'}`}
+            >
+              {isDownloading ? (
+                <>
+                  <span className="animate-spin inline-block text-xs">⏳</span>
+                  <span>Downloading Inspection Report...</span>
+                </>
+              ) : (
+                <>
+                  {user ? (
+                    <Download size={14} className={theme === 'dark' ? 'text-[#0C1B33]' : 'text-white'} />
+                  ) : (
+                    <Lock size={14} className={theme === 'dark' ? 'text-[#0C1B33]' : 'text-white'} />
+                  )}
+                  <span>View full report</span>
+                  {!user && (
+                    <span className="text-[10px] opacity-80 font-normal">
+                      (Login required)
+                    </span>
+                  )}
+                </>
+              )}
+            </button>
           </div>
 
         </div>

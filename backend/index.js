@@ -23,6 +23,7 @@ const { sendWhatsAppOTP } = require('./whatsapp-service');
 const { imagekit, getAuthenticationParameters, uploadToImageKit, testImageKitConnection, initImageKit, deleteFromImageKit } = require('./imagekit');
 const bunnyStream = require('./bunny-stream');
 const { generateBookingReceiptPdf, getImageBuffer } = require('./receipt-pdf');
+const { generateInspectionReportPdf } = require('./inspection-pdf');
 const {
     pushLeadToNeodove,
     pushCustomerToNeodove,
@@ -1907,6 +1908,46 @@ app.get('/api/cars/:id', (req, res) => {
         }
         res.json(mapCar(car));
     });
+});
+
+// Official Vehicle Quality & Inspection Report Download Endpoint
+app.get('/api/cars/:id/inspection-report', async (req, res) => {
+    try {
+        const carId = req.params.id;
+        db.query('SELECT * FROM cars WHERE id = ?', [carId], async (err, results) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (results.length === 0) return res.status(404).json({ message: 'Car not found' });
+
+            const car = mapCar(results[0]);
+            let customPdfUrl = car.qualityReport?.fullReportUrl || '';
+
+            // If a custom PDF was uploaded via admin and client did not explicitly force dynamic generation
+            if (customPdfUrl && req.query.force_dynamic !== '1') {
+                const isLocal = customPdfUrl.startsWith('/uploads/');
+                if (isLocal) {
+                    const localPath = path.join(__dirname, 'public', customPdfUrl.replace(/^\//, ''));
+                    if (fs.existsSync(localPath)) {
+                        const safeTitle = (car.title || `Car-${carId}`).replace(/[^a-zA-Z0-9_-]/g, '_');
+                        res.setHeader('Content-Type', 'application/pdf');
+                        res.setHeader('Content-Disposition', `attachment; filename="${safeTitle}_Inspection_Report.pdf"`);
+                        return res.sendFile(localPath);
+                    }
+                } else if (customPdfUrl.startsWith('http://') || customPdfUrl.startsWith('https://')) {
+                    return res.redirect(customPdfUrl);
+                }
+            }
+
+            // Otherwise, dynamically generate the official Selectt 150-Point Quality Inspection Report PDF
+            const pdfBuffer = await generateInspectionReportPdf(car);
+            const safeTitle = (car.title || `Car-${carId}`).replace(/[^a-zA-Z0-9_-]/g, '_');
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${safeTitle}_Inspection_Report.pdf"`);
+            return res.send(pdfBuffer);
+        });
+    } catch (err) {
+        console.error('[Inspection Report PDF Error]:', err);
+        res.status(500).json({ error: 'Failed to generate inspection report PDF' });
+    }
 });
 
 function executeSafeCarMutation(queryTemplate, data, extraParams, callback) {
