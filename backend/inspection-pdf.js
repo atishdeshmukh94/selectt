@@ -95,7 +95,9 @@ async function generateInspectionReportPdf(car) {
         try { qr = JSON.parse(qr); } catch(_) { qr = {}; }
       }
 
-      const carTitle = (car.title || `${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''}`.trim() || 'Selectt Assured Vehicle').toUpperCase();
+      const rawTitle = car.title || `${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''}`.trim() || 'Selectt Assured Vehicle';
+      // Strip emojis or non-ascii symbols for clean font rendering
+      const carTitle = rawTitle.replace(/[^\x20-\x7E]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
       const carYear = car.year || '—';
       const carFuel = car.fuel_type || car.fuelType || 'Petrol';
       const carTransmission = car.transmission || 'Manual';
@@ -145,40 +147,40 @@ async function generateInspectionReportPdf(car) {
       doc.roundedRect(32, vY, 531, 74, 8).fillAndStroke(C_CARD_BG, C_BORDER);
 
       // Car Title & Badge
-      doc.font(FONT_BLD).fontSize(12).fillColor(C_NAVY)
-        .text(carTitle, 44, vY + 9, { width: 400, lineBreak: false });
+      doc.font(FONT_BLD).fontSize(11).fillColor(C_NAVY)
+        .text(carTitle, 44, vY + 9, { width: 385, height: 16, ellipsis: true });
 
       // Assured verified badge
-      doc.roundedRect(445, vY + 8, 108, 16, 4).fillAndStroke(C_TEAL, C_TEAL);
+      doc.roundedRect(440, vY + 8, 112, 16, 4).fillAndStroke(C_TEAL, C_TEAL);
       doc.font(FONT_BLD).fontSize(7.5).fillColor(C_NAVY)
-        .text('SELECTT ASSURED', 445, vY + 12, { width: 108, align: 'center' });
+        .text('SELECTT ASSURED', 440, vY + 12, { width: 112, align: 'center' });
 
-      // Grid of 8 Specifications
-      const row1Y = vY + 30;
+      // Grid of 8 Specifications (4 balanced columns)
+      const row1Y = vY + 31;
       doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Registration:', 44, row1Y);
-      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carRegNo, 95, row1Y);
+      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carRegNo, 104, row1Y);
 
       doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Year:', 180, row1Y);
-      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(String(carYear), 205, row1Y);
+      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(String(carYear), 208, row1Y);
 
-      doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Odometer:', 270, row1Y);
-      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carKm, 318, row1Y);
+      doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Odometer:', 290, row1Y);
+      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carKm, 342, row1Y);
 
-      doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Fuel Type:', 410, row1Y);
-      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carFuel, 452, row1Y);
+      doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Fuel Type:', 425, row1Y);
+      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carFuel, 470, row1Y);
 
       const row2Y = vY + 49;
       doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Transmission:', 44, row2Y);
-      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carTransmission, 105, row2Y);
+      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carTransmission, 108, row2Y);
 
       doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Ownership:', 180, row2Y);
-      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carOwnership, 230, row2Y);
+      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carOwnership, 232, row2Y);
 
-      doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Hub Location:', 270, row2Y);
-      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carLocation, 332, row2Y);
+      doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Hub Location:', 290, row2Y);
+      doc.font(FONT_BLD).fontSize(8).fillColor(C_DARK_TEXT).text(carLocation, 352, row2Y, { width: 68, ellipsis: true });
 
-      doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Audit Score:', 410, row2Y);
-      doc.font(FONT_BLD).fontSize(8).fillColor(C_TEAL_DARK).text('9.4 / 10 (Passed)', 460, row2Y);
+      doc.font(FONT_REG).fontSize(7.5).fillColor(C_MUTED).text('Audit Score:', 425, row2Y);
+      doc.font(FONT_BLD).fontSize(8).fillColor(C_TEAL_DARK).text('9.4 / 10', 475, row2Y);
 
       // ==============================================================
       // 3. 3 CORE CHECKLIST AUDIT PILLARS
