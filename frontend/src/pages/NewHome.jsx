@@ -144,9 +144,9 @@ const BODY_TYPES = [
   { name: 'Hatchback', icon: '/img/hatchback.webp', hoverIcon: '/img/hatchback-hover.webp' },
   { name: 'Sedan', icon: '/img/sedan.webp', hoverIcon: '/img/sedan-hover.webp' },
   { name: 'SUV', icon: '/img/suv.webp', hoverIcon: '/img/suv-hover.webp' },
+  { name: 'Compact SUV', icon: '/img/suv.webp', hoverIcon: '/img/suv-hover.webp' },
   { name: 'MUV', icon: '/img/muv.webp', hoverIcon: '/img/muv-hover.webp' },
-  { name: 'Luxury Sedan', icon: '/img/luxury-sedan.webp', hoverIcon: '/img/luxury-sedan-hover.webp' },
-  { name: 'Luxury SUV', icon: '/img/luxury-suv.webp', hoverIcon: '/img/luxury-suv-hover.webp' },
+  { name: 'Selectt Luxury', icon: '/img/luxury-suv.webp', hoverIcon: '/img/luxury-suv-hover.webp' },
 ];
 
 const COMPARISON_FEATURES = [
@@ -1469,12 +1469,12 @@ const NewHome = () => {
     const baseFilters = { budget: '', budget_max: 25, certification: '', brands: [], models: [], fuel: '', transmission: '', owners: [], year_min: null, km_max: null, body_type: [] };
     let query = { ...baseFilters };
 
-    if (activeBodyType === 'Luxury Sedan') {
-      query.body_type = ['Sedan'];
+    if (activeBodyType === 'Selectt Luxury' || activeBodyType === 'Luxury Sedan' || activeBodyType === 'Luxury SUV') {
+      query.body_type = [];
       query.budget = '10 L +';
-    } else if (activeBodyType === 'Luxury SUV') {
-      query.body_type = ['SUV'];
-      query.budget = '10 L +';
+      query.tags = ['Luxury'];
+    } else if (activeBodyType === 'Compact SUV') {
+      query.body_type = ['Compact SUV', 'SUV'];
     } else {
       query.body_type = [activeBodyType];
     }
@@ -1501,9 +1501,9 @@ const NewHome = () => {
       if (activeBodyType === 'Hatchback') return car.bodyType === 'Hatchback';
       if (activeBodyType === 'Sedan') return car.bodyType === 'Sedan' && car.price < 2000000;
       if (activeBodyType === 'SUV') return car.bodyType === 'SUV' && car.price < 2000000;
+      if (activeBodyType === 'Compact SUV') return car.bodyType?.toLowerCase() === 'compact suv' || (car.bodyType === 'SUV' && car.price < 1200000);
       if (activeBodyType === 'MUV') return car.bodyType === 'MUV';
-      if (activeBodyType === 'Luxury Sedan') return car.bodyType === 'Sedan' && car.price >= 2000000;
-      if (activeBodyType === 'Luxury SUV') return car.bodyType === 'SUV' && car.price >= 2000000;
+      if (activeBodyType === 'Selectt Luxury' || activeBodyType === 'Luxury Sedan' || activeBodyType === 'Luxury SUV') return car.price >= 2000000 || car.tags?.some(t => t?.toLowerCase().includes('luxury'));
       return false;
     });
   };
@@ -1516,8 +1516,8 @@ const NewHome = () => {
 
   const getCountForBodyType = (typeName) => {
     const cityCars = allCars.filter(car => checkLocationMatch(car.location, city));
-    if (typeName === 'Luxury Sedan') return cityCars.filter(car => (car.bodyType === 'Sedan' || car.bodyType === 'Luxury Sedan') && car.price >= 2000000).length;
-    if (typeName === 'Luxury SUV') return cityCars.filter(car => (car.bodyType === 'SUV' || car.bodyType === 'Luxury SUV') && car.price >= 2000000).length;
+    if (typeName === 'Selectt Luxury') return cityCars.filter(car => car.price >= 2000000 || car.tags?.some(t => t?.toLowerCase().includes('luxury'))).length;
+    if (typeName === 'Compact SUV') return cityCars.filter(car => car.bodyType?.toLowerCase() === 'compact suv' || (car.bodyType === 'SUV' && car.price < 1200000)).length;
     if (typeName === 'Hatchback') return cityCars.filter(car => car.bodyType === 'Hatchback').length;
     if (typeName === 'Sedan') return cityCars.filter(car => car.bodyType === 'Sedan' && car.price < 2000000).length;
     if (typeName === 'SUV') return cityCars.filter(car => car.bodyType === 'SUV' && car.price < 2000000).length;
