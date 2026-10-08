@@ -369,7 +369,11 @@ const PinchZoomImageCard = ({ item, carTitle, onOpenLightbox }) => {
 const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTitle }) => {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const touchStartRef = useRef({ x: 0, y: 0, dist: 0, scale: 1 });
+  const touchStartRef = useRef({ x: 0, y: 0, dist: 0, scale: 1, posX: 0, posY: 0, startTime: 0 });
+  const lastTapRef = useRef(0);
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const mouseStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+
   const mobileThumbRefs = useRef([]);
   const desktopThumbRefs = useRef([]);
 
@@ -398,12 +402,14 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight') onChangeIndex((activeIndex + 1) % total);
-      if (e.key === 'ArrowLeft') onChangeIndex((activeIndex - 1 + total) % total);
+      if (scale <= 1.05) {
+        if (e.key === 'ArrowRight') onChangeIndex((activeIndex + 1) % total);
+        if (e.key === 'ArrowLeft') onChangeIndex((activeIndex - 1 + total) % total);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeIndex, total, onClose, onChangeIndex]);
+  }, [activeIndex, total, onClose, onChangeIndex, scale]);
 
   // Reset zoom on slide change
   useEffect(() => {
@@ -412,19 +418,50 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
   }, [activeIndex]);
 
   const handleTouchStart = (e) => {
+    // 2-Finger Pinch Zoom Start
     if (e.touches.length === 2) {
       const dist = Math.hypot(
         e.touches[1].clientX - e.touches[0].clientX,
         e.touches[1].clientY - e.touches[0].clientY
       );
-      touchStartRef.current = { dist, scale };
-    } else if (e.touches.length === 1) {
-      touchStartRef.current.x = e.touches[0].clientX;
-      touchStartRef.current.y = e.touches[0].clientY;
+      touchStartRef.current = {
+        dist,
+        scale,
+        posX: position.x,
+        posY: position.y,
+        startTime: Date.now()
+      };
+    } 
+    // 1-Finger Touch
+    else if (e.touches.length === 1) {
+      const now = Date.now();
+      const DOUBLE_TAP_DELAY = 280;
+      touchStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        posX: position.x,
+        posY: position.y,
+        startTime: now
+      };
+
+      // Double-Tap to Zoom In (2.5x) or Reset (1x)
+      if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+        if (scale > 1.05) {
+          setScale(1);
+          setPosition({ x: 0, y: 0 });
+        } else {
+          setScale(2.5);
+          setPosition({ x: 0, y: 0 });
+        }
+        lastTapRef.current = 0;
+      } else {
+        lastTapRef.current = now;
+      }
     }
   };
 
   const handleTouchMove = (e) => {
+    // 2-Finger Pinch Zoom
     if (e.touches.length === 2) {
       if (e.cancelable) e.preventDefault();
       const dist = Math.hypot(
@@ -432,16 +469,35 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
         e.touches[1].clientY - e.touches[0].clientY
       );
       const factor = dist / (touchStartRef.current.dist || dist);
-      setScale(Math.min(Math.max(1, touchStartRef.current.scale * factor), 4));
+      const nextScale = Math.min(Math.max(1, touchStartRef.current.scale * factor), 4);
+      setScale(nextScale);
+      if (nextScale <= 1.05) {
+        setPosition({ x: 0, y: 0 });
+      }
+    } 
+    // 1-Finger Pan when Zoomed In: Smooth panning, never trigger browser back or slide change!
+    else if (e.touches.length === 1 && scale > 1.05) {
+      if (e.cancelable) e.preventDefault();
+      const dx = e.touches[0].clientX - touchStartRef.current.x;
+      const dy = e.touches[0].clientY - touchStartRef.current.y;
+      const maxPanX = (scale - 1) * 320;
+      const maxPanY = (scale - 1) * 220;
+      setPosition({
+        x: Math.min(Math.max(-maxPanX, touchStartRef.current.posX + dx), maxPanX),
+        y: Math.min(Math.max(-maxPanY, touchStartRef.current.posY + dy), maxPanY)
+      });
     }
   };
 
   const handleTouchEnd = (e) => {
+    // If zoom dropped close to 1x, reset completely
     if (scale < 1.05) {
       setScale(1);
       setPosition({ x: 0, y: 0 });
     }
-    // Horizontal swipe gesture for next/previous
+
+    // Horizontal swipe gesture for next/previous: ONLY when NOT zoomed!
+    // When zoomed, never exit or switch images on horizontal drag!
     if (scale <= 1.05 && e.changedTouches && e.changedTouches.length === 1) {
       const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
       const dy = Math.abs(e.changedTouches[0].clientY - touchStartRef.current.y);
@@ -455,10 +511,42 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
     }
   };
 
+  // Mouse pan handlers for desktop
+  const handleMouseDown = (e) => {
+    if (scale > 1.05) {
+      setIsMouseDown(true);
+      mouseStartRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        posX: position.x,
+        posY: position.y
+      };
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (isMouseDown && scale > 1.05) {
+      const dx = e.clientX - mouseStartRef.current.x;
+      const dy = e.clientY - mouseStartRef.current.y;
+      const maxPanX = (scale - 1) * 320;
+      const maxPanY = (scale - 1) * 220;
+      setPosition({
+        x: Math.min(Math.max(-maxPanX, mouseStartRef.current.posX + dx), maxPanX),
+        y: Math.min(Math.max(-maxPanY, mouseStartRef.current.posY + dy), maxPanY)
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsMouseDown(false);
+  };
+
   return (
     <div 
       className="fixed inset-0 z-[1000000] bg-black/95 backdrop-blur-md flex flex-col justify-between select-none animate-in fade-in duration-200"
       style={{ touchAction: 'none' }}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     >
       {/* Top Header */}
       <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 text-white bg-gradient-to-b from-black/80 to-transparent z-20 shrink-0">
@@ -490,7 +578,11 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
                 key={idx}
                 ref={el => (mobileThumbRefs.current[idx] = el)}
                 type="button"
-                onClick={() => onChangeIndex(idx)}
+                onClick={() => {
+                  setScale(1);
+                  setPosition({ x: 0, y: 0 });
+                  onChangeIndex(idx);
+                }}
                 className={`relative w-14 h-10 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
                   isSelected 
                     ? 'border-[#00C9AF] scale-105 opacity-100 shadow-md ring-2 ring-[#00C9AF]/60' 
@@ -510,26 +602,34 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
 
       {/* Main Large Image Viewer */}
       <div 
-        className="flex-1 relative flex items-center justify-center overflow-hidden px-2 sm:px-4"
+        className="flex-1 relative flex items-center justify-center overflow-hidden px-2 sm:px-4 select-none"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        style={{
+          touchAction: 'none',
+          cursor: scale > 1.05 ? (isMouseDown ? 'grabbing' : 'grab') : 'default'
+        }}
       >
-        {/* Left Arrow Button */}
-        <button
-          type="button"
-          onClick={() => onChangeIndex((activeIndex - 1 + total) % total)}
-          className="absolute left-2 sm:left-4 z-20 w-11 h-11 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
-          aria-label="Previous image"
-        >
-          <ChevronLeft size={26} />
-        </button>
+        {/* Left Arrow Button (Only visible when scale is 1x or subtle) */}
+        {scale <= 1.05 && (
+          <button
+            type="button"
+            onClick={() => onChangeIndex((activeIndex - 1 + total) % total)}
+            className="absolute left-2 sm:left-4 z-20 w-11 h-11 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
+            aria-label="Previous image"
+          >
+            <ChevronLeft size={26} />
+          </button>
+        )}
 
         {/* Centered Image */}
         <img
           src={getCarImageUrl(currentImg)}
           alt={`${carTitle} - Photo ${activeIndex + 1}`}
-          className="max-w-full max-h-[72vh] sm:max-h-[75vh] object-contain transition-transform duration-150 rounded-lg shadow-2xl"
+          className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain transition-transform duration-75 rounded-lg shadow-2xl pointer-events-none"
           style={{
             transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
             transformOrigin: 'center center'
@@ -537,15 +637,71 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
           draggable={false}
         />
 
-        {/* Right Arrow Button */}
-        <button
-          type="button"
-          onClick={() => onChangeIndex((activeIndex + 1) % total)}
-          className="absolute right-2 sm:right-4 z-20 w-11 h-11 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
-          aria-label="Next image"
+        {/* Right Arrow Button (Only visible when scale is 1x or subtle) */}
+        {scale <= 1.05 && (
+          <button
+            type="button"
+            onClick={() => onChangeIndex((activeIndex + 1) % total)}
+            className="absolute right-2 sm:right-4 z-20 w-11 h-11 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
+            aria-label="Next image"
+          >
+            <ChevronRight size={26} />
+          </button>
+        )}
+
+        {/* Floating Zoom Controls Bar */}
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 shadow-2xl text-white"
         >
-          <ChevronRight size={26} />
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              setScale(prev => Math.min(prev + 0.6, 4));
+            }}
+            className="w-7 h-7 rounded-full hover:bg-white/20 active:scale-90 flex items-center justify-center transition-all cursor-pointer text-white"
+            title="Zoom In"
+          >
+            <ZoomIn size={15} />
+          </button>
+
+          <span className="text-[11px] font-mono font-bold px-1 select-none text-white/90 min-w-[38px] text-center">
+            {Math.round(scale * 100)}%
+          </span>
+
+          <button
+            type="button"
+            onClick={() => {
+              setScale(prev => {
+                const next = prev - 0.6;
+                if (next <= 1.05) {
+                  setPosition({ x: 0, y: 0 });
+                  return 1;
+                }
+                return next;
+              });
+            }}
+            className="w-7 h-7 rounded-full hover:bg-white/20 active:scale-90 flex items-center justify-center transition-all cursor-pointer text-white"
+            title="Zoom Out"
+          >
+            <ZoomOut size={15} />
+          </button>
+
+          {scale > 1.05 && (
+            <button
+              type="button"
+              onClick={() => {
+                setScale(1);
+                setPosition({ x: 0, y: 0 });
+              }}
+              className="ml-1 px-2.5 h-7 rounded-full bg-white/20 hover:bg-white/30 active:scale-90 text-[11px] font-bold flex items-center justify-center transition-all cursor-pointer gap-1 text-[#00C9AF]"
+              title="Reset Zoom"
+            >
+              <RotateCcw size={12} />
+              <span>Reset</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* DESKTOP ONLY: Bottom Thumbnail Strip */}
@@ -558,7 +714,11 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
                 key={idx}
                 ref={el => (desktopThumbRefs.current[idx] = el)}
                 type="button"
-                onClick={() => onChangeIndex(idx)}
+                onClick={() => {
+                  setScale(1);
+                  setPosition({ x: 0, y: 0 });
+                  onChangeIndex(idx);
+                }}
                 className={`relative w-16 h-11 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
                   isSelected ? 'border-[#00C9AF] scale-105 opacity-100 shadow-md ring-2 ring-[#00C9AF]/60' : 'border-transparent opacity-40 hover:opacity-80'
                 }`}
