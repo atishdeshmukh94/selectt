@@ -4,26 +4,33 @@ const VIDEO_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader
 const FALLBACK_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader.mp4';
 const LOCAL_FALLBACK_URL = '/preloader.mp4';
 
-export default function PagePreloader({ minDisplayTime = 1200 }) {
-  // Never block PageSpeed, Lighthouse, Pingdom, or bots
-  const isAuditOrBot = typeof navigator !== 'undefined' && (
-    /Lighthouse|Chrome-Lighthouse|Pingdom|Googlebot|PageSpeed|HeadlessChrome|spider|crawl/i.test(navigator.userAgent) ||
-    Boolean(window.navigator?.webdriver) ||
-    (typeof window !== 'undefined' && window.location.search.includes('no-preloader'))
-  );
+function checkShouldSkipPreloader() {
+  if (typeof window === 'undefined') return true;
+  try {
+    const isAuditOrBot =
+      /Lighthouse|Chrome-Lighthouse|Pingdom|Googlebot|PageSpeed|HeadlessChrome|spider|crawl/i.test(navigator.userAgent) ||
+      Boolean(window.navigator?.webdriver) ||
+      window.location.search.includes('no-preloader');
+    if (isAuditOrBot) return true;
 
-  // Never show more than once per browser session
-  const alreadySeen = typeof window !== 'undefined' && Boolean(sessionStorage.getItem('selectt-preloader-seen'));
-
-  if (isAuditOrBot || alreadySeen) {
-    return null;
+    if (sessionStorage.getItem('selectt-preloader-seen')) {
+      return true;
+    }
+  } catch (_) {
+    return false;
   }
+  return false;
+}
 
-  const [isVisible, setIsVisible] = useState(true);
-  const [shouldRender, setShouldRender] = useState(true);
+export default function PagePreloader({ minDisplayTime = 1200 }) {
+  // Always invoke hooks unconditionally in exact same order
+  const [shouldSkip] = useState(checkShouldSkipPreloader);
+  const [isVisible, setIsVisible] = useState(!shouldSkip);
+  const [shouldRender, setShouldRender] = useState(!shouldSkip);
+
   const videoRef = useRef(null);
   const startTimeRef = useRef(Date.now());
-  const finishedRef = useRef(false);
+  const finishedRef = useRef(shouldSkip);
 
   const dismiss = () => {
     if (finishedRef.current) return;
@@ -34,7 +41,7 @@ export default function PagePreloader({ minDisplayTime = 1200 }) {
     setIsVisible(false);
     setTimeout(() => {
       setShouldRender(false);
-    }, 350);
+    }, 400);
   };
 
   const handleVideoEnded = () => {
@@ -44,6 +51,8 @@ export default function PagePreloader({ minDisplayTime = 1200 }) {
   };
 
   useEffect(() => {
+    if (shouldSkip) return;
+
     const video = videoRef.current;
     if (video) {
       video.muted = true;
@@ -56,13 +65,21 @@ export default function PagePreloader({ minDisplayTime = 1200 }) {
       }
     }
 
-    // Safety timeout: 1.8s max
+    // Safety timeout: guaranteed dismiss after 1.5s max
     const safetyTimer = setTimeout(() => {
       dismiss();
-    }, 1800);
+    }, Math.max(minDisplayTime, 1500));
 
-    return () => clearTimeout(safetyTimer);
-  }, []);
+    const handleKey = (e) => {
+      if (e.key === 'Escape') dismiss();
+    };
+    window.addEventListener('keydown', handleKey);
+
+    return () => {
+      clearTimeout(safetyTimer);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [shouldSkip, minDisplayTime]);
 
   if (!shouldRender) return null;
 
