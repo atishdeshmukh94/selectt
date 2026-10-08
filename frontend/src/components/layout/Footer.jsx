@@ -247,7 +247,7 @@ const Footer = () => {
           {/* Bottom Row */}
           <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
             <div className="text-xs text-slate-500 flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
-              <span>© 2026 Selectt Mobility | All rights reserved.</span>
+              <span>© {new Date().getFullYear()} SELECTT MOTOCORP PVT LTD | All rights reserved.</span>
               <span className="hidden sm:inline text-slate-700">|</span>
               <span>Developed by <a href="https://wepnex.com" target="_blank" rel="noopener noreferrer" className="text-[#00C9AF] hover:underline font-semibold">wepnex.com</a></span>
             </div>

@@ -22,7 +22,7 @@ const AppFooter: React.FC = () => {
           <span className="hidden sm:inline text-gray-300 dark:text-gray-700">•</span>
 
           <span className="text-[11px] text-gray-500 dark:text-gray-400">
-            © {currentYear} Selectt Motors. All rights reserved.
+            © {currentYear} SELECTT MOTOCORP PVT LTD. All rights reserved.
           </span>
         </div>
 
