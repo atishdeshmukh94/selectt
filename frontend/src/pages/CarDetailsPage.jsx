@@ -60,6 +60,7 @@ import SectionDivider from '../components/common/SectionDivider';
 import EmiCalculator from '../components/shared/EmiCalculator';
 import PriceSummaryModal from '../components/car-details/PriceSummaryModal';
 import CategoryComparisonModal from '../components/car-details/CategoryComparisonModal';
+import CarGalleryModal from '../components/car-details/CarGalleryModal';
 import { shortenLocation } from '../utils/formatters';
 import { trackCarView, getSimilarCarsForCarDetails } from '../utils/userPreferences';
 
@@ -1579,116 +1580,27 @@ const CarDetailsPage = () => {
           onClose={() => setIsTestDriveOpen(false)}
         />
 
-        {/* Lightbox Modal */}
-        {isLightboxOpen && (
-          <div className="fixed inset-0 z-[9999] flex flex-col justify-between bg-black/95 backdrop-blur-md select-none animate-in fade-in duration-200">
-            {/* Top Bar */}
-            <div className="flex items-center justify-between p-6 text-white bg-gradient-to-b from-black/50 to-transparent">
-              <div className="flex flex-col">
-                <span className="text-lg font-black tracking-wide">{car.year} {car.make} {car.model}</span>
-                <span className="text-xs font-bold text-slate-400 mt-0.5 uppercase tracking-widest">
-                  Media {lightboxIndex + 1} of {images.length}
-                </span>
-              </div>
-              <button
-                onClick={closeLightbox}
-                className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all hover:scale-105 active:scale-95 shadow"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            {/* Main Media Slider */}
-            <div className="flex-1 flex items-center justify-between px-4 relative max-h-[70vh]">
-              {/* Left Button */}
-              <button
-                onClick={() => setLightboxIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
-                className="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-all hover:scale-105"
-              >
-                <ChevronLeft size={28} />
-              </button>
-
-              {/* Media Box */}
-              <div className="flex-1 flex items-center justify-center max-w-[85vw] max-h-full h-full relative">
-                {getMediaType(images[lightboxIndex]) === 'bunny_stream' ? (
-                  <iframe
-                    src={images[lightboxIndex]?.includes('?') ? images[lightboxIndex] : `${images[lightboxIndex]}?autoplay=true&loop=false&muted=false&preload=true&responsive=true`}
-                    loading="lazy"
-                    className="w-full aspect-video max-w-5xl max-h-full rounded-2xl shadow-2xl border-0"
-                    allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
-                    allowFullScreen
-                  />
-                ) : getMediaType(images[lightboxIndex]) === 'video' ? (
-                  <video
-                    src={images[lightboxIndex]?.startsWith('/') ? `${API_URL}${images[lightboxIndex]}` : images[lightboxIndex]}
-                    className="max-w-full max-h-full rounded-2xl shadow-2xl object-contain border border-white/5"
-                    controls
-                    autoPlay
-                    muted
-                  />
-                ) : getMediaType(images[lightboxIndex]) === 'youtube' ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${getYouTubeId(images[lightboxIndex])}`}
-                    className="w-full aspect-video max-w-5xl max-h-full rounded-2xl shadow-2xl"
-                    allowFullScreen
-                    frameBorder="0"
-                  />
-                ) : (
-                  <img
-                    src={images[lightboxIndex]?.startsWith('/') ? `${API_URL}${images[lightboxIndex]}` : images[lightboxIndex]}
-                    alt="Lightbox view"
-                    className="max-w-full max-h-full rounded-2xl shadow-2xl object-contain border border-white/5 animate-in zoom-in-95 duration-200"
-                  />
-                )}
-              </div>
-
-              {/* Right Button */}
-              <button
-                onClick={() => setLightboxIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
-                className="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-all hover:scale-105"
-              >
-                <ChevronRight size={28} />
-              </button>
-            </div>
-
-            {/* Bottom Thumbnail Selector */}
-            <div className="p-8 bg-gradient-to-t from-black/50 to-transparent flex flex-col items-center gap-4">
-              <div className="flex gap-2 max-w-full overflow-x-auto py-2 no-scrollbar">
-                {images.map((img, idx) => {
-                  const type = getMediaType(img);
-                  const isSelected = lightboxIndex === idx;
-                  const ytId = type === 'youtube' ? getYouTubeId(img) : null;
-                  const ytThumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null;
-
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => setLightboxIndex(idx)}
-                      className={`relative w-20 h-12 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${isSelected ? 'border-[#00C9AF] scale-105 opacity-100 shadow' : 'border-transparent opacity-40 hover:opacity-80'
-                        }`}
-                    >
-                      {type === 'video' ? (
-                        <div className="w-full h-full bg-slate-900 flex items-center justify-center text-white text-[8px] font-bold">
-                          <span>▶ Video</span>
-                        </div>
-                      ) : type === 'youtube' ? (
-                        <img src={ytThumb || ""} className="w-full h-full object-cover" alt="" />
-                      ) : (
-                        <img src={img?.startsWith('/') ? `${API_URL}${img}` : img} className="w-full h-full object-cover" alt="" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Fullscreen Categorized Gallery Modal (Spinny Style with Isolated Pinch-to-Zoom) */}
+        <CarGalleryModal
+          isOpen={isLightboxOpen}
+          onClose={closeLightbox}
+          car={car}
+          images={images}
+          onBookNow={handleBookNow}
+          onTestDrive={handleTestDriveClick}
+          onOpen360={() => {
+            closeLightbox();
+            const elem360 = document.getElementById('view-360-container') || document.querySelector('[data-view360]');
+            if (elem360) elem360.scrollIntoView({ behavior: 'smooth' });
+          }}
+        />
       </div>
       <PriceSummaryModal
         isOpen={isPriceSummaryOpen}
         onClose={() => setIsPriceSummaryOpen(false)}
         car={car}
         carPrice={car?.price}
+        onBookNow={handleBookCar}
       />
       <CategoryComparisonModal
         isOpen={isCategoryModalOpen}

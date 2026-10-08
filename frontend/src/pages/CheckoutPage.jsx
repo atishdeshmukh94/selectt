@@ -786,8 +786,8 @@ const CheckoutPage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           code: couponInput.trim().toUpperCase(),
-          booking_amount: rawBookingAmount,
-          car_price: Number(car?.price) || 0
+          booking_amount: finalPayableBookingAmount || rawBookingAmount,
+          car_price: Number(car?.price) || Number(totalOnRoadPrice) || 0
         })
       });
 
@@ -2180,6 +2180,7 @@ const CheckoutPage = () => {
           ) : (
             <>
               <button
+                id="proceed-to-pay-btn"
                 type="button"
                 onClick={handleBooking}
                 disabled={isBooking}
@@ -2931,10 +2932,10 @@ const CheckoutPage = () => {
                 <button
                   type="button"
                   onClick={() => setIsPriceSummaryOpen(false)}
-                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 text-slate-700 hover:text-slate-900 flex items-center justify-center transition-all cursor-pointer border border-slate-200/80 shadow-2xs shrink-0"
                   aria-label="Close price summary"
                 >
-                  <X size={18} />
+                  <X size={20} className="stroke-[2.5]" />
                 </button>
               </div>
 
@@ -3089,6 +3090,35 @@ const CheckoutPage = () => {
 
               {/* Best-in-class values Section (Reused across Mobile & Desktop with upgraded legible sizes) */}
               {renderBestInClassValues(false)}
+            </div>
+
+            {/* Modal Sticky Bottom Action Bar */}
+            <div className="sticky bottom-0 bg-white/95 backdrop-blur-md px-4 py-3 sm:px-6 sm:py-3.5 border-t border-slate-200 z-30 flex items-center gap-3 shadow-lg mt-auto">
+              <button
+                type="button"
+                onClick={() => setIsPriceSummaryOpen(false)}
+                className="px-4 py-3 rounded-xl border border-slate-300 font-extrabold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer shrink-0"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsPriceSummaryOpen(false);
+                  const payBtn = document.getElementById('proceed-to-pay-btn');
+                  if (payBtn) {
+                    payBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    payBtn.classList.add('ring-4', 'ring-[#00C9AF]/50');
+                    setTimeout(() => payBtn.classList.remove('ring-4', 'ring-[#00C9AF]/50'), 1500);
+                  }
+                }}
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-[#0C1B33] to-[#162A47] hover:from-[#112442] hover:to-[#0C1B33] text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Book This Car</span>
+                <span className="font-price text-[#00C9AF] font-bold">
+                  (Pay ₹{finalPayableBookingAmount.toLocaleString('en-IN')})
+                </span>
+              </button>
             </div>
           </div>
         </div>

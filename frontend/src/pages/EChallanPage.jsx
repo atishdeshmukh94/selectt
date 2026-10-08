@@ -286,7 +286,7 @@ export default function EChallanPage() {
                     Online E-Challan Verification & Payment Coming Soon!
                   </h2>
                   <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed max-w-xl mx-auto">
-                    We are currently integrating directly with the official Government Parivahan & State Traffic Police servers to fetch genuine, 100% verified real-time challans for your vehicle without mock data.
+                    We are currently integrating directly with the official Government Parivahan & State Traffic Police servers to fetch genuine, 100% verified real-time challans for your vehicle.
                   </p>
                 </div>
 
@@ -297,7 +297,7 @@ export default function EChallanPage() {
                       ✓
                     </div>
                     <h4 className="font-bold text-xs text-slate-900 mb-1">Official Parivahan Records</h4>
-                    <p className="text-[11px] text-slate-500 leading-snug">No mock or estimated dues. Only authenticated traffic notices direct from VAHAN.</p>
+                    <p className="text-[11px] text-slate-500 leading-snug">Directly synchronized with Parivahan VAHAN official traffic violation notices.</p>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
@@ -326,26 +326,6 @@ export default function EChallanPage() {
                       Vehicle <span className="font-black text-slate-900">{searchedVehicle || vehicleNo.toUpperCase()}</span> has been queued. You will be able to verify and settle all active traffic challans directly here as soon as our government API pipeline goes live.
                     </p>
                   </div>
-                </div>
-
-                {/* Actions */}
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <a
-                    href={`https://wa.me/918591969394?text=${encodeURIComponent(`Hi Selectt Team, please notify me when the online E-Challan service is live for my vehicle ${searchedVehicle || vehicleNo.toUpperCase()}.`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-6 py-3.5 bg-[#00C9AF] hover:bg-[#00b09b] text-[#0C1B33] font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 no-underline"
-                  >
-                    <span>💬 Get Notified on WhatsApp</span>
-                  </a>
-                  <a
-                    href="https://echallan.parivahan.gov.in"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-300/80 transition-all flex items-center justify-center gap-2 no-underline"
-                  >
-                    <span>Check on Parivahan Portal Directly <ExternalLink size={13} /></span>
-                  </a>
                 </div>
               </div>
             </div>

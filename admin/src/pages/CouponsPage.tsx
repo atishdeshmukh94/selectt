@@ -16,7 +16,8 @@ import {
   Clock, 
   ArrowUpDown,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  Car
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import PageMeta from "../components/common/PageMeta";
@@ -123,7 +124,7 @@ export default function CouponsPage() {
       description: "",
       discount_type: "flat",
       discount_value: "",
-      applies_to: "booking_amount",
+      applies_to: "car_price",
       min_order_amount: "0",
       max_discount_amount: "",
       usage_limit: "",
@@ -750,6 +751,40 @@ export default function CouponsPage() {
                       placeholder={form.discount_type === "flat" ? "e.g. 500" : "e.g. 10"}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#00A38D]/20 focus:border-[#00A38D]"
                     />
+                  </div>
+                </div>
+
+                {/* Applies To (Car Price vs Booking Amount) */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                    Discount Applies To
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, applies_to: "car_price" })}
+                      className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                        form.applies_to === "car_price"
+                          ? "bg-[#00A38D]/10 border-[#00A38D] text-[#00A38D]"
+                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                      }`}
+                    >
+                      <Car className="w-3.5 h-3.5" />
+                      <span>Total Car Price (Default)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, applies_to: "booking_amount" })}
+                      className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                        form.applies_to === "booking_amount"
+                          ? "bg-[#00A38D]/10 border-[#00A38D] text-[#00A38D]"
+                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                      }`}
+                    >
+                      <Ticket className="w-3.5 h-3.5" />
+                      <span>Booking Token Deposit</span>
+                    </button>
                   </div>
                 </div>
 

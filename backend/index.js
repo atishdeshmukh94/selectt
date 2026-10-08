@@ -267,6 +267,11 @@ db.query("ALTER TABLE customers ADD COLUMN neodove_synced_at TIMESTAMP NULL", (e
     if (!err) console.log("✅ [Neodove CRM] Verified/Added neodove_synced_at column to customers table");
 });
 
+// Auto-migrate car price coupons in coupons table
+db.query("UPDATE coupons SET applies_to = 'car_price' WHERE (min_order_amount >= 50000 OR UPPER(code) = 'GAZALA20') AND applies_to = 'booking_amount'", (err) => {
+    if (!err) console.log("✅ [Coupons] Auto-migrated car price coupons to applies_to = 'car_price'");
+});
+
 // Global Site Setting Lookup Helper (Available to all route handlers)
 function getSetting(key) {
     return new Promise((resolve, reject) => {
@@ -8283,14 +8288,25 @@ app.post(['/api/coupons/validate', '/api/coupons/apply'], (req, res) => {
             return res.status(400).json({ valid: false, message: 'Coupon usage limit has been reached' });
         }
 
-        const baseAmount = coupon.applies_to === 'car_price' ? (Number(car_price) || 0) : (Number(booking_amount) || 0);
+        const vehiclePrice = Number(car_price) || 0;
+        const bookingToken = Number(booking_amount) || 0;
         const minOrder = Number(coupon.min_order_amount) || 0;
 
-        if (baseAmount < minOrder) {
+        // Auto purchases: Order value is the total car price. Standalone token checkouts use bookingToken.
+        const effectiveOrderValue = vehiclePrice > 0 ? vehiclePrice : bookingToken;
+
+        if (minOrder > 0 && effectiveOrderValue < minOrder) {
             return res.status(400).json({ 
                 valid: false, 
-                message: `Minimum ${coupon.applies_to === 'car_price' ? 'car price' : 'booking amount'} of ₹${minOrder.toLocaleString('en-IN')} required for this coupon` 
+                message: `Minimum ${vehiclePrice > 0 ? 'car order value' : 'amount'} of ₹${minOrder.toLocaleString('en-IN')} required for this coupon` 
             });
+        }
+
+        // Base amount on which discount applies:
+        // By default on vehicle checkout, discount applies to overall vehicle order value.
+        let baseAmount = vehiclePrice > 0 ? vehiclePrice : bookingToken;
+        if (coupon.applies_to === 'booking_amount' && vehiclePrice === 0) {
+            baseAmount = bookingToken;
         }
 
         let calculatedDiscount = 0;
@@ -8305,8 +8321,8 @@ app.post(['/api/coupons/validate', '/api/coupons/apply'], (req, res) => {
             calculatedDiscount = discountVal;
         }
 
-        // For booking amount discounts, ensure at least ₹1 or positive payable
-        if (coupon.applies_to === 'booking_amount') {
+        // For pure booking token discounts without car purchase, ensure at least ₹1 payable
+        if (coupon.applies_to === 'booking_amount' && vehiclePrice === 0) {
             calculatedDiscount = Math.min(calculatedDiscount, Math.max(0, baseAmount - 1));
         } else {
             calculatedDiscount = Math.min(calculatedDiscount, baseAmount);
@@ -8374,7 +8390,7 @@ app.post('/api/admin/coupons', authMiddleware, isAdmin, (req, res) => {
         description, 
         discount_type = 'flat', 
         discount_value, 
-        applies_to = 'booking_amount',
+        applies_to = 'car_price',
         min_order_amount = 0, 
         max_discount_amount, 
         usage_limit, 
@@ -8404,7 +8420,7 @@ app.post('/api/admin/coupons', authMiddleware, isAdmin, (req, res) => {
             description: description ? description.trim() : null,
             discount_type: discount_type === 'percentage' ? 'percentage' : 'flat',
             discount_value: Number(discount_value),
-            applies_to: applies_to === 'car_price' ? 'car_price' : 'booking_amount',
+            applies_to: applies_to === 'booking_amount' ? 'booking_amount' : 'car_price',
             min_order_amount: Number(min_order_amount) || 0,
             max_discount_amount: max_discount_amount ? Number(max_discount_amount) : null,
             usage_limit: usage_limit ? parseInt(usage_limit, 10) : null,
@@ -8460,7 +8476,7 @@ app.put('/api/admin/coupons/:id', authMiddleware, isAdmin, (req, res) => {
             description: description !== undefined ? (description ? description.trim() : null) : undefined,
             discount_type: discount_type === 'percentage' ? 'percentage' : 'flat',
             discount_value: Number(discount_value),
-            applies_to: applies_to === 'car_price' ? 'car_price' : 'booking_amount',
+            applies_to: applies_to === 'booking_amount' ? 'booking_amount' : 'car_price',
             min_order_amount: Number(min_order_amount) || 0,
             max_discount_amount: max_discount_amount ? Number(max_discount_amount) : null,
             usage_limit: usage_limit ? parseInt(usage_limit, 10) : null,
