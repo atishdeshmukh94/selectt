@@ -967,12 +967,12 @@ const NewHome = () => {
       const evs = sourceCars.filter(car => car.fuelType?.toUpperCase() === 'EV' || car.fuelType?.toLowerCase().includes('electric'));
       return evs.length ? evs.slice(0, 3) : sourceCars.slice(0, 3);
     }
-    if (activeMobileType === 'Luxury Sedan') {
-      const filtered = sourceCars.filter(car => (car.bodyType === 'Sedan' || car.bodyType === 'Luxury Sedan') && car.price >= 2000000);
+    if (activeMobileType === 'Selectt Luxury' || activeMobileType === 'Luxury') {
+      const filtered = sourceCars.filter(car => car.price >= 2000000 || car.tags?.some(t => t?.toLowerCase().includes('luxury')) || car.certification === 'Selectt MAX');
       return filtered.length ? filtered.slice(0, 3) : sourceCars.slice(0, 3);
     }
-    if (activeMobileType === 'Luxury SUV') {
-      const filtered = sourceCars.filter(car => (car.bodyType === 'SUV' || car.bodyType === 'Luxury SUV') && car.price >= 2000000);
+    if (activeMobileType === 'Compact SUV') {
+      const filtered = sourceCars.filter(car => car.bodyType?.toLowerCase() === 'compact suv' || (car.bodyType?.toLowerCase() === 'suv' && car.price < 1200000));
       return filtered.length ? filtered.slice(0, 3) : sourceCars.slice(0, 3);
     }
     const filtered = sourceCars.filter(car => car.bodyType?.toLowerCase() === activeMobileType.toLowerCase());
@@ -1819,9 +1819,9 @@ const NewHome = () => {
               { id: 'Hatchback', label: 'Hatchback', img: '/img/hatchback.webp', hoverImg: '/img/hatchback-hover.webp' },
               { id: 'Sedan', label: 'Sedan', img: '/img/sedan.webp', hoverImg: '/img/sedan-hover.webp' },
               { id: 'SUV', label: 'SUV', img: '/img/suv.webp', hoverImg: '/img/suv-hover.webp' },
+              { id: 'Compact SUV', label: 'Compact SUV', img: '/img/suv.webp', hoverImg: '/img/suv-hover.webp' },
               { id: 'MUV', label: 'MUV', img: '/img/muv.webp', hoverImg: '/img/muv-hover.webp' },
-              { id: 'Luxury Sedan', label: 'Luxury Sedan', img: '/img/luxury-sedan.webp', hoverImg: '/img/luxury-sedan-hover.webp' },
-              { id: 'Luxury SUV', label: 'Luxury SUV', img: '/img/luxury-suv.webp', hoverImg: '/img/luxury-suv-hover.webp' },
+              { id: 'Selectt Luxury', label: 'Selectt Luxury', img: '/img/luxury-suv.webp', hoverImg: '/img/luxury-suv-hover.webp' },
               { id: 'EV', label: 'EV', img: '/img/suv.webp', hoverImg: '/img/suv-hover.webp' }
             ].map((type) => {
               const isActive = activeMobileType === type.id;

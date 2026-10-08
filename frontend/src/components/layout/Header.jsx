@@ -20,7 +20,8 @@ import {
   Download,
   FileText,
   IndianRupee,
-  Key
+  Key,
+  Home
 } from 'lucide-react';
 
 const Header = () => {
@@ -701,7 +702,33 @@ const Header = () => {
             </div>
 
             {/* Scrollable Drawer Body (Unified Crisp Light/White Theme) */}
-            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-6 bg-white text-[#0C1B33]">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 bg-white text-[#0C1B33]">
+
+              {/* Home Button */}
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`w-full flex items-center justify-between p-3 rounded-2xl border transition-all duration-200 no-underline ${
+                  location.pathname === '/'
+                    ? 'bg-gradient-to-r from-[#0C1B33] via-[#102340] to-[#162A47] text-white border-[#13EDE5]/35 shadow-xs'
+                    : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200 shadow-2xs'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                    location.pathname === '/' ? 'bg-[#13EDE5] text-[#0C1B33]' : 'bg-slate-100 text-[#0C1B33]'
+                  }`}>
+                    <Home size={18} strokeWidth={2.4} />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-xs font-black tracking-tight block leading-tight">Home</span>
+                    <span className={`text-[10px] block leading-none font-medium mt-0.5 ${
+                      location.pathname === '/' ? 'text-[#13EDE5]' : 'text-slate-400'
+                    }`}>Return to main page</span>
+                  </div>
+                </div>
+                <ChevronRight size={15} className={location.pathname === '/' ? 'text-[#13EDE5]' : 'text-slate-400'} />
+              </Link>
 
               {/* 1. BUY Section */}
               <div className="text-left">
@@ -773,7 +800,8 @@ const Header = () => {
                       { name: 'Compact SUV', icon: '🚙', query: { body_type: ['Compact SUV'] } },
                       { name: 'MUV', icon: '🚐', query: { body_type: ['MUV'] } },
                       { name: 'Luxury Sedan', icon: '✨', query: { body_type: ['Luxury Sedan'] } },
-                      { name: 'Luxury SUV', icon: '👑', query: { body_type: ['Luxury SUV'] } }
+                      { name: 'Luxury SUV', icon: '👑', query: { body_type: ['Luxury SUV'] } },
+                      { name: 'EV Cars', icon: '⚡', query: { fuel: 'EV' } }
                     ].map((type, idx) => (
                       <button
                         key={idx}

@@ -23,8 +23,11 @@ import {
   Car,
   AlertTriangle,
   Lock,
-  Download
+  Download,
+  Sparkles,
+  ExternalLink
 } from 'lucide-react';
+import { useToast } from '../components/animation/ToastSystem';
 
 const MOCK_CHALLANS = [
   {
@@ -137,54 +140,30 @@ export default function EChallanPage() {
     setActiveIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
   };
 
+  const toast = useToast();
+  const [searchedVehicle, setSearchedVehicle] = useState('');
+
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!vehicleNo.trim()) return;
+    const cleanNo = vehicleNo.trim().toUpperCase();
+    if (!cleanNo) return;
 
     setLoading(true);
     setHasSearched(false);
-    setPaymentSuccess(false);
+    setSearchedVehicle(cleanNo);
 
-    // Simulate VAHAN API fetch
     setTimeout(() => {
       setLoading(false);
       setHasSearched(true);
-      if (vehicleNo.trim().toLowerCase().includes('clean') || vehicleNo.trim().length < 8) {
-        setChallans([]);
-      } else {
-        setChallans(MOCK_CHALLANS.map(c => ({ ...c, status: 'Pending' })));
-        setSelectedChallans(MOCK_CHALLANS.map(c => c.id));
+      if (toast?.addToast) {
+        toast.addToast(
+          `🚀 Online E-Challan service for ${cleanNo} is Coming Soon! We are actively integrating with Parivahan VAHAN.`,
+          'info',
+          6000
+        );
       }
-    }, 1400);
+    }, 850);
   };
-
-  const handleToggleSelect = (id) => {
-    if (selectedChallans.includes(id)) {
-      setSelectedChallans(selectedChallans.filter(cId => cId !== id));
-    } else {
-      setSelectedChallans([...selectedChallans, id]);
-    }
-  };
-
-  const handlePayment = () => {
-    if (selectedChallans.length === 0) return;
-    setPaying(true);
-
-    setTimeout(() => {
-      setPaying(false);
-      setPaymentSuccess(true);
-      setChallans(prev =>
-        prev.map(c =>
-          selectedChallans.includes(c.id) ? { ...c, status: 'Paid' } : c
-        )
-      );
-      setSelectedChallans([]);
-    }, 1800);
-  };
-
-  const totalAmount = challans
-    .filter(c => selectedChallans.includes(c.id) && c.status === 'Pending')
-    .reduce((sum, c) => sum + c.amount, 0);
 
   const pendingChallansCount = challans.filter(c => c.status === 'Pending').length;
 
@@ -282,153 +261,94 @@ export default function EChallanPage() {
         )}
 
         {hasSearched && !loading && (
-          <div className="animate-in fade-in slide-in-from-bottom-3 duration-300">
-            {challans.length === 0 ? (
-              <div className="bg-white border border-emerald-200/80 rounded-2xl p-10 text-center shadow-xs flex flex-col items-center justify-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-                  <CheckCircle2 size={28} />
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-400">
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-lg text-center relative overflow-hidden">
+              {/* Top Accent Gradient Bar */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0C1B33] via-[#00C9AF] to-[#0C1B33]"></div>
+
+              <div className="max-w-2xl mx-auto space-y-6">
+                {/* Pill Badges */}
+                <div className="flex flex-wrap items-center justify-center gap-2.5">
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black uppercase bg-[#0C1B33] text-white tracking-wider shadow-xs">
+                    <Car size={13} className="text-[#00C9AF]" /> Vehicle: {searchedVehicle || vehicleNo.toUpperCase()}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black uppercase bg-amber-50 text-amber-700 border border-amber-200 tracking-wider">
+                    <Clock size={13} className="text-amber-600 animate-pulse" /> Coming Soon
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <ShieldCheck size={13} className="text-emerald-600" /> Parivahan VAHAN 4.0 Integration
+                  </span>
                 </div>
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-xs font-bold mb-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Verified VAHAN Status
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900">No Active Challans Found</h3>
-                  <p className="text-slate-500 text-xs font-medium mt-1 max-w-md mx-auto">
-                    Vehicle <span className="font-semibold text-slate-800">{vehicleNo}</span> has zero pending traffic penalties or court notices.
+
+                {/* Headline & Explanation */}
+                <div className="space-y-2.5 text-center">
+                  <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                    Online E-Challan Verification & Payment Coming Soon!
+                  </h2>
+                  <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed max-w-xl mx-auto">
+                    We are currently integrating directly with the official Government Parivahan & State Traffic Police servers to fetch genuine, 100% verified real-time challans for your vehicle without mock data.
                   </p>
                 </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                {/* Challans List */}
-                <div className="lg:col-span-2 space-y-3.5">
-                  <div className="flex items-center justify-between pb-1">
-                    <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                      <ShieldAlert className="text-amber-500" size={20} />
-                      Pending Challans for {vehicleNo}
-                    </h3>
-                    <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
-                      {pendingChallansCount} Unpaid Notice{pendingChallansCount > 1 ? 's' : ''}
-                    </span>
+
+                {/* 3 Trust Pillars */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2 text-left">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div className="w-8 h-8 rounded-xl bg-[#00C9AF]/15 text-[#00A38D] flex items-center justify-center mb-2 font-black text-sm">
+                      ✓
+                    </div>
+                    <h4 className="font-bold text-xs text-slate-900 mb-1">Official Parivahan Records</h4>
+                    <p className="text-[11px] text-slate-500 leading-snug">No mock or estimated dues. Only authenticated traffic notices direct from VAHAN.</p>
                   </div>
 
-                  {challans.map((ch) => {
-                    const isSelected = selectedChallans.includes(ch.id);
-                    const isPaid = ch.status === 'Paid';
-                    return (
-                      <div
-                        key={ch.id}
-                        className={`bg-white border rounded-2xl p-5 shadow-xs transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-                          isPaid
-                            ? 'border-emerald-200 bg-emerald-50/20'
-                            : isSelected
-                            ? 'border-[#00C9AF] ring-2 ring-[#00C9AF]/15'
-                            : 'border-slate-200 hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3.5">
-                          {/* Checkbox */}
-                          {!isPaid && (
-                            <button
-                              type="button"
-                              onClick={() => handleToggleSelect(ch.id)}
-                              className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 cursor-pointer transition-all ${
-                                isSelected ? 'bg-[#00C9AF] border-[#00C9AF] text-[#0C1B33]' : 'border-slate-300 hover:border-slate-400 bg-white'
-                              }`}
-                            >
-                              {isSelected && <Check size={13} className="stroke-[3]" />}
-                            </button>
-                          )}
-                          {isPaid && (
-                            <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
-                              <CheckCircle2 size={13} />
-                            </div>
-                          )}
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2 font-black text-sm">
+                      ₹0
+                    </div>
+                    <h4 className="font-bold text-xs text-slate-900 mb-1">Zero Convenience Charge</h4>
+                    <p className="text-[11px] text-slate-500 leading-snug">Pay exact penalty amount with zero extra convenience, platform, or gateway charges.</p>
+                  </div>
 
-                          <div className="space-y-1 text-left">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="font-bold text-slate-900 text-sm tracking-tight">{ch.challan_no}</span>
-                              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
-                                isPaid ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'
-                              }`}>
-                                {ch.status}
-                              </span>
-                            </div>
-                            <h4 className="font-semibold text-slate-700 text-xs leading-snug">{ch.violation}</h4>
-                            <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 font-medium pt-0.5">
-                              <span className="inline-flex items-center gap-1"><Clock size={11} className="text-slate-400" /> {ch.date}</span>
-                              <span className="inline-flex items-center gap-1"><MapPin size={11} className="text-slate-400" /> {ch.location}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="text-right sm:self-center shrink-0">
-                          <span className="text-[10px] font-semibold text-slate-400 block uppercase">Fine</span>
-                          <span className="font-extrabold text-slate-900 text-base">₹{ch.amount.toLocaleString('en-IN')}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div className="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center mb-2 font-black text-sm">
+                      ⚡
+                    </div>
+                    <h4 className="font-bold text-xs text-slate-900 mb-1">Instant WhatsApp Receipt</h4>
+                    <p className="text-[11px] text-slate-500 leading-snug">RTO NOC and official e-receipt delivered straight to your WhatsApp within minutes.</p>
+                  </div>
                 </div>
 
-                {/* Checkout Summary Card */}
-                {pendingChallansCount > 0 && (
-                  <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-4">
-                    <div className="border-b border-slate-100 pb-3">
-                      <h3 className="font-bold text-[#0C1B33] text-base">Payment Summary</h3>
-                      <p className="text-xs text-slate-400 font-medium">Clear selected dues instantly</p>
-                    </div>
-                    
-                    <div className="space-y-2.5 text-xs text-slate-600 font-medium">
-                      <div className="flex justify-between">
-                        <span>Selected Violations</span>
-                        <span className="font-bold text-slate-800">{selectedChallans.length} of {pendingChallansCount}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Convenience & Gateway Fee</span>
-                        <span className="font-bold text-emerald-600 uppercase text-[11px]">₹0 (Free)</span>
-                      </div>
-                      <div className="flex justify-between border-t border-slate-100 pt-3 text-slate-900">
-                        <span className="font-bold text-sm">Total Payable</span>
-                        <span className="font-black text-lg text-[#0C1B33]">₹{totalAmount.toLocaleString('en-IN')}</span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handlePayment}
-                      disabled={selectedChallans.length === 0 || paying}
-                      className="w-full py-3.5 bg-[#0C1B33] hover:bg-[#162a4d] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      {paying ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <Lock size={13} className="text-[#00C9AF]" />
-                      )}
-                      {paying ? 'Processing Payment...' : `Pay ₹${totalAmount.toLocaleString('en-IN')} via UPI / Card`}
-                    </button>
-                    
-                    <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-medium pt-1">
-                      <ShieldCheck size={12} className="text-emerald-500" />
-                      <span>Direct 256-bit encrypted Parivahan settlement</span>
-                    </div>
+                {/* Notification Alert Callout */}
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-300/40 text-left flex items-start gap-3">
+                  <Sparkles size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                  <div className="text-xs">
+                    <span className="font-extrabold text-slate-900 block mb-0.5">We are working on it!</span>
+                    <p className="text-slate-600 font-medium leading-relaxed">
+                      Vehicle <span className="font-black text-slate-900">{searchedVehicle || vehicleNo.toUpperCase()}</span> has been queued. You will be able to verify and settle all active traffic challans directly here as soon as our government API pipeline goes live.
+                    </p>
                   </div>
-                )}
+                </div>
 
-                {/* Success Notification */}
-                {paymentSuccess && (
-                  <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-5 text-emerald-900 text-left lg:col-span-3 mt-2 flex items-start gap-3.5">
-                    <CheckCircle2 className="text-emerald-600 shrink-0 mt-0.5" size={20} />
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-sm text-emerald-950">Challan Settled Successfully!</h4>
-                      <p className="text-xs text-emerald-800 font-medium leading-relaxed">
-                        Transaction reference <code className="bg-emerald-100/80 px-1.5 py-0.5 rounded font-mono font-bold text-emerald-900">TXN-{Math.floor(Math.random() * 90000) + 10000}</code> has been transmitted. The government RTO database will update your clearance within 15 minutes.
-                      </p>
-                    </div>
-                  </div>
-                )}
+                {/* Actions */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <a
+                    href={`https://wa.me/918591969394?text=${encodeURIComponent(`Hi Selectt Team, please notify me when the online E-Challan service is live for my vehicle ${searchedVehicle || vehicleNo.toUpperCase()}.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto px-6 py-3.5 bg-[#00C9AF] hover:bg-[#00b09b] text-[#0C1B33] font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 no-underline"
+                  >
+                    <span>💬 Get Notified on WhatsApp</span>
+                  </a>
+                  <a
+                    href="https://echallan.parivahan.gov.in"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-300/80 transition-all flex items-center justify-center gap-2 no-underline"
+                  >
+                    <span>Check on Parivahan Portal Directly <ExternalLink size={13} /></span>
+                  </a>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>
