@@ -485,14 +485,14 @@ const CarDetailsPage = () => {
             {/* Main Content Area */}
             <div className="flex-1 min-w-0 order-1 lg:order-1 w-full">
               {/* Gallery Section */}
-              <div className="bg-transparent border-none rounded-none -mx-4 lg:mx-0 lg:bg-white lg:border lg:border-slate-200 lg:rounded-2xl overflow-hidden lg:shadow-md mb-3 lg:mb-6">
-                <div className="relative w-full aspect-video bg-[#050B16] lg:max-h-[380px] xl:max-h-[410px] overflow-hidden">
+              <div className="bg-transparent border-none rounded-none -mx-4 lg:mx-0 lg:bg-white lg:border lg:border-slate-200 lg:rounded-2xl lg:shadow-md mb-3 lg:mb-6 relative z-30">
+                <div className="relative w-full aspect-video bg-[#050B16] lg:max-h-[380px] xl:max-h-[410px] rounded-none lg:rounded-t-2xl">
                   {/* Share Hover Dropdown (Top-Right Corner of Photo) */}
                   <div
                     ref={shareMenuRef}
                     onMouseEnter={() => setIsShareHovered(true)}
                     onMouseLeave={() => setIsShareHovered(false)}
-                    className="absolute top-3.5 right-3.5 z-30 flex flex-col items-end"
+                    className="absolute top-3.5 right-3.5 z-50 flex flex-col items-end"
                   >
                     <button
                       type="button"
@@ -523,7 +523,7 @@ const CarDetailsPage = () => {
                     {(isShareOpen || isShareHovered) && (
                       <div
                         onClick={(e) => e.stopPropagation()}
-                        className="mt-2 w-44 sm:w-48 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200/90 py-1.5 px-1.5 z-40 animate-in fade-in slide-in-from-top-2 duration-150 relative text-slate-800 select-none"
+                        className="mt-2 w-48 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200/90 py-1.5 px-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150 relative text-slate-800 select-none"
                       >
                         {/* Upward caret pointing directly to the button */}
                         <div className="absolute -top-1.5 right-3.5 w-3 h-3 bg-white rotate-45 border-t border-l border-slate-200/90" />
@@ -610,7 +610,9 @@ const CarDetailsPage = () => {
                     )}
                   </div>
 
-                  {getMediaType(images[activeImage]) === 'bunny_stream' ? (
+                  {/* Media Content Wrapper (overflow-hidden to keep images/videos clipped) */}
+                  <div className="absolute inset-0 w-full h-full overflow-hidden rounded-none lg:rounded-t-2xl">
+                    {getMediaType(images[activeImage]) === 'bunny_stream' ? (
                     <iframe
                       src={images[activeImage]?.includes('?') ? images[activeImage] : `${images[activeImage]}?autoplay=true&loop=false&muted=false&preload=true&responsive=true`}
                       loading="lazy"
@@ -703,8 +705,9 @@ const CarDetailsPage = () => {
                       <ChevronRight size={24} />
                     </button>
                   </div>
+                </div>
 
-                  </div>
+              </div>
 
                   {/* 3-Button Media Selector Bar - Mobile Only (Tight Spacing & High Contrast Active Highlight) */}
                   <div className="flex lg:hidden items-center justify-between gap-2 pt-2 pb-0.5 px-3 bg-transparent relative z-20">
