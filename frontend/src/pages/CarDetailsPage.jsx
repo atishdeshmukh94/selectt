@@ -1580,7 +1580,7 @@ const CarDetailsPage = () => {
           onClose={() => setIsTestDriveOpen(false)}
         />
 
-        {/* Fullscreen Categorized Gallery Modal (Spinny Style with Isolated Pinch-to-Zoom) */}
+        {/* Fullscreen Categorized Gallery Modal (Spinny Style with Isolated Pinch-to-Zoom & Lightbox) */}
         <CarGalleryModal
           isOpen={isLightboxOpen}
           onClose={closeLightbox}
@@ -1588,11 +1588,6 @@ const CarDetailsPage = () => {
           images={images}
           onBookNow={handleBookNow}
           onTestDrive={handleTestDriveClick}
-          onOpen360={() => {
-            closeLightbox();
-            const elem360 = document.getElementById('view-360-container') || document.querySelector('[data-view360]');
-            if (elem360) elem360.scrollIntoView({ behavior: 'smooth' });
-          }}
         />
       </div>
       <PriceSummaryModal

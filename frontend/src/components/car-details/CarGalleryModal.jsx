@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   ArrowLeft, 
-  RotateCw, 
   ZoomIn, 
   ZoomOut, 
   RotateCcw,
-  Sparkles,
+  ChevronLeft,
   ChevronRight,
-  ShieldCheck,
-  CheckCircle2
+  X,
+  Maximize2
 } from 'lucide-react';
 import { API_URL } from '../../config/api';
 
@@ -132,14 +131,14 @@ const categorizeCarImages = (images) => {
 };
 
 // Isolated Pinch-to-Zoom Car Image Card (Zooms ONLY the car image, NOT the webpage)
-const PinchZoomImageCard = ({ item, carTitle }) => {
+const PinchZoomImageCard = ({ item, carTitle, onOpenLightbox }) => {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isPinching, setIsPinching] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const containerRef = useRef(null);
-  const touchStartRef = useRef({ dist: 0, scale: 1, x: 0, y: 0, posX: 0, posY: 0 });
+  const touchStartRef = useRef({ dist: 0, scale: 1, x: 0, y: 0, posX: 0, posY: 0, startTime: 0 });
   const lastTapRef = useRef(0);
 
   const getDistance = (t1, t2) => {
@@ -154,16 +153,23 @@ const PinchZoomImageCard = ({ item, carTitle }) => {
         dist,
         scale,
         posX: position.x,
-        posY: position.y
+        posY: position.y,
+        startTime: Date.now()
       };
       setIsPinching(true);
     } 
-    // 1-Finger Touch / Double-Tap
+    // 1-Finger Touch / Tap
     else if (e.touches.length === 1) {
       const now = Date.now();
-      const DOUBLE_TAP_DELAY = 300;
+      const DOUBLE_TAP_DELAY = 280;
+      touchStartRef.current.x = e.touches[0].clientX;
+      touchStartRef.current.y = e.touches[0].clientY;
+      touchStartRef.current.posX = position.x;
+      touchStartRef.current.posY = position.y;
+      touchStartRef.current.startTime = now;
+
       if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-        // Toggle Zoom (1x <-> 2.2x)
+        // Double-Tap to Zoom In / Out
         if (scale > 1.05) {
           setScale(1);
           setPosition({ x: 0, y: 0 });
@@ -174,10 +180,6 @@ const PinchZoomImageCard = ({ item, carTitle }) => {
         lastTapRef.current = 0;
       } else {
         lastTapRef.current = now;
-        touchStartRef.current.x = e.touches[0].clientX;
-        touchStartRef.current.y = e.touches[0].clientY;
-        touchStartRef.current.posX = position.x;
-        touchStartRef.current.posY = position.y;
       }
     }
   };
@@ -205,20 +207,32 @@ const PinchZoomImageCard = ({ item, carTitle }) => {
     }
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e) => {
     setIsPinching(false);
     // Snap back if scale is near 1x
     if (scale < 1.05) {
       setScale(1);
       setPosition({ x: 0, y: 0 });
     }
+
+    // Check if it was a quick single tap without dragging -> open Lightbox!
+    if (e.changedTouches && e.changedTouches.length === 1 && scale <= 1.05) {
+      const elapsed = Date.now() - touchStartRef.current.startTime;
+      const dx = Math.abs(e.changedTouches[0].clientX - touchStartRef.current.x);
+      const dy = Math.abs(e.changedTouches[0].clientY - touchStartRef.current.y);
+      if (elapsed < 300 && dx < 10 && dy < 10) {
+        onOpenLightbox?.();
+      }
+    }
   };
 
-  const handleZoomIn = () => {
+  const handleZoomIn = (e) => {
+    e.stopPropagation();
     setScale(prev => Math.min(prev + 0.6, 3.5));
   };
 
-  const handleZoomOut = () => {
+  const handleZoomOut = (e) => {
+    e.stopPropagation();
     setScale(prev => {
       const next = prev - 0.6;
       if (next <= 1.05) {
@@ -229,7 +243,8 @@ const PinchZoomImageCard = ({ item, carTitle }) => {
     });
   };
 
-  const handleResetZoom = () => {
+  const handleResetZoom = (e) => {
+    e.stopPropagation();
     setScale(1);
     setPosition({ x: 0, y: 0 });
   };
@@ -239,13 +254,15 @@ const PinchZoomImageCard = ({ item, carTitle }) => {
       {/* Image Container with Isolated Touch Handling */}
       <div 
         ref={containerRef}
-        className="relative w-full aspect-[4/3] sm:aspect-[16/10] bg-slate-100 overflow-hidden select-none cursor-zoom-in"
+        onClick={() => {
+          if (scale <= 1.05) onOpenLightbox?.();
+        }}
+        className="relative w-full aspect-[4/3] sm:aspect-[16/10] bg-slate-100 overflow-hidden select-none cursor-pointer group"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
         style={{
-          // touch-action: pan-y allows vertical page scrolling when not pinching
           touchAction: scale > 1.05 ? 'none' : 'pan-y'
         }}
       >
@@ -273,7 +290,7 @@ const PinchZoomImageCard = ({ item, carTitle }) => {
           draggable={false}
         />
 
-        {/* Zoom Hint / Floating Controls */}
+        {/* Floating Controls: Zoom & Fullscreen Lightbox trigger */}
         <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
           {scale > 1.05 ? (
             <>
@@ -296,23 +313,37 @@ const PinchZoomImageCard = ({ item, carTitle }) => {
               </button>
             </>
           ) : (
-            <button
-              type="button"
-              onClick={handleZoomIn}
-              className="px-2.5 h-8 rounded-full bg-black/45 hover:bg-black/70 backdrop-blur-md text-white text-[11px] font-bold flex items-center justify-center active:scale-90 transition-all shadow-md cursor-pointer gap-1 border border-white/10"
-              title="Pinch or Click to Zoom"
-            >
-              <ZoomIn size={14} />
-              <span className="hidden sm:inline">Pinch / Zoom</span>
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={handleZoomIn}
+                className="px-2.5 h-8 rounded-full bg-black/45 hover:bg-black/70 backdrop-blur-md text-white text-[11px] font-bold flex items-center justify-center active:scale-90 transition-all shadow-md cursor-pointer gap-1 border border-white/10"
+                title="Pinch or Click to Zoom"
+              >
+                <ZoomIn size={14} />
+                <span className="hidden sm:inline">Pinch / Zoom</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenLightbox?.();
+                }}
+                className="w-8 h-8 rounded-full bg-black/45 hover:bg-black/70 backdrop-blur-md text-white flex items-center justify-center active:scale-90 transition-all shadow-md cursor-pointer border border-white/10"
+                title="Open Fullscreen Lightbox"
+              >
+                <Maximize2 size={13} />
+              </button>
+            </>
           )}
         </div>
 
-        {/* Double-tap hint badge for mobile */}
+        {/* Tap to expand hint badge */}
         {scale === 1 && (
           <div className="absolute bottom-3 right-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-            <span className="text-[10px] bg-black/50 text-white px-2 py-1 rounded-md backdrop-blur-xs font-semibold">
-              Double-tap to zoom
+            <span className="text-[10px] bg-black/60 text-white px-2.5 py-1 rounded-full backdrop-blur-xs font-semibold flex items-center gap-1 shadow-sm">
+              <Maximize2 size={10} /> Tap to expand
             </span>
           </div>
         )}
@@ -333,16 +364,179 @@ const PinchZoomImageCard = ({ item, carTitle }) => {
   );
 };
 
+// Fullscreen Lightbox Overlay Component
+const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTitle }) => {
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const touchStartRef = useRef({ x: 0, y: 0, dist: 0, scale: 1 });
+
+  const total = images.length;
+  const currentImg = images[activeIndex];
+
+  // Keyboard navigation (Arrow keys + Escape)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') onChangeIndex((activeIndex + 1) % total);
+      if (e.key === 'ArrowLeft') onChangeIndex((activeIndex - 1 + total) % total);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeIndex, total, onClose, onChangeIndex]);
+
+  // Reset zoom on slide change
+  useEffect(() => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  }, [activeIndex]);
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[1].clientX - e.touches[0].clientX,
+        e.touches[1].clientY - e.touches[0].clientY
+      );
+      touchStartRef.current = { dist, scale };
+    } else if (e.touches.length === 1) {
+      touchStartRef.current.x = e.touches[0].clientX;
+      touchStartRef.current.y = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches.length === 2) {
+      if (e.cancelable) e.preventDefault();
+      const dist = Math.hypot(
+        e.touches[1].clientX - e.touches[0].clientX,
+        e.touches[1].clientY - e.touches[0].clientY
+      );
+      const factor = dist / (touchStartRef.current.dist || dist);
+      setScale(Math.min(Math.max(1, touchStartRef.current.scale * factor), 4));
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (scale < 1.05) {
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+    }
+    // Horizontal swipe gesture for next/previous
+    if (scale <= 1.05 && e.changedTouches && e.changedTouches.length === 1) {
+      const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
+      const dy = Math.abs(e.changedTouches[0].clientY - touchStartRef.current.y);
+      if (Math.abs(dx) > 50 && dy < 60) {
+        if (dx < 0) {
+          onChangeIndex((activeIndex + 1) % total);
+        } else {
+          onChangeIndex((activeIndex - 1 + total) % total);
+        }
+      }
+    }
+  };
+
+  return (
+    <div 
+      className="fixed inset-0 z-[1000000] bg-black/95 backdrop-blur-md flex flex-col justify-between select-none animate-in fade-in duration-200"
+      style={{ touchAction: 'none' }}
+    >
+      {/* Top Header */}
+      <div className="flex items-center justify-between p-4 sm:p-5 text-white bg-gradient-to-b from-black/80 to-transparent z-20">
+        <div className="min-w-0 pr-3">
+          <h3 className="font-heading font-extrabold text-sm sm:text-base truncate tracking-tight text-white">
+            {carTitle}
+          </h3>
+          <span className="text-xs text-[#00C9AF] font-bold tracking-wider font-mono">
+            {activeIndex + 1} of {total}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
+          aria-label="Close Lightbox"
+        >
+          <X size={22} className="stroke-[2.5]" />
+        </button>
+      </div>
+
+      {/* Main Large Image Viewer */}
+      <div 
+        className="flex-1 relative flex items-center justify-center overflow-hidden px-2 sm:px-4"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Left Arrow Button */}
+        <button
+          type="button"
+          onClick={() => onChangeIndex((activeIndex - 1 + total) % total)}
+          className="absolute left-2 sm:left-4 z-20 w-11 h-11 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
+          aria-label="Previous image"
+        >
+          <ChevronLeft size={26} />
+        </button>
+
+        {/* Centered Image */}
+        <img
+          src={getCarImageUrl(currentImg)}
+          alt={`${carTitle} - Photo ${activeIndex + 1}`}
+          className="max-w-full max-h-[75vh] object-contain transition-transform duration-150 rounded-lg shadow-2xl"
+          style={{
+            transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+            transformOrigin: 'center center'
+          }}
+          draggable={false}
+        />
+
+        {/* Right Arrow Button */}
+        <button
+          type="button"
+          onClick={() => onChangeIndex((activeIndex + 1) % total)}
+          className="absolute right-2 sm:right-4 z-20 w-11 h-11 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
+          aria-label="Next image"
+        >
+          <ChevronRight size={26} />
+        </button>
+      </div>
+
+      {/* Bottom Thumbnail Strip */}
+      <div className="p-3 sm:p-4 bg-gradient-to-t from-black/80 to-transparent z-20 flex flex-col items-center">
+        <div className="flex gap-2 max-w-full overflow-x-auto no-scrollbar py-1">
+          {images.map((img, idx) => {
+            const isSelected = activeIndex === idx;
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => onChangeIndex(idx)}
+                className={`relative w-14 h-10 sm:w-16 sm:h-11 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
+                  isSelected ? 'border-[#00C9AF] scale-105 opacity-100 shadow-md ring-2 ring-[#00C9AF]/50' : 'border-transparent opacity-40 hover:opacity-80'
+                }`}
+              >
+                <img
+                  src={getCarImageUrl(img)}
+                  alt={`Thumbnail ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const CarGalleryModal = ({
   isOpen,
   onClose,
   car,
   images = [],
   onBookNow,
-  onTestDrive,
-  onOpen360
+  onTestDrive
 }) => {
   const [activeCategory, setActiveCategory] = useState('overview');
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   const scrollContainerRef = useRef(null);
   const categoryTabsRef = useRef(null);
 
@@ -405,171 +599,163 @@ const CarGalleryModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[999999] bg-[#f8f9fa] flex flex-col animate-in fade-in duration-200 select-none">
-      
-      {/* 1. TOP STICKY HEADER */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
-        <div className="max-w-4xl mx-auto px-4 py-3 sm:py-3.5 flex items-center justify-between gap-3">
-          {/* Back button & Car Title */}
-          <div className="flex items-center gap-3 min-w-0">
+    <>
+      <div className="fixed inset-0 z-[999999] bg-[#f8f9fa] flex flex-col animate-in fade-in duration-200 select-none">
+        
+        {/* 1. TOP STICKY HEADER (360 button removed as requested) */}
+        <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
+          <div className="max-w-4xl mx-auto px-4 py-3 sm:py-3.5 flex items-center gap-3">
+            {/* Back button */}
             <button
               type="button"
               onClick={onClose}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 hover:text-slate-900 flex items-center justify-center transition-all cursor-pointer border border-slate-200/80 shrink-0"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 hover:text-slate-900 flex items-center justify-center transition-all cursor-pointer border border-slate-200/80 shrink-0 shadow-2xs"
               aria-label="Back to Car Details"
             >
               <ArrowLeft size={19} className="stroke-[2.5]" />
             </button>
-            <h1 className="font-heading font-extrabold text-[#0C1B33] text-sm sm:text-base md:text-lg truncate tracking-tight">
+            {/* Car Title */}
+            <h1 className="font-heading font-black text-[#0C1B33] text-sm sm:text-base md:text-lg truncate tracking-tight">
               {carTitle}
             </h1>
           </div>
 
-          {/* View in 360° Button (Right Corner) */}
-          <button
-            type="button"
-            onClick={() => {
-              if (onOpen360) {
-                onOpen360();
-              } else {
-                onClose();
-                // smooth scroll to 360 viewer on car details page
-                const elem360 = document.getElementById('view-360-container') || document.querySelector('[data-view360]');
-                if (elem360) elem360.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-purple-300 hover:border-purple-500 bg-purple-50/80 hover:bg-purple-100/80 text-purple-700 active:scale-95 font-black text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shrink-0 cursor-pointer shadow-2xs"
+          {/* 2. HORIZONTAL CATEGORY TABS WITH PREVIEWS (Selectt Brand Color Themed) */}
+          <div 
+            ref={categoryTabsRef}
+            className="border-t border-slate-100 bg-white px-3 sm:px-4 py-2.5 overflow-x-auto no-scrollbar flex items-center gap-3 sm:gap-4 max-w-4xl mx-auto"
           >
-            <span>View in</span>
-            <RotateCw size={13} className="text-purple-600 animate-spin-slow" />
-            <span className="font-extrabold">360°</span>
-          </button>
-        </div>
+            {groups.map((cat) => {
+              const isActive = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  id={`tab-btn-${cat.id}`}
+                  type="button"
+                  onClick={() => handleCategoryClick(cat.id)}
+                  className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group focus:outline-none transition-transform active:scale-95"
+                >
+                  {/* Thumbnail Box */}
+                  <div 
+                    className={`w-14 h-10 sm:w-16 sm:h-11 rounded-lg overflow-hidden border-2 transition-all shadow-2xs ${
+                      isActive 
+                        ? 'border-[#00C9AF] ring-2 ring-[#00C9AF]/40 scale-105' 
+                        : 'border-slate-200 opacity-60 group-hover:opacity-100 group-hover:border-slate-400'
+                    }`}
+                  >
+                    <img
+                      src={getCarImageUrl(cat.thumbnail)}
+                      alt={cat.name}
+                      className="w-full h-full object-cover"
+                      loading="eager"
+                    />
+                  </div>
+                  {/* Label */}
+                  <span 
+                    className={`text-[11px] sm:text-xs font-black tracking-tight transition-colors whitespace-nowrap ${
+                      isActive ? 'text-[#0C1B33]' : 'text-slate-500 group-hover:text-slate-800'
+                    }`}
+                  >
+                    {cat.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </header>
 
-        {/* 2. HORIZONTAL CATEGORY TABS WITH PREVIEWS (Spinny Style) */}
-        <div 
-          ref={categoryTabsRef}
-          className="border-t border-slate-100 bg-white px-3 sm:px-4 py-2.5 overflow-x-auto no-scrollbar flex items-center gap-3 sm:gap-4 max-w-4xl mx-auto"
+        {/* 3. MAIN VERTICAL IMAGE FEED */}
+        <main 
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 pb-28 max-w-2xl mx-auto w-full"
+          style={{
+            touchAction: 'pan-y'
+          }}
         >
-          {groups.map((cat) => {
-            const isActive = activeCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                id={`tab-btn-${cat.id}`}
-                type="button"
-                onClick={() => handleCategoryClick(cat.id)}
-                className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group focus:outline-none transition-transform active:scale-95"
-              >
-                {/* Thumbnail Box */}
-                <div 
-                  className={`w-14 h-10 sm:w-16 sm:h-11 rounded-lg overflow-hidden border-2 transition-all shadow-2xs ${
-                    isActive 
-                      ? 'border-[#6B21A8] ring-2 ring-purple-300/60 scale-105' 
-                      : 'border-slate-200 opacity-60 group-hover:opacity-100 group-hover:border-slate-400'
-                  }`}
-                >
-                  <img
-                    src={getCarImageUrl(cat.thumbnail)}
-                    alt={cat.name}
-                    className="w-full h-full object-cover"
-                    loading="eager"
-                  />
-                </div>
-                {/* Label */}
-                <span 
-                  className={`text-[11px] sm:text-xs font-extrabold tracking-tight transition-colors whitespace-nowrap ${
-                    isActive ? 'text-[#6B21A8]' : 'text-slate-500 group-hover:text-slate-800'
-                  }`}
-                >
-                  {cat.name}
+          {groups.map((group) => (
+            <section key={group.id} id={`cat-section-${group.id}`} className="mb-6 pt-2">
+              {/* Section Heading */}
+              <div className="flex items-center justify-between mb-3 px-1">
+                <h2 className="font-heading font-black text-slate-900 text-lg sm:text-xl tracking-tight">
+                  {group.name}
+                </h2>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">
+                  {group.items.length} Photos
                 </span>
-              </button>
-            );
-          })}
-        </div>
-      </header>
+              </div>
 
-      {/* 3. MAIN VERTICAL IMAGE FEED */}
-      <main 
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 pb-28 max-w-2xl mx-auto w-full"
-        style={{
-          // allows natural vertical scroll on the list, isolated pinch on images
-          touchAction: 'pan-y'
-        }}
-      >
-        {groups.map((group) => (
-          <section key={group.id} id={`cat-section-${group.id}`} className="mb-6 pt-2">
-            {/* Section Heading */}
-            <div className="flex items-center justify-between mb-3 px-1">
-              <h2 className="font-heading font-black text-slate-900 text-lg sm:text-xl tracking-tight">
-                {group.name}
-              </h2>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                {group.items.length} Photos
+              {/* List of Photos in this Category */}
+              <div className="space-y-4">
+                {group.items.map((item) => (
+                  <PinchZoomImageCard
+                    key={`${item.categoryId}-${item.globalIndex}`}
+                    item={item}
+                    carTitle={carTitle}
+                    onOpenLightbox={() => setLightboxIndex(item.globalIndex - 1)}
+                  />
+                ))}
+              </div>
+            </section>
+          ))}
+        </main>
+
+        {/* 4. BOTTOM STICKY ACTION BAR (Selectt Brand Color Combination) */}
+        <footer className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-3 px-4 z-40 shadow-2xl">
+          <div className="max-w-2xl mx-auto flex items-center gap-3">
+            {/* BOOK NOW Button - Selectt Emerald / Teal Brand Gradient */}
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                if (onBookNow) {
+                  onBookNow();
+                } else if (car?.id) {
+                  window.location.href = `/checkout/${car.id}`;
+                }
+              }}
+              className="flex-1 py-3 px-4 bg-gradient-to-r from-[#00E5C9] to-[#00C9AF] hover:from-[#00d6bc] hover:to-[#00b9a1] active:scale-98 text-[#0A1C3A] font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_16px_rgba(0,201,175,0.35)] flex flex-col items-center justify-center transition-all cursor-pointer"
+            >
+              <span className="font-black leading-tight tracking-wider">BOOK NOW</span>
+              <span className="text-[9px] sm:text-[10px] text-[#0A1C3A]/85 font-extrabold lowercase tracking-normal">
+                100% refundable
               </span>
-            </div>
+            </button>
 
-            {/* List of Photos in this Category */}
-            <div className="space-y-4">
-              {group.items.map((item) => (
-                <PinchZoomImageCard
-                  key={`${item.categoryId}-${item.globalIndex}`}
-                  item={item}
-                  carTitle={carTitle}
-                />
-              ))}
-            </div>
-          </section>
-        ))}
-      </main>
+            {/* FREE TEST DRIVE Button - Selectt Vibrant Coral / Red Brand Gradient */}
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                if (onTestDrive) {
+                  onTestDrive();
+                } else {
+                  const tdBtn = document.querySelector('[data-test-drive-btn]');
+                  if (tdBtn) tdBtn.click();
+                }
+              }}
+              className="flex-1 py-3 px-4 bg-gradient-to-r from-[#FF5252] to-[#FF2A55] hover:from-[#f04545] hover:to-[#e81f49] active:scale-98 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_16px_rgba(255,42,85,0.35)] flex flex-col items-center justify-center transition-all cursor-pointer"
+            >
+              <span className="font-black leading-tight tracking-wider">FREE TEST DRIVE</span>
+              <span className="text-[9px] sm:text-[10px] text-white/90 font-extrabold lowercase tracking-normal">
+                schedule at doorstep
+              </span>
+            </button>
+          </div>
+        </footer>
 
-      {/* 4. BOTTOM STICKY ACTION BAR */}
-      <footer className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-3 px-4 z-40 shadow-2xl">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
-          {/* BOOK NOW Button */}
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              if (onBookNow) {
-                onBookNow();
-              } else if (car?.id) {
-                window.location.href = `/checkout/${car.id}`;
-              }
-            }}
-            className="flex-1 py-3.5 px-4 bg-[#6B21A8] hover:bg-[#581c87] active:scale-98 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-lg shadow-purple-900/20 flex flex-col items-center justify-center transition-all cursor-pointer"
-          >
-            <span className="leading-tight">BOOK NOW</span>
-            <span className="text-[10px] text-purple-200 font-bold font-sans lowercase tracking-normal">
-              100% refundable
-            </span>
-          </button>
+      </div>
 
-          {/* FREE TEST DRIVE Button */}
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              if (onTestDrive) {
-                onTestDrive();
-              } else {
-                const tdBtn = document.querySelector('[data-test-drive-btn]');
-                if (tdBtn) tdBtn.click();
-              }
-            }}
-            className="flex-1 py-3.5 px-4 bg-[#EF4444] hover:bg-[#dc2626] active:scale-98 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-lg shadow-red-500/20 flex flex-col items-center justify-center transition-all cursor-pointer"
-          >
-            <span className="leading-tight">FREE TEST DRIVE</span>
-            <span className="text-[10px] text-red-100 font-bold font-sans lowercase tracking-normal">
-              schedule at doorstep
-            </span>
-          </button>
-        </div>
-      </footer>
-
-    </div>
+      {/* 5. LIGHTBOX OVERLAY WHEN CLICKING ANY IMAGE */}
+      {lightboxIndex !== null && (
+        <FullscreenLightbox
+          images={images}
+          activeIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onChangeIndex={(newIdx) => setLightboxIndex(newIdx)}
+          carTitle={carTitle}
+        />
+      )}
+    </>
   );
 };
 
