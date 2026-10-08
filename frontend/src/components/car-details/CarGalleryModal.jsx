@@ -22,7 +22,7 @@ const getCarImageUrl = (img) => {
 };
 
 // Intelligently categorize images and assign view angle titles
-const categorizeCarImages = (images) => {
+const categorizeCarImages = (images, mediaAlt = {}) => {
   if (!images || images.length === 0) return [];
 
   const categories = [
@@ -37,29 +37,30 @@ const categorizeCarImages = (images) => {
   const total = images.length;
   const categorized = [];
 
-  // Categorize based on keywords in URL/filename or index distribution
+  // Categorize based on keywords in URL/filename or custom alt text
   images.forEach((img, idx) => {
-    const urlLower = String(img).toLowerCase();
+    const customAlt = mediaAlt?.[img] || '';
+    const textToCheck = `${customAlt} ${img}`.toLowerCase();
     let catId = 'overview';
-    let label = `View ${idx + 1}`;
+    let label = customAlt || `View ${idx + 1}`;
 
-    if (urlLower.includes('engine') || urlLower.includes('motor') || urlLower.includes('bonnet') || urlLower.includes('hood')) {
+    if (textToCheck.includes('engine') || textToCheck.includes('motor') || textToCheck.includes('bonnet') || textToCheck.includes('hood')) {
       catId = 'engine';
-      label = 'Engine Bay View';
-    } else if (urlLower.includes('tyre') || urlLower.includes('tire') || urlLower.includes('wheel') || urlLower.includes('alloy') || urlLower.includes('rim')) {
+      if (!customAlt) label = 'Engine Bay View';
+    } else if (textToCheck.includes('tyre') || textToCheck.includes('tire') || textToCheck.includes('wheel') || textToCheck.includes('alloy') || textToCheck.includes('rim')) {
       catId = 'tyres';
-      label = 'Alloy Wheel & Tyre';
-    } else if (urlLower.includes('interior') || urlLower.includes('dash') || urlLower.includes('steer') || urlLower.includes('seat') || urlLower.includes('cabin') || urlLower.includes('speedo') || urlLower.includes('odo')) {
+      if (!customAlt) label = 'Alloy Wheel & Tyre';
+    } else if (textToCheck.includes('interior') || textToCheck.includes('dash') || textToCheck.includes('steer') || textToCheck.includes('seat') || textToCheck.includes('cabin') || textToCheck.includes('speedo') || textToCheck.includes('odo')) {
       catId = 'interior';
-      label = 'Interior & Dashboard';
-    } else if (urlLower.includes('sunroof') || urlLower.includes('feature') || urlLower.includes('screen') || urlLower.includes('gear') || urlLower.includes('camera') || urlLower.includes('sensor')) {
+      if (!customAlt) label = 'Interior & Dashboard';
+    } else if (textToCheck.includes('sunroof') || textToCheck.includes('feature') || textToCheck.includes('screen') || textToCheck.includes('gear') || textToCheck.includes('camera') || textToCheck.includes('sensor')) {
       catId = 'features';
-      label = 'Top Features & Tech';
-    } else if (urlLower.includes('front') || urlLower.includes('rear') || urlLower.includes('back') || urlLower.includes('side') || urlLower.includes('exterior') || urlLower.includes('boot') || urlLower.includes('trunk')) {
+      if (!customAlt) label = 'Top Features & Tech';
+    } else if (textToCheck.includes('front') || textToCheck.includes('rear') || textToCheck.includes('back') || textToCheck.includes('side') || textToCheck.includes('exterior') || textToCheck.includes('boot') || textToCheck.includes('trunk')) {
       catId = 'exterior';
-      label = urlLower.includes('back') || urlLower.includes('rear') ? 'Back View' : 'Front Exterior View';
-    } else {
-      // Index-based proportional fallback
+      if (!customAlt) label = textToCheck.includes('back') || textToCheck.includes('rear') ? 'Back View' : 'Front Exterior View';
+    } else if (!customAlt) {
+      // Index-based proportional fallback if no custom alt text
       if (idx === 0) {
         catId = 'overview';
         label = 'Left Front Corner View';
@@ -122,7 +123,7 @@ const categorizeCarImages = (images) => {
         globalIndex: idx + 1,
         totalCount: images.length,
         categoryId: 'overview',
-        label: idx === 0 ? 'Left Front Corner View' : idx === 1 ? 'Back View' : `Angle View ${idx + 1}`
+        label: mediaAlt?.[img] || (idx === 0 ? 'Left Front Corner View' : idx === 1 ? 'Back View' : `Angle View ${idx + 1}`)
       }))
     });
   }
@@ -369,9 +370,29 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const touchStartRef = useRef({ x: 0, y: 0, dist: 0, scale: 1 });
+  const mobileThumbRefs = useRef([]);
+  const desktopThumbRefs = useRef([]);
 
   const total = images.length;
   const currentImg = images[activeIndex];
+
+  // Auto-scroll active thumbnail into center view
+  useEffect(() => {
+    if (mobileThumbRefs.current[activeIndex]) {
+      mobileThumbRefs.current[activeIndex].scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+    }
+    if (desktopThumbRefs.current[activeIndex]) {
+      desktopThumbRefs.current[activeIndex].scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+    }
+  }, [activeIndex]);
 
   // Keyboard navigation (Arrow keys + Escape)
   useEffect(() => {
@@ -440,7 +461,7 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
       style={{ touchAction: 'none' }}
     >
       {/* Top Header */}
-      <div className="flex items-center justify-between p-4 sm:p-5 text-white bg-gradient-to-b from-black/80 to-transparent z-20">
+      <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 text-white bg-gradient-to-b from-black/80 to-transparent z-20 shrink-0">
         <div className="min-w-0 pr-3">
           <h3 className="font-heading font-extrabold text-sm sm:text-base truncate tracking-tight text-white">
             {carTitle}
@@ -457,6 +478,34 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
         >
           <X size={22} className="stroke-[2.5]" />
         </button>
+      </div>
+
+      {/* MOBILE ONLY: Top Thumbnail Carousel (Directly under header on mobile) */}
+      <div className="sm:hidden px-3 py-2 bg-black/70 backdrop-blur-md border-b border-white/10 z-20 shrink-0">
+        <div className="flex gap-2 max-w-full overflow-x-auto no-scrollbar py-1 scroll-smooth">
+          {images.map((img, idx) => {
+            const isSelected = activeIndex === idx;
+            return (
+              <button
+                key={idx}
+                ref={el => (mobileThumbRefs.current[idx] = el)}
+                type="button"
+                onClick={() => onChangeIndex(idx)}
+                className={`relative w-14 h-10 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
+                  isSelected 
+                    ? 'border-[#00C9AF] scale-105 opacity-100 shadow-md ring-2 ring-[#00C9AF]/60' 
+                    : 'border-transparent opacity-45 hover:opacity-80'
+                }`}
+              >
+                <img
+                  src={getCarImageUrl(img)}
+                  alt={`Thumbnail ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Main Large Image Viewer */}
@@ -480,7 +529,7 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
         <img
           src={getCarImageUrl(currentImg)}
           alt={`${carTitle} - Photo ${activeIndex + 1}`}
-          className="max-w-full max-h-[75vh] object-contain transition-transform duration-150 rounded-lg shadow-2xl"
+          className="max-w-full max-h-[72vh] sm:max-h-[75vh] object-contain transition-transform duration-150 rounded-lg shadow-2xl"
           style={{
             transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
             transformOrigin: 'center center'
@@ -499,18 +548,19 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
         </button>
       </div>
 
-      {/* Bottom Thumbnail Strip */}
-      <div className="p-3 sm:p-4 bg-gradient-to-t from-black/80 to-transparent z-20 flex flex-col items-center">
-        <div className="flex gap-2 max-w-full overflow-x-auto no-scrollbar py-1">
+      {/* DESKTOP ONLY: Bottom Thumbnail Strip */}
+      <div className="hidden sm:flex p-3 sm:p-4 bg-gradient-to-t from-black/80 to-transparent z-20 flex-col items-center shrink-0">
+        <div className="flex gap-2 max-w-full overflow-x-auto no-scrollbar py-1 scroll-smooth">
           {images.map((img, idx) => {
             const isSelected = activeIndex === idx;
             return (
               <button
                 key={idx}
+                ref={el => (desktopThumbRefs.current[idx] = el)}
                 type="button"
                 onClick={() => onChangeIndex(idx)}
-                className={`relative w-14 h-10 sm:w-16 sm:h-11 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
-                  isSelected ? 'border-[#00C9AF] scale-105 opacity-100 shadow-md ring-2 ring-[#00C9AF]/50' : 'border-transparent opacity-40 hover:opacity-80'
+                className={`relative w-16 h-11 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
+                  isSelected ? 'border-[#00C9AF] scale-105 opacity-100 shadow-md ring-2 ring-[#00C9AF]/60' : 'border-transparent opacity-40 hover:opacity-80'
                 }`}
               >
                 <img
@@ -523,6 +573,9 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
           })}
         </div>
       </div>
+
+      {/* Mobile Safe Bottom Spacer */}
+      <div className="sm:hidden h-2 pb-[env(safe-area-inset-bottom)] shrink-0" />
     </div>
   );
 };
@@ -532,9 +585,17 @@ const CarGalleryModal = ({
   onClose,
   car,
   images = [],
+  initialIndex = 0,
   onBookNow,
   onTestDrive
 }) => {
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024;
+    }
+    return false;
+  });
+
   const [activeCategory, setActiveCategory] = useState('overview');
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const scrollContainerRef = useRef(null);
@@ -543,8 +604,30 @@ const CarGalleryModal = ({
   const carTitle = `${car?.year || ''} ${car?.make || ''} ${car?.model || ''} ${car?.variant || ''}`.trim() || 'Pre-Owned Car';
 
   const groups = useMemo(() => {
-    return categorizeCarImages(images);
-  }, [images]);
+    return categorizeCarImages(images, car?.mediaAlt);
+  }, [images, car?.mediaAlt]);
+
+  // Track responsive breakpoint
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // When opening: if desktop, directly open lightbox at initialIndex!
+  useEffect(() => {
+    if (isOpen) {
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        setLightboxIndex(initialIndex >= 0 ? initialIndex : 0);
+      } else {
+        setLightboxIndex(null);
+      }
+    } else {
+      setLightboxIndex(null);
+    }
+  }, [isOpen, initialIndex]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -571,7 +654,7 @@ const CarGalleryModal = ({
 
   // Scroll Spy to track active category tab while scrolling
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isDesktop) return;
     const container = scrollContainerRef.current;
     if (!container) return;
 
@@ -582,7 +665,6 @@ const CarGalleryModal = ({
         const elem = document.getElementById(`cat-section-${cat.id}`);
         if (elem && elem.offsetTop <= scrollPos) {
           setActiveCategory(cat.id);
-          // Auto-scroll tab button into view in the top tab strip
           const tabBtn = document.getElementById(`tab-btn-${cat.id}`);
           if (tabBtn && categoryTabsRef.current) {
             tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -594,10 +676,25 @@ const CarGalleryModal = ({
 
     container.addEventListener('scroll', handleScroll, { passive: true });
     return () => container.removeEventListener('scroll', handleScroll);
-  }, [isOpen, groups]);
+  }, [isOpen, isDesktop, groups]);
 
   if (!isOpen) return null;
 
+  // ON DESKTOP (>= 1024px): Directly open fullscreen image Lightbox mode
+  if (isDesktop) {
+    const activeIdx = lightboxIndex !== null ? lightboxIndex : (initialIndex >= 0 ? initialIndex : 0);
+    return (
+      <FullscreenLightbox
+        images={images}
+        activeIndex={activeIdx}
+        onClose={onClose}
+        onChangeIndex={(newIdx) => setLightboxIndex(newIdx)}
+        carTitle={carTitle}
+      />
+    );
+  }
+
+  // ON MOBILE (< 1024px): Current mobile flow with category tabs, vertical feed & sticky action bar
   return (
     <>
       <div className="fixed inset-0 z-[999999] bg-[#f8f9fa] flex flex-col animate-in fade-in duration-200 select-none">

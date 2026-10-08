@@ -66,6 +66,58 @@ const CarEditPage = () => {
   const [selectedLibraryUrls, setSelectedLibraryUrls] = useState<string[]>([]);
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const pdfInputRef = useRef<HTMLInputElement>(null);
+  const [altMap, setAltMap] = useState<Record<string, string>>({});
+  const [altModalImage, setAltModalImage] = useState<string | null>(null);
+  const [altModalText, setAltModalText] = useState("");
+  const [isSavingAlt, setIsSavingAlt] = useState(false);
+
+  const fetchAltTags = async () => {
+    try {
+      const res = await fetch(`${API}/api/media/alt`);
+      if (res.ok) {
+        const data = await res.json();
+        setAltMap(data || {});
+      }
+    } catch (e) {
+      console.warn("Failed to fetch alt tags", e);
+    }
+  };
+
+  const handleOpenAltModal = (img: string) => {
+    setAltModalImage(img);
+    setAltModalText(altMap[img] || "");
+  };
+
+  const handleSaveAltText = async () => {
+    if (!altModalImage) return;
+    setIsSavingAlt(true);
+    try {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token") || "";
+      const res = await fetch(`${API}/api/media/alt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          filePath: altModalImage,
+          altText: altModalText.trim()
+        })
+      });
+      if (res.ok) {
+        const trimmed = altModalText.trim();
+        setAltMap(prev => ({ ...prev, [altModalImage]: trimmed }));
+        toast.success("Alt text saved successfully!");
+        setAltModalImage(null);
+      } else {
+        toast.error("Failed to save alt text");
+      }
+    } catch (e) {
+      toast.error("Error saving alt text");
+    } finally {
+      setIsSavingAlt(false);
+    }
+  };
 
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -536,6 +588,7 @@ const CarEditPage = () => {
       fetchCar();
     }
     fetchBrands();
+    fetchAltTags();
   }, [id]);
 
   const fetchBrands = async () => {
@@ -556,6 +609,9 @@ const CarEditPage = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch car");
       const data = await response.json();
+      if (data.mediaAlt && typeof data.mediaAlt === 'object') {
+        setAltMap(prev => ({ ...prev, ...data.mediaAlt }));
+      }
       
       // Ensure features object has correct structure
       let features = data.features;
@@ -2348,7 +2404,20 @@ const CarEditPage = () => {
                      ) : (
                        <img src={img.startsWith('/') ? `${API}${img}` : img} className="w-full h-full object-cover pointer-events-none" />
                      )}
-                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all">
+                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all z-20">
+                        {mediaType === 'image' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenAltModal(img);
+                            }}
+                            className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full hover:scale-110 transition-transform cursor-pointer shadow-md"
+                            title="Edit Alt Text / View Angle"
+                          >
+                            <Tag size={16} />
+                          </button>
+                        )}
                         {mediaType === 'image' && !isCover && (
                           <button
                             type="button"
@@ -2382,6 +2451,26 @@ const CarEditPage = () => {
                           <Trash2 size={16} />
                         </button>
                      </div>
+
+                     {/* Alt Text / View Angle Label Strip */}
+                     {mediaType === 'image' && (
+                       <div 
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           handleOpenAltModal(img);
+                         }}
+                         className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-3 flex items-center justify-between text-[11px] text-white cursor-pointer z-10 hover:bg-black/90 transition-all"
+                         title="Click to edit Alt Text / View Angle"
+                       >
+                         <span className="truncate font-semibold flex items-center gap-1 min-w-0 pr-1">
+                           <Tag size={11} className="text-[#00C9AF] shrink-0" />
+                           <span className="truncate">{altMap[img] || <span className="text-gray-300 font-normal italic">Add Alt Text</span>}</span>
+                         </span>
+                         <span className="text-[9px] bg-white/20 hover:bg-white/30 text-white font-bold px-1.5 py-0.5 rounded shrink-0">
+                           Edit
+                         </span>
+                       </div>
+                     )}
                   </div>
                 );
               })}
@@ -2948,6 +3037,129 @@ const CarEditPage = () => {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Alt Text / Angle Label Modal */}
+      {altModalImage && (
+        <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl max-w-lg w-full shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                  <Tag size={16} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white">Image Alt Text & View Label</h3>
+                  <p className="text-[11px] text-gray-500">Sets accessibility alt text, SEO, and frontend gallery angle labels</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAltModalImage(null)}
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              {/* Image Preview */}
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700/50">
+                <div className="w-20 h-14 rounded-xl overflow-hidden shrink-0 border border-gray-200 dark:border-gray-700 bg-black">
+                  <img
+                    src={altModalImage.startsWith('/') ? `${API}${altModalImage}` : altModalImage}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] text-gray-400 font-mono truncate">{altModalImage}</div>
+                  <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mt-0.5">
+                    Current: <span className="text-indigo-600 dark:text-indigo-400 font-bold">{altMap[altModalImage] || '(None)'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Alt Text Input */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                  Alt Text / View Angle Label:
+                </label>
+                <input
+                  type="text"
+                  value={altModalText}
+                  onChange={(e) => setAltModalText(e.target.value)}
+                  placeholder="e.g. Left Front Corner View, Back View, Engine Bay..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-indigo-500 outline-none"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSaveAltText();
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Quick Preset Angle Chips */}
+              <div>
+                <div className="text-[11px] font-bold text-gray-500 mb-2">Quick Preset Angle Labels:</div>
+                <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+                  {[
+                    'Left Front Corner View',
+                    'Back View',
+                    'Front View',
+                    'Right Profile View',
+                    'Left Profile View',
+                    'Cockpit & Dashboard',
+                    'Steering Wheel & Controls',
+                    'Infotainment System',
+                    'Front Cabin Seats',
+                    'Rear Passenger Seats',
+                    'Engine Bay View',
+                    'Front Right Alloy & Tyre',
+                    'Sunroof & Roof Profile',
+                    'Boot / Trunk Space',
+                    'Front Grille & Headlamp',
+                    'Odometer / Instrument Cluster'
+                  ].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setAltModalText(preset)}
+                      className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                        altModalText === preset
+                          ? 'bg-indigo-600 text-white border-indigo-600 font-bold shadow-xs'
+                          : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setAltModalImage(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveAltText}
+                disabled={isSavingAlt}
+                className="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all cursor-pointer shadow-md disabled:opacity-50 flex items-center gap-1.5"
+              >
+                {isSavingAlt && <Loader2 size={13} className="animate-spin" />}
+                <span>Save Alt Text</span>
+              </button>
             </div>
           </div>
         </div>

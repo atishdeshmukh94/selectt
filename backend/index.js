@@ -1810,7 +1810,25 @@ function mapCar(car) {
         rto_code: car.rto_code || car.rto || (car.registration_no ? car.registration_no.slice(0, 4).toUpperCase() : null),
         rto: car.rto_code || car.rto || (car.registration_no ? car.registration_no.slice(0, 4).toUpperCase() : null),
         status: car.status || 'active',
-        listedBy: car.listed_by || null
+        listedBy: car.listed_by || null,
+        mediaAlt: (() => {
+            try {
+                const altStore = readAltStore();
+                const more = safeJsonParse(car.more_images, []);
+                const altObj = {};
+                const checkImg = (img) => {
+                    if (!img) return;
+                    const b = path.basename(img);
+                    const found = altStore[img] || altStore[`/uploads/${b}`] || altStore[b];
+                    if (found) altObj[img] = found;
+                };
+                checkImg(car.image);
+                more.forEach(checkImg);
+                return altObj;
+            } catch (e) {
+                return {};
+            }
+        })()
     };
 }
 
@@ -6918,6 +6936,27 @@ app.get('/api/media', authMiddleware, isAdmin, (req, res) => {
     });
 });
 
+app.get('/api/media/alt', (req, res) => {
+    try {
+        db.query('SELECT * FROM media_alt_tags', (dbErr, dbResults) => {
+            const altMap = {};
+            if (!dbErr && Array.isArray(dbResults)) {
+                dbResults.forEach(row => {
+                    altMap[row.file_path] = row.alt_text;
+                    const bName = path.basename(row.file_path);
+                    altMap[`/uploads/${bName}`] = row.alt_text;
+                    altMap[bName] = row.alt_text;
+                });
+            }
+            const altStore = readAltStore();
+            const merged = { ...altStore, ...altMap };
+            res.json(merged);
+        });
+    } catch (e) {
+        res.json(readAltStore());
+    }
+});
+
 app.post('/api/media/alt', authMiddleware, isAdmin, (req, res) => {
     const { filePath, altText } = req.body;
     if (!filePath) return res.status(400).json({ message: 'filePath is required' });
@@ -6931,6 +6970,11 @@ app.post('/api/media/alt', authMiddleware, isAdmin, (req, res) => {
     );
     const altStore = readAltStore();
     altStore[filePath] = text;
+    const baseName = path.basename(filePath);
+    if (baseName && baseName !== '.') {
+        altStore[`/uploads/${baseName}`] = text;
+        altStore[baseName] = text;
+    }
     writeAltStore(altStore);
     res.json({ success: true, message: 'Alt text updated successfully', alt: text });
 });

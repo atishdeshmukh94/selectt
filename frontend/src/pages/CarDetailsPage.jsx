@@ -1586,6 +1586,7 @@ const CarDetailsPage = () => {
           onClose={closeLightbox}
           car={car}
           images={images}
+          initialIndex={activeImage || 0}
           onBookNow={handleBookNow}
           onTestDrive={handleTestDriveClick}
         />
