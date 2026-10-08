@@ -1600,7 +1600,7 @@ const CarDetailsPage = () => {
         onClose={() => setIsPriceSummaryOpen(false)}
         car={car}
         carPrice={car?.price}
-        onBookNow={handleBookCar}
+        onBookNow={handleBookNow}
       />
       <CategoryComparisonModal
         isOpen={isCategoryModalOpen}
