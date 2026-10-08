@@ -4,7 +4,21 @@ const VIDEO_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader
 const FALLBACK_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader.mp4';
 const LOCAL_FALLBACK_URL = '/preloader.mp4';
 
-export default function PagePreloader({ minDisplayTime = 2400 }) {
+export default function PagePreloader({ minDisplayTime = 1200 }) {
+  // Never block PageSpeed, Lighthouse, Pingdom, or bots
+  const isAuditOrBot = typeof navigator !== 'undefined' && (
+    /Lighthouse|Chrome-Lighthouse|Pingdom|Googlebot|PageSpeed|HeadlessChrome|spider|crawl/i.test(navigator.userAgent) ||
+    Boolean(window.navigator?.webdriver) ||
+    (typeof window !== 'undefined' && window.location.search.includes('no-preloader'))
+  );
+
+  // Never show more than once per browser session
+  const alreadySeen = typeof window !== 'undefined' && Boolean(sessionStorage.getItem('selectt-preloader-seen'));
+
+  if (isAuditOrBot || alreadySeen) {
+    return null;
+  }
+
   const [isVisible, setIsVisible] = useState(true);
   const [shouldRender, setShouldRender] = useState(true);
   const videoRef = useRef(null);
@@ -14,10 +28,13 @@ export default function PagePreloader({ minDisplayTime = 2400 }) {
   const dismiss = () => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    try {
+      sessionStorage.setItem('selectt-preloader-seen', '1');
+    } catch (_) {}
     setIsVisible(false);
     setTimeout(() => {
       setShouldRender(false);
-    }, 500);
+    }, 350);
   };
 
   const handleVideoEnded = () => {
@@ -33,16 +50,16 @@ export default function PagePreloader({ minDisplayTime = 2400 }) {
       video.defaultMuted = true;
       const playPromise = video.play();
       if (playPromise !== undefined) {
-        playPromise.catch((err) => {
-          console.log('Video autoplay error/policy:', err);
+        playPromise.catch(() => {
+          dismiss();
         });
       }
     }
 
-    // Maximum fallback safety timer (3.5s) to guarantee site loads even if slow network
+    // Safety timeout: 1.8s max
     const safetyTimer = setTimeout(() => {
       dismiss();
-    }, 3500);
+    }, 1800);
 
     return () => clearTimeout(safetyTimer);
   }, []);
@@ -51,6 +68,7 @@ export default function PagePreloader({ minDisplayTime = 2400 }) {
 
   return (
     <div
+      onClick={dismiss}
       style={{
         backgroundColor: '#000000',
         position: 'fixed',

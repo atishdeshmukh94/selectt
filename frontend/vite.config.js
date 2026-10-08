@@ -31,6 +31,20 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    target: "es2020",
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-icons": ["lucide-react", "@tabler/icons-react"],
+          "vendor-motion": ["framer-motion"],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 800,
+  },
 });
 
 // Force restart dev server cache

@@ -136,17 +136,17 @@ const STATIC_POPULAR_BRANDS = [
   { name: 'Ford', logo: '/img/Fored.webp' },
   { name: 'Volkswagen', logo: '/img/Volkswagen_logo.webp' },
   { name: 'Mahindra', logo: '/img/mahindra.webp' },
-  { name: 'BMW', logo: '/img/bmw.png' },
+  { name: 'BMW', logo: '/img/bmw.webp' },
   { name: 'Mercedes', logo: '/img/mercedes-benz.webp' },
 ];
 
 const BODY_TYPES = [
-  { name: 'Hatchback', icon: '/img/hatchback.png', hoverIcon: '/img/hatchback-hover.png' },
-  { name: 'Sedan', icon: '/img/sedan.png', hoverIcon: '/img/sedan-hover.png' },
-  { name: 'SUV', icon: '/img/suv.png', hoverIcon: '/img/suv-hover.png' },
-  { name: 'MUV', icon: '/img/muv.png', hoverIcon: '/img/muv-hover.png' },
-  { name: 'Luxury Sedan', icon: '/img/luxury-sedan.png', hoverIcon: '/img/luxury-sedan-hover.png' },
-  { name: 'Luxury SUV', icon: '/img/luxury-suv.png', hoverIcon: '/img/luxury-suv-hover.png' },
+  { name: 'Hatchback', icon: '/img/hatchback.webp', hoverIcon: '/img/hatchback-hover.webp' },
+  { name: 'Sedan', icon: '/img/sedan.webp', hoverIcon: '/img/sedan-hover.webp' },
+  { name: 'SUV', icon: '/img/suv.webp', hoverIcon: '/img/suv-hover.webp' },
+  { name: 'MUV', icon: '/img/muv.webp', hoverIcon: '/img/muv-hover.webp' },
+  { name: 'Luxury Sedan', icon: '/img/luxury-sedan.webp', hoverIcon: '/img/luxury-sedan-hover.webp' },
+  { name: 'Luxury SUV', icon: '/img/luxury-suv.webp', hoverIcon: '/img/luxury-suv-hover.webp' },
 ];
 
 const COMPARISON_FEATURES = [
@@ -320,7 +320,7 @@ const FINANCIAL_SERVICES_CAROUSEL = [
     subtext: 'Instant digital policy • 50% NCB savings',
     ctaText: 'Get quotes →',
     ctaLink: '/car-insurance',
-    image: '/img/insurance_banner_1to1.png',
+    image: '/img/insurance_banner_1to1.webp',
     badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8]'
   },
   {
@@ -330,7 +330,7 @@ const FINANCIAL_SERVICES_CAROUSEL = [
     subtext: 'Pre-approved loans starting at 8.9% ROI',
     ctaText: 'Apply now →',
     ctaLink: '/used-car-loan',
-    image: '/img/car_loan_banner_1to1.png',
+    image: '/img/car_loan_banner_1to1.webp',
     badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8]'
   },
   {
@@ -340,7 +340,7 @@ const FINANCIAL_SERVICES_CAROUSEL = [
     subtext: 'Engine, gearbox & electrical protection',
     ctaText: 'Explore cover →',
     ctaLink: '/pricing',
-    image: '/img/warranty_banner_1to1.png',
+    image: '/img/warranty_banner_1to1.webp',
     badgeColor: 'bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8]'
   }
 ];
@@ -459,7 +459,7 @@ const TRUST_NUMBERS_CAROUSEL = [
     id: 1,
     title: '4.8 / 5',
     subtext: 'Google & Social Media Verified Rating',
-    image: '/img/trust_banner_1.png',
+    image: '/img/trust_banner_1.webp',
     bgTheme: 'from-[#0C1B33] via-[#0C1B33]/85 to-[#0C1B33]/45',
     titleColor: 'text-[#00C9AF]',
     subtextColor: 'text-slate-200',
@@ -469,7 +469,7 @@ const TRUST_NUMBERS_CAROUSEL = [
     id: 2,
     title: '3.5L+',
     subtext: 'Happy car buyers & sellers in India',
-    image: '/img/trust_banner_2.png',
+    image: '/img/trust_banner_2.webp',
     bgTheme: 'from-[#0C1B33] via-[#0C1B33]/85 to-[#0C1B33]/45',
     titleColor: 'text-[#00C9AF]',
     subtextColor: 'text-slate-200',
@@ -479,7 +479,7 @@ const TRUST_NUMBERS_CAROUSEL = [
     id: 3,
     title: '200-pt',
     subtext: 'Technician inspection on every vehicle',
-    image: '/img/trust_banner_3.png',
+    image: '/img/trust_banner_3.webp',
     bgTheme: 'from-[#0C1B33] via-[#0C1B33]/85 to-[#0C1B33]/45',
     titleColor: 'text-[#00C9AF]',
     subtextColor: 'text-slate-200',
@@ -947,7 +947,7 @@ const NewHome = () => {
 
   const [heroContent, setHeroContent] = useState({
     mobile_hero_video: '',
-    mobile_hero_image: '/img/mobile_hero_cover.png',
+    mobile_hero_image: '/img/warranty_banner_1to1.webp',
     mobile_hero_badge: 'Selectt assured cover',
     mobile_hero_heading: "Don't just buy.Selectt.",
     mobile_hero_subheading: "India's most-trusted car home*",
@@ -1026,7 +1026,7 @@ const NewHome = () => {
       subheading: heroContent.mobile_hero_subheading || '200-point inspection with 7-day money-back guarantee',
       btnText: heroContent.mobile_hero_btn_text || 'Explore cover',
       btnLink: heroContent.mobile_hero_btn_link || '/pricing',
-      image: resolveUrl(heroContent.mobile_hero_image || '/img/warranty_banner_1to1.png'),
+      image: resolveUrl(heroContent.mobile_hero_image || '/img/warranty_banner_1to1.webp'),
     },
     {
       id: 'slide-2',
@@ -1036,7 +1036,7 @@ const NewHome = () => {
       subheading: heroContent.mobile_hero_2_subheading || 'Pre-approved loans starting at 8.9% ROI',
       btnText: heroContent.mobile_hero_2_btn_text || 'Apply loan',
       btnLink: heroContent.mobile_hero_2_btn_link || '/used-car-loan',
-      image: resolveUrl(heroContent.mobile_hero_2_image || '/img/car_loan_banner_1to1.png'),
+      image: resolveUrl(heroContent.mobile_hero_2_image || '/img/car_loan_banner_1to1.webp'),
     },
     {
       id: 'slide-3',
@@ -1046,7 +1046,7 @@ const NewHome = () => {
       subheading: heroContent.mobile_hero_3_subheading || "India's most-trusted certified pre-owned cars",
       btnText: heroContent.mobile_hero_3_btn_text || 'Buy car',
       btnLink: heroContent.mobile_hero_3_btn_link || '/buy-cars',
-      image: resolveUrl(heroContent.mobile_hero_3_image || '/img/mobile_hero_cover.png'),
+      image: resolveUrl(heroContent.mobile_hero_3_image || '/img/mobile_hero_cover.webp'),
     }
   ];
 
@@ -1569,13 +1569,16 @@ const NewHome = () => {
             <img
               src={slide.image}
               alt={slide.heading}
+              loading={idx === 0 ? "eager" : "lazy"}
+              fetchpriority={idx === 0 ? "high" : "low"}
+              decoding={idx === 0 ? "sync" : "async"}
               className="absolute top-0 right-0 w-[85%] h-full object-cover object-center opacity-90 transition-transform duration-1000 scale-100"
               style={{
                 maskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
                 WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
               }}
               onError={(e) => {
-                e.target.src = '/img/mobile_hero_cover.png';
+                e.target.src = '/img/mobile_hero_cover.webp';
               }}
             />
           </div>
@@ -1812,14 +1815,14 @@ const NewHome = () => {
           <h3 className="text-sm font-extrabold text-[#0C1B33] uppercase tracking-wider mb-2">Browse by type</h3>
           <div className="flex gap-3 overflow-x-auto pt-2.5 pb-3.5 px-4 -mx-4 scrollbar-none">
             {[
-              { id: 'All', label: 'All', img: '/img/hatchback.png', hoverImg: '/img/hatchback-hover.png' },
-              { id: 'Hatchback', label: 'Hatchback', img: '/img/hatchback.png', hoverImg: '/img/hatchback-hover.png' },
-              { id: 'Sedan', label: 'Sedan', img: '/img/sedan.png', hoverImg: '/img/sedan-hover.png' },
-              { id: 'SUV', label: 'SUV', img: '/img/suv.png', hoverImg: '/img/suv-hover.png' },
-              { id: 'MUV', label: 'MUV', img: '/img/muv.png', hoverImg: '/img/muv-hover.png' },
-              { id: 'Luxury Sedan', label: 'Luxury Sedan', img: '/img/luxury-sedan.png', hoverImg: '/img/luxury-sedan-hover.png' },
-              { id: 'Luxury SUV', label: 'Luxury SUV', img: '/img/luxury-suv.png', hoverImg: '/img/luxury-suv-hover.png' },
-              { id: 'EV', label: 'EV', img: '/img/suv.png', hoverImg: '/img/suv-hover.png' }
+              { id: 'All', label: 'All', img: '/img/hatchback.webp', hoverImg: '/img/hatchback-hover.webp' },
+              { id: 'Hatchback', label: 'Hatchback', img: '/img/hatchback.webp', hoverImg: '/img/hatchback-hover.webp' },
+              { id: 'Sedan', label: 'Sedan', img: '/img/sedan.webp', hoverImg: '/img/sedan-hover.webp' },
+              { id: 'SUV', label: 'SUV', img: '/img/suv.webp', hoverImg: '/img/suv-hover.webp' },
+              { id: 'MUV', label: 'MUV', img: '/img/muv.webp', hoverImg: '/img/muv-hover.webp' },
+              { id: 'Luxury Sedan', label: 'Luxury Sedan', img: '/img/luxury-sedan.webp', hoverImg: '/img/luxury-sedan-hover.webp' },
+              { id: 'Luxury SUV', label: 'Luxury SUV', img: '/img/luxury-suv.webp', hoverImg: '/img/luxury-suv-hover.webp' },
+              { id: 'EV', label: 'EV', img: '/img/suv.webp', hoverImg: '/img/suv-hover.webp' }
             ].map((type) => {
               const isActive = activeMobileType === type.id;
               return (
@@ -1878,8 +1881,10 @@ const NewHome = () => {
           >
             {/* Background Image & Gradient Overlay */}
             <img
-              src="/img/buy_car_banner.png"
+              src="/img/buy_car_banner.webp"
               alt="Buy Cars"
+              loading="lazy"
+              decoding="async"
               className="absolute right-0 top-0 w-[60%] h-full object-cover object-center opacity-75 group-hover:scale-105 transition-transform duration-500 rounded-r-2xl pointer-events-none"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#0C1B33] via-[#0C1B33]/85 to-transparent z-0 pointer-events-none"></div>
@@ -1907,8 +1912,10 @@ const NewHome = () => {
           >
             {/* Background Image & Gradient Overlay */}
             <img
-              src="/img/sell_car_banner.png"
+              src="/img/sell_car_banner.webp"
               alt="Sell Cars"
+              loading="lazy"
+              decoding="async"
               className="absolute right-0 top-0 w-[60%] h-full object-cover object-center opacity-80 group-hover:scale-105 transition-transform duration-500 rounded-r-2xl pointer-events-none"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#00C9AF] via-[#00C9AF]/85 to-transparent z-0 pointer-events-none"></div>
@@ -2630,7 +2637,7 @@ const NewHome = () => {
                     <span className="text-xl tracking-tight font-black text-amber-600 uppercase">Luxury</span>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-2 w-[50%]">
-                    <img src="/img/bmw.png" alt="BMW" className="w-5 h-5 object-contain" onError={(e) => e.target.style.display = 'none'} />
+                    <img src="/img/bmw.webp" alt="BMW" className="w-5 h-5 object-contain" onError={(e) => e.target.style.display = 'none'} />
                     <img src="/img/mercedes-benz.webp" alt="Mercedes" className="w-5 h-5 object-contain" onError={(e) => e.target.style.display = 'none'} />
                     <div className="text-amber-700 font-black text-[11px] bg-amber-500/10 border border-amber-300/30 px-1.5 py-0.5 rounded-md">Jeep</div>
                   </div>

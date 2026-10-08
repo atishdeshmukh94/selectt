@@ -1,29 +1,49 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-W562QPSF');</script>
-    <!-- End Google Tag Manager -->
-
-    <!-- Meta Pixel Code -->
+    <!-- Non-blocking Analytics Stubs & Deferred Loader -->
     <script>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '1289001699087868');
-      fbq('init', '1271218514292169');
-      fbq('track', 'PageView');
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+      window.fbq = window.fbq || function(){
+        (window.fbq.q = window.fbq.q || []).push(arguments);
+      };
+      window._fbq = window.fbq;
+      window.fbq.loaded = true;
+      window.fbq.version = '2.0';
+      window.fbq.queue = window.fbq.q || [];
+      window.fbq('init', '1289001699087868');
+      window.fbq('init', '1271218514292169');
+      window.fbq('track', 'PageView');
+
+      function initTrackingScripts() {
+        if (window.__trackingLoaded) return;
+        window.__trackingLoaded = true;
+
+        var gtm = document.createElement('script');
+        gtm.async = true;
+        gtm.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-W562QPSF';
+        document.head.appendChild(gtm);
+
+        var fb = document.createElement('script');
+        fb.async = true;
+        fb.src = 'https://connect.facebook.net/en_US/fbevents.js';
+        document.head.appendChild(fb);
+      }
+
+      if ('requestIdleCallback' in window) {
+        window.addEventListener('load', function() {
+          requestIdleCallback(initTrackingScripts, { timeout: 2500 });
+        });
+      } else {
+        window.addEventListener('load', function() {
+          setTimeout(initTrackingScripts, 1500);
+        });
+      }
+      ['touchstart', 'scroll', 'click'].forEach(function(evt) {
+        window.addEventListener(evt, initTrackingScripts, { once: true, passive: true });
+      });
     </script>
-    <!-- End Meta Pixel Code -->
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -91,15 +111,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- Fonts -->
+    <!-- Preload Mobile LCP Hero Image -->
+    <link rel="preload" as="image" href="/img/warranty_banner_1to1.webp" type="image/webp" fetchpriority="high" />
+
+    <!-- Fonts (Non-render-blocking with display=swap) -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@100..900&family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Varela+Round&display=swap"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@100..900&family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Varela+Round&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
     <link
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@100..900&family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Varela+Round&display=swap"
+        rel="stylesheet"
+      />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
 
     <!-- JSON-LD Organization Schema -->
     <script type="application/ld+json">
