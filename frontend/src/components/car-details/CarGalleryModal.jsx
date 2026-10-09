@@ -369,8 +369,13 @@ const PinchZoomImageCard = ({ item, carTitle, onOpenLightbox }) => {
 const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTitle }) => {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const touchStartRef = useRef({ x: 0, y: 0, dist: 0, scale: 1, posX: 0, posY: 0, startTime: 0 });
+  
+  const scaleRef = useRef(1);
+  const positionRef = useRef({ x: 0, y: 0 });
+  const touchStartRef = useRef({ x: 0, y: 0, dist: 0, scale: 1, posX: 0, posY: 0, time: 0 });
   const lastTapRef = useRef(0);
+  
+  const viewerRef = useRef(null);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const mouseStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
 
@@ -379,6 +384,16 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
 
   const total = images.length;
   const currentImg = images[activeIndex];
+
+  const updateScale = (s) => {
+    scaleRef.current = s;
+    setScale(s);
+  };
+
+  const updatePosition = (pos) => {
+    positionRef.current = pos;
+    setPosition(pos);
+  };
 
   // Auto-scroll active thumbnail into center view
   useEffect(() => {
@@ -402,135 +417,172 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
-      if (scale <= 1.05) {
+      if (scaleRef.current <= 1.05) {
         if (e.key === 'ArrowRight') onChangeIndex((activeIndex + 1) % total);
         if (e.key === 'ArrowLeft') onChangeIndex((activeIndex - 1 + total) % total);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeIndex, total, onClose, onChangeIndex, scale]);
+  }, [activeIndex, total, onClose, onChangeIndex]);
 
   // Reset zoom on slide change
   useEffect(() => {
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
+    updateScale(1);
+    updatePosition({ x: 0, y: 0 });
   }, [activeIndex]);
 
-  const handleTouchStart = (e) => {
-    // 2-Finger Pinch Zoom Start
-    if (e.touches.length === 2) {
-      const dist = Math.hypot(
-        e.touches[1].clientX - e.touches[0].clientX,
-        e.touches[1].clientY - e.touches[0].clientY
-      );
-      touchStartRef.current = {
-        dist,
-        scale,
-        posX: position.x,
-        posY: position.y,
-        startTime: Date.now()
-      };
-    } 
-    // 1-Finger Touch
-    else if (e.touches.length === 1) {
-      const now = Date.now();
-      const DOUBLE_TAP_DELAY = 280;
-      touchStartRef.current = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-        posX: position.x,
-        posY: position.y,
-        startTime: now
-      };
+  // Non-passive Touch and Wheel Event Handling (Crucial for mobile zoom & pan)
+  useEffect(() => {
+    const el = viewerRef.current;
+    if (!el) return;
 
-      // Double-Tap to Zoom In (2.5x) or Reset (1x)
-      if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-        if (scale > 1.05) {
-          setScale(1);
-          setPosition({ x: 0, y: 0 });
+    const handleTouchStart = (e) => {
+      // 2-Finger Pinch Zoom Start
+      if (e.touches.length === 2) {
+        if (e.cancelable) e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[1].clientX - e.touches[0].clientX,
+          e.touches[1].clientY - e.touches[0].clientY
+        );
+        touchStartRef.current = {
+          dist,
+          scale: scaleRef.current,
+          posX: positionRef.current.x,
+          posY: positionRef.current.y,
+          time: Date.now()
+        };
+      } 
+      // 1-Finger Touch
+      else if (e.touches.length === 1) {
+        const now = Date.now();
+        const DOUBLE_TAP_DELAY = 280;
+        touchStartRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+          posX: positionRef.current.x,
+          posY: positionRef.current.y,
+          time: now
+        };
+
+        // Double-Tap to Zoom In (2.5x) or Reset (1x)
+        if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+          if (scaleRef.current > 1.05) {
+            updateScale(1);
+            updatePosition({ x: 0, y: 0 });
+          } else {
+            updateScale(2.5);
+            updatePosition({ x: 0, y: 0 });
+          }
+          lastTapRef.current = 0;
         } else {
-          setScale(2.5);
-          setPosition({ x: 0, y: 0 });
+          lastTapRef.current = now;
         }
-        lastTapRef.current = 0;
-      } else {
-        lastTapRef.current = now;
       }
-    }
-  };
+    };
 
-  const handleTouchMove = (e) => {
-    // 2-Finger Pinch Zoom
-    if (e.touches.length === 2) {
+    const handleTouchMove = (e) => {
+      // 2-Finger Pinch Zoom
+      if (e.touches.length === 2) {
+        if (e.cancelable) e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[1].clientX - e.touches[0].clientX,
+          e.touches[1].clientY - e.touches[0].clientY
+        );
+        const factor = dist / (touchStartRef.current.dist || dist);
+        const nextScale = Math.min(Math.max(1, touchStartRef.current.scale * factor), 4);
+        updateScale(nextScale);
+        if (nextScale <= 1.05) {
+          updatePosition({ x: 0, y: 0 });
+        }
+      } 
+      // 1-Finger Pan when Zoomed In: Smooth panning, block browser back & prevent slide switch!
+      else if (e.touches.length === 1 && scaleRef.current > 1.05) {
+        if (e.cancelable) e.preventDefault();
+        const dx = e.touches[0].clientX - touchStartRef.current.x;
+        const dy = e.touches[0].clientY - touchStartRef.current.y;
+        const maxPanX = (scaleRef.current - 1) * 350;
+        const maxPanY = (scaleRef.current - 1) * 240;
+        updatePosition({
+          x: Math.min(Math.max(-maxPanX, touchStartRef.current.posX + dx), maxPanX),
+          y: Math.min(Math.max(-maxPanY, touchStartRef.current.posY + dy), maxPanY)
+        });
+      }
+    };
+
+    const handleTouchEnd = (e) => {
+      // Snap back if zoom scale dropped below 1.05x
+      if (scaleRef.current < 1.05) {
+        updateScale(1);
+        updatePosition({ x: 0, y: 0 });
+      }
+
+      // CRITICAL: When zoomed in (scale > 1.05), NEVER swipe or change slide!
+      if (scaleRef.current > 1.05) {
+        return;
+      }
+
+      // Horizontal swipe gesture for next/previous: ONLY when at 1x (NOT zoomed in)!
+      if (scaleRef.current <= 1.05 && e.changedTouches && e.changedTouches.length === 1) {
+        const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
+        const dy = Math.abs(e.changedTouches[0].clientY - touchStartRef.current.y);
+        // Only trigger if horizontal movement is clearly dominant
+        if (Math.abs(dx) > 50 && dy < 60) {
+          if (dx < 0) {
+            onChangeIndex((activeIndex + 1) % total);
+          } else {
+            onChangeIndex((activeIndex - 1 + total) % total);
+          }
+        }
+      }
+    };
+
+    const handleWheel = (e) => {
       if (e.cancelable) e.preventDefault();
-      const dist = Math.hypot(
-        e.touches[1].clientX - e.touches[0].clientX,
-        e.touches[1].clientY - e.touches[0].clientY
-      );
-      const factor = dist / (touchStartRef.current.dist || dist);
-      const nextScale = Math.min(Math.max(1, touchStartRef.current.scale * factor), 4);
-      setScale(nextScale);
+      const zoomDelta = e.deltaY < 0 ? 0.3 : -0.3;
+      const nextScale = Math.min(Math.max(1, scaleRef.current + zoomDelta), 4);
+      updateScale(nextScale);
       if (nextScale <= 1.05) {
-        setPosition({ x: 0, y: 0 });
+        updatePosition({ x: 0, y: 0 });
       }
-    } 
-    // 1-Finger Pan when Zoomed In: Smooth panning, never trigger browser back or slide change!
-    else if (e.touches.length === 1 && scale > 1.05) {
-      if (e.cancelable) e.preventDefault();
-      const dx = e.touches[0].clientX - touchStartRef.current.x;
-      const dy = e.touches[0].clientY - touchStartRef.current.y;
-      const maxPanX = (scale - 1) * 320;
-      const maxPanY = (scale - 1) * 220;
-      setPosition({
-        x: Math.min(Math.max(-maxPanX, touchStartRef.current.posX + dx), maxPanX),
-        y: Math.min(Math.max(-maxPanY, touchStartRef.current.posY + dy), maxPanY)
-      });
-    }
-  };
+    };
 
-  const handleTouchEnd = (e) => {
-    // If zoom dropped close to 1x, reset completely
-    if (scale < 1.05) {
-      setScale(1);
-      setPosition({ x: 0, y: 0 });
-    }
+    // Attach non-passive listeners directly to DOM element
+    el.addEventListener('touchstart', handleTouchStart, { passive: false });
+    el.addEventListener('touchmove', handleTouchMove, { passive: false });
+    el.addEventListener('touchend', handleTouchEnd, { passive: false });
+    el.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+    el.addEventListener('wheel', handleWheel, { passive: false });
 
-    // Horizontal swipe gesture for next/previous: ONLY when NOT zoomed!
-    // When zoomed, never exit or switch images on horizontal drag!
-    if (scale <= 1.05 && e.changedTouches && e.changedTouches.length === 1) {
-      const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
-      const dy = Math.abs(e.changedTouches[0].clientY - touchStartRef.current.y);
-      if (Math.abs(dx) > 50 && dy < 60) {
-        if (dx < 0) {
-          onChangeIndex((activeIndex + 1) % total);
-        } else {
-          onChangeIndex((activeIndex - 1 + total) % total);
-        }
-      }
-    }
-  };
+    return () => {
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchmove', handleTouchMove);
+      el.removeEventListener('touchend', handleTouchEnd);
+      el.removeEventListener('touchcancel', handleTouchEnd);
+      el.removeEventListener('wheel', handleWheel);
+    };
+  }, [activeIndex, total, onChangeIndex]);
 
   // Mouse pan handlers for desktop
   const handleMouseDown = (e) => {
-    if (scale > 1.05) {
+    if (scaleRef.current > 1.05) {
       setIsMouseDown(true);
       mouseStartRef.current = {
         x: e.clientX,
         y: e.clientY,
-        posX: position.x,
-        posY: position.y
+        posX: positionRef.current.x,
+        posY: positionRef.current.y
       };
     }
   };
 
   const handleMouseMove = (e) => {
-    if (isMouseDown && scale > 1.05) {
+    if (isMouseDown && scaleRef.current > 1.05) {
       const dx = e.clientX - mouseStartRef.current.x;
       const dy = e.clientY - mouseStartRef.current.y;
-      const maxPanX = (scale - 1) * 320;
-      const maxPanY = (scale - 1) * 220;
-      setPosition({
+      const maxPanX = (scaleRef.current - 1) * 350;
+      const maxPanY = (scaleRef.current - 1) * 240;
+      updatePosition({
         x: Math.min(Math.max(-maxPanX, mouseStartRef.current.posX + dx), maxPanX),
         y: Math.min(Math.max(-maxPanY, mouseStartRef.current.posY + dy), maxPanY)
       });
@@ -579,8 +631,8 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
                 ref={el => (mobileThumbRefs.current[idx] = el)}
                 type="button"
                 onClick={() => {
-                  setScale(1);
-                  setPosition({ x: 0, y: 0 });
+                  updateScale(1);
+                  updatePosition({ x: 0, y: 0 });
                   onChangeIndex(idx);
                 }}
                 className={`relative w-14 h-10 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
@@ -602,10 +654,8 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
 
       {/* Main Large Image Viewer */}
       <div 
+        ref={viewerRef}
         className="flex-1 relative flex items-center justify-center overflow-hidden px-2 sm:px-4 select-none"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         style={{
@@ -613,7 +663,7 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
           cursor: scale > 1.05 ? (isMouseDown ? 'grabbing' : 'grab') : 'default'
         }}
       >
-        {/* Left Arrow Button (Only visible when scale is 1x or subtle) */}
+        {/* Left Arrow Button (Only visible when scale is 1x) */}
         {scale <= 1.05 && (
           <button
             type="button"
@@ -637,7 +687,7 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
           draggable={false}
         />
 
-        {/* Right Arrow Button (Only visible when scale is 1x or subtle) */}
+        {/* Right Arrow Button (Only visible when scale is 1x) */}
         {scale <= 1.05 && (
           <button
             type="button"
@@ -657,7 +707,8 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
           <button
             type="button"
             onClick={() => {
-              setScale(prev => Math.min(prev + 0.6, 4));
+              const next = Math.min(scaleRef.current + 0.6, 4);
+              updateScale(next);
             }}
             className="w-7 h-7 rounded-full hover:bg-white/20 active:scale-90 flex items-center justify-center transition-all cursor-pointer text-white"
             title="Zoom In"
@@ -672,14 +723,13 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
           <button
             type="button"
             onClick={() => {
-              setScale(prev => {
-                const next = prev - 0.6;
-                if (next <= 1.05) {
-                  setPosition({ x: 0, y: 0 });
-                  return 1;
-                }
-                return next;
-              });
+              const next = scaleRef.current - 0.6;
+              if (next <= 1.05) {
+                updateScale(1);
+                updatePosition({ x: 0, y: 0 });
+              } else {
+                updateScale(next);
+              }
             }}
             className="w-7 h-7 rounded-full hover:bg-white/20 active:scale-90 flex items-center justify-center transition-all cursor-pointer text-white"
             title="Zoom Out"
@@ -691,8 +741,8 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
             <button
               type="button"
               onClick={() => {
-                setScale(1);
-                setPosition({ x: 0, y: 0 });
+                updateScale(1);
+                updatePosition({ x: 0, y: 0 });
               }}
               className="ml-1 px-2.5 h-7 rounded-full bg-white/20 hover:bg-white/30 active:scale-90 text-[11px] font-bold flex items-center justify-center transition-all cursor-pointer gap-1 text-[#00C9AF]"
               title="Reset Zoom"
