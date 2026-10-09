@@ -273,7 +273,7 @@ const CarDetailsPage = () => {
   }
 
   useEffect(() => {
-    if (images.length === 0 || isHoveringMain) return;
+    if (images.length === 0 || isHoveringMain || isLightboxOpen) return;
 
     // Do not auto-scroll if the active slide is a video or YouTube embed
     if (getMediaType(images[activeImage]) !== 'image') return;
@@ -282,7 +282,7 @@ const CarDetailsPage = () => {
       setActiveImage((prev) => (prev >= images.length - 1 ? 0 : prev + 1));
     }, 5000);
     return () => clearInterval(timer);
-  }, [images.length, activeImage, isHoveringMain]);
+  }, [images.length, activeImage, isHoveringMain, isLightboxOpen]);
 
   const updateThumbStartIndex = (index) => {
     const maxStart = Math.max(0, images.length - visibleCount);

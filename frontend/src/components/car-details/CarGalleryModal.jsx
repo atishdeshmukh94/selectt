@@ -871,6 +871,7 @@ const CarGalleryModal = ({
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const scrollContainerRef = useRef(null);
   const categoryTabsRef = useRef(null);
+  const prevIsOpenRef = useRef(false);
 
   const carTitle = `${car?.year || ''} ${car?.make || ''} ${car?.model || ''} ${car?.variant || ''}`.trim() || 'Pre-Owned Car';
 
@@ -888,16 +889,19 @@ const CarGalleryModal = ({
   }, []);
 
   // When opening: if desktop, directly open lightbox at initialIndex!
+  // ONLY initialize index on initial open transition (false -> true).
+  // Do NOT re-apply initialIndex while modal is already open so lightbox stays on current image.
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !prevIsOpenRef.current) {
       if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
         setLightboxIndex(initialIndex >= 0 ? initialIndex : 0);
       } else {
         setLightboxIndex(null);
       }
-    } else {
+    } else if (!isOpen && prevIsOpenRef.current) {
       setLightboxIndex(null);
     }
+    prevIsOpenRef.current = isOpen;
   }, [isOpen, initialIndex]);
 
   // Lock body scroll when modal is open
@@ -1118,7 +1122,12 @@ const CarGalleryModal = ({
         <FullscreenLightbox
           images={images}
           activeIndex={lightboxIndex}
-          onClose={() => setLightboxIndex(null)}
+          onClose={() => {
+            setLightboxIndex(null);
+            if (isDesktop && onClose) {
+              onClose();
+            }
+          }}
           onChangeIndex={(newIdx) => setLightboxIndex(newIdx)}
           carTitle={carTitle}
         />
