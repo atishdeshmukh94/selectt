@@ -366,7 +366,16 @@ const PinchZoomImageCard = ({ item, carTitle, onOpenLightbox }) => {
 };
 
 // Fullscreen Lightbox Overlay Component
-const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTitle }) => {
+const FullscreenLightbox = ({ 
+  images, 
+  activeIndex, 
+  onClose, 
+  onChangeIndex, 
+  carTitle,
+  car,
+  onBookNow,
+  onTestDrive
+}) => {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   
@@ -376,6 +385,7 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
   const lastTapRef = useRef(0);
   
   const viewerRef = useRef(null);
+  const imageRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
 
@@ -385,9 +395,51 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
   const total = images.length;
   const currentImg = images[activeIndex];
 
+  // Strictly clamp pan so image edges NEVER move past viewport edges (no black gaps / voids)
+  const clampPosition = (pos, currentScale) => {
+    if (currentScale <= 1.05) {
+      return { x: 0, y: 0 };
+    }
+
+    const viewer = viewerRef.current;
+    const img = imageRef.current;
+
+    let viewerW = window.innerWidth;
+    let viewerH = window.innerHeight;
+    let imgW = viewerW * 0.9;
+    let imgH = viewerH * 0.7;
+
+    if (viewer) {
+      viewerW = viewer.clientWidth || viewerW;
+      viewerH = viewer.clientHeight || viewerH;
+    }
+
+    if (img && img.offsetWidth && img.offsetHeight) {
+      imgW = img.offsetWidth;
+      imgH = img.offsetHeight;
+    }
+
+    const scaledW = imgW * currentScale;
+    const scaledH = imgH * currentScale;
+
+    // Pan boundary: maximum translation before the image edge reaches the viewer edge
+    const maxPanX = Math.max(0, (scaledW - viewerW) / 2);
+    const maxPanY = Math.max(0, (scaledH - viewerH) / 2);
+
+    return {
+      x: Math.min(Math.max(-maxPanX, pos.x), maxPanX),
+      y: Math.min(Math.max(-maxPanY, pos.y), maxPanY)
+    };
+  };
+
   const updateScale = (s) => {
     scaleRef.current = s;
     setScale(s);
+    if (s <= 1.05) {
+      updatePosition({ x: 0, y: 0 });
+    } else {
+      updatePosition(clampPosition(positionRef.current, s));
+    }
   };
 
   const updatePosition = (pos) => {
@@ -439,15 +491,18 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
       updateScale(1);
       updatePosition({ x: 0, y: 0 });
     } else {
-      updateScale(2.5);
+      const nextScale = 2.5;
+      scaleRef.current = nextScale;
+      setScale(nextScale);
       const rect = viewerRef.current?.getBoundingClientRect();
       if (rect) {
         const clickX = e.clientX - (rect.left + rect.width / 2);
         const clickY = e.clientY - (rect.top + rect.height / 2);
-        updatePosition({
+        const targetPos = {
           x: Math.round(-clickX * 1.2),
           y: Math.round(-clickY * 1.2)
-        });
+        };
+        updatePosition(clampPosition(targetPos, nextScale));
       } else {
         updatePosition({ x: 0, y: 0 });
       }
@@ -474,12 +529,11 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
       e.preventDefault();
       const dx = e.clientX - dragStartRef.current.x;
       const dy = e.clientY - dragStartRef.current.y;
-      const maxPanX = Math.max(300, window.innerWidth * (scaleRef.current - 1));
-      const maxPanY = Math.max(250, window.innerHeight * (scaleRef.current - 1));
-      updatePosition({
-        x: Math.min(Math.max(-maxPanX, dragStartRef.current.posX + dx), maxPanX),
-        y: Math.min(Math.max(-maxPanY, dragStartRef.current.posY + dy), maxPanY)
-      });
+      const targetPos = {
+        x: dragStartRef.current.posX + dx,
+        y: dragStartRef.current.posY + dy
+      };
+      updatePosition(clampPosition(targetPos, scaleRef.current));
     };
 
     const handleWindowMouseUp = () => {
@@ -531,21 +585,28 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
           time: now
         };
 
+        if (scaleRef.current > 1.05) {
+          setIsDragging(true);
+        }
+
         // Mobile Double-Tap to Zoom In (2.5x) or Reset (1x)
         if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
           if (scaleRef.current > 1.05) {
             updateScale(1);
             updatePosition({ x: 0, y: 0 });
           } else {
-            updateScale(2.5);
+            const nextScale = 2.5;
+            scaleRef.current = nextScale;
+            setScale(nextScale);
             const rect = el.getBoundingClientRect();
             if (rect) {
               const clickX = e.touches[0].clientX - (rect.left + rect.width / 2);
               const clickY = e.touches[0].clientY - (rect.top + rect.height / 2);
-              updatePosition({
+              const targetPos = {
                 x: Math.round(-clickX * 1.2),
                 y: Math.round(-clickY * 1.2)
-              });
+              };
+              updatePosition(clampPosition(targetPos, nextScale));
             } else {
               updatePosition({ x: 0, y: 0 });
             }
@@ -568,31 +629,29 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
         const factor = dist / (touchStartRef.current.dist || dist);
         const nextScale = Math.min(Math.max(1, touchStartRef.current.scale * factor), 4);
         updateScale(nextScale);
-        if (nextScale <= 1.05) {
-          updatePosition({ x: 0, y: 0 });
-        }
       } 
-      // 1-Finger Free Slide Pan when Zoomed In: Smooth 4-way panning (left, right, top, bottom)
+      // 1-Finger Free Slide Pan when Zoomed In: Smooth 4-way panning strictly clamped to image edges
       else if (e.touches.length === 1 && scaleRef.current > 1.05) {
         if (e.cancelable) e.preventDefault();
         const dx = e.touches[0].clientX - touchStartRef.current.x;
         const dy = e.touches[0].clientY - touchStartRef.current.y;
-        const maxPanX = Math.max(300, window.innerWidth * (scaleRef.current - 1));
-        const maxPanY = Math.max(250, window.innerHeight * (scaleRef.current - 1));
-        updatePosition({
-          x: Math.min(Math.max(-maxPanX, touchStartRef.current.posX + dx), maxPanX),
-          y: Math.min(Math.max(-maxPanY, touchStartRef.current.posY + dy), maxPanY)
-        });
+        const targetPos = {
+          x: touchStartRef.current.posX + dx,
+          y: touchStartRef.current.posY + dy
+        };
+        updatePosition(clampPosition(targetPos, scaleRef.current));
       }
     };
 
     const handleTouchEnd = (e) => {
+      setIsDragging(false);
+
       // Snap back if zoom scale dropped below 1.05x
       if (scaleRef.current < 1.05) {
         updateScale(1);
         updatePosition({ x: 0, y: 0 });
       } else {
-        // Save updated position for next drag stroke
+        // Save clamped position for next drag stroke
         touchStartRef.current.posX = positionRef.current.x;
         touchStartRef.current.posY = positionRef.current.y;
       }
@@ -622,9 +681,6 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
       const zoomDelta = e.deltaY < 0 ? 0.35 : -0.35;
       const nextScale = Math.min(Math.max(1, scaleRef.current + zoomDelta), 4);
       updateScale(nextScale);
-      if (nextScale <= 1.05) {
-        updatePosition({ x: 0, y: 0 });
-      }
     };
 
     // Attach non-passive listeners directly to DOM element
@@ -648,24 +704,105 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
       className="fixed inset-0 z-[1000000] bg-black/95 backdrop-blur-md flex flex-col justify-between select-none animate-in fade-in duration-200"
       style={{ touchAction: 'none' }}
     >
-      {/* Top Header */}
-      <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 text-white bg-gradient-to-b from-black/80 to-transparent z-20 shrink-0">
-        <div className="min-w-0 pr-3">
-          <h3 className="font-heading font-extrabold text-sm sm:text-base truncate tracking-tight text-white">
-            {carTitle}
-          </h3>
-          <span className="text-xs text-[#00C9AF] font-bold tracking-wider font-mono">
-            {activeIndex + 1} of {total}
-          </span>
+      {/* Top Header - Responsive with Back Arrow, Title, Price, Brand Action Buttons & Close */}
+      <div className="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3.5 text-white bg-gradient-to-b from-black/95 via-black/80 to-transparent z-20 shrink-0 border-b border-white/10 sm:border-white/5">
+        
+        {/* Left Side: Back Arrow, Car Title, Subtitle, Counter Badge */}
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
+            title="Back to car details"
+            aria-label="Back to car details"
+          >
+            <ArrowLeft size={20} className="stroke-[2.5]" />
+          </button>
+
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5">
+              <h3 className="font-heading font-extrabold text-sm sm:text-base lg:text-lg truncate tracking-tight text-white">
+                {carTitle}
+              </h3>
+              <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#00C9AF]/15 text-[#00C9AF] border border-[#00C9AF]/30 shrink-0">
+                {activeIndex + 1} of {total}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button 
+                type="button" 
+                onClick={onClose}
+                className="text-[11px] sm:text-xs text-slate-300 hover:text-white transition-colors cursor-pointer truncate"
+              >
+                Back to car details
+              </button>
+              <span className="sm:hidden text-[11px] text-[#00C9AF] font-bold font-mono">
+                • {activeIndex + 1} of {total}
+              </span>
+            </div>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
-          aria-label="Close Lightbox"
-        >
-          <X size={22} className="stroke-[2.5]" />
-        </button>
+
+        {/* Right Side: Price + Book Now + Free Test Drive (Desktop) + Close Button */}
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+          {/* Desktop Only: Price & Brand CTA Buttons */}
+          <div className="hidden lg:flex items-center gap-3.5">
+            {car?.price && (
+              <div className="text-right pr-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block leading-none">Price</span>
+                <span className="text-base sm:text-lg font-extrabold text-white font-heading">
+                  ₹{Number(car.price).toLocaleString('en-IN')}
+                </span>
+              </div>
+            )}
+
+            {/* BOOK NOW Button - Selectt Emerald / Teal Brand Gradient */}
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                if (onBookNow) {
+                  onBookNow();
+                } else if (car?.id) {
+                  window.location.href = `/checkout/${car.id}`;
+                }
+              }}
+              className="px-4 py-2 bg-gradient-to-r from-[#00E5C9] to-[#00C9AF] hover:from-[#00d6bc] hover:to-[#00b9a1] active:scale-95 text-[#0A1C3A] font-black rounded-xl shadow-[0_4px_16px_rgba(0,201,175,0.35)] flex flex-col items-center justify-center transition-all cursor-pointer"
+            >
+              <span className="font-black text-xs leading-tight tracking-wider uppercase">BOOK NOW</span>
+              <span className="text-[9px] text-[#0A1C3A]/85 font-extrabold lowercase tracking-tight">
+                100% refundable
+              </span>
+            </button>
+
+            {/* FREE TEST DRIVE Button - Selectt Vibrant Coral / Red Brand Gradient */}
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                if (onTestDrive) {
+                  onTestDrive();
+                } else {
+                  const tdBtn = document.querySelector('[data-test-drive-btn]');
+                  if (tdBtn) tdBtn.click();
+                }
+              }}
+              className="px-4 py-2.5 bg-gradient-to-r from-[#FF5252] to-[#FF2A55] hover:from-[#f04545] hover:to-[#e81f49] active:scale-95 text-white font-black rounded-xl shadow-[0_4px_16px_rgba(255,42,85,0.35)] flex items-center justify-center transition-all cursor-pointer"
+            >
+              <span className="font-black text-xs leading-tight tracking-wider uppercase">FREE TEST DRIVE</span>
+            </button>
+          </div>
+
+          {/* Close Button X */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
+            aria-label="Close Lightbox"
+          >
+            <X size={20} className="stroke-[2.5]" />
+          </button>
+        </div>
       </div>
 
       {/* MOBILE ONLY: Top Thumbnail Carousel (Directly under header on mobile) */}
@@ -729,6 +866,7 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
 
         {/* Centered Image with 1:1 screen-pixel translation */}
         <img
+          ref={imageRef}
           src={getCarImageUrl(currentImg)}
           alt={`${carTitle} - Photo ${activeIndex + 1}`}
           className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain rounded-lg shadow-2xl pointer-events-none select-none"
@@ -1130,6 +1268,9 @@ const CarGalleryModal = ({
           }}
           onChangeIndex={(newIdx) => setLightboxIndex(newIdx)}
           carTitle={carTitle}
+          car={car}
+          onBookNow={onBookNow}
+          onTestDrive={onTestDrive}
         />
       )}
     </>
