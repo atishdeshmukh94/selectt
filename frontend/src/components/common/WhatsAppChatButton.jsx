@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 
+const DEFAULT_GALLABOX_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJob3N0IjoiaHR0cHM6Ly9jbGluY2htb3RvcnMuY29tIiwiaWQiOiI2YWFiYWI4NmY1ZTBmZTY4MjIxNDUyY2YiLCJhY2NJZCI6IjY4NzRiNGI3ZDdkMTlmYTlmODE4ZmE0NCIsInJlZ2lvbiI6ImRlZmF1bHQiLCJ2ZXJzaW9uIjoidjIiLCJpYXQiOjE3ODk2NDUwMTR9.aOy9eKJ9eajeiHiq_FHvs46GE0r5wj_obulZYI-Vrf4";
+
 const DEFAULT_MESSAGES = [
   "🎁 Free Doorstep Inspection!",
   "🚗 500+ Certified Used Cars!",
@@ -10,13 +12,109 @@ const DEFAULT_MESSAGES = [
   "🛡️ 1-Year Warranty & Easy EMI!"
 ];
 
+// Helper to extract JWT token even if admin pasted the entire <script> snippet
+const extractGallaboxToken = (input) => {
+  if (!input) return DEFAULT_GALLABOX_TOKEN;
+  const trimmed = input.trim();
+  const match = trimmed.match(/token\s*=\s*["']([^"']+)["']/i);
+  if (match && match[1]) {
+    return match[1];
+  }
+  return trimmed;
+};
+
 const WhatsAppChatButton = () => {
   const { settings } = useSiteSettings();
   const location = useLocation();
   const isCheckoutPage = location.pathname.startsWith('/checkout');
 
-  // Check if enabled (default true)
-  const isEnabled = settings?.whatsapp_chat_enabled !== 'false' && settings?.whatsapp_chat_enabled !== false;
+  // Determine active chat mode ('default' | 'gallabox' | 'disabled')
+  const activeMode = useMemo(() => {
+    // 1. Explicit whatsapp_chat_type
+    if (settings?.whatsapp_chat_type === 'gallabox') return 'gallabox';
+    if (settings?.whatsapp_chat_type === 'disabled') return 'disabled';
+    if (settings?.whatsapp_chat_type === 'default' || settings?.whatsapp_chat_type === 'custom') return 'default';
+
+    // 2. Individual flags fallback
+    if (settings?.gallabox_widget_enabled === 'true' || settings?.gallabox_widget_enabled === true) {
+      return 'gallabox';
+    }
+    if (settings?.whatsapp_chat_enabled === 'false' || settings?.whatsapp_chat_enabled === false) {
+      return 'disabled';
+    }
+    return 'default';
+  }, [settings?.whatsapp_chat_type, settings?.gallabox_widget_enabled, settings?.whatsapp_chat_enabled]);
+
+  // Purge function to completely remove Gallabox from DOM
+  const purgeGallabox = () => {
+    document
+      .querySelectorAll('script#gallabox-chatty-script, script[src*="gallabox"], script[src*="chatty"]')
+      .forEach((el) => el.remove());
+
+    document
+      .querySelectorAll(
+        '#chatty-widget-container, #chatty-widget, #chatty-widget-frame, .chatty-widget, .chatty-widget-container, [id*="chatty"], [class*="chatty"], [id*="gallabox"], [class*="gallabox"], iframe[src*="gallabox"], iframe[src*="chatty"], .gbox-widget, #gbox-widget'
+      )
+      .forEach((el) => {
+        try {
+          el.remove();
+        } catch (e) {}
+      });
+
+    if (window.Chatty) {
+      try {
+        if (typeof window.Chatty.destroy === 'function') window.Chatty.destroy();
+      } catch (e) {}
+      delete window.Chatty;
+    }
+    if (window.__chatty) delete window.__chatty;
+    if (window.gallabox) delete window.gallabox;
+  };
+
+  // Gallabox Lifecycle Management
+  useEffect(() => {
+    if (activeMode !== 'gallabox') {
+      purgeGallabox();
+      return;
+    }
+
+    if (isCheckoutPage) {
+      return;
+    }
+
+    const token = extractGallaboxToken(settings?.gallabox_widget_token || DEFAULT_GALLABOX_TOKEN);
+    if (!token) return;
+
+    // Check if Gallabox is already running with current token
+    if (window.Chatty && window.Chatty.hash === token && document.getElementById('gallabox-chatty-script')) {
+      return;
+    }
+
+    // Set up Gallabox queue and configuration
+    window.Chatty = function(c) {
+      if (!window.Chatty._) window.Chatty._ = [];
+      window.Chatty._.push(c);
+    };
+    window.Chatty._ = window.Chatty._ || [];
+    window.Chatty.url = 'https://widget.gallabox.com';
+    window.Chatty.hash = token;
+
+    // Inject Gallabox script
+    const existing = document.getElementById('gallabox-chatty-script');
+    if (existing) existing.remove();
+
+    const script = document.createElement('script');
+    script.id = 'gallabox-chatty-script';
+    script.async = true;
+    script.src = 'https://widget.gallabox.com/chatty-widget-v2.min.js?_=' + Date.now();
+
+    const firstScript = document.getElementsByTagName('script')[0];
+    if (firstScript && firstScript.parentNode) {
+      firstScript.parentNode.insertBefore(script, firstScript);
+    } else {
+      document.head.appendChild(script);
+    }
+  }, [activeMode, isCheckoutPage, settings?.gallabox_widget_token]);
 
   // Phone number (default: +91 85919 69394)
   const rawPhone = settings?.whatsapp_chat_phone || '+91 85919 69394';
@@ -48,74 +146,9 @@ const WhatsAppChatButton = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [typingSpeed, setTypingSpeed] = useState(1200);
 
-  // Aggressively remove any leftover Gallabox / Chatty widgets or scripts
+  // Smooth expand -> typewriter -> hold -> delete -> collapse lifecycle loop (ONLY when activeMode is default)
   useEffect(() => {
-    const purgeGallabox = () => {
-      // 1. Remove scripts
-      document
-        .querySelectorAll('script[src*="gallabox"], script[src*="chatty"]')
-        .forEach((el) => el.remove());
-
-      // 2. Remove injected containers, buttons, iframes, wrappers
-      document
-        .querySelectorAll(
-          '#chatty-widget-container, #chatty-widget, #chatty-widget-frame, .chatty-widget, .chatty-widget-container, [id*="chatty"], [class*="chatty"], [id*="gallabox"], [class*="gallabox"], iframe[src*="gallabox"], iframe[src*="chatty"], .gbox-widget, #gbox-widget'
-        )
-        .forEach((el) => {
-          try {
-            el.remove();
-          } catch (e) {}
-        });
-
-      // 3. Clear window object references
-      if (window.Chatty) {
-        try {
-          if (typeof window.Chatty.destroy === 'function') window.Chatty.destroy();
-        } catch (e) {}
-        delete window.Chatty;
-      }
-      if (window.__chatty) delete window.__chatty;
-      if (window.gallabox) delete window.gallabox;
-    };
-
-    purgeGallabox();
-    const interval = setInterval(purgeGallabox, 400);
-
-    // MutationObserver to immediately destroy any Gallabox nodes on creation
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === 1) {
-            const id = node.id || '';
-            const className = typeof node.className === 'string' ? node.className : '';
-            const src = node.getAttribute ? node.getAttribute('src') || '' : '';
-            if (
-              id.includes('chatty') ||
-              id.includes('gallabox') ||
-              className.includes('chatty') ||
-              className.includes('gallabox') ||
-              src.includes('chatty') ||
-              src.includes('gallabox')
-            ) {
-              node.remove();
-            }
-          }
-        });
-      }
-    });
-
-    try {
-      observer.observe(document.body, { childList: true, subtree: true });
-    } catch (e) {}
-
-    return () => {
-      clearInterval(interval);
-      observer.disconnect();
-    };
-  }, []);
-
-  // Smooth expand -> typewriter -> hold -> delete -> collapse lifecycle loop (NO BOUNCING)
-  useEffect(() => {
+    if (activeMode !== 'default') return;
     if (!messagesList || messagesList.length === 0) return;
     const fullText = messagesList[messageIndex % messagesList.length] || '';
 
@@ -123,7 +156,7 @@ const WhatsAppChatButton = () => {
       // 1. If currently collapsed, expand first and then begin typing
       if (!isExpanded && !isHovered) {
         setIsExpanded(true);
-        setTypingSpeed(250); // wait for smooth expand transition before typing starts
+        setTypingSpeed(250);
         return;
       }
 
@@ -133,7 +166,6 @@ const WhatsAppChatButton = () => {
         setCurrentText(nextText);
 
         if (nextText === fullText) {
-          // Finished typing full message: hold open for 3.5 seconds
           setTypingSpeed(3500);
           setIsDeleting(true);
         } else {
@@ -145,11 +177,9 @@ const WhatsAppChatButton = () => {
         setCurrentText(nextText);
 
         if (nextText === '') {
-          // Finished deleting: collapse back to compact round icon smoothly
           setIsDeleting(false);
           setIsExpanded(false);
           setMessageIndex((prev) => (prev + 1) % messagesList.length);
-          // Stay collapsed as circular icon for 2.2 seconds before next expand
           setTypingSpeed(2200);
         } else {
           setTypingSpeed(25);
@@ -159,7 +189,7 @@ const WhatsAppChatButton = () => {
 
     const timer = setTimeout(handleStep, typingSpeed);
     return () => clearTimeout(timer);
-  }, [currentText, isDeleting, isExpanded, isHovered, messageIndex, typingSpeed, messagesList]);
+  }, [activeMode, currentText, isDeleting, isExpanded, isHovered, messageIndex, typingSpeed, messagesList]);
 
   // Open WhatsApp directly with configured phone number and pre-filled message
   const handleChatClick = () => {
@@ -167,7 +197,10 @@ const WhatsAppChatButton = () => {
     window.open(waUrl, '_blank', 'noopener,noreferrer');
   };
 
-  if (!isEnabled) return null;
+  // If mode is gallabox or disabled, custom button is NOT rendered
+  if (activeMode !== 'default') {
+    return null;
+  }
 
   const showText = isExpanded || isHovered;
 
@@ -206,7 +239,7 @@ const WhatsAppChatButton = () => {
             </svg>
           </div>
 
-          {/* Text Container on Right Side (Smooth Expand/Collapse to Right with Typewriter) */}
+          {/* Text Container on Right Side */}
           <div
             className={`flex flex-col text-left justify-center transition-all duration-500 ease-in-out overflow-hidden wa-chat-font ${
               showText ? 'opacity-100 max-w-[220px] sm:max-w-[260px] translate-x-0' : 'opacity-0 max-w-0 w-0 pointer-events-none'

@@ -26,6 +26,28 @@ interface Setting {
   setting_value: string;
 }
 
+const DEFAULT_GALLABOX_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJob3N0IjoiaHR0cHM6Ly9jbGluY2htb3RvcnMuY29tIiwiaWQiOiI2YWFiYWI4NmY1ZTBmZTY4MjIxNDUyY2YiLCJhY2NJZCI6IjY4NzRiNGI3ZDdkMTlmYTlmODE4ZmE0NCIsInJlZ2lvbiI6ImRlZmF1bHQiLCJ2ZXJzaW9uIjoidjIiLCJpYXQiOjE3ODk2NDUwMTR9.aOy9eKJ9eajeiHiq_FHvs46GE0r5wj_obulZYI-Vrf4";
+
+const getGallaboxEmbedCode = (token: string) => {
+  const t = token || DEFAULT_GALLABOX_TOKEN;
+  return [
+    "<script>",
+    `  const token = "${t}";`,
+    "  (function(w, d, s, u, t) {",
+    "    w.Chatty = function(c) { w.Chatty._.push(c) };",
+    "    w.Chatty._ = [];",
+    "    w.Chatty.url = u;",
+    "    w.Chatty.hash = t;",
+    "    var h = d.getElementsByTagName(s)[0],",
+    "      j = d.createElement(s);",
+    "    j.async = true;",
+    "    j.src = 'https://widget.gallabox.com/chatty-widget-v2.min.js?_=' + Math.random();",
+    "    h.parentNode.insertBefore(j, h);",
+    "  })(window, document, 'script', 'https://widget.gallabox.com', token);",
+    "</script>",
+  ].join("\n");
+};
+
 interface SiteSettingsProps {
   section?: "location" | "payment" | "smtp" | "maintenance" | "whatsapp" | "whatsapp_chat" | "branding" | "api_keys" | "crm";
 }
@@ -35,6 +57,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [copiedScript, setCopiedScript] = useState(false);
 
   // CRM Integration State
   const [testingCrm, setTestingCrm] = useState(false);
@@ -254,7 +277,13 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
         settingsMap.neodove_update_existing = "true";
       }
 
-      // Pre-populate WhatsApp Chat Widget settings
+      // Pre-populate WhatsApp Chat Widget & Gallabox settings
+      if (!settingsMap.whatsapp_chat_type) {
+        settingsMap.whatsapp_chat_type = settingsMap.gallabox_widget_enabled === "true" ? "gallabox" : "default";
+      }
+      if (!settingsMap.gallabox_widget_token) {
+        settingsMap.gallabox_widget_token = DEFAULT_GALLABOX_TOKEN;
+      }
       if (!settingsMap.whatsapp_chat_phone) {
         settingsMap.whatsapp_chat_phone = "+91 85919 69394";
       }
@@ -269,6 +298,9 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
       }
       if (settingsMap.whatsapp_chat_enabled === undefined) {
         settingsMap.whatsapp_chat_enabled = "true";
+      }
+      if (settingsMap.gallabox_widget_enabled === undefined) {
+        settingsMap.gallabox_widget_enabled = "false";
       }
 
       setSettings(settingsMap);
@@ -2653,128 +2685,337 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
 
         {activeSection === "whatsapp_chat" && (
           <div className="space-y-6">
-            <ComponentCard title="WhatsApp Floating Chat Widget (Bottom-Left Button)">
+            <ComponentCard title="Website Chat Widget & Gallabox Integration">
               <form onSubmit={handleSave} className="space-y-6">
-                {/* Intro Banner */}
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <h4 className="font-extrabold text-sm text-[#0C1B33] dark:text-white">Floating WhatsApp Chat Widget</h4>
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">
-                      Configure the interactive WhatsApp button floating on the bottom-left corner of the website. Visitors can click to directly chat with your sales or support executive.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
-                    <label className="flex items-center gap-2 cursor-pointer bg-white dark:bg-gray-800 px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                      <input
-                        type="checkbox"
-                        checked={settings.whatsapp_chat_enabled !== "false"}
-                        onChange={(e) => handleChange("whatsapp_chat_enabled", e.target.checked ? "true" : "false")}
-                        className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
-                      />
-                      <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
-                        {settings.whatsapp_chat_enabled !== "false" ? "🟢 Widget Active" : "🔴 Widget Disabled"}
-                      </span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* WhatsApp Phone Number */}
-                  <div>
-                    <Label>Target WhatsApp Phone Number *</Label>
-                    <Input
-                      type="text"
-                      value={settings.whatsapp_chat_phone || "+91 85919 69394"}
-                      onChange={(e) => handleChange("whatsapp_chat_phone", e.target.value)}
-                      placeholder="+91 85919 69394"
-                      className="mt-1 font-mono"
-                    />
-                    <p className="text-[11px] text-gray-500 mt-1">
-                      Customer chats will open directly with this number. Default: <code className="text-emerald-600 font-bold">+91 85919 69394</code>.
-                    </p>
-                  </div>
-
-                  {/* Offer Name / Badge */}
-                  <div>
-                    <Label>Offer Name / Badge Text *</Label>
-                    <Input
-                      type="text"
-                      value={settings.whatsapp_chat_offer_text || "Get Extra Discount"}
-                      onChange={(e) => handleChange("whatsapp_chat_offer_text", e.target.value)}
-                      placeholder="Get Extra Discount"
-                      className="mt-1"
-                    />
-                    <p className="text-[11px] text-gray-500 mt-1">
-                      Displays in the small green pill badge above the typewriter text (e.g. <em>Get Extra Discount</em>, <em>Festival Special Offer</em>).
-                    </p>
-                  </div>
-
-                  {/* Default Pre-filled Customer Message */}
-                  <div className="md:col-span-2">
-                    <Label>Default Pre-filled WhatsApp Message *</Label>
-                    <Input
-                      type="text"
-                      value={settings.whatsapp_chat_default_message || "Hi Selectt, I would like to know more about buying/selling a certified car."}
-                      onChange={(e) => handleChange("whatsapp_chat_default_message", e.target.value)}
-                      placeholder="Hi Selectt, I would like to know more about buying/selling a certified car."
-                      className="mt-1"
-                    />
-                    <p className="text-[11px] text-gray-500 mt-1">
-                      Pre-filled in visitor&apos;s WhatsApp input box when they click the button.
-                    </p>
-                  </div>
-
-                  {/* Typewriter Messages */}
-                  <div className="md:col-span-2">
-                    <Label>Rotating Typewriter Messages (One per line) *</Label>
-                    <textarea
-                      rows={6}
-                      value={settings.whatsapp_chat_messages || "🎁 Free Doorstep Inspection!\n🚗 500+ Certified Used Cars!\n⚡ Instant Valuation in 2 Mins!\n💬 Chat with Selectt Experts!\n🛡️ 1-Year Warranty & Easy EMI!"}
-                      onChange={(e) => handleChange("whatsapp_chat_messages", e.target.value)}
-                      placeholder={"🎁 Free Doorstep Inspection!\n🚗 500+ Certified Used Cars!\n⚡ Instant Valuation in 2 Mins!"}
-                      className="mt-1 w-full p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none leading-relaxed"
-                    />
-                    <p className="text-[11px] text-gray-500 mt-1">
-                      Enter each promotional or CTA text on a separate line. The floating button expands and types out each message one by one.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Live Preview & Direct Test Card */}
-                <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 text-white space-y-4">
+                
+                {/* 1. Provider Mode Selection Cards */}
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-bold text-sm text-white">Live Button Preview & Link Test</h4>
-                      <p className="text-xs text-slate-400 mt-0.5">Real-time simulation of the button as visitors see it</p>
+                      <h4 className="font-bold text-sm text-[#0C1B33] dark:text-white">Active Chat Widget Mode</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Choose which chat solution appears on the website. You can easily switch between our built-in WhatsApp button and Gallabox Live Chat.
+                      </p>
                     </div>
-                    {(() => {
-                      const rawPhone = settings.whatsapp_chat_phone || "+91 85919 69394";
-                      const digits = rawPhone.replace(/\D/g, "") || "918591969394";
-                      const phone = digits.length === 10 ? `91${digits}` : digits;
-                      const text = encodeURIComponent(settings.whatsapp_chat_default_message || "Hi Selectt, I would like to know more about buying/selling a certified car.");
-                      const testUrl = `https://wa.me/${phone}?text=${text}`;
-                      return (
-                        <a
-                          href={testUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
-                        >
-                          <ExternalLink size={13} />
-                          Test WhatsApp Link ({phone})
-                        </a>
-                      );
-                    })()}
                   </div>
 
-                  <div className="p-6 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-start">
-                    <div className="flex items-center bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] text-white shadow-xl border border-white/25 rounded-full px-2 py-1.5 gap-3 max-w-[340px]">
-                      <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center text-white shrink-0 shadow-md">
-                        <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.04 7.5C8.87 7.5 8.6 7.57 8.36 7.83C8.13 8.1 7.48 8.71 7.48 9.96C7.48 11.21 8.39 12.41 8.52 12.58C8.65 12.75 10.3 15.3 12.83 16.39C14.93 17.29 15.36 17.11 15.82 17.07C16.28 17.03 17.3 16.46 17.51 15.87C17.72 15.28 17.72 14.78 17.66 14.67C17.6 14.56 17.43 14.5 17.18 14.37C16.93 14.25 15.7 13.64 15.47 13.56C15.24 13.47 15.08 13.43 14.91 13.68C14.74 13.93 14.27 14.5 14.13 14.67C13.99 14.84 13.85 14.86 13.6 14.73C13.35 14.61 12.54 14.34 11.58 13.49C10.84 12.82 10.33 12 10.19 11.75C10.05 11.5 10.17 11.37 10.3 11.24C10.41 11.13 10.55 10.95 10.68 10.8C10.8 10.65 10.85 10.54 10.93 10.37C11.01 10.2 10.97 10.06 10.91 9.93C10.85 9.81 10.38 8.65 10.19 8.18C9.99 7.73 9.8 7.79 9.65 7.78C9.51 7.77 9.35 7.5 9.04 7.5Z" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Card 1: Selectt Built-in Button */}
+                    <div
+                      onClick={() => {
+                        handleChange("whatsapp_chat_type", "default");
+                        handleChange("whatsapp_chat_enabled", "true");
+                        handleChange("gallabox_widget_enabled", "false");
+                      }}
+                      className={`relative p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                        (settings.whatsapp_chat_type === "default" || (!settings.whatsapp_chat_type && settings.gallabox_widget_enabled !== "true" && settings.whatsapp_chat_enabled !== "false"))
+                          ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 shadow-md ring-2 ring-emerald-500/20"
+                          : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 opacity-75 hover:opacity-100"
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="w-9 h-9 rounded-xl bg-[#25D366]/15 text-[#25D366] flex items-center justify-center font-bold text-lg">
+                            💬
+                          </span>
+                          {(settings.whatsapp_chat_type === "default" || (!settings.whatsapp_chat_type && settings.gallabox_widget_enabled !== "true" && settings.whatsapp_chat_enabled !== "false")) && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500 text-white shadow-sm">
+                              Active
+                            </span>
+                          )}
+                        </div>
+                        <h5 className="font-extrabold text-sm text-gray-900 dark:text-white">
+                          Selectt WhatsApp Button
+                        </h5>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                          Custom floating button on bottom-left with rotating typewriter offers, discount badge, and direct WhatsApp redirect.
+                        </p>
+                      </div>
+                      <div className="pt-2 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                        <span>Direct WhatsApp wa.me</span>
+                        <span>Bottom-Left Pill</span>
+                      </div>
+                    </div>
+
+                    {/* Card 2: Gallabox Live Chat Widget */}
+                    <div
+                      onClick={() => {
+                        handleChange("whatsapp_chat_type", "gallabox");
+                        handleChange("gallabox_widget_enabled", "true");
+                        handleChange("whatsapp_chat_enabled", "false");
+                      }}
+                      className={`relative p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                        (settings.whatsapp_chat_type === "gallabox" || settings.gallabox_widget_enabled === "true")
+                          ? "border-purple-500 bg-purple-50/50 dark:bg-purple-950/20 shadow-md ring-2 ring-purple-500/20"
+                          : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 opacity-75 hover:opacity-100"
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-lg">
+                            🤖
+                          </span>
+                          {(settings.whatsapp_chat_type === "gallabox" || settings.gallabox_widget_enabled === "true") && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-purple-600 text-white shadow-sm">
+                              Active
+                            </span>
+                          )}
+                        </div>
+                        <h5 className="font-extrabold text-sm text-gray-900 dark:text-white">
+                          Gallabox Live Chat Widget
+                        </h5>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                          Official Gallabox CRM interactive web widget. Supports multi-agent team inbox, automated greeting bots, and customer support.
+                        </p>
+                      </div>
+                      <div className="pt-2 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-[11px] font-bold text-purple-700 dark:text-purple-400">
+                        <span>Official Gallabox CRM</span>
+                        <span>Interactive Chatty Bot</span>
+                      </div>
+                    </div>
+
+                    {/* Card 3: Disabled */}
+                    <div
+                      onClick={() => {
+                        handleChange("whatsapp_chat_type", "disabled");
+                        handleChange("whatsapp_chat_enabled", "false");
+                        handleChange("gallabox_widget_enabled", "false");
+                      }}
+                      className={`relative p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                        settings.whatsapp_chat_type === "disabled" || (settings.whatsapp_chat_enabled === "false" && settings.gallabox_widget_enabled !== "true")
+                          ? "border-red-500 bg-red-50/50 dark:bg-red-950/20 shadow-md ring-2 ring-red-500/20"
+                          : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 opacity-75 hover:opacity-100"
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="w-9 h-9 rounded-xl bg-red-500/15 text-red-500 flex items-center justify-center font-bold text-lg">
+                            🚫
+                          </span>
+                          {(settings.whatsapp_chat_type === "disabled" || (settings.whatsapp_chat_enabled === "false" && settings.gallabox_widget_enabled !== "true")) && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-red-500 text-white shadow-sm">
+                              Turned Off
+                            </span>
+                          )}
+                        </div>
+                        <h5 className="font-extrabold text-sm text-gray-900 dark:text-white">
+                          Disable All Chat Widgets
+                        </h5>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                          Completely hide and disable all floating chat buttons and external widgets from every page of the website.
+                        </p>
+                      </div>
+                      <div className="pt-2 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-[11px] font-bold text-red-600 dark:text-red-400">
+                        <span>No Widgets</span>
+                        <span>Clean UI</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. GALLABOX CONFIGURATION PANEL */}
+                {(settings.whatsapp_chat_type === "gallabox" || settings.gallabox_widget_enabled === "true") && (
+                  <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-50 via-indigo-50/30 to-purple-50/10 dark:from-purple-950/30 dark:via-indigo-950/20 dark:to-purple-950/10 border-2 border-purple-200 dark:border-purple-800/60 space-y-5 animate-in fade-in duration-200">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-purple-200/60 dark:border-purple-800/40">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse" />
+                          <h4 className="font-extrabold text-sm text-purple-950 dark:text-purple-200">
+                            Gallabox Official Web Chat Widget Settings
+                          </h4>
+                        </div>
+                        <p className="text-xs text-purple-700 dark:text-purple-300 mt-0.5">
+                          Configure your Gallabox Account Token. The script will automatically load and initialize on all client-facing pages.
+                        </p>
+                      </div>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-600 text-white shadow-sm self-start sm:self-auto shrink-0">
+                        🟣 Gallabox Mode Active
+                      </span>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Token Input */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <Label>Gallabox Account JWT Token *</Label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleChange("gallabox_widget_token", DEFAULT_GALLABOX_TOKEN);
+                              toast.success("Reset to client's default Gallabox token!");
+                            }}
+                            className="text-[11px] font-bold text-purple-600 hover:text-purple-700 dark:text-purple-400 hover:underline cursor-pointer"
+                          >
+                            Reset to Client Token
+                          </button>
+                        </div>
+                        <textarea
+                          rows={3}
+                          value={settings.gallabox_widget_token || DEFAULT_GALLABOX_TOKEN}
+                          onChange={(e) => handleChange("gallabox_widget_token", e.target.value)}
+                          placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                          className="w-full p-3 rounded-xl border border-purple-200 dark:border-purple-800/70 bg-white dark:bg-gray-900 text-xs font-mono text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none leading-relaxed"
+                        />
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                          Paste the JWT token from your Gallabox embed script. (You can paste just the token or the full <code>&lt;script&gt;</code> tag — token is extracted automatically).
+                        </p>
+                      </div>
+
+                      {/* Embed Code Reference Box */}
+                      <div className="rounded-xl bg-slate-950 border border-slate-800 p-4 text-white space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                            <span className="text-xs font-mono font-bold text-slate-300">Official Gallabox Embed Script</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const code = getGallaboxEmbedCode(settings.gallabox_widget_token || DEFAULT_GALLABOX_TOKEN);
+                              navigator.clipboard.writeText(code);
+                              setCopiedScript(true);
+                              setTimeout(() => setCopiedScript(false), 2000);
+                              toast.success("Embed script copied!");
+                            }}
+                            className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-mono text-slate-300 transition-colors flex items-center gap-1 cursor-pointer"
+                          >
+                            {copiedScript ? "✓ Copied" : "Copy Script"}
+                          </button>
+                        </div>
+                        <pre className="text-[11px] font-mono text-purple-300 bg-slate-900/90 p-3 rounded-lg overflow-x-auto border border-slate-800 leading-relaxed whitespace-pre-wrap break-all">
+                          {getGallaboxEmbedCode(settings.gallabox_widget_token || DEFAULT_GALLABOX_TOKEN)}
+                        </pre>
+                        <p className="text-[10px] text-slate-400">
+                          CDN Endpoint: <code className="text-emerald-400">https://widget.gallabox.com/chatty-widget-v2.min.js</code> • Host: <code className="text-purple-400">clinchmotors.com</code>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. SELECTT BUILT-IN WHATSAPP BUTTON CONFIGURATION PANEL */}
+                {(settings.whatsapp_chat_type === "default" || (!settings.whatsapp_chat_type && settings.gallabox_widget_enabled !== "true" && settings.whatsapp_chat_enabled !== "false")) && (
+                  <div className="space-y-6 animate-in fade-in duration-200">
+                    {/* Intro Banner */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <h4 className="font-extrabold text-sm text-[#0C1B33] dark:text-white">Selectt Built-in WhatsApp Chat Button</h4>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-300">
+                          Configure the interactive WhatsApp button floating on the bottom-left corner of the website. Visitors can click to directly chat with your sales or support executive.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
+                        <label className="flex items-center gap-2 cursor-pointer bg-white dark:bg-gray-800 px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                          <input
+                            type="checkbox"
+                            checked={settings.whatsapp_chat_enabled !== "false"}
+                            onChange={(e) => handleChange("whatsapp_chat_enabled", e.target.checked ? "true" : "false")}
+                            className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                          />
+                          <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                            {settings.whatsapp_chat_enabled !== "false" ? "🟢 Button Active" : "🔴 Button Disabled"}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* WhatsApp Phone Number */}
+                      <div>
+                        <Label>Target WhatsApp Phone Number *</Label>
+                        <Input
+                          type="text"
+                          value={settings.whatsapp_chat_phone || "+91 85919 69394"}
+                          onChange={(e) => handleChange("whatsapp_chat_phone", e.target.value)}
+                          placeholder="+91 85919 69394"
+                          className="mt-1 font-mono"
+                        />
+                        <p className="text-[11px] text-gray-500 mt-1">
+                          Customer chats will open directly with this number. Default: <code className="text-emerald-600 font-bold">+91 85919 69394</code>.
+                        </p>
+                      </div>
+
+                      {/* Offer Name / Badge */}
+                      <div>
+                        <Label>Offer Name / Badge Text *</Label>
+                        <Input
+                          type="text"
+                          value={settings.whatsapp_chat_offer_text || "Get Extra Discount"}
+                          onChange={(e) => handleChange("whatsapp_chat_offer_text", e.target.value)}
+                          placeholder="Get Extra Discount"
+                          className="mt-1"
+                        />
+                        <p className="text-[11px] text-gray-500 mt-1">
+                          Displays in the small green pill badge above the typewriter text (e.g. <em>Get Extra Discount</em>, <em>Festival Special Offer</em>).
+                        </p>
+                      </div>
+
+                      {/* Default Pre-filled Customer Message */}
+                      <div className="md:col-span-2">
+                        <Label>Default Pre-filled WhatsApp Message *</Label>
+                        <Input
+                          type="text"
+                          value={settings.whatsapp_chat_default_message || "Hi Selectt, I would like to know more about buying/selling a certified car."}
+                          onChange={(e) => handleChange("whatsapp_chat_default_message", e.target.value)}
+                          placeholder="Hi Selectt, I would like to know more about buying/selling a certified car."
+                          className="mt-1"
+                        />
+                        <p className="text-[11px] text-gray-500 mt-1">
+                          Pre-filled in visitor&apos;s WhatsApp input box when they click the button.
+                        </p>
+                      </div>
+
+                      {/* Typewriter Messages */}
+                      <div className="md:col-span-2">
+                        <Label>Rotating Typewriter Messages (One per line) *</Label>
+                        <textarea
+                          rows={6}
+                          value={settings.whatsapp_chat_messages || "🎁 Free Doorstep Inspection!\n🚗 500+ Certified Used Cars!\n⚡ Instant Valuation in 2 Mins!\n💬 Chat with Selectt Experts!\n🛡️ 1-Year Warranty & Easy EMI!"}
+                          onChange={(e) => handleChange("whatsapp_chat_messages", e.target.value)}
+                          placeholder={"🎁 Free Doorstep Inspection!\n🚗 500+ Certified Used Cars!\n⚡ Instant Valuation in 2 Mins!"}
+                          className="mt-1 w-full p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none leading-relaxed"
+                        />
+                        <p className="text-[11px] text-gray-500 mt-1">
+                          Enter each promotional or CTA text on a separate line. The floating button expands and types out each message one by one.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Live Preview & Direct Test Card */}
+                    <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 text-white space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-bold text-sm text-white">Live Button Preview & Link Test</h4>
+                          <p className="text-xs text-slate-400 mt-0.5">Real-time simulation of the button as visitors see it</p>
+                        </div>
+                        {(() => {
+                          const rawPhone = settings.whatsapp_chat_phone || "+91 85919 69394";
+                          const digits = rawPhone.replace(/\D/g, "") || "918591969394";
+                          const phone = digits.length === 10 ? `91${digits}` : digits;
+                          const text = encodeURIComponent(settings.whatsapp_chat_default_message || "Hi Selectt, I would like to know more about buying/selling a certified car.");
+                          const testUrl = `https://wa.me/${phone}?text=${text}`;
+                          return (
+                            <a
+                              href={testUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                            >
+                              <ExternalLink size={13} />
+                              Test WhatsApp Link ({phone})
+                            </a>
+                          );
+                        })()}
+                      </div>
+
+                      <div className="p-6 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-start">
+                        <div className="flex items-center bg-gradient-to-r from-[#075E54] via-[#0E7A68] to-[#128C7E] text-white shadow-xl border border-white/25 rounded-full px-2 py-1.5 gap-3 max-w-[340px]">
+                          <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center text-white shrink-0 shadow-md">
+                            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                              <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.04 7.5C8.87 7.5 8.6 7.57 8.36 7.83C8.13 8.1 7.48 8.71 7.48 9.96C7.48 11.21 8.39 12.41 8.52 12.58C8.65 12.75 10.3 15.3 12.83 16.39C14.93 17.29 15.36 17.11 15.82 17.07C16.28 17.03 17.3 16.46 17.51 15.87C17.72 15.28 17.72 14.78 17.66 14.67C17.6 14.56 17.43 14.5 17.18 14.37C16.93 14.25 15.7 13.64 15.47 13.56C15.24 13.47 15.08 13.43 14.91 13.68C14.74 13.93 14.27 14.5 14.13 14.67C13.99 14.84 13.85 14.86 13.6 14.73C13.35 14.61 12.54 14.34 11.58 13.49C10.84 12.82 10.33 12 10.19 11.75C10.05 11.5 10.17 11.37 10.3 11.24C10.41 11.13 10.55 10.95 10.68 10.8C10.8 10.65 10.85 10.54 10.93 10.37C11.01 10.2 10.97 10.06 10.91 9.93C10.85 9.81 10.38 8.65 10.19 8.18C9.99 7.73 9.8 7.79 9.65 7.78C9.51 7.77 9.35 7.5 9.04 7.5Z" />
                         </svg>
                       </div>
                       <div className="flex flex-col text-left pr-2">
@@ -2792,10 +3033,24 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* 4. DISABLED PANEL */}
+                {settings.whatsapp_chat_type === "disabled" && (
+                  <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-center space-y-2">
+                    <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                      🚫 All Chat Widgets are currently disabled
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                      Neither the Selectt WhatsApp button nor the Gallabox widget will be loaded on the website. Select one of the options above to re-enable.
+                    </p>
+                  </div>
+                )}
 
                 <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-800">
                   <Button type="submit" disabled={saving}>
-                    {saving ? "Saving..." : "Save WhatsApp Chat Settings"}
+                    {saving ? "Saving..." : "Save Chat Settings"}
                   </Button>
                 </div>
               </form>
