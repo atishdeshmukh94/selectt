@@ -3114,7 +3114,7 @@ const CheckoutPage = () => {
                 }}
                 className="btn-shine relative overflow-hidden flex-1 py-3 sm:py-3.5 px-4 sm:px-5 bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-black text-xs sm:text-sm rounded-2xl transition-all duration-300 shadow-lg shadow-[#00C9AF]/30 hover:shadow-xl hover:shadow-[#00C9AF]/40 flex items-center justify-between cursor-pointer uppercase tracking-wider active:scale-[0.99]"
               >
-                <span className="font-black tracking-wider">Book This Car</span>
+                <span className="font-black text-xs sm:text-sm tracking-wider uppercase">PROCEED TO PAY</span>
                 <div className="flex items-center gap-1.5 font-price">
                   <span className="bg-[#0C1B33] text-white px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-sm tracking-tight">
                     ₹{finalPayableBookingAmount.toLocaleString('en-IN')}
