@@ -293,11 +293,15 @@ const CarDetailsPage = () => {
     const handleResize = () => {
       const width = window.innerWidth;
       if (width >= 1536) {
-        setVisibleCount(8);
+        setVisibleCount(7);
       } else if (width >= 1280) {
         setVisibleCount(6);
-      } else {
+      } else if (width >= 1024) {
         setVisibleCount(5);
+      } else if (width >= 640) {
+        setVisibleCount(4);
+      } else {
+        setVisibleCount(3);
       }
     };
 
@@ -651,8 +655,9 @@ const CarDetailsPage = () => {
                     />
                   ) : getMediaType(images[activeImage]) === 'youtube' ? (
                     <iframe
-                      src={`https://www.youtube.com/embed/${getYouTubeId(images[activeImage])}`}
+                      src={`https://www.youtube.com/embed/${getYouTubeId(images[activeImage])}?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1`}
                       className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
                       frameBorder="0"
                     />
@@ -694,18 +699,41 @@ const CarDetailsPage = () => {
                         }}
                       />
                       {getMediaType(images[activeImage]) === 'image' && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openLightbox();
-                          }}
-                          className="absolute bottom-4 right-4 z-20 p-2 py-1 sm:p-2.5 sm:py-1.5 rounded-full backdrop-blur-md transition-all shadow-lg flex items-center justify-center gap-1 sm:gap-1.5 border font-extrabold text-[9px] sm:text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border-white/10 hover:scale-105"
-                          title="Open Lightbox Image Zoom"
-                        >
-                          <ZoomIn size={14} className="sm:w-4 sm:h-4" />
-                          <span className="pr-1">Zoom</span>
-                        </button>
+                        <>
+                          {/* Click to view 360° button at bottom-center (Matching reference image) */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const index360 = images.findIndex(img => img?.includes('360') || img?.includes('spin'));
+                              if (index360 !== -1) {
+                                setActiveImage(index360);
+                              } else {
+                                openLightbox();
+                              }
+                            }}
+                            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-3.5 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-950 backdrop-blur-md text-white border border-white/20 text-xs font-bold tracking-wide flex items-center gap-1.5 shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer group"
+                            title="Click to view 360°"
+                          >
+                            <span>Click to view</span>
+                            <span className="inline-flex items-center justify-center bg-[#FFB800] text-[#0C1B33] px-1.5 py-0.5 rounded text-[10px] font-black leading-none">
+                              360°
+                            </span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openLightbox();
+                            }}
+                            className="absolute bottom-4 right-4 z-20 p-2 py-1 sm:p-2.5 sm:py-1.5 rounded-full backdrop-blur-md transition-all shadow-lg flex items-center justify-center gap-1 sm:gap-1.5 border font-extrabold text-[9px] sm:text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border-white/10 hover:scale-105 cursor-pointer"
+                            title="Open Lightbox Image Zoom"
+                          >
+                            <ZoomIn size={14} className="sm:w-4 sm:h-4" />
+                            <span className="pr-1">Zoom</span>
+                          </button>
+                        </>
                       )}
                     </div>
                   )}
@@ -713,14 +741,14 @@ const CarDetailsPage = () => {
                     <button
                       type="button"
                       onClick={() => setActiveImage(prev => (prev === 0 ? images.length - 1 : prev - 1))}
-                      className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white/25 text-white transition-all pointer-events-auto"
+                      className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white/35 text-white transition-all pointer-events-auto cursor-pointer"
                     >
                       <ChevronLeft size={24} />
                     </button>
                     <button
                       type="button"
                       onClick={() => setActiveImage(prev => (prev === images.length - 1 ? 0 : prev + 1))}
-                      className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white/25 text-white transition-all pointer-events-auto"
+                      className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white/35 text-white transition-all pointer-events-auto cursor-pointer"
                     >
                       <ChevronRight size={24} />
                     </button>
@@ -729,8 +757,8 @@ const CarDetailsPage = () => {
 
               </div>
 
-                  {/* 3-Button Media Selector Bar - Mobile Only (Tight Spacing & High Contrast Active Highlight) */}
-                  <div className="flex lg:hidden items-center justify-between gap-2 pt-2 pb-0.5 px-3 bg-transparent relative z-20">
+                  {/* 3-Button Media Selector Bar (Desktop & Mobile) */}
+                  <div className="flex items-center justify-center gap-2 sm:gap-3 py-2.5 px-3 bg-slate-50 border-t border-slate-100 relative z-20">
                     {/* 1st: 360° View Button */}
                     <button
                       type="button"
@@ -742,14 +770,15 @@ const CarDetailsPage = () => {
                           openLightbox();
                         }
                       }}
-                      className={`flex-1 py-2 px-2 rounded-xl flex items-center justify-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-95 ${
+                      className={`flex-1 max-w-[150px] py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer ${
                         (images[activeImage]?.includes('360') || images[activeImage]?.includes('spin'))
                           ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/50 shadow-sm'
-                          : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:border-[#00C9AF] hover:text-[#0C1B33] shadow-2xs'
                       }`}
                     >
                       <RotateCcw size={14} className="shrink-0" />
                       <span>360° View</span>
+                      <span className="bg-[#FFB800] text-[#0C1B33] text-[9px] font-black px-1 py-0.5 rounded leading-none">360°</span>
                     </button>
 
                     {/* 2nd: Images Button */}
@@ -759,10 +788,10 @@ const CarDetailsPage = () => {
                         const photoIdx = images.findIndex(img => getMediaType(img) === 'image' && !(img?.includes('360') || img?.includes('spin')));
                         setActiveImage(photoIdx !== -1 ? photoIdx : 0);
                       }}
-                      className={`flex-1 py-2 px-2 rounded-xl flex items-center justify-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-95 ${
+                      className={`flex-1 max-w-[150px] py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer ${
                         getMediaType(images[activeImage]) === 'image' && !(images[activeImage]?.includes('360') || images[activeImage]?.includes('spin'))
                           ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/50 shadow-sm'
-                          : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:border-[#00C9AF] hover:text-[#0C1B33] shadow-2xs'
                       }`}
                     >
                       <Camera size={14} className="shrink-0" />
@@ -780,17 +809,18 @@ const CarDetailsPage = () => {
                           setActiveImage(images.length > 1 ? images.length - 1 : 0);
                         }
                       }}
-                      className={`flex-1 py-2 px-2 rounded-xl flex items-center justify-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-95 ${
+                      className={`flex-1 max-w-[150px] py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer ${
                         ['bunny_stream', 'video', 'youtube'].includes(getMediaType(images[activeImage]))
                           ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/50 shadow-sm'
-                          : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:border-[#00C9AF] hover:text-[#0C1B33] shadow-2xs'
                       }`}
                     >
                       <Video size={14} className="shrink-0" />
                       <span>Video</span>
                     </button>
                   </div>
-                {/* Hidden preload images for next/prev slides (eliminates spinner on slide change) */}
+
+                {/* Hidden preload images for next/prev slides */}
                 <div className="hidden" aria-hidden="true">
                   {images.map((img, idx) => {
                     if (getMediaType(img) !== 'image') return null;
@@ -798,23 +828,29 @@ const CarDetailsPage = () => {
                     return <img key={idx} src={src} alt="" loading={Math.abs(idx - activeImage) <= 2 ? 'eager' : 'lazy'} />;
                   })}
                 </div>
+
                 {images.length > 0 && (
-                  <div className="hidden lg:flex items-center justify-center gap-2 p-4 border-t border-white/5">
-                    {/* Left navigation arrow */}
+                  <div className="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 border-t border-slate-100 bg-white rounded-b-2xl">
+                    {/* Left navigation arrow - Highly Visible and Prominent */}
                     <button
+                      type="button"
                       onClick={() => updateThumbStartIndex(thumbStartIndex - 1)}
                       disabled={thumbStartIndex === 0}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all bg-white/5 border border-white/10 hover:bg-white/10 ${thumbStartIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'text-white hover:shadow-sm'
-                        }`}
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all shrink-0 cursor-pointer shadow-sm ${
+                        thumbStartIndex === 0
+                          ? 'opacity-30 cursor-not-allowed bg-slate-100 text-slate-400 border border-slate-200'
+                          : 'bg-white hover:bg-[#0C1B33] text-slate-800 hover:text-[#00C9AF] border border-slate-300 hover:border-[#0C1B33] hover:scale-105 active:scale-95'
+                      }`}
+                      aria-label="Previous thumbnails"
                     >
-                      <ChevronLeft size={16} />
+                      <ChevronLeft size={20} strokeWidth={2.5} />
                     </button>
 
                     {/* Thumbnail viewport */}
-                    <div className="overflow-hidden py-1" style={{ width: `${visibleCount * 96 + (visibleCount - 1) * 12}px` }}>
+                    <div className="overflow-hidden py-1 max-w-full" style={{ width: `${visibleCount * 104 + (visibleCount - 1) * 10}px` }}>
                       <div
-                        className="flex gap-3 transition-transform duration-300 ease-in-out"
-                        style={{ transform: `translateX(-${thumbStartIndex * (96 + 12)}px)` }}
+                        className="flex gap-2.5 transition-transform duration-300 ease-in-out"
+                        style={{ transform: `translateX(-${thumbStartIndex * (104 + 10)}px)` }}
                       >
                         {images.map((img, idx) => {
                           const mediaType = getMediaType(img);
@@ -825,11 +861,18 @@ const CarDetailsPage = () => {
                             <button
                               key={idx}
                               onClick={() => setActiveImage(idx)}
-                              className={`relative w-24 h-16 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${activeImage === idx
-                                ? 'border-[#00C9AF] shadow-md scale-105'
-                                : 'border-transparent opacity-60 hover:opacity-100'
+                              className={`relative w-24 h-16 sm:w-26 sm:h-17 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all cursor-pointer ${activeImage === idx
+                                ? 'border-[#00C9AF] shadow-md scale-105 ring-2 ring-[#00C9AF]/30'
+                                : 'border-slate-200 opacity-75 hover:opacity-100 hover:border-slate-400'
                                 }`}
                             >
+                              {/* 360 Yellow Badge on First Image (matching reference image) */}
+                              {idx === 0 && (
+                                <div className="absolute top-1 right-1 z-10 bg-[#FFB800] text-[#0C1B33] text-[9px] font-black px-1 py-0.5 rounded shadow-sm leading-none">
+                                  360°
+                                </div>
+                              )}
+
                               {mediaType === 'bunny_stream' ? (
                                 <div className="relative w-full h-full bg-[#0C1B33] flex items-center justify-center">
                                   <div className="w-6 h-6 rounded-full bg-[#00C9AF] text-[#0A1C3A] flex items-center justify-center shadow text-[10px] pl-0.5 animate-pulse">▶</div>
@@ -880,14 +923,19 @@ const CarDetailsPage = () => {
                       </div>
                     </div>
 
-                    {/* Right navigation arrow */}
+                    {/* Right navigation arrow - Highly Visible and Prominent */}
                     <button
+                      type="button"
                       onClick={() => updateThumbStartIndex(thumbStartIndex + 1)}
                       disabled={thumbStartIndex >= images.length - visibleCount}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all bg-white/5 border border-white/10 hover:bg-white/10 ${thumbStartIndex >= images.length - visibleCount ? 'opacity-30 cursor-not-allowed' : 'text-white hover:shadow-sm'
-                        }`}
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all shrink-0 cursor-pointer shadow-sm ${
+                        thumbStartIndex >= images.length - visibleCount
+                          ? 'opacity-30 cursor-not-allowed bg-slate-100 text-slate-400 border border-slate-200'
+                          : 'bg-white hover:bg-[#0C1B33] text-slate-800 hover:text-[#00C9AF] border border-slate-300 hover:border-[#0C1B33] hover:scale-105 active:scale-95'
+                      }`}
+                      aria-label="Next thumbnails"
                     >
-                      <ChevronRight size={16} />
+                      <ChevronRight size={20} strokeWidth={2.5} />
                     </button>
                   </div>
                 )}
@@ -1089,7 +1137,16 @@ const CarDetailsPage = () => {
 
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-8 gap-y-6">
                     {[
-                      { icon: <Calendar size={18} />, label: 'Reg. year', value: car.regYear || car.year },
+                      { 
+                        icon: <Calendar size={18} />, 
+                        label: 'Reg. year', 
+                        value: car.regMonth ? `${car.regMonth.toUpperCase()} ${car.regYear || car.year}` : (car.regYear || car.year) 
+                      },
+                      { 
+                        icon: <Calendar size={18} />, 
+                        label: 'Mfg. year', 
+                        value: car.mfgMonth ? `${car.mfgMonth.toUpperCase()} ${car.year}` : (car.year || '-') 
+                      },
                       { icon: <Fuel size={18} />, label: 'Fuel', value: car.fuelType },
                       { icon: <Gauge size={18} />, label: 'KM driven', value: `${(car.km || 0).toLocaleString()} km` },
                       { icon: <History size={18} />, label: 'Transmission', value: car.transmission },

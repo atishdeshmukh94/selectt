@@ -1791,6 +1791,10 @@ function mapCar(car) {
         hub: car.hub,
         ownership: car.ownership,
         engineCapacity: car.engine_capacity,
+        mfgMonth: car.mfg_month || null,
+        mfg_month: car.mfg_month || null,
+        regMonth: car.reg_month || null,
+        reg_month: car.reg_month || null,
         regYear: car.reg_year,
         regState: car.reg_state,
         spareKey: car.spare_key,
@@ -1956,6 +1960,12 @@ app.get('/api/cars/:id/inspection-report', async (req, res) => {
                         return res.sendFile(localPath);
                     }
                 } else if (customPdfUrl.startsWith('http://') || customPdfUrl.startsWith('https://')) {
+                    if (customPdfUrl.includes('drive.google.com') || customPdfUrl.includes('docs.google.com')) {
+                        const driveMatch = customPdfUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || customPdfUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                        if (driveMatch && driveMatch[1]) {
+                            return res.redirect(`https://drive.google.com/file/d/${driveMatch[1]}/view`);
+                        }
+                    }
                     return res.redirect(customPdfUrl);
                 }
             }
@@ -2062,6 +2072,8 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
         listing_type: listingType || listing_type || 'standard',
         ownership: ownership || '1st Owner',
         engine_capacity: engineCapacity || engine_capacity || null,
+        mfg_month: req.body.mfgMonth || req.body.mfg_month || null,
+        reg_month: req.body.regMonth || req.body.reg_month || null,
         reg_year: safeNumber(regYear !== undefined ? regYear : reg_year, safeNumber(year, new Date().getFullYear())),
         reg_state: regState || reg_state || null,
         spare_key: spareKey || spare_key || 'Yes',
@@ -2230,6 +2242,8 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             listing_type: listingType || listing_type || 'standard',
             ownership: ownership || '1st Owner',
             engine_capacity: engineCapacity || engine_capacity || null,
+            mfg_month: req.body.mfgMonth !== undefined ? req.body.mfgMonth : (req.body.mfg_month !== undefined ? req.body.mfg_month : (oldCar ? oldCar.mfg_month : null)),
+            reg_month: req.body.regMonth !== undefined ? req.body.regMonth : (req.body.reg_month !== undefined ? req.body.reg_month : (oldCar ? oldCar.reg_month : null)),
             reg_year: safeNumber(regYear !== undefined ? regYear : reg_year, safeNumber(year, new Date().getFullYear())),
             reg_state: regState || reg_state || null,
             spare_key: spareKey || spare_key || 'Yes',

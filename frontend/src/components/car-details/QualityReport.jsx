@@ -36,8 +36,31 @@ const QualityReport = ({ report, car, theme = 'white' }) => {
     try {
       setIsDownloading(true);
       const rawReportUrl = report?.fullReportUrl?.trim();
-      let targetUrl = '';
 
+      // Check if it's a Google Drive link
+      if (rawReportUrl && (rawReportUrl.includes('drive.google.com') || rawReportUrl.includes('docs.google.com'))) {
+        const driveMatch = rawReportUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || rawReportUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        let previewUrl = rawReportUrl;
+        if (driveMatch && driveMatch[1]) {
+          previewUrl = `https://drive.google.com/file/d/${driveMatch[1]}/view`;
+        }
+        window.open(previewUrl, '_blank', 'noopener,noreferrer');
+        if (addToast) {
+          addToast('Opening official vehicle inspection report in new tab...', 'success');
+        }
+        return;
+      }
+
+      // Check if it's an external web page link (not our API uploads and not a direct .pdf file)
+      if (rawReportUrl && (rawReportUrl.startsWith('http://') || rawReportUrl.startsWith('https://')) && !rawReportUrl.startsWith(API_URL) && !rawReportUrl.toLowerCase().endsWith('.pdf')) {
+        window.open(rawReportUrl, '_blank', 'noopener,noreferrer');
+        if (addToast) {
+          addToast('Opening vehicle inspection report...', 'success');
+        }
+        return;
+      }
+
+      let targetUrl = '';
       if (rawReportUrl) {
         targetUrl = rawReportUrl.startsWith('/uploads/') ? `${API_URL}${rawReportUrl}` : rawReportUrl;
       } else if (car?.id) {
@@ -66,20 +89,16 @@ const QualityReport = ({ report, car, theme = 'white' }) => {
           addToast('Inspection report downloaded successfully!', 'success');
         }
       } catch (fetchErr) {
-        // Fallback in case fetch/CORS is restricted
-        const link = document.createElement('a');
-        link.href = targetUrl;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Fallback for CORS or external URLs: open directly without corrupting download as HTML
+        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        if (addToast) {
+          addToast('Inspection report opened in new tab!', 'info');
+        }
       }
     } catch (e) {
       console.error('[Download Inspection Report Error]:', e);
       if (addToast) {
-        addToast('Unable to download report. Please try again.', 'error');
+        addToast('Unable to open report. Please try again.', 'error');
       }
     } finally {
       setIsDownloading(false);

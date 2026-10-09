@@ -487,8 +487,16 @@ const BuyCarsPage = () => {
     if (filters.models?.length > 0 && !filters.models.some(m => m.toLowerCase() === (car.model || '').toLowerCase())) return false;
     if (filters.body_type?.length > 0) {
       const carBt = (car.bodyType || car.body_type || '').toLowerCase().trim();
+      const carFuel = (car.fuelType || car.fuel_type || '').toLowerCase().trim();
+      const carTitle = `${car.make || ''} ${car.model || ''} ${car.title || ''}`.toLowerCase();
+      const carPrice = parseInt(car.price, 10) || 0;
+      const isEv = carFuel.includes('electric') || carFuel.includes('ev') || carTitle.includes(' ev ') || carTitle.endsWith(' ev') || carBt.includes('ev');
+      const isLuxury = carBt.includes('luxury') || Boolean(car.isLuxury || car.is_luxury) || carPrice >= 2500000 || ['bmw', 'mercedes', 'audi', 'jaguar', 'porsche', 'land rover', 'volvo', 'lexus'].some(b => (car.make || '').toLowerCase().includes(b));
+
       const match = filters.body_type.some(bt => {
         const filterBt = bt.toLowerCase().trim();
+        if (filterBt === 'ev car' || filterBt === 'ev') return isEv;
+        if (filterBt === 'luxury') return isLuxury;
         if (carBt === filterBt) return true;
         if (carBt.replace(/[-\s]/g, '') === filterBt.replace(/[-\s]/g, '')) return true;
         return false;

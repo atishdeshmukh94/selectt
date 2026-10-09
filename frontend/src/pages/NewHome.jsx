@@ -144,8 +144,9 @@ const BODY_TYPES = [
   { name: 'Hatchback', icon: '/img/hatchback.webp', hoverIcon: '/img/hatchback-hover.webp' },
   { name: 'Sedan', icon: '/img/sedan.webp', hoverIcon: '/img/sedan-hover.webp' },
   { name: 'SUV', icon: '/img/suv.webp', hoverIcon: '/img/suv-hover.webp' },
-  { name: 'Compact SUV', icon: '/img/suv.webp', hoverIcon: '/img/suv-hover.webp' },
+  { name: 'Compact SUV', icon: '/img/compact-suv.webp', hoverIcon: '/img/compact-suv-hover.webp' },
   { name: 'MUV', icon: '/img/muv.webp', hoverIcon: '/img/muv-hover.webp' },
+  { name: 'EV CAR', icon: '/img/ev-car.webp', hoverIcon: '/img/ev-car-hover.webp' },
   { name: 'Selectt Luxury', icon: '/img/luxury-suv.webp', hoverIcon: '/img/luxury-suv-hover.webp' },
 ];
 
