@@ -376,8 +376,8 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
   const lastTapRef = useRef(0);
   
   const viewerRef = useRef(null);
-  const [isMouseDown, setIsMouseDown] = useState(false);
-  const mouseStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
 
   const mobileThumbRefs = useRef([]);
   const desktopThumbRefs = useRef([]);
@@ -432,6 +432,72 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
     updatePosition({ x: 0, y: 0 });
   }, [activeIndex]);
 
+  // Desktop Double-Click to Zoom In / Reset
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    if (scaleRef.current > 1.05) {
+      updateScale(1);
+      updatePosition({ x: 0, y: 0 });
+    } else {
+      updateScale(2.5);
+      const rect = viewerRef.current?.getBoundingClientRect();
+      if (rect) {
+        const clickX = e.clientX - (rect.left + rect.width / 2);
+        const clickY = e.clientY - (rect.top + rect.height / 2);
+        updatePosition({
+          x: Math.round(-clickX * 1.2),
+          y: Math.round(-clickY * 1.2)
+        });
+      } else {
+        updatePosition({ x: 0, y: 0 });
+      }
+    }
+  };
+
+  // Desktop Mouse Drag (Pan) Handlers with Window Listeners
+  const handleMouseDown = (e) => {
+    if (e.button !== 0) return; // Only left-click
+    if (scaleRef.current <= 1.05) return;
+    e.preventDefault();
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      posX: positionRef.current.x,
+      posY: positionRef.current.y
+    };
+  };
+
+  useEffect(() => {
+    const handleWindowMouseMove = (e) => {
+      if (!isDragging || scaleRef.current <= 1.05) return;
+      e.preventDefault();
+      const dx = e.clientX - dragStartRef.current.x;
+      const dy = e.clientY - dragStartRef.current.y;
+      const maxPanX = Math.max(300, window.innerWidth * (scaleRef.current - 1));
+      const maxPanY = Math.max(250, window.innerHeight * (scaleRef.current - 1));
+      updatePosition({
+        x: Math.min(Math.max(-maxPanX, dragStartRef.current.posX + dx), maxPanX),
+        y: Math.min(Math.max(-maxPanY, dragStartRef.current.posY + dy), maxPanY)
+      });
+    };
+
+    const handleWindowMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+      }
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleWindowMouseMove);
+      window.addEventListener('mouseup', handleWindowMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleWindowMouseMove);
+      window.removeEventListener('mouseup', handleWindowMouseUp);
+    };
+  }, [isDragging]);
+
   // Non-passive Touch and Wheel Event Handling (Crucial for mobile zoom & pan)
   useEffect(() => {
     const el = viewerRef.current;
@@ -465,14 +531,24 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
           time: now
         };
 
-        // Double-Tap to Zoom In (2.5x) or Reset (1x)
+        // Mobile Double-Tap to Zoom In (2.5x) or Reset (1x)
         if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
           if (scaleRef.current > 1.05) {
             updateScale(1);
             updatePosition({ x: 0, y: 0 });
           } else {
             updateScale(2.5);
-            updatePosition({ x: 0, y: 0 });
+            const rect = el.getBoundingClientRect();
+            if (rect) {
+              const clickX = e.touches[0].clientX - (rect.left + rect.width / 2);
+              const clickY = e.touches[0].clientY - (rect.top + rect.height / 2);
+              updatePosition({
+                x: Math.round(-clickX * 1.2),
+                y: Math.round(-clickY * 1.2)
+              });
+            } else {
+              updatePosition({ x: 0, y: 0 });
+            }
           }
           lastTapRef.current = 0;
         } else {
@@ -496,13 +572,13 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
           updatePosition({ x: 0, y: 0 });
         }
       } 
-      // 1-Finger Pan when Zoomed In: Smooth panning, block browser back & prevent slide switch!
+      // 1-Finger Free Slide Pan when Zoomed In: Smooth 4-way panning (left, right, top, bottom)
       else if (e.touches.length === 1 && scaleRef.current > 1.05) {
         if (e.cancelable) e.preventDefault();
         const dx = e.touches[0].clientX - touchStartRef.current.x;
         const dy = e.touches[0].clientY - touchStartRef.current.y;
-        const maxPanX = (scaleRef.current - 1) * 350;
-        const maxPanY = (scaleRef.current - 1) * 240;
+        const maxPanX = Math.max(300, window.innerWidth * (scaleRef.current - 1));
+        const maxPanY = Math.max(250, window.innerHeight * (scaleRef.current - 1));
         updatePosition({
           x: Math.min(Math.max(-maxPanX, touchStartRef.current.posX + dx), maxPanX),
           y: Math.min(Math.max(-maxPanY, touchStartRef.current.posY + dy), maxPanY)
@@ -515,6 +591,10 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
       if (scaleRef.current < 1.05) {
         updateScale(1);
         updatePosition({ x: 0, y: 0 });
+      } else {
+        // Save updated position for next drag stroke
+        touchStartRef.current.posX = positionRef.current.x;
+        touchStartRef.current.posY = positionRef.current.y;
       }
 
       // CRITICAL: When zoomed in (scale > 1.05), NEVER swipe or change slide!
@@ -539,7 +619,7 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
 
     const handleWheel = (e) => {
       if (e.cancelable) e.preventDefault();
-      const zoomDelta = e.deltaY < 0 ? 0.3 : -0.3;
+      const zoomDelta = e.deltaY < 0 ? 0.35 : -0.35;
       const nextScale = Math.min(Math.max(1, scaleRef.current + zoomDelta), 4);
       updateScale(nextScale);
       if (nextScale <= 1.05) {
@@ -563,42 +643,10 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
     };
   }, [activeIndex, total, onChangeIndex]);
 
-  // Mouse pan handlers for desktop
-  const handleMouseDown = (e) => {
-    if (scaleRef.current > 1.05) {
-      setIsMouseDown(true);
-      mouseStartRef.current = {
-        x: e.clientX,
-        y: e.clientY,
-        posX: positionRef.current.x,
-        posY: positionRef.current.y
-      };
-    }
-  };
-
-  const handleMouseMove = (e) => {
-    if (isMouseDown && scaleRef.current > 1.05) {
-      const dx = e.clientX - mouseStartRef.current.x;
-      const dy = e.clientY - mouseStartRef.current.y;
-      const maxPanX = (scaleRef.current - 1) * 350;
-      const maxPanY = (scaleRef.current - 1) * 240;
-      updatePosition({
-        x: Math.min(Math.max(-maxPanX, mouseStartRef.current.posX + dx), maxPanX),
-        y: Math.min(Math.max(-maxPanY, mouseStartRef.current.posY + dy), maxPanY)
-      });
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsMouseDown(false);
-  };
-
   return (
     <div 
       className="fixed inset-0 z-[1000000] bg-black/95 backdrop-blur-md flex flex-col justify-between select-none animate-in fade-in duration-200"
       style={{ touchAction: 'none' }}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
     >
       {/* Top Header */}
       <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 text-white bg-gradient-to-b from-black/80 to-transparent z-20 shrink-0">
@@ -645,6 +693,10 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
                   src={getCarImageUrl(img)}
                   alt={`Thumbnail ${idx + 1}`}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = DEFAULT_FALLBACK_IMAGE;
+                  }}
                 />
               </button>
             );
@@ -655,12 +707,12 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
       {/* Main Large Image Viewer */}
       <div 
         ref={viewerRef}
-        className="flex-1 relative flex items-center justify-center overflow-hidden px-2 sm:px-4 select-none"
+        onDoubleClick={handleDoubleClick}
         onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
+        className="flex-1 relative flex items-center justify-center overflow-hidden px-2 sm:px-4 select-none"
         style={{
           touchAction: 'none',
-          cursor: scale > 1.05 ? (isMouseDown ? 'grabbing' : 'grab') : 'default'
+          cursor: scale > 1.05 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in'
         }}
       >
         {/* Left Arrow Button (Only visible when scale is 1x) */}
@@ -675,16 +727,21 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
           </button>
         )}
 
-        {/* Centered Image */}
+        {/* Centered Image with 1:1 screen-pixel translation */}
         <img
           src={getCarImageUrl(currentImg)}
           alt={`${carTitle} - Photo ${activeIndex + 1}`}
-          className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain transition-transform duration-75 rounded-lg shadow-2xl pointer-events-none"
+          className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain rounded-lg shadow-2xl pointer-events-none select-none"
           style={{
-            transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
-            transformOrigin: 'center center'
+            transform: `translate3d(${position.x}px, ${position.y}px, 0px) scale(${scale})`,
+            transformOrigin: 'center center',
+            transition: isDragging ? 'none' : 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
           draggable={false}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = DEFAULT_FALLBACK_IMAGE;
+          }}
         />
 
         {/* Right Arrow Button (Only visible when scale is 1x) */}
@@ -765,8 +822,8 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
                 ref={el => (desktopThumbRefs.current[idx] = el)}
                 type="button"
                 onClick={() => {
-                  setScale(1);
-                  setPosition({ x: 0, y: 0 });
+                  updateScale(1);
+                  updatePosition({ x: 0, y: 0 });
                   onChangeIndex(idx);
                 }}
                 className={`relative w-16 h-11 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
@@ -777,6 +834,10 @@ const FullscreenLightbox = ({ images, activeIndex, onClose, onChangeIndex, carTi
                   src={getCarImageUrl(img)}
                   alt={`Thumbnail ${idx + 1}`}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = DEFAULT_FALLBACK_IMAGE;
+                  }}
                 />
               </button>
             );
