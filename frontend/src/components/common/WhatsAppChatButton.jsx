@@ -79,8 +79,22 @@ const WhatsAppChatButton = () => {
     }
 
     if (isCheckoutPage) {
+      document.body.classList.add('hide-gallabox-widget', 'is-checkout');
+      if (window.Chatty?.livechat?.hideWidget) {
+        try { window.Chatty.livechat.hideWidget(); } catch (e) {}
+      }
+      const widget = document.querySelector('.chatty-widget, #chatty-widget');
+      if (widget) widget.style.display = 'none';
       return;
     }
+
+    // When not on checkout, make sure widget is visible
+    document.body.classList.remove('hide-gallabox-widget', 'is-checkout');
+    if (window.Chatty?.livechat?.showWidget) {
+      try { window.Chatty.livechat.showWidget(); } catch (e) {}
+    }
+    const widget = document.querySelector('.chatty-widget, #chatty-widget');
+    if (widget) widget.style.display = '';
 
     const token = extractGallaboxToken(settings?.gallabox_widget_token || DEFAULT_GALLABOX_TOKEN);
     if (!token) return;

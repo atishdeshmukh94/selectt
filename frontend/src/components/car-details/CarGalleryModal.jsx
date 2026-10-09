@@ -1056,6 +1056,26 @@ const CarGalleryModal = ({
     };
   }, [isOpen]);
 
+  // Suppress 3rd-party chat widgets (Gallabox / Chatty) while gallery/lightbox modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    document.body.classList.add('hide-gallabox-widget', 'is-lightbox-open');
+    if (window.Chatty?.livechat?.hideWidget) {
+      try { window.Chatty.livechat.hideWidget(); } catch (e) {}
+    }
+    const widget = document.querySelector('.chatty-widget, #chatty-widget');
+    if (widget) widget.style.display = 'none';
+
+    return () => {
+      document.body.classList.remove('hide-gallabox-widget', 'is-lightbox-open');
+      if (window.Chatty?.livechat?.showWidget) {
+        try { window.Chatty.livechat.showWidget(); } catch (e) {}
+      }
+      if (widget) widget.style.display = '';
+    };
+  }, [isOpen]);
+
   // Scroll to category section
   const handleCategoryClick = (catId) => {
     setActiveCategory(catId);

@@ -687,6 +687,22 @@ button, input[type="button"], input[type="submit"] {
 }
 
 /* ==========================================================================
+   SUPPRESS CHAT WIDGETS ON CHECKOUT & LIGHTBOX
+   ========================================================================== */
+body.hide-gallabox-widget .chatty-widget,
+body.hide-gallabox-widget #chatty-widget,
+body.hide-gallabox-widget [class*="chatty-widget"],
+body.hide-gallabox-widget iframe[src*="gallabox"],
+body.hide-gallabox-widget iframe[src*="chatty"],
+body.is-checkout .chatty-widget,
+body.is-lightbox-open .chatty-widget {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* ==========================================================================
    RESPONSIVE COMPONENT & SECTION SPACING SYSTEM
    ========================================================================== */
 

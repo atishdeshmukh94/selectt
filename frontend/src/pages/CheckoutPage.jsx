@@ -618,6 +618,24 @@ const CheckoutPage = () => {
     window.scrollTo(0, 0);
   }, [carId, user, navigate]);
 
+  // Suppress 3rd-party chat widgets (Gallabox / Chatty) while on checkout
+  useEffect(() => {
+    document.body.classList.add('hide-gallabox-widget', 'is-checkout');
+    if (window.Chatty?.livechat?.hideWidget) {
+      try { window.Chatty.livechat.hideWidget(); } catch (e) {}
+    }
+    const widget = document.querySelector('.chatty-widget, #chatty-widget');
+    if (widget) widget.style.display = 'none';
+
+    return () => {
+      document.body.classList.remove('hide-gallabox-widget', 'is-checkout');
+      if (window.Chatty?.livechat?.showWidget) {
+        try { window.Chatty.livechat.showWidget(); } catch (e) {}
+      }
+      if (widget) widget.style.display = '';
+    };
+  }, []);
+
   const [isBooking, setIsBooking] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [interestedInLoan, setInterestedInLoan] = useState(false);

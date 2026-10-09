@@ -364,6 +364,25 @@ const CarDetailsPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isLightboxOpen, images.length]);
 
+  // Suppress 3rd-party chat widgets (Gallabox / Chatty) while lightbox is open
+  useEffect(() => {
+    if (isLightboxOpen) {
+      document.body.classList.add('hide-gallabox-widget', 'is-lightbox-open');
+      if (window.Chatty?.livechat?.hideWidget) {
+        try { window.Chatty.livechat.hideWidget(); } catch (e) {}
+      }
+      const widget = document.querySelector('.chatty-widget, #chatty-widget');
+      if (widget) widget.style.display = 'none';
+    } else {
+      document.body.classList.remove('hide-gallabox-widget', 'is-lightbox-open');
+      if (window.Chatty?.livechat?.showWidget) {
+        try { window.Chatty.livechat.showWidget(); } catch (e) {}
+      }
+      const widget = document.querySelector('.chatty-widget, #chatty-widget');
+      if (widget) widget.style.display = '';
+    }
+  }, [isLightboxOpen]);
+
   useEffect(() => {
     if (!user || !car || !token) return;
     fetch(`${API_URL}/api/wishlist/check/${car.id}`, {
