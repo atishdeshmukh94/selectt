@@ -292,12 +292,12 @@ function BodyTypeButton({ type, isActive, onClick }) {
         border: '1px solid rgba(0,228,192,0.55)',
         boxShadow: '0 4px 24px rgba(0,204,179,0.25), inset 0 1px 0 rgba(255,255,255,0.18)',
       } : {}}
-      className={`group flex flex-col items-center justify-center gap-1.5 min-w-[100px] md:min-w-[120px] py-2.5 px-3 rounded-xl transition-all duration-300 shrink-0 cursor-pointer ${isActive
+      className={`group flex flex-col items-center justify-center gap-1.5 min-w-[85px] sm:min-w-[95px] md:min-w-[105px] lg:min-w-[120px] py-2 md:py-2.5 px-2 md:px-3 rounded-xl transition-all duration-300 shrink-0 cursor-pointer ${isActive
         ? 'text-white scale-[1.05] font-extrabold shadow-lg'
         : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent hover:scale-102 active:scale-95'
         }`}
     >
-      <div className="w-18 h-10 flex items-center justify-center">
+      <div className="w-16 md:w-18 h-9 md:h-10 flex items-center justify-center">
         <img
           src={showHover ? type.hoverIcon : type.icon}
           alt={type.name}
@@ -306,7 +306,7 @@ function BodyTypeButton({ type, isActive, onClick }) {
           }`}
         />
       </div>
-      <span className="text-[11px] md:text-[12px] font-bold tracking-tight leading-none">
+      <span className="text-[11px] md:text-[12px] font-bold tracking-tight leading-none whitespace-nowrap">
         {type.name}
       </span>
     </button>
@@ -2815,10 +2815,10 @@ const NewHome = () => {
             </div>
           </div>
 
-          {/* Body Type Filter Tabs (Horizontal List) - No counts */}
+          {/* Body Type Filter Tabs (Horizontal List) - Expanded Single Row */}
           <div
             ref={bodyTypeTabsContainerRef}
-            className="mb-10 border border-white/5 rounded-2xl max-w-full md:max-w-[960px] mx-auto bg-[#0C1B33] p-2 flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-3 md:gap-6 overflow-x-auto scrollbar-none w-full md:w-full"
+            className="mb-10 border border-white/5 rounded-2xl w-full max-w-full lg:max-w-[1240px] xl:max-w-[1320px] mx-auto bg-[#0C1B33] p-2.5 sm:p-3 flex flex-nowrap items-center justify-start md:justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 overflow-x-auto scrollbar-none"
           >
             {BODY_TYPES.map((type, index) => {
               const isActive = activeBodyType === type.name;

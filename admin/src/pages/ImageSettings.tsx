@@ -981,7 +981,26 @@ export default function ImageSettings() {
       // Also ensure video keys are explicitly saved
       const videoUrl = (siteContent.mobile_home_video_url || "").trim();
       const videoEnabled = siteContent.mobile_home_video_enabled !== "false" ? "true" : "false";
+      
+      // Sync car_details_sidebar_banner to banners table
+      const sidebarImgUrl = (siteContent.car_details_sidebar_banner || siteSettings.car_details_sidebar_banner || "").trim();
+      const sidebarSyncPromise = sidebarImgUrl ? (async () => {
+        try {
+          const form = new FormData();
+          form.append("page", "car-detail");
+          form.append("type", "sidebar");
+          form.append("image_url", sidebarImgUrl);
+          form.append("is_active", "1");
+          await fetch(`${API}/api/admin/banners/19`, {
+            method: "PUT",
+            headers: { Authorization: `Bearer ${token}` },
+            body: form,
+          });
+        } catch (_) {}
+      })() : Promise.resolve();
+
       await Promise.all([
+        sidebarSyncPromise,
         fetch(`${API}/api/admin/site-content/mobile_home_video_url`, {
           method: "PUT",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

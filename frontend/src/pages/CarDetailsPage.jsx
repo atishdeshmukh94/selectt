@@ -172,12 +172,33 @@ const CarDetailsPage = () => {
   };
 
   useEffect(() => {
-    fetch(`${API_URL}/api/banners?page=car-detail&type=sidebar`)
+    // 1. First check site-content where Image Settings saves car_details_sidebar_banner
+    fetch(`${API_URL}/api/site-content`)
       .then(r => r.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) setSidebarBanner(data[0]);
+        if (data && data.car_details_sidebar_banner) {
+          setSidebarBanner({
+            image_url: data.car_details_sidebar_banner,
+            title: 'Promotional Banner'
+          });
+        } else {
+          // Fallback to banners table
+          fetch(`${API_URL}/api/banners?page=car-detail&type=sidebar`)
+            .then(r => r.json())
+            .then(bData => {
+              if (Array.isArray(bData) && bData.length > 0) setSidebarBanner(bData[0]);
+            })
+            .catch(() => {});
+        }
       })
-      .catch(() => {});
+      .catch(() => {
+        fetch(`${API_URL}/api/banners?page=car-detail&type=sidebar`)
+          .then(r => r.json())
+          .then(bData => {
+            if (Array.isArray(bData) && bData.length > 0) setSidebarBanner(bData[0]);
+          })
+          .catch(() => {});
+      });
   }, []);
 
   const handleBookNow = () => {
@@ -757,48 +778,26 @@ const CarDetailsPage = () => {
 
               </div>
 
-                  {/* 3-Button Media Selector Bar (Desktop & Mobile) */}
-                  <div className="flex items-center justify-center gap-2 sm:gap-3 py-2.5 px-3 bg-slate-50 border-t border-slate-100 relative z-20">
-                    {/* 1st: 360° View Button */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const index360 = images.findIndex(img => img?.includes('360') || img?.includes('spin'));
-                        if (index360 !== -1) {
-                          setActiveImage(index360);
-                        } else {
-                          openLightbox();
-                        }
-                      }}
-                      className={`flex-1 max-w-[150px] py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer ${
-                        (images[activeImage]?.includes('360') || images[activeImage]?.includes('spin'))
-                          ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/50 shadow-sm'
-                          : 'bg-white text-slate-700 border border-slate-200 hover:border-[#00C9AF] hover:text-[#0C1B33] shadow-2xs'
-                      }`}
-                    >
-                      <RotateCcw size={14} className="shrink-0" />
-                      <span>360° View</span>
-                      <span className="bg-[#FFB800] text-[#0C1B33] text-[9px] font-black px-1 py-0.5 rounded leading-none">360°</span>
-                    </button>
-
-                    {/* 2nd: Images Button */}
+                  {/* 3-Button Media Selector Bar: 1st Images, 2nd Video, 3rd 360° View */}
+                  <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 py-1.5 sm:py-2 px-3 bg-slate-50 border-t border-slate-100 relative z-20">
+                    {/* 1st: Images Button */}
                     <button
                       type="button"
                       onClick={() => {
                         const photoIdx = images.findIndex(img => getMediaType(img) === 'image' && !(img?.includes('360') || img?.includes('spin')));
                         setActiveImage(photoIdx !== -1 ? photoIdx : 0);
                       }}
-                      className={`flex-1 max-w-[150px] py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer ${
+                      className={`flex-1 max-w-[125px] sm:max-w-[140px] h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-lg sm:rounded-xl flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer whitespace-nowrap ${
                         getMediaType(images[activeImage]) === 'image' && !(images[activeImage]?.includes('360') || images[activeImage]?.includes('spin'))
-                          ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/50 shadow-sm'
+                          ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/50 shadow-xs'
                           : 'bg-white text-slate-700 border border-slate-200 hover:border-[#00C9AF] hover:text-[#0C1B33] shadow-2xs'
                       }`}
                     >
-                      <Camera size={14} className="shrink-0" />
-                      <span>Images</span>
+                      <Camera size={13} className="shrink-0" />
+                      <span className="whitespace-nowrap">Images</span>
                     </button>
 
-                    {/* 3rd: Video Button */}
+                    {/* 2nd: Video Button */}
                     <button
                       type="button"
                       onClick={() => {
@@ -809,14 +808,35 @@ const CarDetailsPage = () => {
                           setActiveImage(images.length > 1 ? images.length - 1 : 0);
                         }
                       }}
-                      className={`flex-1 max-w-[150px] py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer ${
+                      className={`flex-1 max-w-[125px] sm:max-w-[140px] h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-lg sm:rounded-xl flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer whitespace-nowrap ${
                         ['bunny_stream', 'video', 'youtube'].includes(getMediaType(images[activeImage]))
-                          ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/50 shadow-sm'
+                          ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/50 shadow-xs'
                           : 'bg-white text-slate-700 border border-slate-200 hover:border-[#00C9AF] hover:text-[#0C1B33] shadow-2xs'
                       }`}
                     >
-                      <Video size={14} className="shrink-0" />
-                      <span>Video</span>
+                      <Video size={13} className="shrink-0" />
+                      <span className="whitespace-nowrap">Video</span>
+                    </button>
+
+                    {/* 3rd: 360° View Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const index360 = images.findIndex(img => img?.includes('360') || img?.includes('spin'));
+                        if (index360 !== -1) {
+                          setActiveImage(index360);
+                        } else {
+                          openLightbox();
+                        }
+                      }}
+                      className={`flex-1 max-w-[125px] sm:max-w-[140px] h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-lg sm:rounded-xl flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer whitespace-nowrap ${
+                        (images[activeImage]?.includes('360') || images[activeImage]?.includes('spin'))
+                          ? 'bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/50 shadow-xs'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:border-[#00C9AF] hover:text-[#0C1B33] shadow-2xs'
+                      }`}
+                    >
+                      <RotateCcw size={13} className="shrink-0" />
+                      <span className="whitespace-nowrap">360° View</span>
                     </button>
                   </div>
 
