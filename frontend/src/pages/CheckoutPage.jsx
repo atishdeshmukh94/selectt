@@ -3097,7 +3097,7 @@ const CheckoutPage = () => {
               <button
                 type="button"
                 onClick={() => setIsPriceSummaryOpen(false)}
-                className="px-4 py-3 rounded-xl border border-slate-300 font-extrabold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer shrink-0"
+                className="px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl border border-slate-300 font-extrabold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer shrink-0"
               >
                 Close
               </button>
@@ -3112,12 +3112,14 @@ const CheckoutPage = () => {
                     setTimeout(() => payBtn.classList.remove('ring-4', 'ring-[#00C9AF]/50'), 1500);
                   }
                 }}
-                className="flex-1 py-3 px-4 bg-gradient-to-r from-[#0C1B33] to-[#162A47] hover:from-[#112442] hover:to-[#0C1B33] text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="btn-shine relative overflow-hidden flex-1 py-3 sm:py-3.5 px-4 sm:px-5 bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-black text-xs sm:text-sm rounded-2xl transition-all duration-300 shadow-lg shadow-[#00C9AF]/30 hover:shadow-xl hover:shadow-[#00C9AF]/40 flex items-center justify-between cursor-pointer uppercase tracking-wider active:scale-[0.99]"
               >
-                <span>Book This Car</span>
-                <span className="font-price text-[#00C9AF] font-bold">
-                  (Pay ₹{finalPayableBookingAmount.toLocaleString('en-IN')})
-                </span>
+                <span className="font-black tracking-wider">Book This Car</span>
+                <div className="flex items-center gap-1.5 font-price">
+                  <span className="bg-[#0C1B33] text-white px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-sm tracking-tight">
+                    ₹{finalPayableBookingAmount.toLocaleString('en-IN')}
+                  </span>
+                </div>
               </button>
             </div>
           </div>

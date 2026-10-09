@@ -278,6 +278,7 @@ const PriceSummaryModal = ({ isOpen, onClose, car, carPrice, onBookNow }) => {
   const savingsAmount = ((carObj?.original_price && Number(carObj.original_price) > Number(carObj?.price))
     ? (Number(carObj.original_price) - Number(carObj.price))
     : 15000);
+  const bookingDepositAmount = Number(carObj?.booking_amount || 11000);
 
   return (
     <div className="fixed inset-0 z-[99999] bg-black/65 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
@@ -548,10 +549,26 @@ const PriceSummaryModal = ({ isOpen, onClose, car, carPrice, onBookNow }) => {
 
         {/* Modal Sticky Bottom Action Bar */}
         <div className="sticky bottom-0 bg-white/95 backdrop-blur-md px-4 py-3 sm:px-6 sm:py-3.5 border-t border-slate-200 z-30 flex items-center gap-3 shadow-lg mt-auto">
+          <style>{`
+            @keyframes priceModalBtnShine {
+              0%   { transform: translateX(-100%) skewX(-15deg); }
+              100% { transform: translateX(250%) skewX(-15deg); }
+            }
+            .price-modal-btn-shine::after {
+              content: '';
+              position: absolute;
+              top: 0; left: 0;
+              width: 40%;
+              height: 100%;
+              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+              animation: priceModalBtnShine 2.2s ease-in-out infinite;
+              pointer-events: none;
+            }
+          `}</style>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-3 rounded-xl border border-slate-300 font-extrabold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer shrink-0"
+            className="px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl border border-slate-300 font-extrabold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer shrink-0"
           >
             Close
           </button>
@@ -565,9 +582,14 @@ const PriceSummaryModal = ({ isOpen, onClose, car, carPrice, onBookNow }) => {
                 window.location.href = `/checkout/${carObj.id}`;
               }
             }}
-            className="flex-1 py-3 px-4 bg-gradient-to-r from-[#0C1B33] to-[#162A47] hover:from-[#112442] hover:to-[#0C1B33] text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="price-modal-btn-shine relative overflow-hidden flex-1 py-3 sm:py-3.5 px-4 sm:px-5 bg-gradient-to-r from-[#00C9AF] via-[#00DFB8] to-[#00A884] hover:from-[#00b4a0] hover:to-[#009170] text-[#0C1B33] font-black text-xs sm:text-sm rounded-2xl transition-all duration-300 shadow-lg shadow-[#00C9AF]/30 hover:shadow-xl hover:shadow-[#00C9AF]/40 flex items-center justify-between cursor-pointer uppercase tracking-wider active:scale-[0.99]"
           >
-            <span>Book This Car</span>
+            <span className="font-black tracking-wider">Book This Car</span>
+            <div className="flex items-center gap-1.5 font-price">
+              <span className="bg-[#0C1B33] text-white px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-sm tracking-tight">
+                ₹{bookingDepositAmount.toLocaleString('en-IN')}
+              </span>
+            </div>
           </button>
         </div>
       </div>
