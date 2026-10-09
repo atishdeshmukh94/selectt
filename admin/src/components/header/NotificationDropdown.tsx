@@ -39,6 +39,9 @@ const getIconForType = (type: string) => {
     case 'WISHLIST': return 'bg-rose-500';
     case 'INSURANCE':
     case 'INSURANCE_ENQUIRY': return 'bg-indigo-500';
+    case 'LEAD':
+    case 'CONTACT':
+    case 'CONTACT_US': return 'bg-teal-600';
     default: return 'bg-gray-500';
   }
 };
@@ -166,14 +169,50 @@ export default function NotificationDropdown() {
     }
     closeDropdown();
     
-    // Routing based on type
-    if (notif.type === 'NEW_USER') navigate('/customers');
-    if (notif.type === 'CAR_SELL_REQUEST') navigate('/sell-requests');
-    if (notif.type === 'TEST_DRIVE') navigate('/test-drives');
-    if (notif.type === 'LOAN_APPLICATION') navigate('/loan-applications');
-    if (notif.type === 'PAYMENT' || notif.type === 'BOOKING') navigate('/booked-cars');
-    if (notif.type === 'WISHLIST') navigate('/wishlisted-cars');
-    if (notif.type === 'INSURANCE' || notif.type === 'INSURANCE_ENQUIRY') navigate('/insurance-requests');
+    const typeUpper = (notif.type || '').toUpperCase();
+    const msgLower = (notif.message || '').toLowerCase();
+
+    // Routing based on notification type and message keywords
+    if (typeUpper === 'LEAD' || typeUpper === 'CONTACT' || typeUpper === 'CONTACT_US' || msgLower.includes('contact us') || msgLower.includes('lead')) {
+      navigate('/leads');
+      return;
+    }
+    if (typeUpper === 'NEW_USER' || typeUpper === 'USER' || typeUpper === 'CUSTOMER') {
+      navigate('/customers');
+      return;
+    }
+    if (typeUpper === 'CAR_SELL_REQUEST' || typeUpper === 'SELL_REQUEST' || msgLower.includes('sell request')) {
+      navigate('/sell-requests');
+      return;
+    }
+    if (typeUpper === 'TEST_DRIVE' || msgLower.includes('test drive')) {
+      navigate('/test-drives');
+      return;
+    }
+    if (typeUpper === 'LOAN_APPLICATION' || typeUpper === 'LOAN' || msgLower.includes('loan')) {
+      navigate('/loan-applications');
+      return;
+    }
+    if (typeUpper === 'PAYMENT' || typeUpper === 'BOOKING' || msgLower.includes('booked') || msgLower.includes('payment')) {
+      navigate('/booked-cars');
+      return;
+    }
+    if (typeUpper === 'WISHLIST' || msgLower.includes('wishlist')) {
+      navigate('/reports/wishlist');
+      return;
+    }
+    if (typeUpper === 'INSURANCE' || typeUpper === 'INSURANCE_ENQUIRY' || msgLower.includes('insurance')) {
+      navigate('/insurance-requests');
+      return;
+    }
+    if (typeUpper === 'CAREER' || typeUpper === 'CAREERS' || msgLower.includes('job') || msgLower.includes('career')) {
+      navigate('/careers');
+      return;
+    }
+    if (typeUpper === 'CAR' || msgLower.includes('car')) {
+      navigate('/cars');
+      return;
+    }
   };
 
   // Filter list based on selected tab

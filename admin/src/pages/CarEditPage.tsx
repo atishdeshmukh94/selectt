@@ -1323,11 +1323,12 @@ const CarEditPage = () => {
                     <label className={labelClass}>
                       Year (Manufacturing) <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="flex items-center gap-2">
                       <select
-                        className={`${inpClass} col-span-2`}
+                        className={`${inpClass} w-[100px] sm:w-[110px] shrink-0 !px-2.5 !pr-6 text-xs font-bold`}
                         value={formData.mfgMonth || ""}
                         onChange={e => setFormData({ ...formData, mfgMonth: e.target.value })}
+                        title="Manufacturing Month"
                       >
                         <option value="">Month</option>
                         {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"].map(m => (
@@ -1336,7 +1337,7 @@ const CarEditPage = () => {
                       </select>
                       <input 
                         type="number" 
-                        className={`${inpClass} col-span-3`}
+                        className={`${inpClass} flex-1 min-w-0`}
                         value={formData.year} 
                         onChange={e => {
                           const newYear = e.target.value;
@@ -1358,11 +1359,12 @@ const CarEditPage = () => {
                     <label className={labelClass}>
                       Reg. Year <span className="text-rose-500 font-black ml-1">*</span>
                     </label>
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="flex items-center gap-2">
                       <select
-                        className={`${inpClass} col-span-2`}
+                        className={`${inpClass} w-[100px] sm:w-[110px] shrink-0 !px-2.5 !pr-6 text-xs font-bold`}
                         value={formData.regMonth || ""}
                         onChange={e => setFormData({ ...formData, regMonth: e.target.value })}
+                        title="Registration Month"
                       >
                         <option value="">Month</option>
                         {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"].map(m => (
@@ -1371,7 +1373,7 @@ const CarEditPage = () => {
                       </select>
                       <input 
                         type="number" 
-                        className={`${inpClass} col-span-3`}
+                        className={`${inpClass} flex-1 min-w-0`}
                         value={formData.regYear || formData.year} 
                         onChange={e => setFormData({ ...formData, regYear: e.target.value })} 
                         placeholder="e.g. 2024" 

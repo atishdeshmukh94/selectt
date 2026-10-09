@@ -624,18 +624,18 @@ export default function Leads() {
         </div>
       </div>
 
-      {/* Detail & Status Modal */}
+      {/* Detail & Status Modal - 2-Column Compact Layout */}
       {modalOpen && selectedLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white dark:bg-gray-900 rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-gray-200 dark:border-gray-800 space-y-5 animate-in zoom-in-95">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl border border-gray-200 dark:border-gray-800 animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl bg-[#00C9AF]/15 text-[#00a892] flex items-center justify-center font-bold">
-                  {LEAD_TYPE_LABELS[selectedLead.lead_type || "general_lead"]?.icon || <FileText size={16} />}
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3 mb-4">
+              <div className="flex items-center gap-2.5">
+                <span className="w-9 h-9 rounded-xl bg-[#00C9AF]/15 text-[#00a892] flex items-center justify-center font-bold">
+                  {LEAD_TYPE_LABELS[selectedLead.lead_type || "general_lead"]?.icon || <FileText size={18} />}
                 </span>
                 <div>
-                  <h3 className="font-bold text-base text-gray-900 dark:text-white">
+                  <h3 className="font-bold text-base text-gray-900 dark:text-white leading-tight">
                     Lead #{selectedLead.id} Details
                   </h3>
                   <span className="text-xs text-gray-400 capitalize">
@@ -645,132 +645,141 @@ export default function Leads() {
               </div>
               <button
                 onClick={() => setModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-gray-700 flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-gray-700 flex items-center justify-center cursor-pointer transition-colors"
               >
                 <X size={16} />
               </button>
             </div>
 
-            {/* Customer Information Grid */}
-            <div className="grid grid-cols-2 gap-3 text-xs bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
-              <div>
-                <span className="text-gray-400 font-bold uppercase text-[10px]">Customer Name</span>
-                <p className="font-bold text-gray-800 dark:text-gray-100 text-sm mt-0.5">{selectedLead.name}</p>
-              </div>
-              <div>
-                <span className="text-gray-400 font-bold uppercase text-[10px]">Phone Number</span>
-                <p className="font-bold text-gray-800 dark:text-gray-100 text-sm mt-0.5">{selectedLead.phone}</p>
-              </div>
-              {selectedLead.email && (
-                <div>
-                  <span className="text-gray-400 font-bold uppercase text-[10px]">Email Address</span>
-                  <p className="font-semibold text-gray-700 dark:text-gray-300 mt-0.5">{selectedLead.email}</p>
-                </div>
-              )}
-              {selectedLead.subject && (
-                <div>
-                  <span className="text-gray-400 font-bold uppercase text-[10px]">Topic / Subject</span>
-                  <p className="font-semibold text-gray-700 dark:text-gray-300 mt-0.5">{selectedLead.subject}</p>
-                </div>
-              )}
-              <div>
-                <span className="text-gray-400 font-bold uppercase text-[10px]">Submitted Date & Time</span>
-                <p className="font-medium text-gray-600 dark:text-gray-400 mt-0.5">
-                  {new Date(selectedLead.created_at).toLocaleString("en-IN")}
-                </p>
-              </div>
-            </div>
-
-            {/* Parsed Custom Details */}
-            {selectedLead.details && (
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Submission Specifics</span>
-                <div className="bg-slate-50 dark:bg-gray-800 p-3.5 rounded-xl border border-slate-200 dark:border-gray-700 text-xs space-y-1.5">
-                  {Object.entries(parseDetails(selectedLead.details)).map(([k, v]) => (
-                    <div key={k} className="flex justify-between items-start gap-2">
-                      <span className="font-semibold text-gray-600 dark:text-gray-400 capitalize">{k}:</span>
-                      <span className="font-bold text-gray-900 dark:text-white text-right">{String(v)}</span>
+            {/* Two Column Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Left Column: Customer & Submission Details */}
+              <div className="space-y-3.5">
+                {/* Customer Information Grid */}
+                <div className="grid grid-cols-2 gap-2.5 text-xs bg-gray-50 dark:bg-gray-800/50 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-800">
+                  <div>
+                    <span className="text-gray-400 font-bold uppercase text-[10px]">Customer Name</span>
+                    <p className="font-bold text-gray-800 dark:text-gray-100 text-sm mt-0.5">{selectedLead.name}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 font-bold uppercase text-[10px]">Phone Number</span>
+                    <p className="font-bold text-gray-800 dark:text-gray-100 text-sm mt-0.5">{selectedLead.phone}</p>
+                  </div>
+                  {selectedLead.email && (
+                    <div>
+                      <span className="text-gray-400 font-bold uppercase text-[10px]">Email Address</span>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mt-0.5 break-all">{selectedLead.email}</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Message Body */}
-            {selectedLead.message && (
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Message / Note</span>
-                <div className="bg-slate-50 dark:bg-gray-800 p-3.5 rounded-xl border border-slate-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
-                  {selectedLead.message}
-                </div>
-              </div>
-            )}
-
-            {/* Status & Admin Notes Form */}
-            <div className="space-y-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">Update Status</label>
-                  <select
-                    value={editStatus}
-                    onChange={e => setEditStatus(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold dark:bg-gray-800 dark:text-white"
-                  >
-                    <option value="new">🟡 New / Pending</option>
-                    <option value="contacted">🔵 Contacted</option>
-                    <option value="in_progress">🟣 In Progress</option>
-                    <option value="converted">🟢 Converted</option>
-                    <option value="closed">⚪ Closed</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">Quick Contact</label>
-                  <div className="flex gap-2">
-                    <a
-                      href={`tel:${selectedLead.phone}`}
-                      className="flex-1 py-2 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1 border border-emerald-200"
-                    >
-                      <Phone size={12} /> Call
-                    </a>
-                    <a
-                      href={`https://wa.me/91${selectedLead.phone.replace(/\D/g, '')}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex-1 py-2 bg-teal-50 text-[#00a892] font-bold text-xs rounded-xl flex items-center justify-center gap-1 border border-teal-200"
-                    >
-                      <MessageSquare size={12} /> WhatsApp
-                    </a>
+                  )}
+                  {selectedLead.subject && (
+                    <div>
+                      <span className="text-gray-400 font-bold uppercase text-[10px]">Topic / Subject</span>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mt-0.5">{selectedLead.subject}</p>
+                    </div>
+                  )}
+                  <div className="col-span-2">
+                    <span className="text-gray-400 font-bold uppercase text-[10px]">Submitted Date & Time</span>
+                    <p className="font-medium text-gray-600 dark:text-gray-400 mt-0.5">
+                      {new Date(selectedLead.created_at).toLocaleString("en-IN")}
+                    </p>
                   </div>
                 </div>
+
+                {/* Parsed Custom Details */}
+                {selectedLead.details && (
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Submission Specifics</span>
+                    <div className="bg-slate-50 dark:bg-gray-800 p-3 rounded-xl border border-slate-200 dark:border-gray-700 text-xs space-y-1">
+                      {Object.entries(parseDetails(selectedLead.details)).map(([k, v]) => (
+                        <div key={k} className="flex justify-between items-start gap-2">
+                          <span className="font-semibold text-gray-600 dark:text-gray-400 capitalize">{k}:</span>
+                          <span className="font-bold text-gray-900 dark:text-white text-right">{String(v)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Message Body */}
+                {selectedLead.message && (
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Message / Note</span>
+                    <div className="bg-slate-50 dark:bg-gray-800 p-3 rounded-xl border border-slate-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line max-h-32 overflow-y-auto">
+                      {selectedLead.message}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">Internal Admin Notes</label>
-                <textarea
-                  value={editNotes}
-                  onChange={e => setEditNotes(e.target.value)}
-                  rows={2}
-                  placeholder="Add notes about call discussion, next follow-up date, etc..."
-                  className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium dark:bg-gray-800 dark:text-white resize-none"
-                />
-              </div>
-            </div>
+              {/* Right Column: Status & Admin Notes */}
+              <div className="space-y-3.5 flex flex-col justify-between">
+                <div className="space-y-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">Update Status</label>
+                      <select
+                        value={editStatus}
+                        onChange={e => setEditStatus(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold dark:bg-gray-800 dark:text-white"
+                      >
+                        <option value="new">🟡 New / Pending</option>
+                        <option value="contacted">🔵 Contacted</option>
+                        <option value="in_progress">🟣 In Progress</option>
+                        <option value="converted">🟢 Converted</option>
+                        <option value="closed">⚪ Closed</option>
+                      </select>
+                    </div>
 
-            {/* Modal Actions */}
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                onClick={() => setModalOpen(false)}
-                className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpdateStatus}
-                disabled={updating}
-                className="px-5 py-2 bg-[#1C3EB9] hover:bg-[#153096] text-white rounded-xl text-xs font-bold shadow-xs transition-colors disabled:opacity-60 cursor-pointer"
-              >
-                {updating ? "Saving..." : "Save Changes"}
-              </button>
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">Quick Contact</label>
+                      <div className="flex gap-2">
+                        <a
+                          href={`tel:${selectedLead.phone}`}
+                          className="flex-1 py-2 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                        >
+                          <Phone size={12} /> Call
+                        </a>
+                        <a
+                          href={`https://wa.me/91${selectedLead.phone.replace(/\D/g, '')}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1 py-2 bg-teal-50 text-[#00a892] font-bold text-xs rounded-xl flex items-center justify-center gap-1 border border-teal-200 hover:bg-teal-100 transition-colors"
+                        >
+                          <MessageSquare size={12} /> WhatsApp
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">Internal Admin Notes</label>
+                    <textarea
+                      value={editNotes}
+                      onChange={e => setEditNotes(e.target.value)}
+                      rows={4}
+                      placeholder="Add notes about call discussion, next follow-up date, etc..."
+                      className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium dark:bg-gray-800 dark:text-white resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Modal Actions */}
+                <div className="flex justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+                  <button
+                    onClick={() => setModalOpen(false)}
+                    className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpdateStatus}
+                    disabled={updating}
+                    className="px-5 py-2 bg-[#1C3EB9] hover:bg-[#153096] text-white rounded-xl text-xs font-bold shadow-xs transition-colors disabled:opacity-60 cursor-pointer"
+                  >
+                    {updating ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

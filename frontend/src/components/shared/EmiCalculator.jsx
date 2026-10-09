@@ -86,17 +86,17 @@ const EmiCalculator = ({
                 <span className="w-2 h-2 rounded-full bg-[#00C9AF] animate-pulse"></span>
                 EMI STARTING FROM
               </div>
-              <div className={`inline-flex items-baseline gap-1 px-3.5 py-1.5 rounded-xl border shadow-sm transition-all ${
+              <div className={`inline-flex items-baseline gap-1.5 px-4 py-2 rounded-xl border transition-all ${
                 theme === 'dark' 
-                  ? 'bg-[#00C9AF]/15 border-[#00C9AF]/40 text-[#00C9AF] shadow-[#00C9AF]/10' 
-                  : 'bg-[#E6FAF7] border-[#00C9AF]/40 text-[#0A524A] shadow-[#00C9AF]/10'
+                  ? 'bg-[#00C9AF]/20 border-[#00C9AF]/50 shadow-md' 
+                  : 'bg-[#E6FAF7] border-[#00C9AF]/50 shadow-xs'
               }`}>
-                <span className="text-xs sm:text-sm font-black text-[#00C9AF]">₹</span>
-                <span className="text-xl sm:text-2xl font-black font-heading tracking-tight text-[#00C9AF]">
+                <span className="text-sm sm:text-base font-black text-[#0C1B33] dark:text-[#00C9AF]">₹</span>
+                <span className="text-2xl sm:text-3xl font-black font-heading tracking-tight text-[#0C1B33] dark:text-white">
                   {monthlyEMI.toLocaleString('en-IN')}
                 </span>
-                <span className={`text-[10px] sm:text-xs font-bold ml-1 uppercase tracking-wider ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
-                  per month
+                <span className="text-xs sm:text-sm font-extrabold ml-1 uppercase tracking-wider text-[#0C1B33] dark:text-slate-200">
+                  PER MONTH
                 </span>
               </div>
             </div>
@@ -271,9 +271,9 @@ const EmiCalculator = ({
           <div className="mt-4">
             <button
               onClick={() => user ? navigate('/profile?tab=loan') : openLoginModal()}
-              className="w-full px-6 py-3 bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8] active:scale-[0.99] rounded-2xl font-heading font-semibold text-xs md:text-sm cursor-pointer transition-all shadow-md flex items-center justify-center gap-2"
+              className="w-full px-6 py-3.5 sm:py-4 bg-[#00C9AF] text-[#0C1B33] hover:bg-[#00E5C8] active:scale-[0.99] rounded-2xl font-heading font-extrabold text-sm sm:text-base cursor-pointer transition-all shadow-md shadow-[#00C9AF]/25 hover:shadow-lg flex items-center justify-center gap-2.5"
             >
-              <span className="text-base md:text-lg">🏆</span>
+              <span className="text-lg sm:text-xl">🏆</span>
               <span>Check your eligibility</span>
             </button>
             <div className={`mt-2.5 pt-2.5 border-t border-dashed ${theme === 'dark' ? 'border-white/10' : 'border-slate-200/80'}`}>

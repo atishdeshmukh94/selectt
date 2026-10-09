@@ -721,26 +721,6 @@ const CarDetailsPage = () => {
                       />
                       {getMediaType(images[activeImage]) === 'image' && (
                         <>
-                          {/* Click to view 360° button at bottom-center (Matching reference image) */}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const index360 = images.findIndex(img => img?.includes('360') || img?.includes('spin'));
-                              if (index360 !== -1) {
-                                setActiveImage(index360);
-                              } else {
-                                openLightbox();
-                              }
-                            }}
-                            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-3.5 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-950 backdrop-blur-md text-white border border-white/20 text-xs font-bold tracking-wide flex items-center gap-1.5 shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer group"
-                            title="Click to view 360°"
-                          >
-                            <span>Click to view</span>
-                            <span className="inline-flex items-center justify-center bg-[#FFB800] text-[#0C1B33] px-1.5 py-0.5 rounded text-[10px] font-black leading-none">
-                              360°
-                            </span>
-                          </button>
 
                           <button
                             type="button"
@@ -1160,12 +1140,12 @@ const CarDetailsPage = () => {
                       { 
                         icon: <Calendar size={18} />, 
                         label: 'Reg. year', 
-                        value: car.regMonth ? `${car.regMonth.toUpperCase()} ${car.regYear || car.year}` : (car.regYear || car.year) 
+                        value: (car.regMonth || car.reg_month) ? `${(car.regMonth || car.reg_month).toUpperCase()} ${car.regYear || car.reg_year || car.year}` : (car.regYear || car.reg_year || car.year) 
                       },
                       { 
                         icon: <Calendar size={18} />, 
                         label: 'Mfg. year', 
-                        value: car.mfgMonth ? `${car.mfgMonth.toUpperCase()} ${car.year}` : (car.year || '-') 
+                        value: (car.mfgMonth || car.mfg_month) ? `${(car.mfgMonth || car.mfg_month).toUpperCase()} ${car.year}` : (car.year || '-') 
                       },
                       { icon: <Fuel size={18} />, label: 'Fuel', value: car.fuelType },
                       { icon: <Gauge size={18} />, label: 'KM driven', value: `${(car.km || 0).toLocaleString()} km` },

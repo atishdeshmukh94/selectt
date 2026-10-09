@@ -7185,7 +7185,7 @@ app.post('/api/login', (req, res) => {
         }
 
         // Normal login flow (2FA disabled)
-        const token = jwt.sign({ id: user.id, email: user.email, role: user.role, permissions }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ id: user.id, email: user.email, role: user.role, permissions }, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.json({ token, user: { id: user.id, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role, image: user.image, permissions: Array.isArray(permissions) ? permissions : [] } });
     });
 });
@@ -7252,7 +7252,7 @@ app.post('/api/auth/2fa/verify', async (req, res) => {
             }
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email, role: user.role, permissions }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ id: user.id, email: user.email, role: user.role, permissions }, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.json({
             success: true,
             token,
