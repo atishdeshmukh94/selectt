@@ -49,7 +49,7 @@ const getGallaboxEmbedCode = (token: string) => {
 };
 
 interface SiteSettingsProps {
-  section?: "location" | "payment" | "smtp" | "maintenance" | "whatsapp" | "whatsapp_chat" | "branding" | "api_keys" | "crm";
+  section?: "payment" | "smtp" | "maintenance" | "whatsapp" | "whatsapp_chat" | "branding" | "api_keys" | "crm";
 }
 
 const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
@@ -548,7 +548,6 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
             { id: "whatsapp_chat", label: "🟢 WhatsApp Chat Button" },
             { id: "crm", label: "🚀 Neodove CRM" },
             { id: "maintenance", label: "🚧 Maintenance Mode" },
-            { id: "location", label: "📍 Location & Contact" },
             { id: "branding", label: "🎨 Brand Logos & OG Image" },
           ].map((tab) => (
             <button
@@ -615,44 +614,6 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
           </>
         )}
 
-        {activeSection === "location" && (
-          <ComponentCard title="Location & Contact Settings">
-            <form onSubmit={handleSave} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label>Contact Email</Label>
-                  <Input
-                    type="email"
-                    placeholder="contact@yourdomain.com"
-                    value={settings.contact_email || ""}
-                    onChange={(e) => handleChange("contact_email", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Contact Phone</Label>
-                  <Input
-                    type="text"
-                    placeholder="+91 9876543210"
-                    value={settings.contact_phone || ""}
-                    onChange={(e) => handleChange("contact_phone", e.target.value)}
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <Label>Office Address</Label>
-                  <Input
-                    type="text"
-                    placeholder="123 Business Avenue, City, State ZIP"
-                    value={settings.office_address || ""}
-                    onChange={(e) => handleChange("office_address", e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save Changes"}</Button>
-              </div>
-            </form>
-          </ComponentCard>
-        )}
 
         {activeSection === "smtp" && (() => {
           const EMAIL_CATEGORIES = [

@@ -15,6 +15,7 @@ import TopSearchAndBanners from '../components/buy/sections/TopSearchAndBanners'
 import MobileBudgetAndBodySection from '../components/buy/MobileBudgetAndBodySection';
 import PageMeta from '../components/common/PageMeta';
 import { SemanticCarCardSkeleton, SemanticBannerSkeleton } from '../components/common/SemanticPlaceholderCard';
+import { parseBudgetRange } from '../utils/formatters';
 import { API_URL } from '../config/api';
 
 const API = API_URL;
@@ -36,8 +37,8 @@ const parseQueryParams = (search, locationState) => {
   const brand = params.get('brand') || params.get('brands');
   const model = params.get('model') || params.get('models');
   const bodyType = params.get('bodyType') || params.get('body_type');
-  const fuel = params.get('fuel');
-  const transmission = params.get('transmission');
+  const fuel = params.get('fuel') || params.get('fuelType') || params.get('fuel_type');
+  const transmission = params.get('transmission') || params.get('trans');
   const owners = params.get('owners') || params.get('owner');
   const yearMin = params.get('year_min') || params.get('yearMin') || params.get('year');
   const kmMax = params.get('km_max') || params.get('kmMax') || params.get('km');
@@ -69,12 +70,17 @@ const parseQueryParams = (search, locationState) => {
   }
   if (certification) {
     base.certification = certification;
-  } else if (brand || model) {
+  } else if (brand || model || fuel || transmission || bodyType || kmMax || yearMin || budget || searchQ) {
     base.certification = 'all';
   } else if (!tag || !tag.toLowerCase().includes('offer')) {
     base.certification = 'standard';
   }
-  if (budget) base.budget = budget;
+  if (budget) {
+    base.budget = budget;
+    const { min: pMin, max: pMax } = parseBudgetRange(budget);
+    if (budgetMin == null && pMin != null) base.budget_min = pMin;
+    if (budgetMax == null && pMax != null) base.budget_max = pMax;
+  }
   if (budgetMin) base.budget_min = parseFloat(budgetMin);
   if (budgetMax) base.budget_max = parseFloat(budgetMax);
   if (searchQ) base.searchQuery = searchQ;
@@ -397,7 +403,7 @@ const BuyCarsPage = () => {
     fetchSettings();
     fetchCars();
     const handleLocationChange = () => {
-      setCity(localStorage.getItem('user_city') || 'Delhi NCR');
+      setCity(localStorage.getItem('user_city') || 'Mumbai');
       fetchCars();
     };
     window.addEventListener('location-changed', handleLocationChange);
@@ -426,32 +432,9 @@ const BuyCarsPage = () => {
       }
     }
     if (filters.budget) {
-      const b = String(filters.budget).toLowerCase().trim();
-      if (b === 'under 10 l' || b === 'under ₹10l' || b === 'under 10 lakhs') {
-        if (priceLakhs >= 10) return false;
-      } else if (b === '10 - 20 lakhs' || b === '10 - 20 l' || b === '₹10l - ₹20l' || b === '₹10 - ₹20 lakhs') {
-        if (priceLakhs < 10 || priceLakhs > 20) return false;
-      } else if (b === '20 - 30 lakhs' || b === '20 - 30 l' || b === '₹20l - ₹30l' || b === '₹20 - ₹30 lakhs') {
-        if (priceLakhs < 20 || priceLakhs > 30) return false;
-      } else if (b === '30 lakhs +' || b === '30 l +' || b === '₹30 lakhs +' || b === '30+ lakhs') {
-        if (priceLakhs < 30) return false;
-      } else if (b === 'under 3 l') {
-        if (priceLakhs >= 3) return false;
-      } else if (b === '3 - 6 l') {
-        if (priceLakhs < 3 || priceLakhs > 6) return false;
-      } else if (b === '6 - 10 l') {
-        if (priceLakhs < 6 || priceLakhs > 10) return false;
-      } else if (b === '10 l +') {
-        if (priceLakhs < 10) return false;
-      } else if (b === 'under ₹4l') {
-        if (priceLakhs >= 4) return false;
-      } else if (b === '₹4l - ₹9l') {
-        if (priceLakhs < 4 || priceLakhs > 9) return false;
-      } else if (b === '₹9l - ₹15l') {
-        if (priceLakhs < 9 || priceLakhs > 15) return false;
-      } else if (b === '₹15 lakhs +') {
-        if (priceLakhs < 15) return false;
-      }
+      const { min: bMin, max: bMax } = parseBudgetRange(filters.budget);
+      if (bMin != null && priceLakhs < bMin) return false;
+      if (bMax != null && priceLakhs > bMax) return false;
     }
     if (filters.certification && filters.certification !== 'all') {
       const certLower = filters.certification.toLowerCase();
@@ -830,7 +813,7 @@ const BuyCarsPage = () => {
                 </div>
 
                 {/* Active filter chips */}
-                {(filters.brands?.length > 0 || filters.body_type?.length > 0 || filters.fuel || filters.transmission || filters.searchQuery || filters.budget) && (
+                {(filters.brands?.length > 0 || filters.body_type?.length > 0 || filters.fuel || filters.transmission || filters.searchQuery || filters.budget || filters.km_max || filters.year_min || filters.owners?.length > 0 || filters.tag) && (
                   <div className="flex flex-wrap gap-2 mb-5">
                     {filters.budget && (
                       <span className="flex items-center gap-1.5 bg-[#00C9AF]/15 border border-[#00C9AF]/40 text-[#0C1B33] text-[10px] font-bold px-3 py-1.5 rounded-full">
@@ -856,6 +839,31 @@ const BuyCarsPage = () => {
                     {filters.fuel && (
                       <span className="flex items-center gap-1.5 bg-slate-200 border border-slate-300/80 text-slate-700 text-[10px] font-bold px-3 py-1.5 rounded-full">
                         {filters.fuel} <button onClick={() => setFilters(p => ({ ...p, fuel: '' }))}><X size={10} /></button>
+                      </span>
+                    )}
+                    {filters.transmission && (
+                      <span className="flex items-center gap-1.5 bg-slate-200 border border-slate-300/80 text-slate-700 text-[10px] font-bold px-3 py-1.5 rounded-full">
+                        {filters.transmission} <button onClick={() => setFilters(p => ({ ...p, transmission: '' }))}><X size={10} /></button>
+                      </span>
+                    )}
+                    {filters.km_max && (
+                      <span className="flex items-center gap-1.5 bg-slate-200 border border-slate-300/80 text-slate-700 text-[10px] font-bold px-3 py-1.5 rounded-full">
+                        Under {Number(filters.km_max).toLocaleString('en-IN')} km <button onClick={() => setFilters(p => ({ ...p, km_max: null }))}><X size={10} /></button>
+                      </span>
+                    )}
+                    {filters.year_min && (
+                      <span className="flex items-center gap-1.5 bg-slate-200 border border-slate-300/80 text-slate-700 text-[10px] font-bold px-3 py-1.5 rounded-full">
+                        {filters.year_min} & above <button onClick={() => setFilters(p => ({ ...p, year_min: null }))}><X size={10} /></button>
+                      </span>
+                    )}
+                    {filters.owners?.map(o => (
+                      <span key={o} className="flex items-center gap-1.5 bg-slate-200 border border-slate-300/80 text-slate-700 text-[10px] font-bold px-3 py-1.5 rounded-full">
+                        {o} <button onClick={() => setFilters(p => ({ ...p, owners: p.owners.filter(x => x !== o) }))}><X size={10} /></button>
+                      </span>
+                    ))}
+                    {filters.tag && (
+                      <span className="flex items-center gap-1.5 bg-slate-200 border border-slate-300/80 text-slate-700 text-[10px] font-bold px-3 py-1.5 rounded-full">
+                        {filters.tag} <button onClick={() => setFilters(p => ({ ...p, tag: '' }))}><X size={10} /></button>
                       </span>
                     )}
                   </div>

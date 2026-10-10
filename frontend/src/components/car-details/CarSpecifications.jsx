@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Gauge, ArrowUpDown, Briefcase, Cpu, ShieldCheck } from 'lucide-react';
+import SpecificationsDrawer from './SpecificationsDrawer';
 
-const CarSpecifications = ({ specifications, theme = 'dark' }) => {
+const CarSpecifications = ({ specifications, car = {}, theme = 'dark', onBookNow, onTestDrive }) => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   const getIcon = (label = '', iconName = '') => {
     const text = `${label} ${iconName}`.toLowerCase();
     const className = `${theme === 'light' ? 'text-[#0C1B33]' : 'text-white'} shrink-0`;
@@ -69,7 +72,28 @@ const CarSpecifications = ({ specifications, theme = 'dark' }) => {
             </div>
           ))}
         </div>
+
+        {/* View all Specifications Button */}
+        <div className="mt-5 pt-4 border-t border-slate-100 flex justify-start">
+          <button
+            type="button"
+            onClick={() => setIsDrawerOpen(true)}
+            className="w-full sm:w-auto px-5 py-2.5 bg-white border border-[#00C9AF] text-[#00A38D] hover:bg-[#00C9AF] hover:text-[#0C1B33] rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
+          >
+            <span>View all Specifications</span>
+          </button>
+        </div>
       </div>
+
+      {/* Specifications Slide-over Drawer */}
+      <SpecificationsDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        car={car}
+        specifications={displaySpecs}
+        onBookNow={onBookNow}
+        onTestDrive={onTestDrive}
+      />
     </div>
   );
 };

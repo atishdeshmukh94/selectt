@@ -771,22 +771,44 @@ const CheckoutPage = () => {
   // Final booking amount to pay based on chosen option
   const finalPayableBookingAmount = activeBookingPlan === 'special' ? specialBookingAmount : standardBookingAmount;
 
+  const pb = car?.priceBreakdown || {};
+
   const carPrice = Number(car?.price) || 0;
   const originalCarPrice = Number(car?.original_price || car?.originalPrice) || (carPrice > 0 ? carPrice + 5000 : 0);
   const saleDiscount = originalCarPrice > carPrice ? (originalCarPrice - carPrice) : 5000;
-  const rcTransferFee = 4000;
-  // TCS (Tax Collected at Source): 1% of vehicle price
-  const tcsAmount = Math.round(carPrice * 0.01);
-  const gstTax = 2430;
+
+  const rcTransferFee = (pb.rcTransferFee !== undefined && pb.rcTransferFee !== '') ? Number(pb.rcTransferFee) : 4000;
+  const tcsAmount = (pb.tcsAmount !== undefined && pb.tcsAmount !== null && pb.tcsAmount !== '') ? Number(pb.tcsAmount) : Math.round(carPrice * 0.01);
+  const servicingFee = (pb.servicingFee !== undefined && pb.servicingFee !== '') ? Number(pb.servicingFee) : 8700;
+  const servicingIncluded = pb.servicingIncluded !== undefined ? Boolean(pb.servicingIncluded) : true;
+  const warrantyFee = (pb.warrantyFee !== undefined && pb.warrantyFee !== '') ? Number(pb.warrantyFee) : 5500;
+  const warrantyIncluded = pb.warrantyIncluded !== undefined ? Boolean(pb.warrantyIncluded) : true;
+  const fixesFee = (pb.fixesFee !== undefined && pb.fixesFee !== '') ? Number(pb.fixesFee) : 0;
+  const fixesIncluded = pb.fixesIncluded !== undefined ? Boolean(pb.fixesIncluded) : true;
+  const gstTax = (pb.gstTax !== undefined && pb.gstTax !== '') ? Number(pb.gstTax) : 2430;
+
+  // Total value of included/free benefits (shown before Total on-road price)
+  const totalIncludedBenefits = (servicingIncluded ? servicingFee : 0) + (warrantyIncluded ? warrantyFee : 0) + (fixesIncluded ? fixesFee : 0);
 
   // Coupon discount is applied strictly to overall car price as "Special Discount for you"
   const couponDiscount = appliedCoupon ? (Number(appliedCoupon.discount_amount) || 0) : 0;
   const savingsAmount = ((car?.original_price && Number(car.original_price) > Number(car?.price))
     ? (Number(car.original_price) - Number(car.price))
-    : 15000) + couponDiscount;
+    : 15000) + couponDiscount + totalIncludedBenefits;
 
   const totalVehicleAmount = Math.max(0, carPrice + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - couponDiscount);
-  const totalOnRoadPrice = Math.max(0, carPrice + rcTransferFee + tcsAmount + gstTax + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - couponDiscount);
+  const totalOnRoadPrice = Math.max(
+    0,
+    carPrice +
+    rcTransferFee +
+    tcsAmount +
+    gstTax +
+    (!servicingIncluded ? servicingFee : 0) +
+    (!warrantyIncluded ? warrantyFee : 0) +
+    (!fixesIncluded ? fixesFee : 0) +
+    (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) -
+    couponDiscount
+  );
   const monthlyEmi = car?.emi || car?.emiStart || Math.round((carPrice || 400000) * 0.021) || 17500;
 
   const handleApplyCoupon = async () => {
@@ -1750,8 +1772,18 @@ const CheckoutPage = () => {
                         />
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-slate-400 line-through font-normal text-xs font-price">₹8,700</span>
-                        <span className="text-emerald-600 font-bold">Included</span>
+                        {servicingIncluded ? (
+                          <>
+                            <span className="text-slate-400 line-through font-normal text-xs font-price">
+                              ₹{servicingFee.toLocaleString('en-IN')}
+                            </span>
+                            <span className="text-emerald-600 font-bold">Included</span>
+                          </>
+                        ) : (
+                          <span className="font-bold text-[#0C1B33] font-price">
+                            + ₹{servicingFee.toLocaleString('en-IN')}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -1765,8 +1797,18 @@ const CheckoutPage = () => {
                         />
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-slate-400 line-through font-normal text-xs font-price">₹5,500</span>
-                        <span className="text-emerald-600 font-bold">Included</span>
+                        {warrantyIncluded ? (
+                          <>
+                            <span className="text-slate-400 line-through font-normal text-xs font-price">
+                              ₹{warrantyFee.toLocaleString('en-IN')}
+                            </span>
+                            <span className="text-emerald-600 font-bold">Included</span>
+                          </>
+                        ) : (
+                          <span className="font-bold text-[#0C1B33] font-price">
+                            + ₹{warrantyFee.toLocaleString('en-IN')}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -1779,7 +1821,13 @@ const CheckoutPage = () => {
                           onOpenModal={() => setActiveBreakdownModal('fixes')}
                         />
                       </span>
-                      <span className="text-emerald-600 font-bold">Included</span>
+                      {fixesIncluded ? (
+                        <span className="text-emerald-600 font-bold">Included</span>
+                      ) : (
+                        <span className="font-bold text-[#0C1B33] font-price">
+                          + ₹{fixesFee.toLocaleString('en-IN')}
+                        </span>
+                      )}
                     </div>
 
                     {/* GST Taxes */}
@@ -1795,6 +1843,24 @@ const CheckoutPage = () => {
                         ₹{gstTax.toLocaleString('en-IN')}
                       </span>
                     </div>
+
+                    {/* Included Services Benefit / Discount Highlight (Right before Total on-road price) */}
+                    {totalIncludedBenefits > 0 && (
+                      <div className="flex justify-between items-center py-2 px-3 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-800 text-xs font-bold my-1">
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles size={13} className="text-emerald-500" />
+                          <span>Included Benefits Savings</span>
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-400 line-through font-normal text-[11px] font-price">
+                            ₹{totalIncludedBenefits.toLocaleString('en-IN')}
+                          </span>
+                          <span className="text-emerald-600 font-extrabold font-price text-xs">
+                            FREE (-₹{totalIncludedBenefits.toLocaleString('en-IN')})
+                          </span>
+                        </div>
+                      </div>
+                    )}
 
                     {maintenancePackageAdded && (
                       <div className="flex justify-between items-center text-[#00A38D] font-bold pt-1.5 border-t border-slate-100">
@@ -3024,8 +3090,18 @@ const CheckoutPage = () => {
                     />
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 line-through font-normal text-xs font-price">₹8,700</span>
-                    <span className="text-emerald-600 font-bold">Included</span>
+                    {servicingIncluded ? (
+                      <>
+                        <span className="text-slate-400 line-through font-normal text-xs font-price">
+                          ₹{servicingFee.toLocaleString('en-IN')}
+                        </span>
+                        <span className="text-emerald-600 font-bold">Included</span>
+                      </>
+                    ) : (
+                      <span className="font-bold text-[#0C1B33] font-price">
+                        + ₹{servicingFee.toLocaleString('en-IN')}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -3039,8 +3115,18 @@ const CheckoutPage = () => {
                     />
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 line-through font-normal text-xs font-price">₹5,500</span>
-                    <span className="text-emerald-600 font-bold">Included</span>
+                    {warrantyIncluded ? (
+                      <>
+                        <span className="text-slate-400 line-through font-normal text-xs font-price">
+                          ₹{warrantyFee.toLocaleString('en-IN')}
+                        </span>
+                        <span className="text-emerald-600 font-bold">Included</span>
+                      </>
+                    ) : (
+                      <span className="font-bold text-[#0C1B33] font-price">
+                        + ₹{warrantyFee.toLocaleString('en-IN')}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -3053,7 +3139,13 @@ const CheckoutPage = () => {
                       onOpenModal={() => setActiveBreakdownModal('fixes')}
                     />
                   </span>
-                  <span className="text-emerald-600 font-bold">Included</span>
+                  {fixesIncluded ? (
+                    <span className="text-emerald-600 font-bold">Included</span>
+                  ) : (
+                    <span className="font-bold text-[#0C1B33] font-price">
+                      + ₹{fixesFee.toLocaleString('en-IN')}
+                    </span>
+                  )}
                 </div>
 
                 {/* GST Taxes */}
@@ -3067,6 +3159,24 @@ const CheckoutPage = () => {
                   </span>
                   <span className="font-bold text-[#0C1B33] font-price">₹{gstTax.toLocaleString('en-IN')}</span>
                 </div>
+
+                {/* Included Services Benefit / Discount Highlight (Right before Total on-road price) */}
+                {totalIncludedBenefits > 0 && (
+                  <div className="flex justify-between items-center py-2 px-3 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-800 text-xs font-bold my-1">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles size={13} className="text-emerald-500" />
+                      <span>Included Benefits Savings</span>
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400 line-through font-normal text-[11px] font-price">
+                        ₹{totalIncludedBenefits.toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-emerald-600 font-extrabold font-price text-xs">
+                        FREE (-₹{totalIncludedBenefits.toLocaleString('en-IN')})
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 {maintenancePackageAdded && (
                   <div className="flex justify-between items-center text-[#00A38D] font-bold pt-1 border-t border-slate-100">

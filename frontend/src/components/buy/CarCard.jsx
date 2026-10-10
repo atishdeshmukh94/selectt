@@ -37,7 +37,7 @@ const formatBadgeText = (text) => {
     .join(' ');
 };
 
-const getBadgeStyles = (tagText) => {
+export const getBadgeStyles = (tagText) => {
   const raw = (tagText || '').trim();
   const text = raw.toLowerCase();
 
@@ -52,14 +52,14 @@ const getBadgeStyles = (tagText) => {
     };
   }
 
-  // Offer Zone / Price Drop / Discount / Deal
-  if (text.includes('offer zone') || text.includes('discount') || text.includes('price drop') || text.includes('deal')) {
+  // Offer Zone / Price Drop / Discount / Deal / Arrow / Currency
+  if (text.includes('offer zone') || text.includes('discount') || text.includes('price drop') || text.includes('deal') || text.includes('↓') || text.includes('₹')) {
     return {
       bg: 'bg-gradient-to-r from-rose-600 to-red-500',
       color: 'text-white font-normal',
       border: 'border-rose-300/80',
       glow: 'shadow-[0_0_14px_rgba(244,63,94,0.85)] ring-1 ring-rose-400/80',
-      label: formatBadgeText(raw)
+      label: raw
     };
   }
 
@@ -328,13 +328,26 @@ const CarCard = ({ car, lightBg = false }) => {
             </div>
           )}
 
-          {/* Regular Tag Badge (if not coming soon) - Glowing & Shining */}
-          {(car.badgeText || car.tag) && car.status !== 'coming_soon' && (() => {
-            const badge = getBadgeStyles(car.badgeText || car.tag);
+          {/* Top-Left: Badge / Tag (e.g. HOT DEAL, TOP TIER, LUXURY) */}
+          {car.tag && car.status !== 'coming_soon' && (() => {
+            const badge = getBadgeStyles(car.tag);
             return (
               <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none">
-                <div className={`badge-glow-shine ${badge.bg} ${badge.color} ${badge.border} ${badge.glow} border px-2.5 py-0.5 rounded-full text-[10.5px] font-sans font-normal tracking-wide flex items-center`}>
+                <div className={`badge-glow-shine ${badge.bg} ${badge.color} ${badge.border} ${badge.glow} border px-2.5 py-0.5 rounded-full text-[10.5px] font-sans font-normal tracking-wide flex items-center shadow-xs`}>
                   <span className="relative z-10">{badge.label}</span>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Bottom-Left: Price Drop Badge (e.g. ₹9,000 ↓) */}
+          {(car.badgeText || car.badge_text) && car.status !== 'coming_soon' && (() => {
+            const rawBadge = (car.badgeText || car.badge_text).trim();
+            const badge = getBadgeStyles(rawBadge);
+            return (
+              <div className="absolute bottom-2.5 left-2.5 z-20 pointer-events-none">
+                <div className={`badge-glow-shine ${badge.bg} ${badge.color} ${badge.border} ${badge.glow} border px-2.5 py-0.5 rounded-full text-[10.5px] font-sans font-semibold tracking-wide flex items-center shadow-md`}>
+                  <span className="relative z-10">{badge.label || rawBadge}</span>
                 </div>
               </div>
             );

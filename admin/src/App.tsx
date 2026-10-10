@@ -96,7 +96,6 @@ export default function App() {
                   <Route path="/banners" element={<ImageSettings />} />
                   <Route path="/testimonials-video" element={<TestimonialsVideo />} />
                   <Route path="/locations" element={<Locations />} />
-                  <Route path="/settings/location" element={<SiteSettings section="location" />} />
                   <Route path="/settings/car-hubs" element={<CarHubs />} />
                   <Route path="/settings/payment" element={<SiteSettings section="payment" />} />
                   <Route path="/settings/smtp" element={<SiteSettings section="smtp" />} />

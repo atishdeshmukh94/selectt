@@ -15,15 +15,26 @@ const LocationPopup = () => {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          setCities(data.map(c => ({
-            name: c.name,
-            img: (c.image && !c.image.includes('images.unsplash.com')) ? c.image : '/img/city-line-desktop.svg'
-          })));
+          // We are currently operating only in Mumbai - hide other locations
+          const mumbaiOnly = data
+            .filter(c => c.name.toLowerCase() === 'mumbai')
+            .map(c => ({
+              name: c.name,
+              img: (c.image && !c.image.includes('images.unsplash.com')) ? c.image : '/img/city-line-desktop.svg'
+            }));
+          
+          if (mumbaiOnly.length === 0) {
+            mumbaiOnly.push({ name: 'Mumbai', img: '/img/city-line-desktop.svg' });
+          }
+          setCities(mumbaiOnly);
+        } else {
+          setCities([{ name: 'Mumbai', img: '/img/city-line-desktop.svg' }]);
         }
         setLoadingCities(false);
       })
       .catch(err => {
         console.error('Error fetching cities:', err);
+        setCities([{ name: 'Mumbai', img: '/img/city-line-desktop.svg' }]);
         setLoadingCities(false);
       });
   }, []);
@@ -47,9 +58,10 @@ const LocationPopup = () => {
   }, [isVisible]);
 
   const handleCitySelect = (cityName) => {
-    localStorage.setItem('user_city', cityName);
-    localStorage.setItem('selectedCity', cityName);
-    localStorage.setItem('selected_location', cityName);
+    const city = 'Mumbai';
+    localStorage.setItem('user_city', city);
+    localStorage.setItem('selectedCity', city);
+    localStorage.setItem('selected_location', city);
     setIsVisible(false);
     window.dispatchEvent(new Event('location-changed'));
   };
@@ -63,38 +75,27 @@ const LocationPopup = () => {
             .then(res => res.json())
             .then(data => {
               const addr = data.address || {};
-              const stateName = addr.state || '';
               const detectedCity = addr.city || addr.town || addr.village || addr.state_district || addr.county || '';
 
-              // Validate Maharashtra state check
-              if (stateName && stateName.toLowerCase().trim() !== 'maharashtra') {
+              if (detectedCity && !detectedCity.toLowerCase().includes('mumbai') && !detectedCity.toLowerCase().includes('thane') && !detectedCity.toLowerCase().includes('navi mumbai')) {
                 setOutsideStateMsg(detectedCity || 'your city');
                 setView('coming-soon');
               } else {
-                if (detectedCity) {
-                  const match = cities.find(c => c.name.toLowerCase() === detectedCity.toLowerCase());
-                  if (match) {
-                    handleCitySelect(match.name);
-                  } else {
-                    handleCitySelect(detectedCity);
-                  }
-                } else {
-                  handleCitySelect('Mumbai'); // Capital of Maharashtra fallback
-                }
+                handleCitySelect('Mumbai');
               }
             })
             .catch(err => {
               console.error('Nominatim error:', err);
-              handleCitySelect('Delhi NCR'); // fallback
+              handleCitySelect('Mumbai');
             });
         },
         (error) => {
           console.error('Error getting location:', error);
-          alert('Failed to detect location. Please select manually.');
+          handleCitySelect('Mumbai');
         }
       );
     } else {
-      alert('Geolocation is not supported by your browser.');
+      handleCitySelect('Mumbai');
     }
   };
 
@@ -143,17 +144,17 @@ const LocationPopup = () => {
 
             <h3 className="text-lg font-black text-slate-950 mb-2">We aren't here yet!</h3>
             <p className="text-slate-500 text-xs leading-relaxed mb-6 max-w-xs">
-              Sorry, we are currently only operating in **Maharashtra** (Mumbai, Pune, etc.). We hope to arrive in **{outsideStateMsg}** soon!
+              Sorry, we are currently only operating in <strong>Mumbai</strong>. We hope to arrive in <strong>{outsideStateMsg}</strong> soon!
             </p>
 
             <div className="w-full border-t border-slate-100 my-2 mb-6"></div>
 
-            {/* Go back to browse Maharashtra list */}
+            {/* Continue with Mumbai */}
             <button
-              onClick={() => setView('selection')}
+              onClick={() => handleCitySelect('Mumbai')}
               className="w-full bg-[#00C9AF] hover:bg-[#00B4A0] text-[#0C1B33] font-black py-3.5 rounded-xl shadow-lg shadow-[#00C9AF]/25 transition-all active:scale-95 text-xs sm:text-sm uppercase tracking-wider cursor-pointer"
             >
-              Browse Maharashtra Cities
+              Explore Mumbai Cars
             </button>
           </div>
         ) : (

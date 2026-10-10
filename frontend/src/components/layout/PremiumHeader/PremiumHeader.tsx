@@ -269,6 +269,7 @@ export const PremiumHeader: React.FC = () => {
     const filters = { ...baseFilters, ...query };
     const params = new URLSearchParams();
 
+    params.set('city', 'Mumbai');
     if (filters.brands && filters.brands.length > 0) params.set('brand', filters.brands.join(','));
     if (filters.models && filters.models.length > 0) params.set('model', filters.models.join(','));
     if (filters.body_type && filters.body_type.length > 0) params.set('bodyType', filters.body_type.join(','));
@@ -675,12 +676,12 @@ export const PremiumHeader: React.FC = () => {
             <div className={styles.dropdownMenu}>
               {[
                 { label: 'Under 3 Lakh', query: { budget: 'Under 3 L', budget_max: 3 } },
-                { label: '3 - 4 Lakh', query: { budget_min: 3, budget_max: 4 } },
-                { label: '4 - 5 Lakh', query: { budget_min: 4, budget_max: 5 } },
-                { label: '5 - 6 Lakh', query: { budget_min: 5, budget_max: 6 } },
-                { label: '6 - 8 Lakh', query: { budget_min: 6, budget_max: 8 } },
-                { label: '8 - 10 Lakh', query: { budget_min: 8, budget_max: 10 } },
-                { label: 'Above 10 Lakh', query: { budget: '10 L +', budget_min: 10 } }
+                { label: '3 - 4 Lakh', query: { budget: '3 - 4 Lakh', budget_min: 3, budget_max: 4 } },
+                { label: '4 - 5 Lakh', query: { budget: '4 - 5 Lakh', budget_min: 4, budget_max: 5 } },
+                { label: '5 - 6 Lakh', query: { budget: '5 - 6 Lakh', budget_min: 5, budget_max: 6 } },
+                { label: '6 - 8 Lakh', query: { budget: '6 - 8 Lakh', budget_min: 6, budget_max: 8 } },
+                { label: '8 - 10 Lakh', query: { budget: '8 - 10 Lakh', budget_min: 8, budget_max: 10 } },
+                { label: 'Above 10 Lakh', query: { budget: 'Above 10 L', budget_min: 10 } }
               ].map((opt, i) => (
                 <button key={i} onClick={() => handleNavFilter(opt.query)}>
                   {opt.label}

@@ -268,16 +268,44 @@ const PriceSummaryModal = ({ isOpen, onClose, car, carPrice, onBookNow }) => {
   if (!isOpen) return null;
 
   const carObj = car || (carPrice ? { price: carPrice } : null);
+  let pb = {};
+  if (carObj?.priceBreakdown) {
+    try {
+      pb = typeof carObj.priceBreakdown === 'string' ? JSON.parse(carObj.priceBreakdown) : carObj.priceBreakdown;
+    } catch (_) { pb = {}; }
+  } else if (carObj?.price_breakdown) {
+    try {
+      pb = typeof carObj.price_breakdown === 'string' ? JSON.parse(carObj.price_breakdown) : carObj.price_breakdown;
+    } catch (_) { pb = {}; }
+  }
+
   const rawPrice = Number(carObj?.price) || 0;
   const originalCarPrice = Number(carObj?.original_price || carObj?.originalPrice) || (rawPrice > 0 ? rawPrice + 5000 : 0);
   const saleDiscount = originalCarPrice > rawPrice ? (originalCarPrice - rawPrice) : 5000;
-  const rcTransferFee = 4000;
-  const tcsAmount = Math.round(rawPrice * 0.01);
-  const gstTax = 2430;
-  const totalOnRoadPrice = Math.max(0, rawPrice + rcTransferFee + tcsAmount + gstTax);
+  const rcTransferFee = (pb.rcTransferFee !== undefined && pb.rcTransferFee !== '') ? Number(pb.rcTransferFee) : 4000;
+  const tcsAmount = (pb.tcsAmount !== undefined && pb.tcsAmount !== null && pb.tcsAmount !== '') ? Number(pb.tcsAmount) : Math.round(rawPrice * 0.01);
+  const servicingFee = (pb.servicingFee !== undefined && pb.servicingFee !== '') ? Number(pb.servicingFee) : 8700;
+  const servicingIncluded = pb.servicingIncluded !== undefined ? Boolean(pb.servicingIncluded) : true;
+  const warrantyFee = (pb.warrantyFee !== undefined && pb.warrantyFee !== '') ? Number(pb.warrantyFee) : 5500;
+  const warrantyIncluded = pb.warrantyIncluded !== undefined ? Boolean(pb.warrantyIncluded) : true;
+  const fixesFee = (pb.fixesFee !== undefined && pb.fixesFee !== '') ? Number(pb.fixesFee) : 0;
+  const fixesIncluded = pb.fixesIncluded !== undefined ? Boolean(pb.fixesIncluded) : true;
+  const gstTax = (pb.gstTax !== undefined && pb.gstTax !== '') ? Number(pb.gstTax) : 2430;
+
+  const totalIncludedBenefits = (servicingIncluded ? servicingFee : 0) + (warrantyIncluded ? warrantyFee : 0) + (fixesIncluded ? fixesFee : 0);
+  const totalOnRoadPrice = Math.max(
+    0,
+    rawPrice +
+    rcTransferFee +
+    tcsAmount +
+    gstTax +
+    (!servicingIncluded ? servicingFee : 0) +
+    (!warrantyIncluded ? warrantyFee : 0) +
+    (!fixesIncluded ? fixesFee : 0)
+  );
   const savingsAmount = ((carObj?.original_price && Number(carObj.original_price) > Number(carObj?.price))
     ? (Number(carObj.original_price) - Number(carObj.price))
-    : 15000);
+    : 15000) + totalIncludedBenefits;
   const bookingDepositAmount = Number(carObj?.booking_amount || 11000);
 
   return (
@@ -371,8 +399,18 @@ const PriceSummaryModal = ({ isOpen, onClose, car, carPrice, onBookNow }) => {
                 />
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-slate-400 line-through font-normal text-xs font-price">₹8,700</span>
-                <span className="text-emerald-600 font-bold">Included</span>
+                {servicingIncluded ? (
+                  <>
+                    <span className="text-slate-400 line-through font-normal text-xs font-price">
+                      ₹{servicingFee.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-emerald-600 font-bold">Included</span>
+                  </>
+                ) : (
+                  <span className="font-bold text-[#0C1B33] font-price">
+                    + ₹{servicingFee.toLocaleString('en-IN')}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -386,8 +424,18 @@ const PriceSummaryModal = ({ isOpen, onClose, car, carPrice, onBookNow }) => {
                 />
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-slate-400 line-through font-normal text-xs font-price">₹5,500</span>
-                <span className="text-emerald-600 font-bold">Included</span>
+                {warrantyIncluded ? (
+                  <>
+                    <span className="text-slate-400 line-through font-normal text-xs font-price">
+                      ₹{warrantyFee.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-emerald-600 font-bold">Included</span>
+                  </>
+                ) : (
+                  <span className="font-bold text-[#0C1B33] font-price">
+                    + ₹{warrantyFee.toLocaleString('en-IN')}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -400,7 +448,13 @@ const PriceSummaryModal = ({ isOpen, onClose, car, carPrice, onBookNow }) => {
                   onOpenModal={() => setActiveBreakdownModal('fixes')}
                 />
               </span>
-              <span className="text-emerald-600 font-bold">Included</span>
+              {fixesIncluded ? (
+                <span className="text-emerald-600 font-bold">Included</span>
+              ) : (
+                <span className="font-bold text-[#0C1B33] font-price">
+                  + ₹{fixesFee.toLocaleString('en-IN')}
+                </span>
+              )}
             </div>
 
             {/* GST Taxes */}
@@ -414,6 +468,24 @@ const PriceSummaryModal = ({ isOpen, onClose, car, carPrice, onBookNow }) => {
               </span>
               <span className="font-bold text-[#0C1B33] font-price">₹{gstTax.toLocaleString('en-IN')}</span>
             </div>
+
+            {/* Included Services Benefit / Discount Highlight (Right before Total on-road price) */}
+            {totalIncludedBenefits > 0 && (
+              <div className="flex justify-between items-center py-2 px-3 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-800 text-xs font-bold my-1">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles size={13} className="text-emerald-500" />
+                  <span>Included Benefits Savings</span>
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400 line-through font-normal text-[11px] font-price">
+                    ₹{totalIncludedBenefits.toLocaleString('en-IN')}
+                  </span>
+                  <span className="text-emerald-600 font-extrabold font-price text-xs">
+                    FREE (-₹{totalIncludedBenefits.toLocaleString('en-IN')})
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Total On-road Price Divider */}
             <div className="pt-4 mt-2 border-t border-dashed border-slate-200 flex justify-between items-center">

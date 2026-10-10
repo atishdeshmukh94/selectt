@@ -1806,6 +1806,7 @@ function mapCar(car) {
         specifications: safeJsonParse(car.specifications, []),
         features: safeJsonParse(car.features, {}),
         qualityReport: safeJsonParse(car.quality_report, null),
+        priceBreakdown: safeJsonParse(car.price_breakdown, null),
         moreImages: safeJsonParse(car.more_images, []),
         videoUrl: car.video_url || '',
         createdAt: car.created_at,
@@ -2088,6 +2089,7 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
         specifications: req.body.specifications ? (typeof req.body.specifications === 'string' ? req.body.specifications : JSON.stringify(req.body.specifications)) : null,
         features: req.body.features ? (typeof req.body.features === 'string' ? req.body.features : JSON.stringify(req.body.features)) : null,
         quality_report: req.body.qualityReport ? (typeof req.body.qualityReport === 'string' ? req.body.qualityReport : JSON.stringify(req.body.qualityReport)) : null,
+        price_breakdown: req.body.priceBreakdown ? (typeof req.body.priceBreakdown === 'string' ? req.body.priceBreakdown : JSON.stringify(req.body.priceBreakdown)) : null,
         more_images: req.body.moreImages ? (typeof req.body.moreImages === 'string' ? req.body.moreImages : JSON.stringify(req.body.moreImages)) : null,
         video_url: finalVideoUrl,
         status: status || 'active'
@@ -2258,6 +2260,7 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             specifications: req.body.specifications ? (typeof req.body.specifications === 'string' ? req.body.specifications : JSON.stringify(req.body.specifications)) : null,
             features: req.body.features ? (typeof req.body.features === 'string' ? req.body.features : JSON.stringify(req.body.features)) : null,
             quality_report: req.body.qualityReport ? (typeof req.body.qualityReport === 'string' ? req.body.qualityReport : JSON.stringify(req.body.qualityReport)) : null,
+            price_breakdown: req.body.priceBreakdown ? (typeof req.body.priceBreakdown === 'string' ? req.body.priceBreakdown : JSON.stringify(req.body.priceBreakdown)) : null,
             more_images: req.body.moreImages ? (typeof req.body.moreImages === 'string' ? req.body.moreImages : JSON.stringify(req.body.moreImages)) : null,
             video_url: finalVideoUrl,
             status: status || 'active'

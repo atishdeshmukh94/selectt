@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-
-const VIDEO_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader.mp4/ik-video.mp4?updatedAt=1790511923241';
-const FALLBACK_CDN_URL = 'https://ik.imagekit.io/Selectt/branding/selectt-preloader.mp4';
-const LOCAL_FALLBACK_URL = '/preloader.mp4';
+import lottie from 'lottie-web';
+import searchingCarAnimation from '../../assets/searching-car.json';
 
 function checkShouldSkipPreloader() {
   if (typeof window === 'undefined') return true;
@@ -22,14 +20,13 @@ function checkShouldSkipPreloader() {
   return false;
 }
 
-export default function PagePreloader({ minDisplayTime = 1200 }) {
-  // Always invoke hooks unconditionally in exact same order
+export default function PagePreloader({ minDisplayTime = 1400 }) {
   const [shouldSkip] = useState(checkShouldSkipPreloader);
   const [isVisible, setIsVisible] = useState(!shouldSkip);
   const [shouldRender, setShouldRender] = useState(!shouldSkip);
 
-  const videoRef = useRef(null);
-  const startTimeRef = useRef(Date.now());
+  const containerRef = useRef(null);
+  const animInstanceRef = useRef(null);
   const finishedRef = useRef(shouldSkip);
 
   const dismiss = () => {
@@ -44,31 +41,27 @@ export default function PagePreloader({ minDisplayTime = 1200 }) {
     }, 400);
   };
 
-  const handleVideoEnded = () => {
-    const elapsed = Date.now() - startTimeRef.current;
-    const remaining = Math.max(0, minDisplayTime - elapsed);
-    setTimeout(dismiss, remaining);
-  };
-
   useEffect(() => {
     if (shouldSkip) return;
 
-    const video = videoRef.current;
-    if (video) {
-      video.muted = true;
-      video.defaultMuted = true;
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          dismiss();
+    if (containerRef.current) {
+      try {
+        animInstanceRef.current = lottie.loadAnimation({
+          container: containerRef.current,
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          animationData: searchingCarAnimation,
         });
+      } catch (e) {
+        console.warn('Lottie failed, dismissing', e);
+        dismiss();
       }
     }
 
-    // Safety timeout: guaranteed dismiss after 1.5s max
-    const safetyTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
       dismiss();
-    }, Math.max(minDisplayTime, 1500));
+    }, minDisplayTime);
 
     const handleKey = (e) => {
       if (e.key === 'Escape') dismiss();
@@ -76,8 +69,11 @@ export default function PagePreloader({ minDisplayTime = 1200 }) {
     window.addEventListener('keydown', handleKey);
 
     return () => {
-      clearTimeout(safetyTimer);
+      clearTimeout(timer);
       window.removeEventListener('keydown', handleKey);
+      if (animInstanceRef.current) {
+        animInstanceRef.current.destroy();
+      }
     };
   }, [shouldSkip, minDisplayTime]);
 
@@ -87,7 +83,7 @@ export default function PagePreloader({ minDisplayTime = 1200 }) {
     <div
       onClick={dismiss}
       style={{
-        backgroundColor: '#000000',
+        backgroundColor: '#FFFFFF',
         position: 'fixed',
         top: 0,
         left: 0,
@@ -98,53 +94,26 @@ export default function PagePreloader({ minDisplayTime = 1200 }) {
         zIndex: 999999,
         margin: 0,
         padding: 0,
-        overflow: 'hidden'
+        overflow: 'hidden',
       }}
-      className={`fixed inset-0 z-[999999] flex items-center justify-center bg-black transition-opacity duration-500 ease-out ${
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-white transition-opacity duration-400 ease-out cursor-pointer ${
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
-      <div className="relative flex items-center justify-center w-full h-full p-0 m-0 bg-black">
-        <video
-          ref={videoRef}
-          src={VIDEO_CDN_URL}
-          autoPlay
-          muted
-          playsInline
-          webkit-playsinline="true"
-          preload="auto"
-          onEnded={handleVideoEnded}
-          onError={(e) => {
-            // If primary video errors, try fallback
-            if (e.target.src !== FALLBACK_CDN_URL && e.target.src !== window.location.origin + LOCAL_FALLBACK_URL) {
-              e.target.src = FALLBACK_CDN_URL;
-            } else {
-              dismiss();
-            }
-          }}
-          style={{
-            backgroundColor: '#000000',
-            maxHeight: '85vh',
-            maxWidth: '85vw',
-            objectFit: 'contain',
-            outline: 'none',
-            border: 'none',
-            boxShadow: 'none',
-            mixBlendMode: 'screen',
-            clipPath: 'inset(2px)',
-            WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 96%)',
-            maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 96%)'
-          }}
-          className="w-72 sm:w-96 md:w-[480px] h-auto object-contain max-h-[85vh] bg-black outline-none border-none pointer-events-none"
-        >
-          <source src={VIDEO_CDN_URL} type="video/mp4" />
-          <source src={FALLBACK_CDN_URL} type="video/mp4" />
-          <source src={LOCAL_FALLBACK_URL} type="video/mp4" />
-        </video>
+      <div className="relative flex flex-col items-center justify-center w-full h-full p-4">
+        <div
+          ref={containerRef}
+          className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center"
+        />
+        <div className="text-center mt-3 space-y-1">
+          <p className="text-xs sm:text-sm font-extrabold text-[#0C1B33] tracking-wider uppercase">
+            Selectt.
+          </p>
+          <p className="text-xs font-semibold text-slate-500">
+            Finding certified cars for you...
+          </p>
+        </div>
       </div>
     </div>
   );
 }
-
-
-

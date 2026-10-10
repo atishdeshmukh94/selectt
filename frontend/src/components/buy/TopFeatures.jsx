@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Check, Info } from 'lucide-react';
+import FeaturesDrawer from '../car-details/FeaturesDrawer';
 
-const TopFeatures = ({ features, theme = 'dark' }) => {
+const TopFeatures = ({ features, car, theme = 'dark', onBookNow, onTestDrive }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const defaultSections = [
     {
       title: 'COMFORT & CONVENIENCE',
@@ -95,13 +98,28 @@ const TopFeatures = ({ features, theme = 'dark' }) => {
 
         {/* View All Button */}
         <div className="flex justify-start mt-6 md:mt-8 relative">
-          <button className="w-full sm:w-auto px-6 py-3 bg-[#00C9AF] text-[#0C1B33] rounded-xl font-black text-xs uppercase tracking-wider cursor-pointer hover:bg-[#00B4A0] transition-all shadow-md shadow-[#00C9AF]/20 focus:ring-2 focus:ring-[#0C1B33]/20 outline-none active:scale-95">
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="w-full sm:w-auto px-6 py-3 bg-[#00C9AF] text-[#0C1B33] rounded-xl font-black text-xs uppercase tracking-wider cursor-pointer hover:bg-[#00B4A0] transition-all shadow-md shadow-[#00C9AF]/20 focus:ring-2 focus:ring-[#0C1B33]/20 outline-none active:scale-95 flex items-center justify-center"
+          >
             View all features
           </button>
         </div>
       </div>
+
+      {/* Features Right Slide-over Drawer */}
+      <FeaturesDrawer
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        features={features}
+        car={car}
+        onBookNow={onBookNow}
+        onTestDrive={onTestDrive}
+      />
     </div>
   );
 };
 
 export default TopFeatures;
+

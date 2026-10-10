@@ -1188,7 +1188,7 @@ const CarDetailsPage = () => {
               <QualityReport report={car.qualityReport} car={car} theme="light" />
 
               {/* Top Features */}
-              <TopFeatures features={car.features} theme="light" />
+              <TopFeatures features={car.features} car={car} theme="light" />
 
               <BenefitsAddons />
 

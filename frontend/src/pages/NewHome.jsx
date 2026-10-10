@@ -37,7 +37,7 @@ import Reveal from '../components/common/Reveal';
 import WhyChooseSection from '../components/home/WhySelectt/WhyChooseSection';
 import StatCounter from '../components/animation/StatCounter';
 import SectionReveal from '../components/animation/SectionReveal';
-import { shortenLocation, getCarDetailsUrl } from '../utils/formatters';
+import { shortenLocation, getCarDetailsUrl, parseBudgetRange } from '../utils/formatters';
 import { getPersonalizedRecommendations, getRecentlyViewedCars, getUserPreferences } from '../utils/userPreferences';
 
 const FALLBACK_CARS = [
@@ -911,6 +911,18 @@ const MobileRecommendedCarCard = ({ car }) => {
   );
 };
 
+const renderHeroBadge = (car) => {
+  if (!car) return null;
+  const rawBadge = (car.tag || car.badgeText || car.badge_text || (car.isAssured ? 'Selectt Assured' : (car.listing_type === 'luxury' || car.listingType === 'luxury' ? 'Selectt Luxury' : '')) || '').trim();
+  if (!rawBadge) return null;
+  const badge = getBadgeStyles(rawBadge);
+  return (
+    <span className={`text-[9px] px-2 py-0.5 ${badge.bg} ${badge.color} ${badge.border} ${badge.glow} border rounded-full font-bold shadow-xs whitespace-nowrap`}>
+      {badge.label || rawBadge}
+    </span>
+  );
+};
+
 const NewHome = () => {
   const navigate = useNavigate();
   const resolveUrl = (url) => {
@@ -956,7 +968,7 @@ const NewHome = () => {
     mobile_hero_btn_link: '/buy-cars',
   });
   const [isScrolled, setIsScrolled] = useState(false);
-  const [city, setCity] = useState(localStorage.getItem('user_city') || 'Delhi NCR');
+  const [city, setCity] = useState(localStorage.getItem('user_city') || 'Mumbai');
 
   const getMobileRecommendedCars = () => {
     const sourceCars = (allCars.length ? allCars : FALLBACK_CARS).filter(car => checkLocationMatch(car.location, city));
@@ -1073,7 +1085,7 @@ const NewHome = () => {
 
     // Location changed listener
     const handleLocationChange = () => {
-      const activeCity = localStorage.getItem('user_city') || 'Delhi NCR';
+      const activeCity = localStorage.getItem('user_city') || 'Mumbai';
       setCity(activeCity);
       fetch(`${API_URL}/api/cars`)
         .then(res => res.json())
@@ -1135,10 +1147,9 @@ const NewHome = () => {
           if (availableCars.length >= 3) {
             const heroData = availableCars.slice(0, 3).map((car, index) => ({
               ...car,
-              // Fallback default images if DB doesn't have good images
-              image: car.image || FALLBACK_CARS[index].image,
-              tag: car.tag || (index === 0 ? 'Verified' : undefined),
-              badgeText: car.badgeText || (index === 1 ? 'Electric' : index === 2 ? 'Hot deal' : undefined)
+              image: car.image || FALLBACK_CARS[index]?.image,
+              tag: car.tag || '',
+              badgeText: car.badgeText || car.badge_text || ''
             }));
             setHeroCars(heroData);
           } else if (availableCars.length > 0) {
@@ -1148,7 +1159,9 @@ const NewHome = () => {
               if (index < 3) {
                 heroData[index] = {
                   ...car,
-                  image: car.image || FALLBACK_CARS[index].image
+                  image: car.image || FALLBACK_CARS[index]?.image,
+                  tag: car.tag || '',
+                  badgeText: car.badgeText || car.badge_text || ''
                 };
               }
             });
@@ -1453,8 +1466,16 @@ const NewHome = () => {
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (brand !== 'All brands') params.append('brand', brand);
-    if (fuelType !== 'All types') params.append('fuelType', fuelType);
-    if (budget !== 'All budgets') params.append('budget', budget);
+    if (fuelType !== 'All types') {
+      params.append('fuel', fuelType);
+      params.append('fuelType', fuelType);
+    }
+    if (budget !== 'All budgets') {
+      params.append('budget', budget);
+      const { min: bMin, max: bMax } = parseBudgetRange(budget);
+      if (bMin != null) params.append('budget_min', String(bMin));
+      if (bMax != null) params.append('budget_max', String(bMax));
+    }
 
     localStorage.setItem('user_city', city);
     window.dispatchEvent(new Event('location-changed'));
@@ -1542,8 +1563,8 @@ const NewHome = () => {
   return (
     <div className="relative bg-gradient-to-b from-[#162947] via-[#0C1B33] to-[#050B16] text-white min-h-screen overflow-x-hidden font-sans">
       <PageMeta
-        title={`Selectt — Buy & Sell Certified Pre-Owned Cars in ${city || 'Delhi NCR'}`}
-        description={`Selectt is ${city || 'Delhi NCR'}'s premier pre-owned car marketplace. Browse 200+ certified pre-owned cars with 200-point inspection, free doorstep test drives, and easy financing across ${city || 'Delhi NCR'}.`}
+        title={`Selectt — Buy & Sell Certified Pre-Owned Cars in ${city || 'Mumbai'}`}
+        description={`Selectt is ${city || 'Mumbai'}'s premier pre-owned car marketplace. Browse 200+ certified pre-owned cars with 200-point inspection, free doorstep test drives, and easy financing across ${city || 'Mumbai'}.`}
         canonical="/"
       />
       {/* Global blueprint grid lines background */}
@@ -2163,9 +2184,7 @@ const NewHome = () => {
                     <span className="text-[19px] font-black text-white font-price">
                       ₹{heroCars[0]?.price ? (heroCars[0].price / 100000).toFixed(2) + 'L' : '12.40L'}
                     </span>
-                    <span className="text-[9px] px-2 py-0.5 bg-[#00C9AF]/10 border border-[#00C9AF]/20 text-[#00C9AF] rounded-full font-bold">
-                      {heroCars[0]?.tag || 'Verified'}
-                    </span>
+                    {renderHeroBadge(heroCars[0])}
                   </div>
                   <div className="text-[9px] text-slate-400 mt-1">
                     {heroCars[0]?.year} · {heroCars[0]?.km ? heroCars[0].km.toLocaleString() : '18,200'} km · {heroCars[0]?.fuelType}
@@ -2199,9 +2218,7 @@ const NewHome = () => {
                     <span className="text-[19px] font-black text-white font-price">
                       ₹{heroCars[1]?.price ? (heroCars[1].price / 100000).toFixed(2) + 'L' : '16.80L'}
                     </span>
-                    <span className="text-[9px] px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-full font-bold">
-                      {heroCars[1]?.badgeText || 'Electric'}
-                    </span>
+                    {renderHeroBadge(heroCars[1])}
                   </div>
                   <div className="text-[9px] text-slate-400 mt-1">
                     {heroCars[1]?.year} · {heroCars[1]?.km ? heroCars[1].km.toLocaleString() : '9,800'} km · {heroCars[1]?.fuelType}
@@ -2235,9 +2252,7 @@ const NewHome = () => {
                     <span className="text-[19px] font-black text-white font-price">
                       ₹{heroCars[2]?.price ? (heroCars[2].price / 100000).toFixed(2) + 'L' : '8.90L'}
                     </span>
-                    <span className="text-[9px] px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-full font-bold">
-                      {heroCars[2]?.badgeText || 'Hot Deal'}
-                    </span>
+                    {renderHeroBadge(heroCars[2])}
                   </div>
                   <div className="text-[9px] text-slate-400 mt-1">
                     {heroCars[2]?.year} · {heroCars[2]?.km ? heroCars[2].km.toLocaleString() : '32,000'} km · {heroCars[2]?.fuelType}

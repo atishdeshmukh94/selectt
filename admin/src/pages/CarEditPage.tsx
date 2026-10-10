@@ -559,7 +559,20 @@ const CarEditPage = () => {
     features: {
       "Comfort & Convenience": [],
       "Safety": [],
-      "Exterior": []
+      "Exterior": [],
+      "Entertainment & Communication": [],
+      "Interior": []
+    },
+    priceBreakdown: {
+      rcTransferFee: 4000,
+      tcsAmount: null,
+      servicingFee: 8700,
+      servicingIncluded: true,
+      warrantyFee: 5500,
+      warrantyIncluded: true,
+      fixesFee: 0,
+      fixesIncluded: true,
+      gstTax: 2430
     },
     qualityReport: {
       summary: "",
@@ -621,7 +634,10 @@ const CarEditPage = () => {
         try { features = JSON.parse(features); } catch(e) { features = {}; }
       }
       if (!features || typeof features !== 'object' || Array.isArray(features)) {
-        features = { "Comfort & Convenience": [], "Safety": [], "Exterior": [] };
+        features = { "Comfort & Convenience": [], "Safety": [], "Exterior": [], "Entertainment & Communication": [], "Interior": [] };
+      } else {
+        if (!Array.isArray(features["Entertainment & Communication"])) features["Entertainment & Communication"] = [];
+        if (!Array.isArray(features["Interior"])) features["Interior"] = [];
       }
 
       // Feature name migration for existing cars (e.g. car 41)
@@ -656,6 +672,23 @@ const CarEditPage = () => {
         moreImages = [data.videoUrl, ...moreImages];
       }
 
+      let pb = data.priceBreakdown || data.price_breakdown || null;
+      if (typeof pb === 'string') {
+        try { pb = JSON.parse(pb); } catch (_) { pb = null; }
+      }
+      const defaultPb = {
+        rcTransferFee: 4000,
+        tcsAmount: null,
+        servicingFee: 8700,
+        servicingIncluded: true,
+        warrantyFee: 5500,
+        warrantyIncluded: true,
+        fixesFee: 0,
+        fixesIncluded: true,
+        gstTax: 2430
+      };
+      const mergedPriceBreakdown = pb ? { ...defaultPb, ...pb } : defaultPb;
+
       const carYear = data.year ? Number(data.year) : new Date().getFullYear();
       const autoDefaultTitle = `${carYear} ${data.make || ''} ${data.model || ''} ${data.variant || ''}`.replace(/\s+/g, ' ').trim();
       setFormData({
@@ -678,9 +711,12 @@ const CarEditPage = () => {
         km: data.km !== undefined && data.km !== null ? data.km : 0,
         ownership: data.ownership || "1st Owner",
         listingType: data.listingType || data.listing_type || (data.tag && data.tag.toLowerCase().includes('luxury') ? "luxury" : "standard"),
+        tag: data.tag || "",
+        badgeText: data.badgeText || data.badge_text || "",
         reasonsToBuy: data.reasonsToBuy || [],
         specifications: data.specifications || [],
         features: features,
+        priceBreakdown: mergedPriceBreakdown,
         moreImages: moreImages,
         videoUrl: data.videoUrl || "",
         qualityReport: {
@@ -1536,6 +1572,352 @@ const CarEditPage = () => {
                       <input type="number" className={inpClass} value={formData.emi || ""} onChange={e => setFormData({ ...formData, emi: e.target.value })} placeholder="e.g. 9500" />
                     </div>
                   </div>
+
+                  {/* ON-ROAD PRICE BREAKDOWN & COMPLIMENTARY BENEFITS CONTROLS */}
+                  <div className="mt-7 pt-6 border-t border-slate-100 dark:border-gray-800 bg-emerald-50/30 dark:bg-emerald-950/20 -mx-6 -mb-6 p-6 rounded-b-3xl">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                      <div className="flex items-center gap-2">
+                        <FileText size={18} className="text-emerald-600 dark:text-emerald-400" />
+                        <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                          On-Road Price Breakdown & Complimentary Benefits (Checkout Config)
+                        </h3>
+                      </div>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 rounded-full text-[11px] font-bold w-fit">
+                        Live Customer Checkout Sync
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-5 leading-relaxed">
+                      Set fees and complimentary included benefits shown on the customer checkout page and price breakdown popups.
+                      Items marked as <strong className="text-emerald-700 dark:text-emerald-300">"Included"</strong> will appear as strikethrough with a green <span className="font-bold">Included</span> badge, and their total value is highlighted as <strong className="text-emerald-700 dark:text-emerald-300">FREE Savings</strong> right before Total on-road price.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {/* RC Transfer Facilitation */}
+                      <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-slate-200/80 dark:border-gray-800 shadow-2xs space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                            RC Transfer Facilitation (₹)
+                          </label>
+                          <span className="text-[10px] text-slate-400 font-mono">Default ₹4,000</span>
+                        </div>
+                        <input
+                          type="number"
+                          className={inpClass}
+                          value={formData.priceBreakdown?.rcTransferFee !== undefined ? formData.priceBreakdown.rcTransferFee : 4000}
+                          onChange={e => {
+                            const v = e.target.value === '' ? '' : Number(e.target.value);
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              priceBreakdown: { ...(prev.priceBreakdown || {}), rcTransferFee: v }
+                            }));
+                          }}
+                          placeholder="4000"
+                        />
+                        <p className="text-[10px] text-slate-400 font-medium">Added to total on-road price.</p>
+                      </div>
+
+                      {/* TCS (Tax Collected at Source) */}
+                      <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-slate-200/80 dark:border-gray-800 shadow-2xs space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                            TCS (Tax Collected at Source) (₹)
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const autoVal = Math.round(Number(formData.price || 0) * 0.01);
+                              setFormData((prev: any) => ({
+                                ...prev,
+                                priceBreakdown: { ...(prev.priceBreakdown || {}), tcsAmount: autoVal }
+                              }));
+                            }}
+                            className="text-[10px] font-bold text-[#155DFC] hover:underline cursor-pointer"
+                          >
+                            Auto 1% (₹{Math.round(Number(formData.price || 0) * 0.01).toLocaleString('en-IN')})
+                          </button>
+                        </div>
+                        <input
+                          type="number"
+                          className={inpClass}
+                          value={formData.priceBreakdown?.tcsAmount !== undefined && formData.priceBreakdown?.tcsAmount !== null ? formData.priceBreakdown.tcsAmount : (Math.round(Number(formData.price || 0) * 0.01) || "")}
+                          onChange={e => {
+                            const v = e.target.value === '' ? '' : Number(e.target.value);
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              priceBreakdown: { ...(prev.priceBreakdown || {}), tcsAmount: v }
+                            }));
+                          }}
+                          placeholder="Leave blank for auto 1%"
+                        />
+                        <p className="text-[10px] text-slate-400 font-medium">Customer tax credit. Defaults to 1% of car price.</p>
+                      </div>
+
+                      {/* GST (Govt. taxes) */}
+                      <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-slate-200/80 dark:border-gray-800 shadow-2xs space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                            GST (Govt. Taxes) (₹)
+                          </label>
+                          <span className="text-[10px] text-slate-400 font-mono">Default ₹2,430</span>
+                        </div>
+                        <input
+                          type="number"
+                          className={inpClass}
+                          value={formData.priceBreakdown?.gstTax !== undefined ? formData.priceBreakdown.gstTax : 2430}
+                          onChange={e => {
+                            const v = e.target.value === '' ? '' : Number(e.target.value);
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              priceBreakdown: { ...(prev.priceBreakdown || {}), gstTax: v }
+                            }));
+                          }}
+                          placeholder="2430"
+                        />
+                        <p className="text-[10px] text-slate-400 font-medium">Fixed statutory charges on processing.</p>
+                      </div>
+
+                      {/* Servicing, Cleaning, Fuel */}
+                      <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-slate-200/80 dark:border-gray-800 shadow-2xs space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                            Servicing, Cleaning, Fuel (₹)
+                          </label>
+                          <span className="text-[10px] text-slate-400 font-mono">Default ₹8,700</span>
+                        </div>
+                        <input
+                          type="number"
+                          className={inpClass}
+                          value={formData.priceBreakdown?.servicingFee !== undefined ? formData.priceBreakdown.servicingFee : 8700}
+                          onChange={e => {
+                            const v = e.target.value === '' ? '' : Number(e.target.value);
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              priceBreakdown: { ...(prev.priceBreakdown || {}), servicingFee: v }
+                            }));
+                          }}
+                          placeholder="8700"
+                        />
+                        <label className="flex items-center gap-2 cursor-pointer pt-1 select-none">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer"
+                            checked={formData.priceBreakdown?.servicingIncluded !== undefined ? Boolean(formData.priceBreakdown.servicingIncluded) : true}
+                            onChange={e => {
+                              const checked = e.target.checked;
+                              setFormData((prev: any) => ({
+                                ...prev,
+                                priceBreakdown: { ...(prev.priceBreakdown || {}), servicingIncluded: checked }
+                              }));
+                            }}
+                          />
+                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                            Mark as Included (Complimentary FREE)
+                          </span>
+                        </label>
+                        <p className="text-[10px] text-slate-400 leading-tight">
+                          If included, customer sees strikethrough price and it is added to the highlighted savings banner!
+                        </p>
+                      </div>
+
+                      {/* Warranty (Protect) */}
+                      <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-slate-200/80 dark:border-gray-800 shadow-2xs space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                            Warranty (Protect) (₹)
+                          </label>
+                          <span className="text-[10px] text-slate-400 font-mono">Default ₹5,500</span>
+                        </div>
+                        <input
+                          type="number"
+                          className={inpClass}
+                          value={formData.priceBreakdown?.warrantyFee !== undefined ? formData.priceBreakdown.warrantyFee : 5500}
+                          onChange={e => {
+                            const v = e.target.value === '' ? '' : Number(e.target.value);
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              priceBreakdown: { ...(prev.priceBreakdown || {}), warrantyFee: v }
+                            }));
+                          }}
+                          placeholder="5500"
+                        />
+                        <label className="flex items-center gap-2 cursor-pointer pt-1 select-none">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer"
+                            checked={formData.priceBreakdown?.warrantyIncluded !== undefined ? Boolean(formData.priceBreakdown.warrantyIncluded) : true}
+                            onChange={e => {
+                              const checked = e.target.checked;
+                              setFormData((prev: any) => ({
+                                ...prev,
+                                priceBreakdown: { ...(prev.priceBreakdown || {}), warrantyIncluded: checked }
+                              }));
+                            }}
+                          />
+                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                            Mark as Included (Complimentary FREE)
+                          </span>
+                        </label>
+                        <p className="text-[10px] text-slate-400 leading-tight">
+                          If included, customer sees strikethrough price and gets 6 months coverage free.
+                        </p>
+                      </div>
+
+                      {/* Fixes & Upgrades */}
+                      <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-slate-200/80 dark:border-gray-800 shadow-2xs space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                            Fixes & Upgrades (₹)
+                          </label>
+                          <span className="text-[10px] text-slate-400 font-mono">Default ₹0</span>
+                        </div>
+                        <input
+                          type="number"
+                          className={inpClass}
+                          value={formData.priceBreakdown?.fixesFee !== undefined ? formData.priceBreakdown.fixesFee : 0}
+                          onChange={e => {
+                            const v = e.target.value === '' ? '' : Number(e.target.value);
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              priceBreakdown: { ...(prev.priceBreakdown || {}), fixesFee: v }
+                            }));
+                          }}
+                          placeholder="0"
+                        />
+                        <label className="flex items-center gap-2 cursor-pointer pt-1 select-none">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer"
+                            checked={formData.priceBreakdown?.fixesIncluded !== undefined ? Boolean(formData.priceBreakdown.fixesIncluded) : true}
+                            onChange={e => {
+                              const checked = e.target.checked;
+                              setFormData((prev: any) => ({
+                                ...prev,
+                                priceBreakdown: { ...(prev.priceBreakdown || {}), fixesIncluded: checked }
+                              }));
+                            }}
+                          />
+                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                            Mark as Included (Complimentary FREE)
+                          </span>
+                        </label>
+                        <p className="text-[10px] text-slate-400 leading-tight">
+                          Refurbishment & touchups provided with the car.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Live Customer Preview Box */}
+                    {(() => {
+                      const cPrice = Number(formData.price || 0);
+                      const cRc = formData.priceBreakdown?.rcTransferFee !== undefined && formData.priceBreakdown?.rcTransferFee !== '' ? Number(formData.priceBreakdown.rcTransferFee) : 4000;
+                      const cTcs = formData.priceBreakdown?.tcsAmount !== undefined && formData.priceBreakdown?.tcsAmount !== null && formData.priceBreakdown?.tcsAmount !== '' ? Number(formData.priceBreakdown.tcsAmount) : Math.round(cPrice * 0.01);
+                      const cServ = formData.priceBreakdown?.servicingFee !== undefined && formData.priceBreakdown?.servicingFee !== '' ? Number(formData.priceBreakdown.servicingFee) : 8700;
+                      const cServInc = formData.priceBreakdown?.servicingIncluded !== undefined ? Boolean(formData.priceBreakdown.servicingIncluded) : true;
+                      const cWarr = formData.priceBreakdown?.warrantyFee !== undefined && formData.priceBreakdown?.warrantyFee !== '' ? Number(formData.priceBreakdown.warrantyFee) : 5500;
+                      const cWarrInc = formData.priceBreakdown?.warrantyIncluded !== undefined ? Boolean(formData.priceBreakdown.warrantyIncluded) : true;
+                      const cFix = formData.priceBreakdown?.fixesFee !== undefined && formData.priceBreakdown?.fixesFee !== '' ? Number(formData.priceBreakdown.fixesFee) : 0;
+                      const cFixInc = formData.priceBreakdown?.fixesIncluded !== undefined ? Boolean(formData.priceBreakdown.fixesIncluded) : true;
+                      const cGst = formData.priceBreakdown?.gstTax !== undefined && formData.priceBreakdown?.gstTax !== '' ? Number(formData.priceBreakdown.gstTax) : 2430;
+
+                      const cIncBenefits = (cServInc ? cServ : 0) + (cWarrInc ? cWarr : 0) + (cFixInc ? cFix : 0);
+                      const cTotalOnRoad = Math.max(
+                        0,
+                        cPrice +
+                        cRc +
+                        cTcs +
+                        cGst +
+                        (!cServInc ? cServ : 0) +
+                        (!cWarrInc ? cWarr : 0) +
+                        (!cFixInc ? cFix : 0)
+                      );
+
+                      return (
+                        <div className="mt-5 p-4 rounded-2xl bg-white dark:bg-gray-900 border border-emerald-300 dark:border-emerald-800 shadow-xs">
+                          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-gray-800">
+                            <span className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                              <CheckCircle2 size={14} className="text-emerald-600" />
+                              Live Customer Checkout Preview
+                            </span>
+                            <span className="text-[11px] text-slate-500 font-medium">
+                              What the buyer sees at /checkout
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-3 text-xs border-b border-slate-100 dark:border-gray-800">
+                            <div>
+                              <span className="text-slate-400 block text-[11px]">Car Price</span>
+                              <span className="font-bold text-slate-800 dark:text-white">₹{cPrice.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block text-[11px]">RC Transfer</span>
+                              <span className="font-bold text-slate-800 dark:text-white">+ ₹{cRc.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block text-[11px]">TCS (Tax Credit)</span>
+                              <span className="font-bold text-slate-800 dark:text-white">+ ₹{cTcs.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block text-[11px]">GST Taxes</span>
+                              <span className="font-bold text-slate-800 dark:text-white">₹{cGst.toLocaleString('en-IN')}</span>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-2.5 text-xs border-b border-slate-100 dark:border-gray-800">
+                            <div>
+                              <span className="text-slate-400 block text-[11px]">Servicing & Fuel</span>
+                              {cServInc ? (
+                                <span className="font-bold text-emerald-600">
+                                  <span className="line-through text-slate-400 font-normal mr-1.5">₹{cServ.toLocaleString('en-IN')}</span>
+                                  Included
+                                </span>
+                              ) : (
+                                <span className="font-bold text-slate-800 dark:text-white">+ ₹{cServ.toLocaleString('en-IN')}</span>
+                              )}
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block text-[11px]">Warranty (Protect)</span>
+                              {cWarrInc ? (
+                                <span className="font-bold text-emerald-600">
+                                  <span className="line-through text-slate-400 font-normal mr-1.5">₹{cWarr.toLocaleString('en-IN')}</span>
+                                  Included
+                                </span>
+                              ) : (
+                                <span className="font-bold text-slate-800 dark:text-white">+ ₹{cWarr.toLocaleString('en-IN')}</span>
+                              )}
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block text-[11px]">Fixes & Upgrades</span>
+                              {cFixInc ? (
+                                <span className="font-bold text-emerald-600">Included</span>
+                              ) : (
+                                <span className="font-bold text-slate-800 dark:text-white">+ ₹{cFix.toLocaleString('en-IN')}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {cIncBenefits > 0 && (
+                            <div className="flex items-center justify-between p-2.5 my-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                              <span className="flex items-center gap-1.5">
+                                <span>✨ Included Benefits Savings (Highlight Banner)</span>
+                              </span>
+                              <span className="font-extrabold font-mono text-emerald-600 dark:text-emerald-400">
+                                FREE (-₹{cIncBenefits.toLocaleString('en-IN')})
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between pt-2">
+                            <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                              Estimated Total On-Road Price:
+                            </span>
+                            <span className="text-base sm:text-lg font-black text-emerald-600 font-mono">
+                              ₹{cTotalOnRoad.toLocaleString('en-IN')}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
               </section>
             </div>
@@ -1610,7 +1992,22 @@ const CarEditPage = () => {
                 </div>
                 <div>
                   <label className={labelClass}>Top-Left Badge (Price Drop)</label>
-                  <input type="text" className={inpClass} value={formData.badgeText || ""} onChange={e => setFormData({...formData, badgeText: e.target.value})} placeholder="e.g. ₹9,000 ↓" />
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 font-bold text-sm select-none pointer-events-none">₹</span>
+                    <input
+                      type="text"
+                      className={`${inpClass} pl-8`}
+                      value={(formData.badgeText || "").replace(/^₹\s*/, '')}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setFormData({
+                          ...formData,
+                          badgeText: val.trim() ? (val.startsWith('₹') ? val : `₹${val.replace(/^₹\s*/, '')}`) : ""
+                        });
+                      }}
+                      placeholder="9,000 ↓"
+                    />
+                  </div>
                 </div>
               </section>
 
@@ -1948,6 +2345,33 @@ const CarEditPage = () => {
             <FeatureCategory 
               title="Exterior" 
               options={["Fog Lights", "Alloy Wheels", "Rear Spoiler", "Moonroof", "LED Headlights", "Roof Rails", "Turn Indicators on ORVM"]} 
+            />
+            <FeatureCategory 
+              title="Entertainment & Communication" 
+              options={[
+                "Touchscreen Display",
+                "Android Auto",
+                "Apple CarPlay",
+                "Bluetooth Connectivity",
+                "Steering Mounted Controls",
+                "USB Ports",
+                "Premium Sound System",
+                "Navigation System",
+                "Wireless Phone Charger"
+              ]} 
+            />
+            <FeatureCategory 
+              title="Interior" 
+              options={[
+                "Leather Seats",
+                "Dual Tone Dashboard",
+                "Digital Instrument Cluster",
+                "Ambient Lighting",
+                "Cooled Glovebox",
+                "Height Adjustable Driver Seat",
+                "Rear Armrest",
+                "Driver Armrest"
+              ]} 
             />
 
             {/* QUALITY & INSPECTION REPORT SECTION */}

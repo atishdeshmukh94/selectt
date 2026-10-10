@@ -55,3 +55,17 @@ export const getCarDetailsUrl = (car) => {
 
   return `/car/${make}/${model}/${carName}/${id}`;
 };
+
+export const parseBudgetRange = (str) => {
+  if (!str) return { min: null, max: null };
+  const s = String(str).toLowerCase().replace(/[\u2013\u2014]/g, '-').trim();
+  const underMatch = s.match(/(?:under|below|<)\s*₹?\s*(\d+(?:\.\d+)?)/);
+  if (underMatch) return { min: 0, max: parseFloat(underMatch[1]) };
+  const aboveMatch = s.match(/(?:above|>)\s*₹?\s*(\d+(?:\.\d+)?)/);
+  if (aboveMatch) return { min: parseFloat(aboveMatch[1]), max: null };
+  const plusMatch = s.match(/₹?\s*(\d+(?:\.\d+)?)\s*(?:lakhs?|l)?\s*\+/);
+  if (plusMatch) return { min: parseFloat(plusMatch[1]), max: null };
+  const rangeMatch = s.match(/₹?\s*(\d+(?:\.\d+)?)\s*(?:lakhs?|l)?\s*-\s*₹?\s*(\d+(?:\.\d+)?)/);
+  if (rangeMatch) return { min: parseFloat(rangeMatch[1]), max: parseFloat(rangeMatch[2]) };
+  return { min: null, max: null };
+};

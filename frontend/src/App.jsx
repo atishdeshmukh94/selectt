@@ -153,6 +153,15 @@ function App() {
   const [logo, setLogo] = useState('');
 
   useEffect(() => {
+    const currentCity = localStorage.getItem('user_city');
+    if (!currentCity || currentCity.toLowerCase() !== 'mumbai') {
+      localStorage.setItem('user_city', 'Mumbai');
+      localStorage.setItem('selectedCity', 'Mumbai');
+      localStorage.setItem('selected_location', 'Mumbai');
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchSettings = async () => {
       try {
         const res = await fetch(`${API_URL}/api/settings/public`);
