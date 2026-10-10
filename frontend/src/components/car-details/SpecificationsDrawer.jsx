@@ -159,113 +159,117 @@ const SpecificationsDrawer = ({
       className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex justify-end transition-opacity duration-300 animate-in fade-in"
     >
       <div
-        className="w-full max-w-[720px] bg-white h-full flex flex-col shadow-2xl relative animate-in slide-in-from-right duration-300 ease-out font-sans"
+        className="w-full sm:w-[480px] md:w-[540px] lg:w-[580px] bg-white h-full flex flex-col shadow-2xl relative animate-in slide-in-from-right duration-300 ease-out font-sans"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Top Header ── */}
-        <div className="px-5 py-4 border-b border-slate-200 bg-white flex items-center justify-between gap-4 shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="pt-4 px-4 sm:px-6 pb-3 bg-white border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-3 mb-3">
             <button
+              type="button"
               onClick={onClose}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="w-9 h-9 -ml-2 rounded-full hover:bg-slate-100 flex items-center justify-center text-[#0C1B33] hover:text-[#00A38D] transition-colors cursor-pointer"
               aria-label="Back"
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={20} strokeWidth={2.2} />
             </button>
             <div>
-              <h2 className="text-lg font-black text-[#0C1B33] tracking-tight">
+              <h2 className="text-lg sm:text-xl font-black text-[#0C1B33] tracking-tight font-heading leading-tight">
                 Specifications
               </h2>
-              <p className="text-[11px] text-slate-500 font-medium">
-                {car.year} {car.make} {car.model} {car.variant}
-              </p>
+              {car && (
+                <p className="text-[11px] text-slate-400 font-semibold mt-0.5">
+                  {car.year} {car.make} {car.model} {car.variant}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Search bar inside header */}
-          <div className="relative flex-1 max-w-[280px]">
-            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          {/* Search Box */}
+          <div className="relative">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search specifications..."
-              className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/20 outline-none transition-all"
+              className="w-full bg-[#F4F4F6] border border-transparent focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/20 rounded-xl pl-4 pr-10 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all font-medium"
             />
-            {searchQuery && (
+            {searchQuery ? (
               <button
+                type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
               >
-                <X size={13} />
+                <X size={15} />
               </button>
+            ) : (
+              <Search
+                size={16}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+              />
             )}
           </div>
         </div>
 
         {/* ── 2-Column Body Layout ── */}
-        <div className="flex-1 flex min-h-0 overflow-hidden bg-slate-50/60">
-          {/* Left Vertical Category Nav Tabs (Spinny Style) */}
+        <div className="flex-1 flex overflow-hidden bg-white">
+          {/* Left Category Tabs (Hidden during global search) */}
           {!isSearching && (
-            <aside className="w-[210px] sm:w-[230px] shrink-0 border-r border-slate-200 bg-white overflow-y-auto py-2">
+            <div className="w-[145px] sm:w-[165px] border-r border-slate-100 overflow-y-auto shrink-0 bg-white no-scrollbar py-2">
               {categories.map((cat) => {
                 const isActive = activeTab === cat;
-                const count = getFilteredSpecsForCategory(cat).length;
                 return (
                   <button
                     key={cat}
-                    onClick={() => setActiveTab(cat)}
-                    className={`w-full text-left px-4 py-3.5 text-xs font-bold transition-all relative flex items-center justify-between gap-2 cursor-pointer ${
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(cat);
+                      setActiveTooltip(null);
+                    }}
+                    className={`w-full py-4 px-3 sm:px-4 text-xs sm:text-[13px] leading-snug text-left transition-all cursor-pointer relative border-r-4 ${
                       isActive
-                        ? 'text-[#0C1B33] bg-[#00C9AF]/10 font-extrabold'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        ? 'text-[#0C1B33] font-black border-[#00C9AF] bg-[#00C9AF]/10'
+                        : 'text-slate-600 hover:text-slate-900 font-medium border-transparent hover:bg-slate-50/60'
                     }`}
                   >
-                    {/* Active teal pill indicator on left edge */}
-                    {isActive && (
-                      <span className="absolute left-0 top-0 bottom-0 w-1 bg-[#00C9AF] rounded-r-sm" />
-                    )}
-                    <span className="leading-snug">{cat}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
-                      isActive ? 'bg-[#00C9AF] text-[#0C1B33]' : 'bg-slate-100 text-slate-500'
-                    }`}>
-                      {count}
-                    </span>
+                    {cat}
                   </button>
                 );
               })}
-            </aside>
+            </div>
           )}
 
           {/* Right Scrollable Specifications List */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-white">
+          <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3 custom-scrollbar">
             {isSearching ? (
               // Search Results across all categories
               <div>
-                <div className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">
-                  {allSearchResults.length} Results for "{searchQuery}"
+                <div className="pb-1 mb-3 border-b border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] font-black tracking-wider text-slate-400 uppercase font-sans">
+                    SEARCH RESULTS ({allSearchResults.length})
+                  </span>
                 </div>
                 {allSearchResults.length === 0 ? (
-                  <div className="text-center py-16 text-slate-400">
-                    <p className="font-bold text-sm text-slate-700">No specifications found</p>
-                    <p className="text-xs mt-1">Try another search keyword</p>
+                  <div className="py-12 text-center text-slate-400">
+                    <Search size={28} className="mx-auto mb-2 opacity-40" />
+                    <p className="text-xs font-semibold">No specifications found matching &ldquo;{searchQuery}&rdquo;</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     {allSearchResults.map((spec, idx) => (
                       <div
                         key={idx}
-                        className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white hover:border-[#00C9AF]/50 transition-all flex flex-col justify-between"
+                        className="p-4 rounded-2xl border border-slate-200/90 bg-slate-50/70 hover:bg-white hover:border-[#00C9AF] hover:shadow-xs transition-all flex flex-col justify-between"
                       >
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <span className="text-xs sm:text-[12.5px] font-bold text-slate-500 uppercase tracking-wide">
                             {spec.label}
                           </span>
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-600 font-bold">
+                          <span className="text-[9.5px] px-2 py-0.5 rounded-full bg-slate-200/70 text-slate-600 font-bold uppercase">
                             {spec.category}
                           </span>
                         </div>
-                        <div className="text-sm font-black text-[#0C1B33] leading-snug">
+                        <div className="text-sm sm:text-base font-extrabold text-[#0C1B33] leading-snug">
                           {spec.value}
                         </div>
                       </div>
@@ -276,10 +280,10 @@ const SpecificationsDrawer = ({
             ) : (
               // Active Tab Specs
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-black text-[#0C1B33] uppercase tracking-wider">
-                    {activeTab}
-                  </h3>
+                <div className="pb-1 mb-3.5 border-b border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] font-black tracking-wider text-slate-400 uppercase font-sans">
+                    {activeTab.toUpperCase()}
+                  </span>
                   <span className="text-[11px] font-bold text-slate-400">
                     {getFilteredSpecsForCategory(activeTab).length} Specs
                   </span>
@@ -289,10 +293,10 @@ const SpecificationsDrawer = ({
                   {getFilteredSpecsForCategory(activeTab).map((spec, idx) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-white hover:border-[#00C9AF]/60 hover:shadow-xs transition-all relative group flex flex-col justify-between"
+                      className="p-4 rounded-2xl border border-slate-200/90 bg-slate-50/70 hover:bg-white hover:border-[#00C9AF] hover:shadow-xs transition-all relative group flex flex-col justify-between min-h-[90px]"
                     >
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <span className="text-xs sm:text-[12.5px] font-bold text-slate-500 uppercase tracking-wide">
                           {spec.label}
                         </span>
                         {spec.info && (
@@ -300,20 +304,21 @@ const SpecificationsDrawer = ({
                             <button
                               type="button"
                               onClick={() => setActiveTooltip(activeTooltip === spec.label ? null : spec.label)}
-                              className="text-slate-400 hover:text-slate-600 p-0.5 transition-colors"
+                              className="text-slate-400 hover:text-[#00A38D] p-0.5 transition-colors cursor-pointer"
                               title={spec.info}
+                              aria-label="Info"
                             >
                               <Info size={13} />
                             </button>
                             {activeTooltip === spec.label && (
-                              <div className="absolute right-0 top-6 z-30 w-48 p-2.5 bg-[#0C1B33] text-white text-[11px] leading-tight rounded-xl shadow-xl animate-in fade-in duration-150">
+                              <div className="absolute right-0 top-6 z-30 w-52 p-2.5 bg-slate-900 text-white text-[11px] font-normal leading-relaxed rounded-xl shadow-xl animate-in fade-in duration-150">
                                 {spec.info}
                               </div>
                             )}
                           </div>
                         )}
                       </div>
-                      <div className="text-[13.5px] sm:text-[14px] font-black text-[#0C1B33] tracking-tight leading-snug">
+                      <div className="text-sm sm:text-base font-extrabold text-[#0C1B33] tracking-tight leading-snug">
                         {spec.value}
                       </div>
                     </div>
@@ -324,47 +329,41 @@ const SpecificationsDrawer = ({
           </main>
         </div>
 
-        {/* ── Sticky Bottom Action Footer (Spinny Style) ── */}
-        <div className="p-4 border-t border-slate-200 bg-white shadow-[0_-8px_20px_rgba(0,0,0,0.04)] shrink-0">
-          <div className="flex flex-col sm:flex-row gap-2.5 items-center justify-between">
-            <div className="flex items-center gap-2 text-left w-full sm:w-auto">
-              <div className="w-8 h-8 rounded-full bg-[#00C9AF]/15 text-[#00A38D] flex items-center justify-center shrink-0">
-                <Shield size={16} />
-              </div>
-              <div>
-                <span className="block text-[11px] font-black text-[#0C1B33] uppercase tracking-wide">
-                  100% Refundable Booking
-                </span>
-                <span className="block text-[10px] text-slate-500 font-medium">
-                  7-Day Return Policy · 1-Year Warranty
-                </span>
-              </div>
-            </div>
+        {/* ── Sticky Bottom Footer ── */}
+        <div className="p-3.5 sm:px-6 bg-white border-t border-slate-100 grid grid-cols-2 gap-3 shrink-0 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
+          {/* Book Now Button */}
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              if (onBookNow) onBookNow();
+            }}
+            className="w-full py-2.5 px-3 bg-[#00C9AF] hover:bg-[#00B4A0] text-[#0C1B33] rounded-2xl font-bold flex flex-col items-center justify-center transition-all cursor-pointer shadow-md shadow-[#00C9AF]/20 active:scale-98"
+          >
+            <span className="text-xs sm:text-[13px] font-black tracking-wide leading-tight">
+              Book now
+            </span>
+            <span className="text-[10px] text-[#0C1B33]/85 font-semibold leading-none mt-0.5">
+              100% refundable
+            </span>
+          </button>
 
-            <div className="flex gap-2 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  if (onTestDrive) onTestDrive();
-                }}
-                className="flex-1 sm:flex-initial px-4 py-3 bg-white border-2 border-slate-300 hover:border-[#0C1B33] text-[#0C1B33] rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95"
-              >
-                Free Test Drive
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  if (onBookNow) onBookNow();
-                }}
-                className="flex-1 sm:flex-initial px-5 py-3 bg-gradient-to-r from-[#00C9AF] to-[#00B4A0] hover:from-[#00B4A0] hover:to-[#00A38D] text-[#0C1B33] rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-[#00C9AF]/25 cursor-pointer whitespace-nowrap active:scale-95"
-              >
-                Book Now (₹10,000)
-              </button>
-            </div>
-          </div>
+          {/* Free Test Drive Button */}
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              if (onTestDrive) onTestDrive();
+            }}
+            className="w-full py-2.5 px-3 bg-[#EF4444] hover:bg-[#DC2626] text-white rounded-2xl font-bold flex flex-col items-center justify-center transition-all cursor-pointer shadow-md shadow-red-500/20 active:scale-98"
+          >
+            <span className="text-xs sm:text-[13px] font-black tracking-wide leading-tight">
+              Free test drive
+            </span>
+            <span className="text-[10px] text-white/90 font-semibold leading-none mt-0.5">
+              At your doorstep
+            </span>
+          </button>
         </div>
       </div>
     </div>

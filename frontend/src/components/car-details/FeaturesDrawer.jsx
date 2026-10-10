@@ -214,12 +214,12 @@ const FeaturesDrawer = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-9 h-9 -ml-2 rounded-full hover:bg-slate-100 flex items-center justify-center text-[#4C1D95] hover:text-slate-900 transition-colors cursor-pointer"
+              className="w-9 h-9 -ml-2 rounded-full hover:bg-slate-100 flex items-center justify-center text-[#0C1B33] hover:text-[#00A38D] transition-colors cursor-pointer"
               aria-label="Back"
             >
               <ArrowLeft size={20} strokeWidth={2.2} />
             </button>
-            <h2 className="text-lg sm:text-xl font-black text-[#2E1065] tracking-tight font-heading">
+            <h2 className="text-lg sm:text-xl font-black text-[#0C1B33] tracking-tight font-heading">
               Features
             </h2>
           </div>
@@ -231,7 +231,7 @@ const FeaturesDrawer = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search any features"
-              className="w-full bg-[#F4F4F6] border border-transparent focus:border-[#4C1D95]/30 rounded-xl pl-4 pr-10 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all font-medium"
+              className="w-full bg-[#F4F4F6] border border-transparent focus:border-[#00C9AF] focus:ring-2 focus:ring-[#00C9AF]/20 rounded-xl pl-4 pr-10 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all font-medium"
             />
             {searchQuery ? (
               <button
@@ -267,7 +267,7 @@ const FeaturesDrawer = ({
                     }}
                     className={`w-full py-4 px-3 sm:px-4 text-xs sm:text-[13px] leading-snug text-left transition-all cursor-pointer relative border-r-4 ${
                       isActive
-                        ? 'text-[#4C1D95] font-black border-[#4C1D95] bg-purple-50/40'
+                        ? 'text-[#0C1B33] font-black border-[#00C9AF] bg-[#00C9AF]/10'
                         : 'text-slate-600 hover:text-slate-900 font-medium border-transparent hover:bg-slate-50/60'
                     }`}
                   >
@@ -299,7 +299,7 @@ const FeaturesDrawer = ({
                     {/* Status Icon */}
                     <div className="mt-0.5 shrink-0">
                       {isAvail ? (
-                        <Check size={16} strokeWidth={2.6} className="text-[#4C1D95]" />
+                        <Check size={16} strokeWidth={2.8} className="text-[#00A38D]" />
                       ) : (
                         <X size={16} strokeWidth={2.4} className="text-rose-500" />
                       )}
@@ -322,7 +322,7 @@ const FeaturesDrawer = ({
                             <button
                               type="button"
                               onClick={() => setActiveTooltip(activeTooltip === idx ? null : idx)}
-                              className="w-4 h-4 rounded-full text-slate-400 hover:text-[#4C1D95] transition-colors flex items-center justify-center cursor-pointer"
+                              className="w-4 h-4 rounded-full text-slate-400 hover:text-[#00A38D] transition-colors flex items-center justify-center cursor-pointer"
                               aria-label="Info"
                             >
                               <Info size={13} />
@@ -378,12 +378,12 @@ const FeaturesDrawer = ({
               onClose();
               if (onBookNow) onBookNow();
             }}
-            className="w-full py-2.5 px-3 bg-[#4C1D95] hover:bg-[#3B0764] text-white rounded-xl font-bold flex flex-col items-center justify-center transition-all cursor-pointer shadow-md active:scale-98"
+            className="w-full py-2.5 px-3 bg-[#00C9AF] hover:bg-[#00B4A0] text-[#0C1B33] rounded-2xl font-bold flex flex-col items-center justify-center transition-all cursor-pointer shadow-md shadow-[#00C9AF]/20 active:scale-98"
           >
-            <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider leading-tight">
-              BOOK NOW
+            <span className="text-xs sm:text-[13px] font-black tracking-wide leading-tight">
+              Book now
             </span>
-            <span className="text-[10px] text-purple-200 font-medium leading-none mt-0.5">
+            <span className="text-[10px] text-[#0C1B33]/85 font-semibold leading-none mt-0.5">
               100% refundable
             </span>
           </button>
@@ -395,12 +395,12 @@ const FeaturesDrawer = ({
               onClose();
               if (onTestDrive) onTestDrive();
             }}
-            className="w-full py-2.5 px-3 bg-[#E11D48] hover:bg-[#BE123C] text-white rounded-xl font-bold flex flex-col items-center justify-center transition-all cursor-pointer shadow-md active:scale-98"
+            className="w-full py-2.5 px-3 bg-[#EF4444] hover:bg-[#DC2626] text-white rounded-2xl font-bold flex flex-col items-center justify-center transition-all cursor-pointer shadow-md shadow-red-500/20 active:scale-98"
           >
-            <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider leading-tight">
-              FREE TEST DRIVE
+            <span className="text-xs sm:text-[13px] font-black tracking-wide leading-tight">
+              Free test drive
             </span>
-            <span className="text-[10px] text-rose-100 font-medium leading-none mt-0.5">
+            <span className="text-[10px] text-white/90 font-semibold leading-none mt-0.5">
               At your doorstep
             </span>
           </button>
