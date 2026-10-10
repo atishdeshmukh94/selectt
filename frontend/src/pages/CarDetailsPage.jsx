@@ -1184,7 +1184,13 @@ const CarDetailsPage = () => {
                 </div>
               </div>
 
-              <CarSpecifications specifications={car.specifications} theme="light" />
+              <CarSpecifications 
+                specifications={car.specifications} 
+                car={car} 
+                theme="light" 
+                onBookNow={handleBookNow}
+                onTestDrive={handleTestDriveClick}
+              />
               <QualityReport report={car.qualityReport} car={car} theme="light" />
 
               {/* Top Features */}

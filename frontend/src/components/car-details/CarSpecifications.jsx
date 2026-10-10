@@ -27,14 +27,48 @@ const CarSpecifications = ({ specifications, car = {}, theme = 'dark', onBookNow
     return <Gauge className={className} size={18} strokeWidth={1.6} />;
   };
 
-  const defaultSpecs = [
-    { label: 'Mileage (ARAI)', value: '18.4 kmpl', icon: 'Gauge' },
-    { label: 'Engine Capacity', value: '1498 cc', icon: 'Cpu' },
-    { label: 'Ground clearance', value: '165 mm', icon: 'ArrowUpDown' },
-    { label: 'Boot space', value: '506 litres', icon: 'Briefcase' }
-  ];
+  // Build specifications list:
+  // 1. If admin added custom specifications in car.specifications (or specifications prop), use them
+  // 2. Otherwise derive 4 key specs from car object, and show 'N/A' if not entered by admin
+  const getDisplaySpecs = () => {
+    if (Array.isArray(specifications) && specifications.length > 0) {
+      return specifications.map(s => ({
+        label: s.label || s.name || '',
+        value: (s.value && String(s.value).trim()) ? s.value : 'N/A',
+        icon: s.icon || 'Gauge'
+      }));
+    }
 
-  const displaySpecs = (specifications && specifications.length > 0) ? specifications : defaultSpecs;
+    // Helper to find in car.specifications if passed inside car object
+    const findInCarSpecs = (term) => {
+      if (Array.isArray(car?.specifications)) {
+        const found = car.specifications.find(s => (s.label || '').toLowerCase().includes(term));
+        if (found && found.value && String(found.value).trim()) return found.value;
+      }
+      return null;
+    };
+
+    const mileageVal = findInCarSpecs('mileage') || car?.mileage || car?.fuel_economy || 'N/A';
+
+    let engineVal = findInCarSpecs('engine') || car?.engineCapacity || car?.engine_capacity;
+    if (engineVal && String(engineVal).trim()) {
+      engineVal = String(engineVal).toLowerCase().includes('cc') ? String(engineVal) : `${engineVal} cc`;
+    } else {
+      engineVal = 'N/A';
+    }
+
+    const groundClearanceVal = findInCarSpecs('ground') || car?.groundClearance || car?.ground_clearance || 'N/A';
+    const bootSpaceVal = findInCarSpecs('boot') || car?.bootSpace || car?.boot_space || 'N/A';
+
+    return [
+      { label: 'Mileage (ARAI)', value: mileageVal, icon: 'Gauge' },
+      { label: 'Engine Capacity', value: engineVal, icon: 'Cpu' },
+      { label: 'Ground clearance', value: groundClearanceVal, icon: 'ArrowUpDown' },
+      { label: 'Boot space', value: bootSpaceVal, icon: 'Briefcase' }
+    ];
+  };
+
+  const displaySpecs = getDisplaySpecs();
 
   const containerClasses = theme === 'light'
     ? 'border border-slate-200/90 rounded-2xl p-4 sm:p-5 md:p-6 relative overflow-hidden bg-white shadow-xs'
