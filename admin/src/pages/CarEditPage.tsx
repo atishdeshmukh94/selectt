@@ -1319,68 +1319,7 @@ const CarEditPage = () => {
                     })()}
                   </div>
 
-                  <div>
-                    <label className={labelClass}>
-                      Year (Manufacturing) <span className="text-rose-500 font-black ml-1">*</span>
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <select
-                        className={`${inpClass} w-[100px] sm:w-[110px] shrink-0 !px-2.5 !pr-6 text-xs font-bold`}
-                        value={formData.mfgMonth || ""}
-                        onChange={e => setFormData({ ...formData, mfgMonth: e.target.value })}
-                        title="Manufacturing Month"
-                      >
-                        <option value="">Month</option>
-                        {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"].map(m => (
-                          <option key={m} value={m}>{m}</option>
-                        ))}
-                      </select>
-                      <input 
-                        type="number" 
-                        className={`${inpClass} flex-1 min-w-0`}
-                        value={formData.year} 
-                        onChange={e => {
-                          const newYear = e.target.value;
-                          const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
-                          const nextAuto = `${newYear || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
-                          const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
-                          setFormData({
-                            ...formData, 
-                            year: newYear,
-                            title: isUntouched ? nextAuto : formData.title
-                          });
-                        }} 
-                        placeholder="e.g. 2024" 
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>
-                      Reg. Year <span className="text-rose-500 font-black ml-1">*</span>
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <select
-                        className={`${inpClass} w-[100px] sm:w-[110px] shrink-0 !px-2.5 !pr-6 text-xs font-bold`}
-                        value={formData.regMonth || ""}
-                        onChange={e => setFormData({ ...formData, regMonth: e.target.value })}
-                        title="Registration Month"
-                      >
-                        <option value="">Month</option>
-                        {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"].map(m => (
-                          <option key={m} value={m}>{m}</option>
-                        ))}
-                      </select>
-                      <input 
-                        type="number" 
-                        className={`${inpClass} flex-1 min-w-0`}
-                        value={formData.regYear || formData.year} 
-                        onChange={e => setFormData({ ...formData, regYear: e.target.value })} 
-                        placeholder="e.g. 2024" 
-                      />
-                    </div>
-                  </div>
-
+                  {/* 3 Fields in One Row: Fuel Type, Transmission, Body Type */}
                   <div>
                     <label className={labelClass}>
                       Fuel Type <span className="text-rose-500 font-black ml-1">*</span>
@@ -1407,6 +1346,71 @@ const CarEditPage = () => {
                       <option value="">Select Body Type...</option>
                       {["Hatchback", "Sedan", "SUV", "Compact SUV", "MUV", "Luxury Sedan", "Luxury SUV", "EV CAR", "Luxury"].map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
+                  </div>
+
+                  {/* Year (Manufacturing) & Reg. Year Fields moved down in 2nd row */}
+                  <div className="col-span-full grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className={labelClass}>
+                        Year (Manufacturing) <span className="text-rose-500 font-black ml-1">*</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <select
+                          className={`${inpClass} w-[100px] sm:w-[110px] shrink-0 !px-2.5 !pr-6 text-xs font-bold`}
+                          value={formData.mfgMonth || ""}
+                          onChange={e => setFormData({ ...formData, mfgMonth: e.target.value })}
+                          title="Manufacturing Month"
+                        >
+                          <option value="">Month</option>
+                          {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"].map(m => (
+                            <option key={m} value={m}>{m}</option>
+                          ))}
+                        </select>
+                        <input 
+                          type="number" 
+                          className={`${inpClass} flex-1 min-w-0`}
+                          value={formData.year} 
+                          onChange={e => {
+                            const newYear = e.target.value;
+                            const currentAuto = `${formData.year || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                            const nextAuto = `${newYear || ''} ${formData.make || ''} ${formData.model || ''} ${formData.variant || ''}`.replace(/\s+/g, ' ').trim();
+                            const isUntouched = !formData.title || formData.title.trim() === '' || formData.title.trim() === currentAuto;
+                            setFormData({
+                              ...formData, 
+                              year: newYear,
+                              title: isUntouched ? nextAuto : formData.title
+                            });
+                          }} 
+                          placeholder="e.g. 2024" 
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>
+                        Reg. Year <span className="text-rose-500 font-black ml-1">*</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <select
+                          className={`${inpClass} w-[100px] sm:w-[110px] shrink-0 !px-2.5 !pr-6 text-xs font-bold`}
+                          value={formData.regMonth || ""}
+                          onChange={e => setFormData({ ...formData, regMonth: e.target.value })}
+                          title="Registration Month"
+                        >
+                          <option value="">Month</option>
+                          {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"].map(m => (
+                            <option key={m} value={m}>{m}</option>
+                          ))}
+                        </select>
+                        <input 
+                          type="number" 
+                          className={`${inpClass} flex-1 min-w-0`}
+                          value={formData.regYear || formData.year} 
+                          onChange={e => setFormData({ ...formData, regYear: e.target.value })} 
+                          placeholder="e.g. 2024" 
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Custom Details / Long Description Box in Step 1 */}

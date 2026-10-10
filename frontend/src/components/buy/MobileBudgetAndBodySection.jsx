@@ -51,10 +51,8 @@ const BODY_TYPES = [
   'SUV',
   'Compact SUV',
   'MUV',
-  'Luxury Sedan',
-  'Luxury SUV',
-  'EV CAR',
-  'LUXURY'
+  'EV Car',
+  'Luxury'
 ];
 
 const MobileBudgetAndBodySection = ({ filters = {}, setFilters, allCars = [] }) => {

@@ -200,7 +200,7 @@ const SidebarFilters = ({ filters = {}, setFilters, onClose, lightBg = false }) 
         {/* Body Type */}
         <FilterSection id="bodyType" activeSection={activeSection} onToggle={handleToggleSection} title="Body Type" lightBg={lightBg}>
           <div className="flex flex-wrap gap-2">
-            {['Hatchback', 'Sedan', 'SUV', 'Compact SUV', 'MUV', 'Luxury Sedan', 'Luxury SUV', 'EV CAR', 'LUXURY'].map(bt => {
+            {['Hatchback', 'Sedan', 'SUV', 'Compact SUV', 'MUV', 'EV Car', 'Luxury'].map(bt => {
               const isActive = filters.body_type?.some(x => String(x).toLowerCase() === bt.toLowerCase());
               return (
                 <button

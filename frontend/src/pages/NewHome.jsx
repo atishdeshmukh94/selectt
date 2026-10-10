@@ -964,7 +964,7 @@ const NewHome = () => {
     if (activeMobileType === 'All') {
       return sourceCars.slice(0, 3);
     }
-    if (activeMobileType === 'EV') {
+    if (activeMobileType === 'EV' || activeMobileType === 'EV CAR') {
       const evs = sourceCars.filter(car => car.fuelType?.toUpperCase() === 'EV' || car.fuelType?.toLowerCase().includes('electric'));
       return evs.length ? evs.slice(0, 3) : sourceCars.slice(0, 3);
     }
@@ -1571,7 +1571,7 @@ const NewHome = () => {
               src={slide.image}
               alt={slide.heading}
               loading={idx === 0 ? "eager" : "lazy"}
-              fetchpriority={idx === 0 ? "high" : "low"}
+              fetchPriority={idx === 0 ? "high" : "low"}
               decoding={idx === 0 ? "sync" : "async"}
               className="absolute top-0 right-0 w-[85%] h-full object-cover object-center opacity-90 transition-transform duration-1000 scale-100"
               style={{
@@ -1820,10 +1820,10 @@ const NewHome = () => {
               { id: 'Hatchback', label: 'Hatchback', img: '/img/hatchback.webp', hoverImg: '/img/hatchback-hover.webp' },
               { id: 'Sedan', label: 'Sedan', img: '/img/sedan.webp', hoverImg: '/img/sedan-hover.webp' },
               { id: 'SUV', label: 'SUV', img: '/img/suv.webp', hoverImg: '/img/suv-hover.webp' },
-              { id: 'Compact SUV', label: 'Compact SUV', img: '/img/suv.webp', hoverImg: '/img/suv-hover.webp' },
+              { id: 'Compact SUV', label: 'Compact SUV', img: '/img/compact-suv.webp', hoverImg: '/img/compact-suv-hover.webp' },
               { id: 'MUV', label: 'MUV', img: '/img/muv.webp', hoverImg: '/img/muv-hover.webp' },
-              { id: 'Selectt Luxury', label: 'Selectt Luxury', img: '/img/luxury-suv.webp', hoverImg: '/img/luxury-suv-hover.webp' },
-              { id: 'EV', label: 'EV', img: '/img/suv.webp', hoverImg: '/img/suv-hover.webp' }
+              { id: 'EV', label: 'EV CAR', img: '/img/ev-car.webp', hoverImg: '/img/ev-car-hover.webp' },
+              { id: 'Selectt Luxury', label: 'Selectt Luxury', img: '/img/luxury-suv.webp', hoverImg: '/img/luxury-suv-hover.webp' }
             ].map((type) => {
               const isActive = activeMobileType === type.id;
               return (
@@ -1836,9 +1836,6 @@ const NewHome = () => {
                       : 'bg-white border border-slate-200/80 hover:border-slate-300 shadow-xs hover:shadow-sm active:scale-95'
                   }`}
                 >
-                  {type.id === 'EV' && (
-                    <span className="absolute top-1 right-1 text-[9px] bg-emerald-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-black shadow-xs">⚡</span>
-                  )}
                   <div className="w-13 h-7 flex items-center justify-center mb-1">
                     <img
                       src={isActive ? type.hoverImg : type.img}
