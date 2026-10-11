@@ -484,9 +484,12 @@ const FullscreenLightbox = ({
     updatePosition({ x: 0, y: 0 });
   }, [activeIndex]);
 
-  // Desktop Double-Click to Zoom In / Reset
-  const handleDoubleClick = (e) => {
-    e.preventDefault();
+  // Desktop Click to Zoom In / Reset (Single Click)
+  // Desktop Click to Zoom In / Reset (Single Click)
+  const clickStartPosRef = useRef({ x: 0, y: 0 });
+  const hasMovedRef = useRef(false);
+
+  const handleToggleZoom = (e) => {
     if (scaleRef.current > 1.05) {
       updateScale(1);
       updatePosition({ x: 0, y: 0 });
@@ -509,48 +512,61 @@ const FullscreenLightbox = ({
     }
   };
 
-  // Desktop Mouse Drag (Pan) Handlers with Window Listeners
+  const handleViewerClick = (e) => {
+    // If mouse was dragged/panned, do not toggle zoom
+    if (hasMovedRef.current) return;
+    const dist = Math.hypot(e.clientX - clickStartPosRef.current.x, e.clientY - clickStartPosRef.current.y);
+    if (dist < 6) {
+      handleToggleZoom(e);
+    }
+  };
+
+  // Desktop Double-Click kept as fallback
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    handleToggleZoom(e);
+  };
+
+  // Desktop Mouse Drag (Pan) Handlers with dynamic window listeners
   const handleMouseDown = (e) => {
     if (e.button !== 0) return; // Only left-click
-    if (scaleRef.current <= 1.05) return;
-    e.preventDefault();
-    setIsDragging(true);
-    dragStartRef.current = {
+    clickStartPosRef.current = { x: e.clientX, y: e.clientY };
+    hasMovedRef.current = false;
+
+    const startPos = {
       x: e.clientX,
       y: e.clientY,
       posX: positionRef.current.x,
       posY: positionRef.current.y
     };
-  };
 
-  useEffect(() => {
-    const handleWindowMouseMove = (e) => {
-      if (!isDragging || scaleRef.current <= 1.05) return;
-      e.preventDefault();
-      const dx = e.clientX - dragStartRef.current.x;
-      const dy = e.clientY - dragStartRef.current.y;
-      const targetPos = {
-        x: dragStartRef.current.posX + dx,
-        y: dragStartRef.current.posY + dy
-      };
-      updatePosition(clampPosition(targetPos, scaleRef.current));
-    };
-
-    const handleWindowMouseUp = () => {
-      if (isDragging) {
-        setIsDragging(false);
+    const handleWindowMouseMove = (moveEvent) => {
+      const dist = Math.hypot(moveEvent.clientX - startPos.x, moveEvent.clientY - startPos.y);
+      if (dist > 5) {
+        hasMovedRef.current = true;
+      }
+      if (scaleRef.current > 1.05 && dist > 5) {
+        moveEvent.preventDefault();
+        setIsDragging(true);
+        const dx = moveEvent.clientX - startPos.x;
+        const dy = moveEvent.clientY - startPos.y;
+        const targetPos = {
+          x: startPos.posX + dx,
+          y: startPos.posY + dy
+        };
+        updatePosition(clampPosition(targetPos, scaleRef.current));
       }
     };
 
-    if (isDragging) {
-      window.addEventListener('mousemove', handleWindowMouseMove);
-      window.addEventListener('mouseup', handleWindowMouseUp);
-    }
-    return () => {
+    const handleWindowMouseUp = () => {
       window.removeEventListener('mousemove', handleWindowMouseMove);
       window.removeEventListener('mouseup', handleWindowMouseUp);
+      setIsDragging(false);
     };
-  }, [isDragging]);
+
+    window.addEventListener('mousemove', handleWindowMouseMove);
+    window.addEventListener('mouseup', handleWindowMouseUp);
+  };
 
   // Non-passive Touch and Wheel Event Handling (Crucial for mobile zoom & pan)
   useEffect(() => {
@@ -844,6 +860,7 @@ const FullscreenLightbox = ({
       {/* Main Large Image Viewer */}
       <div 
         ref={viewerRef}
+        onClick={handleViewerClick}
         onDoubleClick={handleDoubleClick}
         onMouseDown={handleMouseDown}
         className="flex-1 relative flex items-center justify-center overflow-hidden px-2 sm:px-4 select-none"
@@ -856,7 +873,11 @@ const FullscreenLightbox = ({
         {scale <= 1.05 && (
           <button
             type="button"
-            onClick={() => onChangeIndex((activeIndex - 1 + total) % total)}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onChangeIndex((activeIndex - 1 + total) % total);
+            }}
             className="absolute left-2 sm:left-4 z-20 w-11 h-11 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
             aria-label="Previous image"
           >
@@ -886,7 +907,11 @@ const FullscreenLightbox = ({
         {scale <= 1.05 && (
           <button
             type="button"
-            onClick={() => onChangeIndex((activeIndex + 1) % total)}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onChangeIndex((activeIndex + 1) % total);
+            }}
             className="absolute right-2 sm:right-4 z-20 w-11 h-11 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
             aria-label="Next image"
           >

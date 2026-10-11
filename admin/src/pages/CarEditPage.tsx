@@ -1741,25 +1741,56 @@ const CarEditPage = () => {
                           }}
                           placeholder="5500"
                         />
-                        <label className="flex items-center gap-2 cursor-pointer pt-1 select-none">
-                          <input
-                            type="checkbox"
-                            className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer"
-                            checked={formData.priceBreakdown?.warrantyIncluded !== undefined ? Boolean(formData.priceBreakdown.warrantyIncluded) : true}
-                            onChange={e => {
-                              const checked = e.target.checked;
-                              setFormData((prev: any) => ({
-                                ...prev,
-                                priceBreakdown: { ...(prev.priceBreakdown || {}), warrantyIncluded: checked }
-                              }));
-                            }}
-                          />
-                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
-                            Mark as Included (Complimentary FREE)
-                          </span>
-                        </label>
+                        <div className="flex flex-col gap-2 pt-1 select-none">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="warrantyPricingMode"
+                              className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer"
+                              checked={formData.priceBreakdown?.warrantyIncluded !== false}
+                              onChange={() => {
+                                setFormData((prev: any) => ({
+                                  ...prev,
+                                  priceBreakdown: { 
+                                    ...(prev.priceBreakdown || {}), 
+                                    warrantyIncluded: true,
+                                    warrantyOptional: false 
+                                  }
+                                }));
+                              }}
+                            />
+                            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                              Mark as Included (Complimentary FREE)
+                            </span>
+                          </label>
+
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="warrantyPricingMode"
+                              className="w-4 h-4 text-amber-600 focus:ring-amber-500 border-slate-300 cursor-pointer"
+                              checked={formData.priceBreakdown?.warrantyIncluded === false}
+                              onChange={() => {
+                                setFormData((prev: any) => ({
+                                  ...prev,
+                                  priceBreakdown: { 
+                                    ...(prev.priceBreakdown || {}), 
+                                    warrantyIncluded: false,
+                                    warrantyOptional: true 
+                                  }
+                                }));
+                              }}
+                            />
+                            <span className="text-xs font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                              <span>Mark as Optional</span>
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">₹{formData.priceBreakdown?.warrantyFee !== undefined && formData.priceBreakdown?.warrantyFee !== '' ? formData.priceBreakdown.warrantyFee : 5500} (optional)</span>
+                            </span>
+                          </label>
+                        </div>
                         <p className="text-[10px] text-slate-400 leading-tight">
-                          If included, customer sees strikethrough price and gets 6 months coverage free.
+                          {formData.priceBreakdown?.warrantyIncluded === false 
+                            ? 'Buyer can optionally add Warranty Protect (+₹5,500) during checkout.' 
+                            : 'If included, customer sees strikethrough price and gets 6 months coverage free.'}
                         </p>
                       </div>
 
@@ -1820,6 +1851,8 @@ const CarEditPage = () => {
                       const cFixInc = formData.priceBreakdown?.fixesIncluded !== undefined ? Boolean(formData.priceBreakdown.fixesIncluded) : true;
                       const cGst = formData.priceBreakdown?.gstTax !== undefined && formData.priceBreakdown?.gstTax !== '' ? Number(formData.priceBreakdown.gstTax) : 2430;
 
+                      const cWarrOpt = formData.priceBreakdown?.warrantyOptional === true || formData.priceBreakdown?.warrantyIncluded === false;
+
                       const cIncBenefits = (cServInc ? cServ : 0) + (cWarrInc ? cWarr : 0) + (cFixInc ? cFix : 0);
                       const cTotalOnRoad = Math.max(
                         0,
@@ -1828,7 +1861,7 @@ const CarEditPage = () => {
                         cTcs +
                         cGst +
                         (!cServInc ? cServ : 0) +
-                        (!cWarrInc ? cWarr : 0) +
+                        (!cWarrInc && !cWarrOpt ? cWarr : 0) +
                         (!cFixInc ? cFix : 0)
                       );
 
@@ -1882,7 +1915,10 @@ const CarEditPage = () => {
                                   Included
                                 </span>
                               ) : (
-                                <span className="font-bold text-slate-800 dark:text-white">+ ₹{cWarr.toLocaleString('en-IN')}</span>
+                                <span className="font-bold text-slate-800 dark:text-white">
+                                  ₹{cWarr.toLocaleString('en-IN')}{' '}
+                                  <span className="text-amber-600 dark:text-amber-400 font-semibold text-[10.5px]">(optional)</span>
+                                </span>
                               )}
                             </div>
                             <div>

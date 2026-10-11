@@ -5365,7 +5365,19 @@ app.get('/api/careers/jobs', (req, res) => {
 // 2. Public: Apply for Job (with Resume Upload)
 app.post('/api/careers/apply', upload.single('resume'), async (req, res) => {
     try {
-        const { fullName, email, phone, position, message } = req.body;
+        const { 
+            fullName, 
+            email, 
+            phone, 
+            position, 
+            message,
+            experience,
+            currentLocation,
+            currentCtc,
+            expectedCtc,
+            noticePeriod,
+            linkedinUrl
+        } = req.body;
         
         if (!fullName || !email || !phone || !position) {
             return res.status(400).json({ success: false, message: 'Please provide full name, email, phone number, and position.' });
@@ -5377,11 +5389,25 @@ app.post('/api/careers/apply', upload.single('resume'), async (req, res) => {
         }
 
         const sql = `
-            INSERT INTO career_applications (full_name, email, phone, position, message, resume_url, status)
-            VALUES (?, ?, ?, ?, ?, ?, 'pending')
+            INSERT INTO career_applications 
+            (full_name, email, phone, position, experience, current_location, current_ctc, expected_ctc, notice_period, linkedin_url, message, resume_url, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
         `;
 
-        db.query(sql, [fullName, email, phone, position, message || '', resumeUrl], async (err, result) => {
+        db.query(sql, [
+            fullName, 
+            email, 
+            phone, 
+            position, 
+            experience || null, 
+            currentLocation || null, 
+            currentCtc || null, 
+            expectedCtc || null, 
+            noticePeriod || null, 
+            linkedinUrl || null, 
+            message || '', 
+            resumeUrl
+        ], async (err, result) => {
             if (err) {
                 console.error('Error saving career application:', err);
                 return res.status(500).json({ success: false, message: 'Database error saving application.' });
@@ -5396,6 +5422,12 @@ app.post('/api/careers/apply', upload.single('resume'), async (req, res) => {
                 email,
                 phone,
                 position,
+                experience,
+                current_location: currentLocation,
+                current_ctc: currentCtc,
+                expected_ctc: expectedCtc,
+                notice_period: noticePeriod,
+                linkedin_url: linkedinUrl,
                 message,
                 resume_url: resumeUrl
             }).catch(e => console.error('SMTP Background Error:', e.message));

@@ -21,11 +21,19 @@ const CareersPage = () => {
   const [submittedData, setSubmittedData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
 
+  const [sectionTitle, setSectionTitle] = useState('Current Openings');
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
     position: '',
+    experience: '',
+    currentLocation: '',
+    currentCtc: '',
+    expectedCtc: '',
+    noticePeriod: '',
+    linkedinUrl: '',
     message: ''
   });
   const [file, setFile] = useState(null);
@@ -46,7 +54,21 @@ const CareersPage = () => {
         setLoadingJobs(false);
       }
     };
+
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/settings/public`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.careers_post_section_title) {
+            setSectionTitle(data.careers_post_section_title);
+          }
+        }
+      } catch (_) {}
+    };
+
     fetchJobs();
+    fetchSettings();
   }, []);
 
   const handleChange = (e) => {
@@ -81,7 +103,13 @@ const CareersPage = () => {
       data.append('email', formData.email);
       data.append('phone', formData.phone);
       data.append('position', formData.position);
-      data.append('message', formData.message);
+      data.append('experience', formData.experience || '');
+      data.append('currentLocation', formData.currentLocation || '');
+      data.append('currentCtc', formData.currentCtc || '');
+      data.append('expectedCtc', formData.expectedCtc || '');
+      data.append('noticePeriod', formData.noticePeriod || '');
+      data.append('linkedinUrl', formData.linkedinUrl || '');
+      data.append('message', formData.message || '');
       data.append('resume', file);
 
       const res = await fetch(`${API_URL}/api/careers/apply`, {
@@ -94,7 +122,19 @@ const CareersPage = () => {
         setSubmittedData({ ...formData, fileName: file.name });
         setShowThankYouModal(true);
         // Reset form
-        setFormData({ fullName: '', email: '', phone: '', position: '', message: '' });
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          position: '',
+          experience: '',
+          currentLocation: '',
+          currentCtc: '',
+          expectedCtc: '',
+          noticePeriod: '',
+          linkedinUrl: '',
+          message: ''
+        });
         setFile(null);
       } else {
         setErrorMessage(result.message || 'Failed to submit application. Please try again.');
@@ -135,7 +175,7 @@ const CareersPage = () => {
 
               <div className="flex items-center justify-between mt-8 mb-5">
                 <h3 className="font-bold text-[#0C1B33] text-lg flex items-center gap-2">
-                  <Briefcase size={18} className="text-[#00C9AF]" /> Current Openings:
+                  <Briefcase size={18} className="text-[#00C9AF]" /> {sectionTitle || 'Current Openings'}:
                 </h3>
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#E6FAF7] text-[#0A524A]">
                   {jobs.length} Available
@@ -248,6 +288,79 @@ const CareersPage = () => {
                     ))}
                     <option value="Other" className="bg-[#0C1B33] text-white">Other / General Application</option>
                   </select>
+                </div>
+
+                {/* Meta-Lead Extra Candidate Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">Total Experience</label>
+                    <select
+                      name="experience"
+                      className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm cursor-pointer"
+                      value={formData.experience}
+                      onChange={handleChange}
+                    >
+                      <option value="" className="bg-[#0C1B33] text-slate-400">Select Experience</option>
+                      <option value="Fresher (< 1 year)" className="bg-[#0C1B33] text-white">Fresher / Less than 1 Year</option>
+                      <option value="1 - 2 Years" className="bg-[#0C1B33] text-white">1 - 2 Years</option>
+                      <option value="2 - 4 Years" className="bg-[#0C1B33] text-white">2 - 4 Years</option>
+                      <option value="4 - 7 Years" className="bg-[#0C1B33] text-white">4 - 7 Years</option>
+                      <option value="7+ Years" className="bg-[#0C1B33] text-white">7+ Years</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">Current City / Location</label>
+                    <input
+                      type="text"
+                      name="currentLocation"
+                      className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm"
+                      placeholder="e.g. Mumbai, Navi Mumbai, Thane"
+                      value={formData.currentLocation}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">Expected CTC</label>
+                    <input
+                      type="text"
+                      name="expectedCtc"
+                      className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm"
+                      placeholder="e.g. ₹5 - ₹8 LPA"
+                      value={formData.expectedCtc}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">Notice Period</label>
+                    <select
+                      name="noticePeriod"
+                      className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm cursor-pointer"
+                      value={formData.noticePeriod}
+                      onChange={handleChange}
+                    >
+                      <option value="" className="bg-[#0C1B33] text-slate-400">Select Notice Period</option>
+                      <option value="Immediate Joiner" className="bg-[#0C1B33] text-white">Immediate Joiner</option>
+                      <option value="15 Days or less" className="bg-[#0C1B33] text-white">15 Days or less</option>
+                      <option value="30 Days (1 Month)" className="bg-[#0C1B33] text-white">30 Days (1 Month)</option>
+                      <option value="60 Days (2 Months)" className="bg-[#0C1B33] text-white">60 Days (2 Months)</option>
+                      <option value="90 Days" className="bg-[#0C1B33] text-white">90 Days</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">LinkedIn Profile URL (Optional)</label>
+                  <input
+                    type="url"
+                    name="linkedinUrl"
+                    className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm"
+                    placeholder="https://linkedin.com/in/username"
+                    value={formData.linkedinUrl}
+                    onChange={handleChange}
+                  />
                 </div>
 
                 <div>

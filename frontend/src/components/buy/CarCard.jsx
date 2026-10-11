@@ -52,13 +52,13 @@ export const getBadgeStyles = (tagText) => {
     };
   }
 
-  // Offer Zone / Price Drop / Discount / Deal / Arrow / Currency
-  if (text.includes('offer zone') || text.includes('discount') || text.includes('price drop') || text.includes('deal') || text.includes('↓') || text.includes('₹')) {
+  // Offer Zone / Price Drop / Discount / Deal / Arrow / Currency / Off - Default black obsidian glass
+  if (text.includes('offer zone') || text.includes('discount') || text.includes('price drop') || text.includes('deal') || text.includes('↓') || text.includes('₹') || text.includes('off')) {
     return {
-      bg: 'bg-gradient-to-r from-rose-600 to-red-500',
+      bg: 'bg-slate-900/90 backdrop-blur-md',
       color: 'text-white font-normal',
-      border: 'border-rose-300/80',
-      glow: 'shadow-[0_0_14px_rgba(244,63,94,0.85)] ring-1 ring-rose-400/80',
+      border: 'border-white/35',
+      glow: 'shadow-[0_0_12px_rgba(255,255,255,0.35)] ring-1 ring-white/25',
       label: raw
     };
   }

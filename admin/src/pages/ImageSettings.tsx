@@ -706,6 +706,55 @@ export default function ImageSettings() {
     }
   };
 
+  const [savingMarquee, setSavingMarquee] = useState(false);
+
+  // Dedicated save handler for Buy Cars Marquee Header
+  const handleSaveMarquee = async () => {
+    const token = getAuthToken();
+    if (!token) {
+      toast.error("You must be logged in as admin");
+      return;
+    }
+    setSavingMarquee(true);
+    const saveToast = toast.loading("Saving Marquee ticker settings...");
+    const marqueeText = siteSettings.buy_cars_marquee_text !== undefined
+      ? siteSettings.buy_cars_marquee_text
+      : "🌧️ MONSOON OFFER: ⛈️🌈 UP TO 45% OFF • 🌈⛅️✨FREEBIES ABOVE ₹1,999 • 🌈⛅️✨NEW LAUNCH: ZERO COMMISSION • 200-POINT INSPECTED •🌈⛅️✨ FAIR PRICED";
+    const marqueeEnabled = siteSettings.buy_cars_marquee_enabled !== undefined
+      ? siteSettings.buy_cars_marquee_enabled
+      : "true";
+
+    const payload = {
+      buy_cars_marquee_text: marqueeText,
+      buy_cars_marquee_enabled: marqueeEnabled,
+    };
+
+    try {
+      const res = await fetch(`${API}/api/settings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setSiteSettings((prev) => ({ ...prev, ...payload }));
+        toast.dismiss(saveToast);
+        toast.success("✅ Buy Cars Running Marquee saved & published!");
+      } else {
+        toast.dismiss(saveToast);
+        toast.error("Failed to save marquee settings");
+      }
+    } catch (err: any) {
+      toast.dismiss(saveToast);
+      toast.error("Failed to save marquee: " + (err?.message || "Network error"));
+    } finally {
+      setSavingMarquee(false);
+    }
+  };
+
   const handleTabChange = (tab: ActiveTabType) => {
     setActiveTab(tab);
     setSearchParams({ tab });
@@ -2098,7 +2147,121 @@ export default function ImageSettings() {
 
             {/* 3. OTHER TABS (BUY CARS, HOME FEATURES, CAR DETAILS, BRANDING) */}
             {activeTab !== "mobile-hero" && activeTab !== "step-sliders" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <>
+                {/* Buy Cars Top Marquee Announcement Ticker Control */}
+                {activeTab === "buy-cars" && (
+                  <div className="mb-8 rounded-2xl border border-blue-200 dark:border-blue-900/60 bg-gradient-to-br from-blue-50/70 via-white to-indigo-50/60 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950/40 p-6 shadow-sm">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-blue-100 dark:border-gray-800">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">📢</span>
+                          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                            Buy Cars Running Header Ticker (Marquee)
+                          </h2>
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase bg-blue-100 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                            Live Header
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                          Control and edit the running horizontal announcement banner at the top of{" "}
+                          <a href="https://selectt.in/buy-cars" target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 underline font-semibold">
+                            https://selectt.in/buy-cars
+                          </a>
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={siteSettings.buy_cars_marquee_enabled !== "false" && siteSettings.buy_cars_marquee_enabled !== "0"}
+                            onChange={(e) => {
+                              const val = e.target.checked ? "true" : "false";
+                              setSiteSettings(prev => ({ ...prev, buy_cars_marquee_enabled: val }));
+                            }}
+                            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                          />
+                          Enable Ticker
+                        </label>
+
+                        <button
+                          type="button"
+                          onClick={handleSaveMarquee}
+                          disabled={savingMarquee}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        >
+                          {savingMarquee ? "Saving..." : "💾 Save Marquee"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Text input & template buttons */}
+                    <div className="mt-4 space-y-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                          Marquee Text / Promotional Announcement
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={siteSettings.buy_cars_marquee_text !== undefined ? siteSettings.buy_cars_marquee_text : "🌧️ MONSOON OFFER: ⛈️🌈 UP TO 45% OFF • 🌈⛅️✨FREEBIES ABOVE ₹1,999 • 🌈⛅️✨NEW LAUNCH: ZERO COMMISSION • 200-POINT INSPECTED •🌈⛅️✨ FAIR PRICED"}
+                          onChange={(e) => setSiteSettings(prev => ({ ...prev, buy_cars_marquee_text: e.target.value }))}
+                          placeholder="🌧️ MONSOON OFFER: ⛈️🌈 UP TO 45% OFF • 🌈⛅️✨FREEBIES ABOVE ₹1,999 • 🌈⛅️✨NEW LAUNCH: ZERO COMMISSION • 200-POINT INSPECTED •🌈⛅️✨ FAIR PRICED"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
+                        />
+                      </div>
+
+                      {/* Quick Presets */}
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <span className="text-[11px] font-bold text-slate-400">Quick Templates:</span>
+                        <button
+                          type="button"
+                          onClick={() => setSiteSettings(prev => ({ ...prev, buy_cars_marquee_text: "🌧️ MONSOON OFFER: ⛈️🌈 UP TO 45% OFF • 🌈⛅️✨FREEBIES ABOVE ₹1,999 • 🌈⛅️✨NEW LAUNCH: ZERO COMMISSION • 200-POINT INSPECTED •🌈⛅️✨ FAIR PRICED" }))}
+                          className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-blue-100 hover:bg-blue-200 text-blue-800 dark:bg-blue-950 dark:hover:bg-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition-colors"
+                        >
+                          🌧️ Monsoon Offer Default
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSiteSettings(prev => ({ ...prev, buy_cars_marquee_text: "🎉 FESTIVE MEGA SALE: 💥 UP TO ₹1,00,000 DISCOUNT • 🚗 FREE ROADSIDE ASSISTANCE • 🛡️ 1-YEAR WARRANTY INCLUDED • ZERO PROCESSING FEE" }))}
+                          className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-100 hover:bg-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:hover:bg-emerald-900 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 transition-colors"
+                        >
+                          🎉 Festive Mega Sale
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSiteSettings(prev => ({ ...prev, buy_cars_marquee_text: "⚡ NEW ARRIVALS: 50+ CERTIFIED CARS ADDED THIS WEEK • 200-POINT QUALITY INSPECTED • 7-DAY EASY RETURNS" }))}
+                          className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-amber-100 hover:bg-amber-200 text-amber-800 dark:bg-amber-950 dark:hover:bg-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800 transition-colors"
+                        >
+                          ⚡ New Arrivals
+                        </button>
+                      </div>
+
+                      {/* Live Ticker Preview */}
+                      <div className="mt-3 pt-3 border-t border-blue-100 dark:border-gray-800">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-1.5">
+                          <span>Live Banner Preview:</span>
+                          <span className={siteSettings.buy_cars_marquee_enabled !== "false" && siteSettings.buy_cars_marquee_enabled !== "0" ? "text-emerald-600 font-extrabold" : "text-rose-500 font-extrabold"}>
+                            {siteSettings.buy_cars_marquee_enabled !== "false" && siteSettings.buy_cars_marquee_enabled !== "0" ? "● Active on Site" : "○ Hidden on Site"}
+                          </span>
+                        </div>
+                        <div className="rounded-xl bg-[#0C1B33] py-2 px-3 overflow-hidden shadow-inner">
+                          <div className="overflow-hidden flex w-full">
+                            <div className="flex whitespace-nowrap gap-8 items-center animate-marquee-left">
+                              <span className="text-xs font-black uppercase tracking-wider text-white">
+                                {siteSettings.buy_cars_marquee_text !== undefined ? siteSettings.buy_cars_marquee_text : "🌧️ MONSOON OFFER: ⛈️🌈 UP TO 45% OFF • 🌈⛅️✨FREEBIES ABOVE ₹1,999 • 🌈⛅️✨NEW LAUNCH: ZERO COMMISSION • 200-POINT INSPECTED •🌈⛅️✨ FAIR PRICED"}
+                              </span>
+                              <span className="text-xs font-black uppercase tracking-wider text-white">
+                                {siteSettings.buy_cars_marquee_text !== undefined ? siteSettings.buy_cars_marquee_text : "🌧️ MONSOON OFFER: ⛈️🌈 UP TO 45% OFF • 🌈⛅️✨FREEBIES ABOVE ₹1,999 • 🌈⛅️✨NEW LAUNCH: ZERO COMMISSION • 200-POINT INSPECTED •🌈⛅️✨ FAIR PRICED"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {(activeTab === "buy-cars"
                   ? BUY_CARS_SLOTS
                   : activeTab === "home-sell"
@@ -2281,9 +2444,10 @@ export default function ImageSettings() {
                   );
                 })}
               </div>
-            )}
-          </>
-        )}
+            </>
+          )}
+        </>
+      )}
 
         {/* Bottom Save Changes Bar */}
         <div className="sticky bottom-4 z-20 p-4 rounded-2xl bg-slate-900/90 backdrop-blur-md text-white shadow-xl flex items-center justify-between gap-4 border border-white/10">

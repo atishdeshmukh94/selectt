@@ -1487,6 +1487,24 @@ const NewHome = () => {
     navigate(`/buy-cars?brand=${encodeURIComponent(brandName)}`);
   };
 
+  const isCarEV = (car) => {
+    if (!car) return false;
+    const fuel = (car.fuelType || car.fuel_type || '').toLowerCase().trim();
+    const body = (car.bodyType || car.body_type || '').toLowerCase().trim();
+    const title = (car.title || '').toLowerCase().trim();
+    const model = (car.model || '').toLowerCase().trim();
+    return (
+      fuel === 'electric' ||
+      fuel === 'ev' ||
+      fuel.includes('electric') ||
+      body === 'ev' ||
+      body === 'ev car' ||
+      title.includes(' ev') ||
+      title.includes('electric') ||
+      model.includes('ev')
+    );
+  };
+
   const handleViewAllBodyType = () => {
     const baseFilters = { budget: '', budget_max: 25, certification: '', brands: [], models: [], fuel: '', transmission: '', owners: [], year_min: null, km_max: null, body_type: [] };
     let query = { ...baseFilters };
@@ -1495,13 +1513,22 @@ const NewHome = () => {
       query.body_type = [];
       query.budget = '10 L +';
       query.tags = ['Luxury'];
+      navigate(`/buy-cars?city=${encodeURIComponent(city || 'Mumbai')}&tag=Luxury`, { state: { filters: query } });
+      return;
     } else if (activeBodyType === 'Compact SUV') {
       query.body_type = ['Compact SUV', 'SUV'];
+      navigate(`/buy-cars?city=${encodeURIComponent(city || 'Mumbai')}&bodyType=Compact%20SUV,SUV`, { state: { filters: query } });
+      return;
+    } else if (activeBodyType === 'EV CAR' || activeBodyType === 'EV') {
+      query.body_type = [];
+      query.fuel = 'Electric';
+      navigate(`/buy-cars?city=${encodeURIComponent(city || 'Mumbai')}&fuel=Electric`, { state: { filters: query } });
+      return;
     } else {
       query.body_type = [activeBodyType];
+      navigate(`/buy-cars?city=${encodeURIComponent(city || 'Mumbai')}&bodyType=${encodeURIComponent(activeBodyType)}`, { state: { filters: query } });
+      return;
     }
-
-    navigate('/buy-cars', { state: { filters: query } });
   };
 
   const prevBodyTypeSlide = () => {
@@ -1520,6 +1547,7 @@ const NewHome = () => {
   const getFilteredCars = () => {
     return allCars.filter(car => {
       if (!checkLocationMatch(car.location, city)) return false;
+      if (activeBodyType === 'EV CAR' || activeBodyType === 'EV') return isCarEV(car);
       if (activeBodyType === 'Hatchback') return car.bodyType === 'Hatchback';
       if (activeBodyType === 'Sedan') return car.bodyType === 'Sedan' && car.price < 2000000;
       if (activeBodyType === 'SUV') return car.bodyType === 'SUV' && car.price < 2000000;
@@ -1538,6 +1566,7 @@ const NewHome = () => {
 
   const getCountForBodyType = (typeName) => {
     const cityCars = allCars.filter(car => checkLocationMatch(car.location, city));
+    if (typeName === 'EV CAR' || typeName === 'EV') return cityCars.filter(car => isCarEV(car)).length;
     if (typeName === 'Selectt Luxury') return cityCars.filter(car => car.price >= 2000000 || car.tags?.some(t => t?.toLowerCase().includes('luxury'))).length;
     if (typeName === 'Compact SUV') return cityCars.filter(car => car.bodyType?.toLowerCase() === 'compact suv' || (car.bodyType === 'SUV' && car.price < 1200000)).length;
     if (typeName === 'Hatchback') return cityCars.filter(car => car.bodyType === 'Hatchback').length;

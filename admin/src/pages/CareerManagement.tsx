@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import {
   Briefcase,
   Users,
@@ -35,6 +36,10 @@ const STATUS_BADGES: Record<string, { bg: string; text: string; icon: any }> = {
 export default function CareerManagement() {
   const { token } = useAuth();
   const [activeTab, setActiveTab] = useState<"applications" | "jobs">("applications");
+
+  // Post Section Title State
+  const [postSectionTitle, setPostSectionTitle] = useState("Current Openings");
+  const [savingTitle, setSavingTitle] = useState(false);
 
   // Applications State
   const [applications, setApplications] = useState<any[]>([]);
@@ -108,12 +113,47 @@ export default function CareerManagement() {
   };
 
   useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/settings/public`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.careers_post_section_title) {
+            setPostSectionTitle(data.careers_post_section_title);
+          }
+        }
+      } catch (_) {}
+    };
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
     if (activeTab === "applications") {
       fetchApplications();
     } else {
       fetchJobs();
     }
   }, [activeTab, page, statusFilter]);
+
+  const handleSavePostSectionTitle = async () => {
+    setSavingTitle(true);
+    try {
+      const res = await fetch(`${API_URL}/api/settings`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ careers_post_section_title: postSectionTitle })
+      });
+      if (res.ok) {
+        toast.success("✅ Post section title updated successfully!");
+      } else {
+        toast.error("Failed to update post section title");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to update title");
+    } finally {
+      setSavingTitle(false);
+    }
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -505,6 +545,41 @@ export default function CareerManagement() {
         {/* TAB 2: JOB OPENINGS */}
         {activeTab === "jobs" && (
           <div className="space-y-4">
+            {/* Post Section Name Configuration Card */}
+            <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-brand-500" />
+                  Frontend Openings Section Heading
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Customize the title displayed above the job list on{" "}
+                  <a href="https://selectt.in/careers" target="_blank" rel="noreferrer" className="text-brand-500 underline">
+                    selectt.in/careers
+                  </a>{" "}
+                  (default: "Current Openings")
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <input
+                  type="text"
+                  value={postSectionTitle}
+                  onChange={(e) => setPostSectionTitle(e.target.value)}
+                  placeholder="e.g. Current Openings / Join Our Team"
+                  className="px-3.5 py-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 w-full md:w-64 font-semibold"
+                />
+                <button
+                  type="button"
+                  onClick={handleSavePostSectionTitle}
+                  disabled={savingTitle}
+                  className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold shadow-sm transition-all whitespace-nowrap cursor-pointer disabled:opacity-50"
+                >
+                  {savingTitle ? "Saving..." : "Save Title"}
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {loadingJobs ? (
                 <div className="col-span-3 py-12 text-center text-gray-500">Loading job postings...</div>
@@ -651,6 +726,59 @@ export default function CareerManagement() {
                     </select>
                   </div>
                 </div>
+
+                {/* Candidate Lead Form Extra Details */}
+                {(selectedApp.experience || selectedApp.current_location || selectedApp.current_ctc || selectedApp.expected_ctc || selectedApp.notice_period || selectedApp.linkedin_url) && (
+                  <div>
+                    <h4 className="text-xs font-bold uppercase text-gray-400 mb-2">Candidate Details (Meta Lead Form)</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 rounded-2xl text-xs">
+                      {selectedApp.experience && (
+                        <div>
+                          <span className="text-gray-400 font-medium block">Total Experience:</span>
+                          <span className="font-bold text-gray-800 dark:text-gray-200">{selectedApp.experience}</span>
+                        </div>
+                      )}
+                      {selectedApp.current_location && (
+                        <div>
+                          <span className="text-gray-400 font-medium block">Current Location / City:</span>
+                          <span className="font-bold text-gray-800 dark:text-gray-200">{selectedApp.current_location}</span>
+                        </div>
+                      )}
+                      {selectedApp.current_ctc && (
+                        <div>
+                          <span className="text-gray-400 font-medium block">Current CTC:</span>
+                          <span className="font-bold text-gray-800 dark:text-gray-200">{selectedApp.current_ctc}</span>
+                        </div>
+                      )}
+                      {selectedApp.expected_ctc && (
+                        <div>
+                          <span className="text-gray-400 font-medium block">Expected CTC:</span>
+                          <span className="font-bold text-gray-800 dark:text-gray-200">{selectedApp.expected_ctc}</span>
+                        </div>
+                      )}
+                      {selectedApp.notice_period && (
+                        <div>
+                          <span className="text-gray-400 font-medium block">Notice Period:</span>
+                          <span className="font-bold text-gray-800 dark:text-gray-200">{selectedApp.notice_period}</span>
+                        </div>
+                      )}
+                      {selectedApp.linkedin_url && (
+                        <div className="sm:col-span-2">
+                          <span className="text-gray-400 font-medium block">LinkedIn Profile:</span>
+                          <a
+                            href={selectedApp.linkedin_url.startsWith("http") ? selectedApp.linkedin_url : `https://${selectedApp.linkedin_url}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 dark:text-blue-400 underline font-bold break-all flex items-center gap-1 mt-0.5"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                            {selectedApp.linkedin_url}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Cover Letter / Message */}
                 {selectedApp.message && (

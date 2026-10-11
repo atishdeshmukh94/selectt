@@ -391,8 +391,12 @@ const BuyCarsPage = () => {
       try {
         const response = await fetch(`${API_URL}/api/settings/public`);
         const data = await response.json();
-        if (data.buy_cars_marquee_text) {
+        if (data.buy_cars_marquee_enabled === 'false' || data.buy_cars_marquee_enabled === false || data.buy_cars_marquee_enabled === '0') {
+          setMarqueeText('');
+        } else if (data.buy_cars_marquee_text !== undefined && data.buy_cars_marquee_text !== null) {
           setMarqueeText(data.buy_cars_marquee_text);
+        } else {
+          setMarqueeText('🌧️ MONSOON OFFER: ⛈️🌈 UP TO 45% OFF • 🌈⛅️✨FREEBIES ABOVE ₹1,999 • 🌈⛅️✨NEW LAUNCH: ZERO COMMISSION • 200-POINT INSPECTED •🌈⛅️✨ FAIR PRICED');
         }
         setExtraCardData(data);
       } catch (error) {
