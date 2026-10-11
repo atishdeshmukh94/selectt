@@ -62,15 +62,23 @@ export const PremiumHeader: React.FC = () => {
     setExpandedBrands(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const resolveBrandLogo = (url: string | null | undefined) => {
+    if (!url) return null;
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    if (url.startsWith('/img/')) return url;
+    if (url.startsWith('/')) return `${API_URL}${url}`;
+    return `${API_URL}/${url}`;
+  };
+
   useEffect(() => {
-    fetch(`${API_URL}/api/brands`)
+    fetch(`${API_URL}/api/brands?in_stock=true`)
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setBrandsData(data);
         }
       })
-      .catch(err => console.error('Failed to fetch brands in header:', err));
+      .catch(err => console.error('Failed to fetch in-stock brands in header:', err));
   }, []);
 
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
@@ -705,35 +713,16 @@ export const PremiumHeader: React.FC = () => {
             </button>
             <div className={`${styles.makeModelDropdown} ${!makeModelMenuOpen ? styles.dropdownForceClosed : ''}`}>
               {(() => {
-                const DEFAULT_MAKE_MODELS = [
-                  {
-                    name: 'Maruti Suzuki',
-                    models: [{ name: 'Baleno' }, { name: 'Swift' }, { name: 'Alto 800' }, { name: 'Wagon R' }, { name: 'Ciaz' }]
-                  },
-                  {
-                    name: 'Honda',
-                    models: [{ name: 'City' }, { name: 'Amaze' }, { name: 'Jazz' }, { name: 'Brio' }, { name: 'Elevate' }]
-                  },
-                  {
-                    name: 'Kia',
-                    models: [{ name: 'Seltos' }, { name: 'Sonet' }, { name: 'Carens' }, { name: 'Syros' }, { name: 'Carens Clavis' }]
-                  },
-                  {
-                    name: 'Hyundai',
-                    models: [{ name: 'Grand i10' }, { name: 'i20' }, { name: 'Creta' }, { name: 'Elite i20' }, { name: 'Venue' }]
-                  },
-                  {
-                    name: 'Tata',
-                    models: [{ name: 'Nexon' }, { name: 'Tiago' }, { name: 'Altroz' }, { name: 'Punch' }, { name: 'Harrier' }]
-                  },
-                  {
-                    name: 'Renault',
-                    models: [{ name: 'Kwid' }, { name: 'Kiger' }, { name: 'Triber' }, { name: 'Duster' }, { name: 'Captur' }]
-                  }
-                ];
+                const activeBrands = (brandsData || []).filter((b: any) => b && Array.isArray(b.models) && b.models.length > 0);
+                const MODEL_LIMIT = 7;
 
-                const activeBrands = brandsData.length > 0 ? brandsData : DEFAULT_MAKE_MODELS;
-                const MODEL_LIMIT = 7; // Show 6 to 8 models by default
+                if (activeBrands.length === 0) {
+                  return (
+                    <div style={{ padding: '24px', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
+                      No cars currently available in stock.
+                    </div>
+                  );
+                }
 
                 return (
                   <div className={styles.makeModelGrid}>
@@ -743,6 +732,8 @@ export const PremiumHeader: React.FC = () => {
                       const isExpanded = !!expandedBrands[brandKey];
                       const visibleModels = isExpanded ? brandModels : brandModels.slice(0, MODEL_LIMIT);
                       const hasMore = brandModels.length > MODEL_LIMIT;
+                      const logoSrc = resolveBrandLogo(brand.logo_url);
+                      const totalBrandCount = brand.totalCount || brandModels.reduce((acc: number, m: any) => acc + (typeof m === 'object' && m.count ? m.count : 1), 0);
 
                       return (
                         <div key={brandKey} className={styles.makeModelCard}>
@@ -754,7 +745,22 @@ export const PremiumHeader: React.FC = () => {
                             className={styles.makeModelBrandBtn}
                             title={`Filter cars by ${brand.name}`}
                           >
-                            <span className={styles.brandTitleText}>{brand.name}</span>
+                            <div className={styles.brandTitleLeft}>
+                              {logoSrc && (
+                                <img
+                                  src={logoSrc}
+                                  alt={brand.name}
+                                  className={styles.brandLogoThumb}
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLElement).style.display = 'none';
+                                  }}
+                                />
+                              )}
+                              <span className={styles.brandTitleText}>{brand.name}</span>
+                              {totalBrandCount > 0 && (
+                                <span className={styles.brandStockBadge}>{totalBrandCount}</span>
+                              )}
+                            </div>
                             <IconChevronRight size={12} className={styles.brandArrowIcon} />
                           </button>
 
@@ -762,6 +768,7 @@ export const PremiumHeader: React.FC = () => {
                             <ul className={styles.makeModelList}>
                               {visibleModels.map((m: any) => {
                                 const modelName = typeof m === 'string' ? m : m.name;
+                                const modelCount = typeof m === 'object' && m.count ? m.count : null;
                                 return (
                                   <li key={modelName}>
                                     <button
@@ -769,9 +776,13 @@ export const PremiumHeader: React.FC = () => {
                                         setMakeModelMenuOpen(false);
                                         handleNavFilter({ brands: [brand.name], models: [modelName] });
                                       }}
-                                      title={modelName}
+                                      title={`${brand.name} ${modelName}${modelCount ? ` (${modelCount} available)` : ''}`}
+                                      className={styles.modelItemBtn}
                                     >
-                                      {modelName}
+                                      <span className={styles.modelNameSpan}>{modelName}</span>
+                                      {modelCount && (
+                                        <span className={styles.modelCountBadge}>({modelCount})</span>
+                                      )}
                                     </button>
                                   </li>
                                 );

@@ -1807,8 +1807,25 @@ function mapCar(car) {
         features: safeJsonParse(car.features, {}),
         qualityReport: safeJsonParse(car.quality_report, null),
         priceBreakdown: safeJsonParse(car.price_breakdown, null),
-        moreImages: safeJsonParse(car.more_images, []),
-        videoUrl: car.video_url || '',
+        moreImages: (() => {
+            const list = safeJsonParse(car.more_images, []);
+            const isVid = (u) => {
+                if (!u || typeof u !== 'string') return false;
+                const s = u.trim().toLowerCase();
+                return s.includes('youtube.com') || s.includes('youtu.be') || s.includes('iframe.mediadelivery.net') || s.includes('b-cdn.net') || s.includes('bunnycdn.com') || s.endsWith('.mp4') || s.endsWith('.mov') || s.endsWith('.webm');
+            };
+            return list.filter(u => !isVid(u));
+        })(),
+        videoUrl: (() => {
+            if (car.video_url && typeof car.video_url === 'string' && car.video_url.trim()) return car.video_url.trim();
+            const list = safeJsonParse(car.more_images, []);
+            const isVid = (u) => {
+                if (!u || typeof u !== 'string') return false;
+                const s = u.trim().toLowerCase();
+                return s.includes('youtube.com') || s.includes('youtu.be') || s.includes('iframe.mediadelivery.net') || s.includes('b-cdn.net') || s.includes('bunnycdn.com') || s.endsWith('.mp4') || s.endsWith('.mov') || s.endsWith('.webm');
+            };
+            return list.find(isVid) || '';
+        })(),
         createdAt: car.created_at,
         registrationNo: car.registration_no || car.registrationNo || null,
         registration_no: car.registration_no || car.registrationNo || null,
@@ -7955,8 +7972,124 @@ app.delete('/api/admin/blog/tags/:id', authMiddleware, isAdmin, (req, res) => {
 // BRANDS & MODELS API
 // ============================================================
 
+// Public: Get in-stock brands and models aggregated from active inventory
+const getInStockBrands = (req, res) => {
+    const carsSql = `
+        SELECT 
+            TRIM(c.make) as brand_name,
+            TRIM(c.model) as model_name,
+            COUNT(*) as car_count,
+            MAX(c.image) as sample_image
+        FROM cars c
+        WHERE (c.status IS NULL OR c.status = '' OR c.status = 'active')
+          AND c.status != 'sold_out'
+          AND c.status != 'draft'
+          AND c.make IS NOT NULL AND TRIM(c.make) != ''
+          AND c.model IS NOT NULL AND TRIM(c.model) != ''
+        GROUP BY TRIM(c.make), TRIM(c.model)
+        ORDER BY TRIM(c.make) ASC, car_count DESC, TRIM(c.model) ASC
+    `;
+
+    db.query(carsSql, (carErr, carRows) => {
+        if (carErr) {
+            console.error('Error fetching in-stock car models:', carErr);
+            return res.status(500).json({ error: carErr.message });
+        }
+
+        db.query('SELECT id, name, logo_url, order_index FROM brands ORDER BY order_index ASC, id ASC', (brandErr, brandRows) => {
+            const brandsTable = brandRows || [];
+            const KNOWN_LOGOS = {
+                'maruti suzuki': '/img/maruti-suzuki.webp',
+                'maruti': '/img/maruti-suzuki.webp',
+                'hyundai': '/img/hyundai.webp',
+                'tata': '/img/tata.webp',
+                'mahindra': '/img/mahindra.webp',
+                'honda': '/img/honda.webp',
+                'toyota': '/img/toyota.webp',
+                'kia': '/img/kia.webp',
+                'volkswagen': '/img/Volkswagen_logo.webp',
+                'skoda': '/img/skoda.png',
+                'mg': '/img/mg.webp',
+                'morris garages': '/img/mg.webp',
+                'renault': '/img/renault.webp',
+                'bmw': '/img/bmw.webp',
+                'mercedes-benz': '/img/mercedes-benz.webp',
+                'mercedes': '/img/mercedes-benz.webp',
+                'audi': '/img/audi.webp',
+                'nissan': '/img/nissan.webp',
+                'ford': '/img/Fored.webp',
+                'jeep': '/img/jeep.webp'
+            };
+
+            const brandMap = new Map();
+
+            (carRows || []).forEach(row => {
+                const rawBrand = (row.brand_name || '').trim();
+                const rawModel = (row.model_name || '').trim();
+                const count = Number(row.car_count || 1);
+                if (!rawBrand || !rawModel || count <= 0) return;
+
+                const lowerBrand = rawBrand.toLowerCase();
+
+                const matchedBrand = brandsTable.find(b => 
+                    b.name && (
+                        b.name.toLowerCase() === lowerBrand ||
+                        (lowerBrand.includes('maruti') && b.name.toLowerCase().includes('maruti')) ||
+                        (lowerBrand === 'mg' && b.name.toLowerCase().includes('mg'))
+                    )
+                );
+
+                let entry = brandMap.get(lowerBrand);
+                if (!entry) {
+                    const brandName = matchedBrand ? matchedBrand.name : rawBrand;
+                    const logoUrl = (matchedBrand && matchedBrand.logo_url) 
+                        ? matchedBrand.logo_url 
+                        : (KNOWN_LOGOS[lowerBrand] || KNOWN_LOGOS[brandName.toLowerCase()] || null);
+                    const orderIndex = matchedBrand && matchedBrand.order_index != null ? matchedBrand.order_index : 999;
+                    const id = matchedBrand ? matchedBrand.id : null;
+
+                    entry = {
+                        id,
+                        name: brandName,
+                        logo_url: logoUrl,
+                        order_index: orderIndex,
+                        totalCount: 0,
+                        sample_image: row.sample_image || null,
+                        models: []
+                    };
+                    brandMap.set(lowerBrand, entry);
+                }
+
+                entry.totalCount += count;
+                entry.models.push({
+                    name: rawModel,
+                    count
+                });
+            });
+
+            const result = Array.from(brandMap.values()).sort((a, b) => {
+                if (a.order_index !== b.order_index) {
+                    return a.order_index - b.order_index;
+                }
+                return b.totalCount - a.totalCount;
+            });
+
+            res.json(result);
+        });
+    });
+};
+
+app.get('/api/brands/in-stock', (req, res) => {
+    return getInStockBrands(req, res);
+});
+
 // Public: Get all brands with their models and variants
 app.get('/api/brands', (req, res) => {
+    const inStockOnly = req.query.in_stock === 'true' || req.query.in_stock === '1' || req.query.inventory_only === 'true';
+    if (inStockOnly) {
+        return getInStockBrands(req, res);
+    }
+
     const fetchBrandsQuery = (query) => {
         db.query(query, (err, brands) => {
             if (err) {

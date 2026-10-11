@@ -44,11 +44,19 @@ const Header = () => {
     setExpandedBrands(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const resolveBrandLogo = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    if (url.startsWith('/img/')) return url;
+    if (url.startsWith('/')) return `${API_URL}${url}`;
+    return `${API_URL}/${url}`;
+  };
+
   useEffect(() => {
-    fetch(`${API_URL}/api/brands`)
+    fetch(`${API_URL}/api/brands?in_stock=true`)
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setBrandsData(data);
         }
       })
@@ -172,8 +180,28 @@ const Header = () => {
       }
     ];
 
-    const activeBrands = brandsData.length > 0 ? brandsData : DEFAULT_MAKE_MODELS;
+    const activeBrands = (brandsData || []).filter(b => b && Array.isArray(b.models) && b.models.length > 0);
     const MODEL_LIMIT = 7; // Show 6 to 8 models by default
+
+    if (activeBrands.length === 0) {
+      return (
+        <div 
+          className="relative group/mega z-[60] h-full flex items-center"
+          onMouseEnter={() => setMakeModelMenuOpen(true)}
+          onMouseLeave={() => setMakeModelMenuOpen(false)}
+        >
+          <button 
+            onClick={() => setMakeModelMenuOpen(prev => !prev)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-slate-700 hover:text-slate-950 whitespace-nowrap rounded transition-colors peer cursor-pointer h-8 group-hover/mega:text-[#00B4A0]"
+          >
+            Make and Model <ChevronDown size={13} className="opacity-70 group-hover/mega:opacity-100 group-hover/mega:rotate-180 transition-all duration-200" />
+          </button>
+          <div className={`absolute top-[100%] left-[-120px] w-[500px] max-w-[92vw] bg-[#051124] shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-200 p-6 rounded-b-xl border border-white/10 border-t-2 border-t-[#00C9AF] text-center text-slate-400 text-sm ${!makeModelMenuOpen ? '!hidden !opacity-0 !invisible' : ''}`}>
+            No cars currently available in stock.
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div 
@@ -195,6 +223,8 @@ const Header = () => {
               const isExpanded = !!expandedBrands[brandKey];
               const visibleModels = isExpanded ? brandModels : brandModels.slice(0, MODEL_LIMIT);
               const hasMore = brandModels.length > MODEL_LIMIT;
+              const logoSrc = resolveBrandLogo(brand.logo_url);
+              const totalBrandCount = brand.totalCount || brandModels.reduce((acc, m) => acc + (typeof m === 'object' && m.count ? m.count : 1), 0);
 
               return (
                 <div key={brandKey} className="bg-white/5 border border-white/10 hover:border-[#00C9AF]/40 rounded-lg p-3 flex flex-col min-h-[205px] transition-all">
@@ -205,7 +235,22 @@ const Header = () => {
                     }}
                     className="text-[13.5px] font-bold text-white pb-1.5 mb-1.5 border-b border-white/10 flex items-center justify-between hover:text-[#00C9AF] transition-colors"
                   >
-                    <span className="truncate max-w-[170px]">{brand.name}</span>
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      {logoSrc && (
+                        <img
+                          src={logoSrc}
+                          alt={brand.name}
+                          className="w-5 h-5 object-contain shrink-0"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      )}
+                      <span className="truncate max-w-[150px]">{brand.name}</span>
+                      {totalBrandCount > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#00C9AF]/20 text-[#00C9AF] ml-auto mr-1">
+                          {totalBrandCount}
+                        </span>
+                      )}
+                    </div>
                     <ChevronRight size={13} className="opacity-60 flex-shrink-0" />
                   </button>
 
@@ -213,6 +258,7 @@ const Header = () => {
                     <div className="flex flex-col space-y-[2px] flex-1">
                       {visibleModels.map((m) => {
                         const modelName = typeof m === 'string' ? m : m.name;
+                        const modelCount = typeof m === 'object' && m.count ? m.count : null;
                         return (
                           <button
                             key={modelName}
@@ -220,9 +266,12 @@ const Header = () => {
                               setMakeModelMenuOpen(false);
                               handleNavFilter({ brands: [brand.name], models: [modelName] });
                             }}
-                            className="text-[12px] text-slate-300 hover:text-[#00C9AF] hover:bg-white/5 px-1 py-[2px] rounded text-left transition-colors truncate"
+                            className="text-[12px] text-slate-300 hover:text-[#00C9AF] hover:bg-white/5 px-1 py-[2px] rounded text-left transition-colors flex items-center justify-between"
                           >
-                            {modelName}
+                            <span className="truncate">{modelName}</span>
+                            {modelCount && (
+                              <span className="text-[10.5px] text-slate-400 font-semibold ml-auto pl-1">({modelCount})</span>
+                            )}
                           </button>
                         );
                       })}

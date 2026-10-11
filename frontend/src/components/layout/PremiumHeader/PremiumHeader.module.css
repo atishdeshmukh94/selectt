@@ -862,6 +862,55 @@
   transform: translateX(2px);
 }
 
+.brandTitleLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.brandLogoThumb {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.brandStockBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #0c1b33;
+  background: rgba(0, 201, 175, 0.18);
+  border-radius: 9999px;
+  margin-left: auto;
+  margin-right: 6px;
+}
+
+.modelItemBtn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+.modelNameSpan {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modelCountBadge {
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-left: auto;
+}
+
 .makeModelList {
   list-style: none;
   padding: 6px 0 0 0;

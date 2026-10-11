@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
@@ -292,6 +292,11 @@ const CarDetailsPage = () => {
   if (images.length === 0) {
     images.push(DEFAULT_CAR_FALLBACK_IMAGE);
   }
+
+  const photoOnlyImages = useMemo(() => {
+    const list = images.filter(img => getMediaType(img) === 'image');
+    return list.length > 0 ? list : [DEFAULT_CAR_FALLBACK_IMAGE];
+  }, [images]);
 
   useEffect(() => {
     if (images.length === 0 || isHoveringMain || isLightboxOpen) return;
@@ -1667,8 +1672,8 @@ const CarDetailsPage = () => {
           isOpen={isLightboxOpen}
           onClose={closeLightbox}
           car={car}
-          images={images}
-          initialIndex={activeImage || 0}
+          images={photoOnlyImages}
+          initialIndex={Math.max(0, photoOnlyImages.indexOf(images[activeImage]))}
           onBookNow={handleBookNow}
           onTestDrive={handleTestDriveClick}
         />

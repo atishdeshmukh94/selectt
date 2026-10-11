@@ -9,21 +9,41 @@ import {
   X,
   Maximize2
 } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { API_URL, DEFAULT_CAR_FALLBACK_IMAGE } from '../../config/api';
 
-const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=1200';
+const isVideoUrl = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  const u = url.trim().toLowerCase();
+  return (
+    u.includes('youtube.com') ||
+    u.includes('youtu.be') ||
+    u.includes('iframe.mediadelivery.net') ||
+    u.includes('b-cdn.net') ||
+    u.includes('bunnycdn.com') ||
+    u.includes('video.bunnycdn') ||
+    u.endsWith('.mp4') ||
+    u.endsWith('.mov') ||
+    u.endsWith('.webm') ||
+    u.includes('.mp4?') ||
+    u.includes('.mov?')
+  );
+};
 
 const getCarImageUrl = (img) => {
-  if (!img) return DEFAULT_FALLBACK_IMAGE;
-  if (img.startsWith('http://') || img.startsWith('https://')) return img;
+  if (!img || isVideoUrl(img)) return DEFAULT_CAR_FALLBACK_IMAGE;
+  if (img.includes('images.unsplash.com') || img.includes('shutterstock.com')) {
+    return DEFAULT_CAR_FALLBACK_IMAGE;
+  }
+  if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:')) return img;
   if (img.startsWith('/uploads/')) return `${API_URL}${img}`;
   if (img.startsWith('/')) return `${API_URL}${img}`;
   return `${API_URL}/uploads/${img}`;
 };
 
 // Intelligently categorize images and assign view angle titles
-const categorizeCarImages = (images, mediaAlt = {}) => {
-  if (!images || images.length === 0) return [];
+const categorizeCarImages = (rawImages, mediaAlt = {}) => {
+  const images = (rawImages || []).filter(img => img && typeof img === 'string' && !isVideoUrl(img));
+  if (images.length === 0) return [];
 
   const categories = [
     { id: 'overview', name: 'Overview', defaultLabels: ['Left Front Corner View', 'Back View', 'Front View'] },
@@ -279,7 +299,8 @@ const PinchZoomImageCard = ({ item, carTitle, onOpenLightbox }) => {
           loading="lazy"
           onLoad={() => setIsLoaded(true)}
           onError={(e) => {
-            e.target.src = DEFAULT_FALLBACK_IMAGE;
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = DEFAULT_CAR_FALLBACK_IMAGE;
             setIsLoaded(true);
           }}
           className={`w-full h-full object-cover transition-transform ${isPinching ? 'duration-0' : 'duration-200 ease-out'}`}
@@ -848,7 +869,7 @@ const FullscreenLightbox = ({
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = DEFAULT_FALLBACK_IMAGE;
+                    e.currentTarget.src = DEFAULT_CAR_FALLBACK_IMAGE;
                   }}
                 />
               </button>
@@ -899,7 +920,7 @@ const FullscreenLightbox = ({
           draggable={false}
           onError={(e) => {
             e.currentTarget.onerror = null;
-            e.currentTarget.src = DEFAULT_FALLBACK_IMAGE;
+            e.currentTarget.src = DEFAULT_CAR_FALLBACK_IMAGE;
           }}
         />
 
@@ -999,7 +1020,7 @@ const FullscreenLightbox = ({
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = DEFAULT_FALLBACK_IMAGE;
+                    e.currentTarget.src = DEFAULT_CAR_FALLBACK_IMAGE;
                   }}
                 />
               </button>
@@ -1038,9 +1059,13 @@ const CarGalleryModal = ({
 
   const carTitle = `${car?.year || ''} ${car?.make || ''} ${car?.model || ''} ${car?.variant || ''}`.trim() || 'Pre-Owned Car';
 
+  const photoOnlyImages = useMemo(() => {
+    return (images || []).filter(img => img && typeof img === 'string' && !isVideoUrl(img));
+  }, [images]);
+
   const groups = useMemo(() => {
-    return categorizeCarImages(images, car?.mediaAlt);
-  }, [images, car?.mediaAlt]);
+    return categorizeCarImages(photoOnlyImages, car?.mediaAlt);
+  }, [photoOnlyImages, car?.mediaAlt]);
 
   // Track responsive breakpoint
   useEffect(() => {
@@ -1143,7 +1168,7 @@ const CarGalleryModal = ({
     const activeIdx = lightboxIndex !== null ? lightboxIndex : (initialIndex >= 0 ? initialIndex : 0);
     return (
       <FullscreenLightbox
-        images={images}
+        images={photoOnlyImages}
         activeIndex={activeIdx}
         onClose={onClose}
         onChangeIndex={(newIdx) => setLightboxIndex(newIdx)}
@@ -1303,7 +1328,7 @@ const CarGalleryModal = ({
       {/* 5. LIGHTBOX OVERLAY WHEN CLICKING ANY IMAGE */}
       {lightboxIndex !== null && (
         <FullscreenLightbox
-          images={images}
+          images={photoOnlyImages}
           activeIndex={lightboxIndex}
           onClose={() => {
             setLightboxIndex(null);
