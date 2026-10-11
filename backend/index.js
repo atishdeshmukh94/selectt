@@ -917,7 +917,11 @@ async function sendGallaboxWhatsAppNotification(eventType, recipientPhone, varia
             admin_test_drive: 'admin_alert_test_drive',
             admin_loan: 'admin_alert_loan_app',
             admin_insurance: 'admin_alert_insurance_inquiry',
-            admin_contact: 'admin_alert_contact_lead'
+            admin_contact: 'admin_alert_contact_lead',
+
+            // 💼 Careers & Recruitment
+            career_application_confirm: 'try_to_help_you',
+            career_application_admin: 'try_to_help_you'
         };
 
         const templateName = settings[templateKey] || defaultTemplates[eventType] || eventType;
@@ -3517,6 +3521,20 @@ const DEFAULT_EMAIL_TEMPLATES = {
         leadType: "Admin Staff Alert",
         body: "New customer inquiry received:\n\nName: {{customer_name}}\nPhone: {{phone}}\nQuery / Topic: {{subject}}\n\nFollow up promptly.",
         recipient: "Admin Staff"
+    },
+    career_application_confirm: {
+        subject: "🎉 Application Received: {{position}} at Selectt (Thank you {{candidate_name}})",
+        heading: "We Have Received Your Application!",
+        leadType: "Careers & Hiring",
+        body: "Dear {{candidate_name}},\n\nThank you for your interest in joining Selectt! We have successfully received your job application for the position of {{position}}.\n\nOur recruitment team is reviewing your profile and credentials. If your qualifications match our current openings, our talent acquisition team will reach out to you within 2-3 business days to coordinate the next steps.\n\nApplication Details:\n• Position: {{position}}\n• Registered Email: {{email}}\n• Contact Phone: {{phone}}\n\nBest regards,\nTalent Acquisition Team\nSelectt Motocorp Pvt. Ltd.",
+        recipient: "Customer"
+    },
+    career_application_admin: {
+        subject: "🚨 [NEW CANDIDATE] {{candidate_name}} applied for {{position}}",
+        heading: "New Job Application Received",
+        leadType: "HR Alert",
+        body: "A new candidate has submitted a job application on Selectt Careers:\n\nCandidate Name: {{candidate_name}}\nPosition: {{position}}\nEmail: {{email}}\nPhone: {{phone}}\nExperience: {{experience}}\nLocation: {{current_location}}\nResume Link: {{resume_link}}\n\nReview candidate in Selectt Admin Portal: https://admin.selectt.in/careers",
+        recipient: "Admin Staff"
     }
 };
 
@@ -3564,7 +3582,7 @@ async function sendTransactionalEmail(eventId, recipientEmail, data = {}) {
         const compiledHeading = replacePlaceholders(rawHeading);
         const compiledBody = replacePlaceholders(rawBody);
 
-        const targetEmail = recipientEmail || (def.recipient === 'Admin Staff' ? (settings.admin_notification_email || 'donotreply@selectt.in') : null);
+        const targetEmail = recipientEmail || (def.recipient === 'Admin Staff' ? (settings.admin_career_email || settings.admin_notification_email || settings.contact_email || 'donotreply@selectt.in') : null);
         if (!targetEmail) {
             console.log(`ℹ️ [Email Dispatcher] No recipient email provided for ${eventId}.`);
             return { success: false, message: 'No recipient email' };
@@ -5433,7 +5451,56 @@ app.post('/api/careers/apply', upload.single('resume'), async (req, res) => {
             // Trigger notification
             createNotification('career_application', `New job application from ${fullName} for ${position}`, null, result.insertId);
 
-            // Trigger SMTP email alert to admin
+            // Full resume URL for links
+            const fullResumeLink = resumeUrl 
+                ? (resumeUrl.startsWith('http') ? resumeUrl : `https://api.selectt.in${resumeUrl.startsWith('/') ? '' : '/'}${resumeUrl}`)
+                : 'No resume file attached';
+
+            // 1. Send Confirmation Email to Candidate via SMTP
+            sendTransactionalEmail('career_application_confirm', email, {
+                candidate_name: fullName,
+                position: position,
+                email: email,
+                phone: phone,
+                directLink: 'https://selectt.in/careers'
+            }).then(() => console.log(`📧 Candidate confirmation email sent to ${email} for position ${position}`))
+              .catch(e => console.error('Candidate email confirmation error:', e.message));
+
+            // 2. Send WhatsApp Confirmation to Candidate
+            sendGallaboxWhatsAppNotification('career_application_confirm', phone, {
+                name: fullName,
+                customer_name: fullName,
+                position: position,
+                phone: phone,
+                email: email,
+                '1': fullName,
+                '2': position
+            }).then(() => console.log(`📱 Candidate WhatsApp confirmation dispatched to ${phone}`))
+              .catch(e => console.error('Candidate WhatsApp confirmation error:', e.message));
+
+            // 3. Send Admin / HR Alert Email via SMTP
+            sendTransactionalEmail('career_application_admin', null, {
+                candidate_name: fullName,
+                position: position,
+                email: email,
+                phone: phone,
+                experience: experience || 'N/A',
+                current_location: currentLocation || 'N/A',
+                resume_link: fullResumeLink,
+                directLink: 'https://admin.selectt.in/careers'
+            }).then(() => console.log(`📧 Admin HR application alert email dispatched`))
+              .catch(e => console.error('Admin career email alert error:', e.message));
+
+            // 4. Send Admin WhatsApp Alert
+            sendAdminWhatsAppAlert('career_application_admin', {
+                name: fullName,
+                customer_name: fullName,
+                position: position,
+                phone: phone,
+                resume_link: fullResumeLink
+            }).catch(e => console.error('Admin WhatsApp alert error:', e.message));
+
+            // 5. Trigger SMTP email alert to admin (Rich HTML fallback)
             sendCareerNotificationEmail({
                 full_name: fullName,
                 email,
@@ -5447,7 +5514,7 @@ app.post('/api/careers/apply', upload.single('resume'), async (req, res) => {
                 linkedin_url: linkedinUrl,
                 message,
                 resume_url: resumeUrl
-            }).catch(e => console.error('SMTP Background Error:', e.message));
+            }).catch(e => console.error('SMTP Rich Career Notification Error:', e.message));
 
             res.json({
                 success: true,

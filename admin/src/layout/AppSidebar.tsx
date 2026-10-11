@@ -89,6 +89,12 @@ const navItems: NavItem[] = [
     permissionKey: "leads",
   },
   {
+    icon: <Briefcase className="w-5 h-5" />,
+    name: "Careers & Hiring",
+    path: "/careers",
+    permissionKey: "careers",
+  },
+  {
     icon: <TableIcon />,
     name: "Wishlisted Cars",
     path: "/reports/wishlist",
@@ -124,12 +130,6 @@ const navItems: NavItem[] = [
     name: "Blog",
     path: "/blog",
     permissionKey: "blog",
-  },
-  {
-    icon: <Briefcase className="w-5 h-5" />,
-    name: "Careers",
-    path: "/careers",
-    permissionKey: "careers",
   },
   {
     icon: <Images />,

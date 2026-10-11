@@ -617,13 +617,14 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
 
         {activeSection === "smtp" && (() => {
           const EMAIL_CATEGORIES = [
-            { id: "all", name: "All Use Cases", count: 29 },
+            { id: "all", name: "All Use Cases", count: 31 },
             { id: "sell", name: "🚗 Sell Car (5)", count: 5 },
             { id: "buy", name: "🛍️ Buy & Bookings (4)", count: 4 },
             { id: "test_drive", name: "🏎️ Test Drives (3)", count: 3 },
             { id: "finance", name: "🧮 Loans & Finance (3)", count: 3 },
             { id: "services", name: "🛡️ Services (4)", count: 4 },
             { id: "leads", name: "❤️ Leads (2)", count: 2 },
+            { id: "careers", name: "💼 Careers & HR (2)", count: 2 },
             { id: "auth", name: "🔐 Auth & OTP (2)", count: 2 },
             { id: "admin", name: "🚨 Admin Alerts (6)", count: 6 },
           ];
@@ -1020,6 +1021,34 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
               defaultBody: "A new callback request was submitted on the contact form:\n\nName: {{customer_name}}\nPhone: {{phone}}\nSubject/Message: {{subject}}\n\nRespond promptly.",
               vars: ["{{customer_name}}", "{{phone}}", "{{subject}}"],
               recipient: "Admin Staff"
+            },
+
+            // 💼 9. CAREERS & RECRUITMENT WORKFLOW
+            {
+              id: "career_application_confirm",
+              category: "careers",
+              categoryName: "💼 Careers & Recruitment",
+              title: "30. Candidate Job Application Confirmation",
+              desc: "Sent to applicant immediately when they submit their resume and application on /careers",
+              defaultSubject: "🎉 Application Received: {{position}} at Selectt (Thank you {{candidate_name}})",
+              defaultHeading: "We Have Received Your Application!",
+              defaultLeadType: "Careers & Hiring",
+              defaultBody: "Dear {{candidate_name}},\n\nThank you for your interest in joining Selectt! We have successfully received your job application for the position of {{position}}.\n\nOur recruitment team is reviewing your profile and credentials. If your qualifications match our current openings, our talent acquisition team will reach out to you within 2-3 business days to coordinate the next steps.\n\nApplication Details:\n• Position: {{position}}\n• Registered Email: {{email}}\n• Contact Phone: {{phone}}\n\nBest regards,\nTalent Acquisition Team\nSelectt Motocorp Pvt. Ltd.",
+              vars: ["{{candidate_name}}", "{{position}}", "{{email}}", "{{phone}}"],
+              recipient: "Customer"
+            },
+            {
+              id: "career_application_admin",
+              category: "careers",
+              categoryName: "💼 Careers & Recruitment",
+              title: "31. Admin / HR Alert: New Job Application Received",
+              desc: "Sent to Admin & HR notification email when a new resume is submitted",
+              defaultSubject: "🚨 [NEW CANDIDATE] {{candidate_name}} applied for {{position}}",
+              defaultHeading: "New Job Application Received",
+              defaultLeadType: "HR Alert",
+              defaultBody: "A new candidate has submitted a job application on Selectt Careers:\n\nCandidate Name: {{candidate_name}}\nPosition: {{position}}\nEmail: {{email}}\nPhone: {{phone}}\nExperience: {{experience}}\nLocation: {{current_location}}\nResume Link: {{resume_link}}\n\nReview candidate in Selectt Admin Portal: https://admin.selectt.in/careers",
+              vars: ["{{candidate_name}}", "{{position}}", "{{email}}", "{{phone}}", "{{experience}}", "{{current_location}}", "{{resume_link}}"],
+              recipient: "Admin Staff"
             }
           ];
 
@@ -1200,14 +1229,14 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
                 </div>
               </ComponentCard>
 
-              {/* 3. EMAIL NOTIFICATION TEMPLATES (29 USE CASES) */}
-              <ComponentCard title="✉️ Email Notification Templates (1 to 29 Use Cases)">
+              {/* 3. EMAIL NOTIFICATION TEMPLATES (31 USE CASES) */}
+              <ComponentCard title="✉️ Email Notification Templates (1 to 31 Use Cases)">
                 <form onSubmit={handleSave} className="space-y-6">
                   {/* Global Header & Test Recipient Configuration */}
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-gray-800/70 border border-slate-200 dark:border-gray-700 rounded-2xl">
                     <div className="space-y-1">
                       <h4 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">
-                        ⚡ Customized Email Templates for All 29 Platform Use Cases
+                        ⚡ Customized Email Templates for All 31 Platform Use Cases
                       </h4>
                       <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                         Configure custom subject lines, banner titles, and HTML/text bodies with dynamic variable tokens for each transaction event.
@@ -1243,7 +1272,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
                         onClick={() => expandAllEmail(filteredEmailEvents)}
                         className="px-3 py-1.5 text-xs font-black bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 rounded-xl transition-all cursor-pointer flex items-center gap-1"
                       >
-                        <span>📂 Expand All (29)</span>
+                        <span>📂 Expand All (31)</span>
                       </button>
                       <button
                         type="button"
@@ -1714,13 +1743,14 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
           ];
 
           const WHATSAPP_CATEGORIES = [
-            { id: "all", name: "All Use Cases", count: 29 },
+            { id: "all", name: "All Use Cases", count: 30 },
             { id: "sell", name: "🚗 Sell Car (5)", count: 5 },
             { id: "buy", name: "🛍️ Buy & Bookings (4)", count: 4 },
             { id: "test_drive", name: "🏎️ Test Drives (3)", count: 3 },
             { id: "finance", name: "🧮 Loans & Finance (3)", count: 3 },
             { id: "services", name: "🛡️ Services (4)", count: 4 },
             { id: "leads", name: "❤️ Leads (2)", count: 2 },
+            { id: "careers", name: "💼 Careers & HR (1)", count: 1 },
             { id: "auth", name: "🔐 Auth & OTP (2)", count: 2 },
             { id: "admin", name: "🚨 Admin Alerts (6)", count: 6 },
           ];
@@ -2088,6 +2118,20 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
               sampleText: "🚨 ADMIN ALERT: Customer Callback Request!\nName: {{1}} (📞 {{2}})\nQuery: {{3}}",
               varLegend: "{{1}}=Customer Name, {{2}}=Phone, {{3}}=Subject / Query",
               recipient: "Admin Staff"
+            },
+
+            // 💼 CAREERS & RECRUITMENT WORKFLOW
+            {
+              id: "career_application_confirm",
+              category: "careers",
+              categoryName: "💼 Careers & Recruitment",
+              title: "30. Candidate Job Application Confirmation",
+              desc: "Sent to candidate on WhatsApp when they apply for a job on /careers",
+              defaultTpl: "try_to_help_you",
+              vars: ["{{name}}", "{{position}}", "{{1}}", "{{2}}"],
+              sampleText: "Hello *{{name}}*! 👏\n\nThank you for applying for the *{{position}}* role at Selectt! We have successfully received your application & resume.\n\nOur recruitment team will review your details and reach out within 2-3 business days. All the best! 🚀",
+              varLegend: "{{1}}=Candidate Name, {{2}}=Job Position",
+              recipient: "Customer"
             }
           ];
 

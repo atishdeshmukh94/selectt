@@ -114,6 +114,13 @@ export const PERMISSION_MODULES: PermissionItem[] = [
     icon: FileText
   },
   {
+    key: "careers",
+    name: "Careers & Recruitment",
+    description: "Manage live job postings, candidate resumes, and hiring workflow",
+    category: "Content & Media",
+    icon: Briefcase
+  },
+  {
     key: "media",
     name: "Media Library & Uploads",
     description: "Browse media gallery, upload banner assets, and edit image alt tags",
