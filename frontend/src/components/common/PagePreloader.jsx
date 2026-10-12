@@ -10,17 +10,13 @@ function checkShouldSkipPreloader() {
       Boolean(window.navigator?.webdriver) ||
       window.location.search.includes('no-preloader');
     if (isAuditOrBot) return true;
-
-    if (sessionStorage.getItem('selectt-preloader-seen')) {
-      return true;
-    }
   } catch (_) {
     return false;
   }
   return false;
 }
 
-export default function PagePreloader({ minDisplayTime = 2200 }) {
+export default function PagePreloader({ minDisplayTime = 4500 }) {
   const [shouldSkip] = useState(checkShouldSkipPreloader);
   const [isVisible, setIsVisible] = useState(!shouldSkip);
   const [shouldRender, setShouldRender] = useState(!shouldSkip);
@@ -32,16 +28,13 @@ export default function PagePreloader({ minDisplayTime = 2200 }) {
   const dismiss = () => {
     if (finishedRef.current) return;
     finishedRef.current = true;
-    try {
-      sessionStorage.setItem('selectt-preloader-seen', '1');
-    } catch (_) {}
     setIsVisible(false);
     setTimeout(() => {
       setShouldRender(false);
       try {
         document.body.style.overflow = '';
       } catch (_) {}
-    }, 350);
+    }, 450);
   };
 
   // Lock body scroll while preloader is active so user cannot scroll background blind
@@ -65,12 +58,19 @@ export default function PagePreloader({ minDisplayTime = 2200 }) {
         animInstanceRef.current = lottie.loadAnimation({
           container: containerRef.current,
           renderer: 'svg',
-          loop: true,
+          loop: false,
           autoplay: true,
           animationData: brandPreloaderAnimation,
           rendererSettings: {
             preserveAspectRatio: 'xMidYMid meet'
           }
+        });
+
+        // When the full 4.0s Lottie animation finishes, hold final frame briefly then fade out
+        animInstanceRef.current.addEventListener('complete', () => {
+          setTimeout(() => {
+            dismiss();
+          }, 500);
         });
       } catch (e) {
         console.warn('Lottie failed, dismissing', e);
@@ -78,14 +78,15 @@ export default function PagePreloader({ minDisplayTime = 2200 }) {
       }
     }
 
+    // Default 4 to 5 seconds full duration
     const timer = setTimeout(() => {
       dismiss();
     }, minDisplayTime);
 
-    // Guaranteed hard safety timeout so preloader NEVER gets stuck
+    // Guaranteed hard safety timeout at 5 seconds
     const hardSafetyTimer = setTimeout(() => {
       dismiss();
-    }, 1400);
+    }, 5000);
 
     const handleKey = (e) => {
       if (e.key === 'Escape') dismiss();
@@ -106,8 +107,6 @@ export default function PagePreloader({ minDisplayTime = 2200 }) {
 
   return (
     <div
-      onClick={dismiss}
-      onTouchStart={dismiss}
       style={{
         backgroundColor: '#000000',
         position: 'fixed',
@@ -123,7 +122,7 @@ export default function PagePreloader({ minDisplayTime = 2200 }) {
         overflow: 'hidden',
         touchAction: 'none',
       }}
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black transition-opacity duration-300 ease-out cursor-pointer select-none ${
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black transition-opacity duration-500 ease-out select-none ${
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
