@@ -1812,27 +1812,34 @@ app.post('/api/admin/push-notifications/settings', authMiddleware, isAdmin, asyn
 });
 
 // 3. Test OneSignal Connection & Verify Credentials
-app.post('/api/admin/push-notifications/test-connection', authMiddleware, isAdmin, async (req, res) => {
+app.post(['/api/admin/push-notifications/test-connection', '/api/admin/onesignal/test-connection'], authMiddleware, isAdmin, async (req, res) => {
     try {
-        let { app_id, rest_api_key } = req.body;
+        let { app_id, rest_api_key, api_key } = req.body;
+        let key = rest_api_key || api_key;
 
-        if (!app_id || !rest_api_key || rest_api_key.includes('••••')) {
+        if (!app_id || !key || key.includes('••••')) {
             const config = await onesignal.getConfig();
             app_id = app_id || config.appId;
-            rest_api_key = (!rest_api_key || rest_api_key.includes('••••')) ? config.restApiKey : rest_api_key;
+            key = (!key || key.includes('••••')) ? config.restApiKey : key;
         }
 
-        const result = await onesignal.testConnection({ appId: app_id, restApiKey: rest_api_key });
-        res.json({ success: true, message: `Connected to OneSignal App "${result.appName}"!`, data: result });
+        const result = await onesignal.testConnection({ appId: app_id, restApiKey: key });
+        res.json({
+            success: true,
+            message: `Connected to OneSignal App "${result.appName}"!`,
+            data: result,
+            appName: result.appName,
+            subscribers: result.subscribers || result.players || 0
+        });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });
     }
 });
 
 // 4. Send Custom Push Notification
-app.post('/api/admin/push-notifications/send', authMiddleware, isAdmin, async (req, res) => {
+app.post(['/api/admin/push-notifications/send', '/api/admin/onesignal/broadcast', '/api/admin/onesignal/send'], authMiddleware, isAdmin, async (req, res) => {
     try {
-        const { title, message, url, image_url, icon_url, segments } = req.body;
+        const { title, message, url, image_url, image, icon_url, segments } = req.body;
 
         if (!title || !title.trim()) {
             return res.status(400).json({ success: false, error: 'Notification title is required.' });
@@ -1845,7 +1852,7 @@ app.post('/api/admin/push-notifications/send', authMiddleware, isAdmin, async (r
             title: title.trim(),
             message: message.trim(),
             url: url || 'https://selectt.in',
-            imageUrl: image_url || null,
+            imageUrl: image_url || image || null,
             iconUrl: icon_url || null,
             segments: segments || ['Total Subscriptions'],
             type: 'custom'
@@ -1854,7 +1861,8 @@ app.post('/api/admin/push-notifications/send', authMiddleware, isAdmin, async (r
         res.json({
             success: true,
             message: `Push notification sent successfully to ${result.recipients || 'all'} subscribers!`,
-            result
+            result,
+            recipients: result.recipients || 0
         });
     } catch (err) {
         console.error('Send Push Notification Error:', err);
@@ -1863,14 +1871,14 @@ app.post('/api/admin/push-notifications/send', authMiddleware, isAdmin, async (r
 });
 
 // 5. Get Notification History
-app.get('/api/admin/push-notifications/history', authMiddleware, isAdmin, async (req, res) => {
+app.get(['/api/admin/push-notifications/history', '/api/admin/onesignal/history'], authMiddleware, isAdmin, async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 50;
         const offset = parseInt(req.query.offset) || 0;
         const type = req.query.type || null;
 
         const history = await onesignal.getHistory({ limit, offset, type });
-        res.json({ success: true, history });
+        res.json({ success: true, history, notifications: history });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

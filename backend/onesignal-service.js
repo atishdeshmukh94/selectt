@@ -103,7 +103,7 @@ class OneSignalService {
           resolve({
             enabled: map.onesignal_enabled === 'true' || map.onesignal_enabled === '1',
             appId: (map.onesignal_app_id || '').trim(),
-            restApiKey: (map.onesignal_rest_api_key || '').trim(),
+            restApiKey: (map.onesignal_rest_api_key || map.onesignal_api_key || '').trim(),
             autoNewCar: map.onesignal_auto_new_car !== 'false' && map.onesignal_auto_new_car !== '0',
             newCarTitle: map.onesignal_new_car_title || '🚗 New Arrival: {year} {make} {model}',
             newCarMessage:

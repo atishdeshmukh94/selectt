@@ -551,10 +551,11 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
       setTestingOneSignal(true);
       setOneSignalTestResult(null);
       const token = localStorage.getItem("adminToken");
+      const apiKey = settings.onesignal_api_key || settings.onesignal_rest_api_key;
       const res = await fetch(`${API_URL}/api/admin/onesignal/test-connection`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ app_id: settings.onesignal_app_id, api_key: settings.onesignal_api_key })
+        body: JSON.stringify({ app_id: settings.onesignal_app_id, api_key: apiKey, rest_api_key: apiKey })
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -581,16 +582,19 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
       setOneSignalSending(true);
       setOneSignalBroadcastResult(null);
       const token = localStorage.getItem("adminToken");
+      const apiKey = settings.onesignal_api_key || settings.onesignal_rest_api_key;
       const res = await fetch(`${API_URL}/api/admin/onesignal/broadcast`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           app_id: settings.onesignal_app_id,
-          api_key: settings.onesignal_api_key,
+          api_key: apiKey,
+          rest_api_key: apiKey,
           title: oneSignalTitle,
           message: oneSignalMessage,
           url: oneSignalUrl || undefined,
-          image: oneSignalImage || undefined
+          image: oneSignalImage || undefined,
+          image_url: oneSignalImage || undefined
         })
       });
       const data = await res.json();
@@ -614,12 +618,13 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
     try {
       setLoadingOneSignalHistory(true);
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(`${API_URL}/api/admin/onesignal/history?app_id=${settings.onesignal_app_id}&api_key=${settings.onesignal_api_key}`, {
+      const apiKey = settings.onesignal_api_key || settings.onesignal_rest_api_key;
+      const res = await fetch(`${API_URL}/api/admin/onesignal/history?app_id=${settings.onesignal_app_id}&api_key=${apiKey}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setOneSignalHistory(data.notifications || []);
+        setOneSignalHistory(data.notifications || data.history || []);
       } else {
         toast.error(data.error || "Failed to load history");
       }
@@ -631,7 +636,15 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
   };
 
   const handleChange = (key: string, value: string) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
+    setSettings((prev) => {
+      const updated = { ...prev, [key]: value };
+      if (key === "onesignal_api_key") {
+        updated.onesignal_rest_api_key = value;
+      } else if (key === "onesignal_rest_api_key") {
+        updated.onesignal_api_key = value;
+      }
+      return updated;
+    });
   };
 
   if (loading) return (
@@ -3487,7 +3500,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
                       <Input
                         type={showOneSignalApiKey ? "text" : "password"}
                         placeholder="••••••••••••••••••••••"
-                        value={settings.onesignal_api_key || ""}
+                        value={settings.onesignal_api_key || settings.onesignal_rest_api_key || ""}
                         onChange={(e) => handleChange("onesignal_api_key", e.target.value)}
                       />
                       <button
@@ -3563,7 +3576,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
                   <button
                     type="button"
                     onClick={handleTestOneSignal}
-                    disabled={testingOneSignal || !settings.onesignal_app_id || !settings.onesignal_api_key}
+                    disabled={testingOneSignal || !settings.onesignal_app_id || (!settings.onesignal_api_key && !settings.onesignal_rest_api_key)}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-semibold transition-all"
                   >
                     <Zap className="w-4 h-4" />
