@@ -290,7 +290,7 @@ export const PremiumHeader: React.FC = () => {
     if (filters.certification) params.set('certification', filters.certification);
     if (filters.budget) params.set('budget', filters.budget);
     if (filters.budget_min) params.set('budget_min', String(filters.budget_min));
-    if (filters.budget_max && filters.budget_max < 25) params.set('budget_max', String(filters.budget_max));
+    if (filters.budget_max && filters.budget_max <= 35) params.set('budget_max', String(filters.budget_max));
     if (filters.searchQuery) params.set('search', filters.searchQuery);
 
     const queryString = params.toString();
@@ -683,13 +683,10 @@ export const PremiumHeader: React.FC = () => {
             </button>
             <div className={styles.dropdownMenu}>
               {[
-                { label: 'Under 3 Lakh', query: { budget: 'Under 3 L', budget_max: 3 } },
-                { label: '3 - 4 Lakh', query: { budget: '3 - 4 Lakh', budget_min: 3, budget_max: 4 } },
-                { label: '4 - 5 Lakh', query: { budget: '4 - 5 Lakh', budget_min: 4, budget_max: 5 } },
-                { label: '5 - 6 Lakh', query: { budget: '5 - 6 Lakh', budget_min: 5, budget_max: 6 } },
-                { label: '6 - 8 Lakh', query: { budget: '6 - 8 Lakh', budget_min: 6, budget_max: 8 } },
-                { label: '8 - 10 Lakh', query: { budget: '8 - 10 Lakh', budget_min: 8, budget_max: 10 } },
-                { label: 'Above 10 Lakh', query: { budget: 'Above 10 L', budget_min: 10 } }
+                { label: 'Under 10 L', query: { budget: 'Under 10 L', budget_max: 10 } },
+                { label: '10 - 20 Lakhs', query: { budget: '10 - 20 Lakhs', budget_min: 10, budget_max: 20 } },
+                { label: '20 - 30 Lakhs', query: { budget: '20 - 30 Lakhs', budget_min: 20, budget_max: 30 } },
+                { label: '30 Lakhs +', query: { budget: '30 Lakhs +', budget_min: 30 } }
               ].map((opt, i) => (
                 <button key={i} onClick={() => handleNavFilter(opt.query)}>
                   {opt.label}
@@ -733,7 +730,6 @@ export const PremiumHeader: React.FC = () => {
                       const visibleModels = isExpanded ? brandModels : brandModels.slice(0, MODEL_LIMIT);
                       const hasMore = brandModels.length > MODEL_LIMIT;
                       const logoSrc = resolveBrandLogo(brand.logo_url);
-                      const totalBrandCount = brand.totalCount || brandModels.reduce((acc: number, m: any) => acc + (typeof m === 'object' && m.count ? m.count : 1), 0);
 
                       return (
                         <div key={brandKey} className={styles.makeModelCard}>
@@ -746,20 +742,7 @@ export const PremiumHeader: React.FC = () => {
                             title={`Filter cars by ${brand.name}`}
                           >
                             <div className={styles.brandTitleLeft}>
-                              {logoSrc && (
-                                <img
-                                  src={logoSrc}
-                                  alt={brand.name}
-                                  className={styles.brandLogoThumb}
-                                  onError={(e) => {
-                                    (e.currentTarget as HTMLElement).style.display = 'none';
-                                  }}
-                                />
-                              )}
                               <span className={styles.brandTitleText}>{brand.name}</span>
-                              {totalBrandCount > 0 && (
-                                <span className={styles.brandStockBadge}>{totalBrandCount}</span>
-                              )}
                             </div>
                             <IconChevronRight size={12} className={styles.brandArrowIcon} />
                           </button>
@@ -768,7 +751,6 @@ export const PremiumHeader: React.FC = () => {
                             <ul className={styles.makeModelList}>
                               {visibleModels.map((m: any) => {
                                 const modelName = typeof m === 'string' ? m : m.name;
-                                const modelCount = typeof m === 'object' && m.count ? m.count : null;
                                 return (
                                   <li key={modelName}>
                                     <button
@@ -776,13 +758,10 @@ export const PremiumHeader: React.FC = () => {
                                         setMakeModelMenuOpen(false);
                                         handleNavFilter({ brands: [brand.name], models: [modelName] });
                                       }}
-                                      title={`${brand.name} ${modelName}${modelCount ? ` (${modelCount} available)` : ''}`}
+                                      title={`${brand.name} ${modelName}`}
                                       className={styles.modelItemBtn}
                                     >
                                       <span className={styles.modelNameSpan}>{modelName}</span>
-                                      {modelCount && (
-                                        <span className={styles.modelCountBadge}>({modelCount})</span>
-                                      )}
                                     </button>
                                   </li>
                                 );
@@ -831,14 +810,12 @@ export const PremiumHeader: React.FC = () => {
             </button>
             <div className={styles.dropdownMenu}>
               {[
+                { label: '2025 & above', query: { year_min: 2025 } },
                 { label: '2024 & above', query: { year_min: 2024 } },
                 { label: '2022 & above', query: { year_min: 2022 } },
                 { label: '2020 & above', query: { year_min: 2020 } },
                 { label: '2018 & above', query: { year_min: 2018 } },
-                { label: '2016 & above', query: { year_min: 2016 } },
-                { label: '2014 & above', query: { year_min: 2014 } },
-                { label: '2012 & above', query: { year_min: 2012 } },
-                { label: '2010 & above', query: { year_min: 2010 } }
+                { label: '2015 & above', query: { year_min: 2015 } }
               ].map((opt, i) => (
                 <button key={i} onClick={() => handleNavFilter(opt.query)}>
                   {opt.label}

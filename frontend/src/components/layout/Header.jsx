@@ -235,21 +235,8 @@ const Header = () => {
                     }}
                     className="text-[13.5px] font-bold text-white pb-1.5 mb-1.5 border-b border-white/10 flex items-center justify-between hover:text-[#00C9AF] transition-colors"
                   >
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      {logoSrc && (
-                        <img
-                          src={logoSrc}
-                          alt={brand.name}
-                          className="w-5 h-5 object-contain shrink-0"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                      )}
+                    <div className="flex items-center min-w-0 flex-1">
                       <span className="truncate max-w-[150px]">{brand.name}</span>
-                      {totalBrandCount > 0 && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#00C9AF]/20 text-[#00C9AF] ml-auto mr-1">
-                          {totalBrandCount}
-                        </span>
-                      )}
                     </div>
                     <ChevronRight size={13} className="opacity-60 flex-shrink-0" />
                   </button>
@@ -258,7 +245,6 @@ const Header = () => {
                     <div className="flex flex-col space-y-[2px] flex-1">
                       {visibleModels.map((m) => {
                         const modelName = typeof m === 'string' ? m : m.name;
-                        const modelCount = typeof m === 'object' && m.count ? m.count : null;
                         return (
                           <button
                             key={modelName}
@@ -269,9 +255,6 @@ const Header = () => {
                             className="text-[12px] text-slate-300 hover:text-[#00C9AF] hover:bg-white/5 px-1 py-[2px] rounded text-left transition-colors flex items-center justify-between"
                           >
                             <span className="truncate">{modelName}</span>
-                            {modelCount && (
-                              <span className="text-[10.5px] text-slate-400 font-semibold ml-auto pl-1">({modelCount})</span>
-                            )}
                           </button>
                         );
                       })}
@@ -499,13 +482,10 @@ const Header = () => {
             <PurpDropdown
               title="Price Range"
               options={[
-                { label: 'Under 3 Lakh', query: { budget: 'Under 3 L' } },
-                { label: '3 - 4 Lakh', query: { budget_max: 4 } },
-                { label: '4 - 5 Lakh', query: { budget_max: 5 } },
-                { label: '5 - 6 Lakh', query: { budget_max: 6 } },
-                { label: '6 - 8 Lakh', query: { budget_max: 8 } },
-                { label: '8 - 10 Lakh', query: { budget_max: 10 } },
-                { label: 'Above 10 Lakh', query: { budget: '10 L +' } }
+                { label: 'Under 10 L', query: { budget: 'Under 10 L', budget_max: 10 } },
+                { label: '10 - 20 Lakhs', query: { budget: '10 - 20 Lakhs', budget_min: 10, budget_max: 20 } },
+                { label: '20 - 30 Lakhs', query: { budget: '20 - 30 Lakhs', budget_min: 20, budget_max: 30 } },
+                { label: '30 Lakhs +', query: { budget: '30 Lakhs +', budget_min: 30 } }
               ]}
             />
 
@@ -514,14 +494,12 @@ const Header = () => {
             <PurpDropdown
               title="Year"
               options={[
+                { label: '2025 & above', query: { year_min: 2025 } },
                 { label: '2024 & above', query: { year_min: 2024 } },
                 { label: '2022 & above', query: { year_min: 2022 } },
                 { label: '2020 & above', query: { year_min: 2020 } },
                 { label: '2018 & above', query: { year_min: 2018 } },
-                { label: '2016 & above', query: { year_min: 2016 } },
-                { label: '2014 & above', query: { year_min: 2014 } },
-                { label: '2012 & above', query: { year_min: 2012 } },
-                { label: '2010 & above', query: { year_min: 2010 } }
+                { label: '2015 & above', query: { year_min: 2015 } }
               ]}
             />
 
