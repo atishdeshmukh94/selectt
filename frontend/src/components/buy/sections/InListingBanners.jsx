@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Sparkles, ShieldCheck, ChevronRight } from 'lucide-react';
 import { API_URL } from '../../../config/api';
 
@@ -68,23 +69,45 @@ export const ExtraPromoCard = ({ data, logoUrl, btnLink, isActive, title = "Prom
 
   const link = btnLink || data?.extra_card_btn_link || "#";
   const imgUrl = logoUrl || data?.extra_card_logo_url;
+  const isInternal = typeof link === 'string' && link.startsWith('/') && !link.startsWith('//');
 
-  return (
-    <a
-      href={link}
-      className="rounded-[20px] overflow-hidden hover:scale-[1.03] transition-all duration-500 block w-full h-full relative border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.25)] min-h-[350px] bg-slate-950 group"
-    >
+  const cardContent = (
+    <div className="w-full h-full relative">
       {imgUrl ? (
         <img
           src={imgUrl.startsWith('/') ? `${API_URL}${imgUrl}` : imgUrl}
           alt={title || "Promo Banner"}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-white/55 font-bold uppercase tracking-wider text-xs bg-gradient-to-br from-[#0c1b33] to-[#1a3357]">
+        <div className="w-full h-full min-h-[350px] flex items-center justify-center text-white/55 font-bold uppercase tracking-wider text-xs bg-gradient-to-br from-[#0c1b33] to-[#1a3357]">
           No Banner Image Uploaded
         </div>
       )}
-    </a>
+    </div>
+  );
+
+  return (
+    <div className="w-full h-full min-h-[340px] max-h-[380px] aspect-[434/440] sm:aspect-auto flex">
+      {isInternal ? (
+        <Link
+          to={link}
+          className="rounded-[20px] overflow-hidden hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 block w-full h-full relative border border-slate-200/80 shadow-md bg-slate-950 group"
+        >
+          {cardContent}
+        </Link>
+      ) : (
+        <a
+          href={link}
+          target={link && link.startsWith('http') ? '_blank' : undefined}
+          rel={link && link.startsWith('http') ? 'noopener noreferrer' : undefined}
+          className="rounded-[20px] overflow-hidden hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 block w-full h-full relative border border-slate-200/80 shadow-md bg-slate-950 group"
+        >
+          {cardContent}
+        </a>
+      )}
+    </div>
   );
 };
+

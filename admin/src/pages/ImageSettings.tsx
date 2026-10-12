@@ -276,6 +276,7 @@ interface ImageSlotConfig {
   defaultLink?: string;
   hasVisibility?: boolean;
   visibilityKey?: string;
+  aspectRatio?: string;
 }
 
 // 1. BRAND LOGOS & IDENTITY
@@ -413,7 +414,8 @@ const BUY_CARS_SLOTS: ImageSlotConfig[] = [
     type: "site_setting",
     title: "In-Grid Banner Card #1 (Row 1, Slot 3)",
     placement: "Vehicle Catalog Grid > Slot #1",
-    recommendedSize: "400 × 500 px (4:5 Aspect Ratio)",
+    recommendedSize: "434 × 440 px (4:3.5 Ratio)",
+    aspectRatio: "aspect-[434/440]",
     description: "First promotional banner displayed seamlessly between car cards in the search catalog.",
     defaultPlaceholder: "https://api.selectt.in/uploads/extra_card_logo_url-1788683817835-117282823.webp",
     hasLink: true,
@@ -427,7 +429,8 @@ const BUY_CARS_SLOTS: ImageSlotConfig[] = [
     type: "site_setting",
     title: "In-Grid Banner Card #2 (3 Rows After Banner #1)",
     placement: "Vehicle Catalog Grid > Slot #2",
-    recommendedSize: "400 × 500 px (4:5 Aspect Ratio)",
+    recommendedSize: "434 × 440 px (4:3.5 Ratio)",
+    aspectRatio: "aspect-[434/440]",
     description: "Second promotional banner card shown 3 lines (9 cars) after Banner #1.",
     defaultPlaceholder: "https://selectt.in/img/insurance_banner_1to1.webp",
     hasLink: true,
@@ -441,7 +444,8 @@ const BUY_CARS_SLOTS: ImageSlotConfig[] = [
     type: "site_setting",
     title: "In-Grid Banner Card #3 (3 Rows After Banner #2)",
     placement: "Vehicle Catalog Grid > Slot #3",
-    recommendedSize: "400 × 500 px (4:5 Aspect Ratio)",
+    recommendedSize: "434 × 440 px (4:3.5 Ratio)",
+    aspectRatio: "aspect-[434/440]",
     description: "Third promotional banner card shown 3 lines (9 cars) after Banner #2.",
     defaultPlaceholder: "https://selectt.in/img/sell_car_banner.webp",
     hasLink: true,
@@ -2314,7 +2318,7 @@ export default function ImageSettings() {
 
                         {/* Image Preview Box */}
                         <div
-                          className={`relative w-full aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-gray-800 mb-4 flex items-center justify-center group ${
+                          className={`relative w-full ${slot.aspectRatio || "aspect-video"} rounded-xl overflow-hidden border border-slate-200 dark:border-gray-800 mb-4 flex items-center justify-center group ${
                             slot.isDarkBackground || slot.key === "header_logo" || slot.key === "auth_logo"
                               ? "bg-[#0C1B33]"
                               : "bg-slate-100 dark:bg-gray-800/80"
@@ -2325,7 +2329,7 @@ export default function ImageSettings() {
                               <img
                                 src={resolvedImg}
                                 alt={slot.title}
-                                className="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+                                className={`w-full h-full ${slot.aspectRatio ? "object-contain p-1" : "object-contain p-2"} transition-transform duration-300 group-hover:scale-105`}
                                 onError={(e: any) => {
                                   e.currentTarget.src = slot.defaultPlaceholder;
                                 }}
