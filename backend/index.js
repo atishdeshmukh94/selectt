@@ -5178,6 +5178,7 @@ app.get('/api/settings/public', (req, res) => {
             booking_special_title: settings.booking_special_title || "Reserve till Navratri",
             booking_special_amount: settings.booking_special_amount || "25000",
             booking_special_date: settings.booking_special_date || "Sun, 11 Oct",
+            careers_post_section_title: settings.careers_post_section_title || "Current Openings",
             booking_special_subtext: settings.booking_special_subtext || "Car held for you till Sun, 11 Oct",
             booking_special_learn_more: settings.booking_special_learn_more || "Guaranteed vehicle reservation with extended festival holding period. 100% refundable token deposit with priority inspection & delivery.",
             booking_standard_title: settings.booking_standard_title || "Standard booking",
