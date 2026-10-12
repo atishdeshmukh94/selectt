@@ -153,7 +153,12 @@ function MainLayout() {
 }
 
 function LoadingFallback() {
-  return <VideoPreloader fullScreen={true} />;
+  return (
+    <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 bg-transparent">
+      <div className="w-10 h-10 border-3 border-[#00C9AF]/20 border-t-[#00C9AF] rounded-full animate-spin mb-3" />
+      <span className="text-xs font-bold text-slate-400 tracking-wider uppercase">Loading...</span>
+    </div>
+  );
 }
 
 function App() {
@@ -203,7 +208,7 @@ function App() {
 
   return (
     <Router>
-      <PagePreloader minDisplayTime={1800} />
+      <PagePreloader minDisplayTime={900} />
       <ScrollToTop />
       <VisitorTracker />
       <SiteSettingsProvider>

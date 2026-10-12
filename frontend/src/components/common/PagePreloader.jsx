@@ -38,8 +38,24 @@ export default function PagePreloader({ minDisplayTime = 2200 }) {
     setIsVisible(false);
     setTimeout(() => {
       setShouldRender(false);
-    }, 450);
+      try {
+        document.body.style.overflow = '';
+      } catch (_) {}
+    }, 350);
   };
+
+  // Lock body scroll while preloader is active so user cannot scroll background blind
+  useEffect(() => {
+    if (!shouldRender || !isVisible) {
+      document.body.style.overflow = '';
+      return;
+    }
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [shouldRender, isVisible]);
 
   useEffect(() => {
     if (shouldSkip) return;
@@ -66,6 +82,11 @@ export default function PagePreloader({ minDisplayTime = 2200 }) {
       dismiss();
     }, minDisplayTime);
 
+    // Guaranteed hard safety timeout so preloader NEVER gets stuck
+    const hardSafetyTimer = setTimeout(() => {
+      dismiss();
+    }, 1400);
+
     const handleKey = (e) => {
       if (e.key === 'Escape') dismiss();
     };
@@ -73,6 +94,7 @@ export default function PagePreloader({ minDisplayTime = 2200 }) {
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(hardSafetyTimer);
       window.removeEventListener('keydown', handleKey);
       if (animInstanceRef.current) {
         animInstanceRef.current.destroy();
@@ -85,6 +107,7 @@ export default function PagePreloader({ minDisplayTime = 2200 }) {
   return (
     <div
       onClick={dismiss}
+      onTouchStart={dismiss}
       style={{
         backgroundColor: '#000000',
         position: 'fixed',
@@ -98,15 +121,16 @@ export default function PagePreloader({ minDisplayTime = 2200 }) {
         margin: 0,
         padding: 0,
         overflow: 'hidden',
+        touchAction: 'none',
       }}
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black transition-opacity duration-500 ease-out cursor-pointer select-none ${
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black transition-opacity duration-300 ease-out cursor-pointer select-none ${
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
       <div className="relative flex flex-col items-center justify-center w-full h-full p-4 sm:p-6">
         <div
           ref={containerRef}
-          className="w-full max-w-[360px] sm:max-w-[480px] md:max-w-[580px] aspect-[16/9] flex items-center justify-center overflow-hidden"
+          className="w-full max-w-[360px] sm:max-w-[480px] md:max-w-[580px] aspect-[16/9] flex items-center justify-center overflow-hidden pointer-events-none"
         />
       </div>
     </div>

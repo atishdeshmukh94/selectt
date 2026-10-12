@@ -6,7 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 
 const PWAInstallPrompt = () => {
   const location = useLocation();
-  const { isLoginModalOpen } = useAuth();
+  const { isLoginModalOpen, user, token } = useAuth();
+  const isUserLoggedIn = Boolean(user || token || (typeof window !== 'undefined' && localStorage.getItem('customerToken')));
   const [deferredPrompt, setDeferredPrompt] = useState(() => {
     if (typeof window !== 'undefined' && window.__pwaInstallPrompt) {
       return window.__pwaInstallPrompt;
@@ -28,7 +29,7 @@ const PWAInstallPrompt = () => {
   // Helper to check if any other modal / popup / login overlay is currently active
   const isAnyOtherModalActive = useCallback(() => {
     if (typeof document === 'undefined') return false;
-    if (isLoginModalOpen) return true;
+    if (isLoginModalOpen || isUserLoggedIn) return true;
 
     // Route check: Never interrupt users on checkout or auth flows
     if (location.pathname.startsWith('/checkout')) return true;
@@ -49,11 +50,13 @@ const PWAInstallPrompt = () => {
     }
 
     return false;
-  }, [isLoginModalOpen, location.pathname, showPrompt]);
+  }, [isLoginModalOpen, isUserLoggedIn, location.pathname, showPrompt]);
 
-  // Helper to check if PWA is already installed or dismissed within 30 mins
+  // Helper to check if PWA is already installed, user is logged in, or dismissed within 1 hour snooze
   const isInstalledOrCooldown = useCallback(() => {
     if (typeof window === 'undefined') return true;
+    if (isUserLoggedIn) return true;
+
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       window.navigator.standalone === true ||
@@ -67,7 +70,7 @@ const PWAInstallPrompt = () => {
     }
 
     return false;
-  }, []);
+  }, [isUserLoggedIn]);
 
   // Global listeners for beforeinstallprompt & appinstalled events
   useEffect(() => {
@@ -169,12 +172,12 @@ const PWAInstallPrompt = () => {
   const handleDismiss = () => {
     setShowPrompt(false);
     setShowManualGuide(false);
-    // 30 minute cooldown across all pages for this visitor
-    const thirtyMinutesLater = Date.now() + 30 * 60 * 1000;
-    localStorage.setItem('selectt_pwa_dismissed_until', String(thirtyMinutesLater));
+    // 1 hour snooze cooldown across all pages so visitor is not interrupted repeatedly
+    const oneHourLater = Date.now() + 60 * 60 * 1000;
+    localStorage.setItem('selectt_pwa_dismissed_until', String(oneHourLater));
   };
 
-  if (isInstalled || !showPrompt || isLoginModalOpen || isAnyOtherModalActive()) {
+  if (isInstalled || isUserLoggedIn || !showPrompt || isLoginModalOpen || isAnyOtherModalActive()) {
     return null;
   }
 

@@ -20,7 +20,7 @@ const ScrollToTop = () => {
     }
   }, []);
 
-  const resetScroll = () => {
+  const resetScroll = (force = true) => {
     if (typeof window === 'undefined') return;
 
     // If navigating to a specific hash anchor on the page, let browser target it
@@ -32,6 +32,11 @@ const ScrollToTop = () => {
           return;
         }
       } catch (_) {}
+    }
+
+    // If this is a delayed backup check and user has already started scrolling, DO NOT fight the user!
+    if (!force && window.scrollY > 0) {
+      return;
     }
 
     // Force instant scroll to top on window, documentElement and body
@@ -54,19 +59,20 @@ const ScrollToTop = () => {
   };
 
   useLayoutEffect(() => {
-    resetScroll();
+    resetScroll(true);
 
     // Multi-phase backup: React Suspense / lazy loading can expand DOM height 50ms-150ms after route change
-    const frameId = requestAnimationFrame(resetScroll);
-    const timer1 = setTimeout(resetScroll, 50);
-    const timer2 = setTimeout(resetScroll, 150);
+    // Only execute if user hasn't already scrolled
+    const frameId = requestAnimationFrame(() => resetScroll(false));
+    const timer1 = setTimeout(() => resetScroll(false), 50);
+    const timer2 = setTimeout(() => resetScroll(false), 150);
 
     return () => {
       cancelAnimationFrame(frameId);
       clearTimeout(timer1);
       clearTimeout(timer2);
     };
-  }, [pathname, search, hash]);
+  }, [pathname, hash]);
 
   return null;
 };
