@@ -347,8 +347,10 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
     try {
       setSaving(true);
       const response = await fetch(`${API_URL}/api/settings`, {
@@ -653,6 +655,7 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
             { id: "whatsapp", label: "💬 WhatsApp API" },
             { id: "whatsapp_chat", label: "🟢 WhatsApp Chat Button" },
             { id: "crm", label: "🚀 Neodove CRM" },
+            { id: "onesignal", label: "🔔 OneSignal Push API" },
             { id: "maintenance", label: "🚧 Maintenance Mode" },
             { id: "branding", label: "🎨 Brand Logos & OG Image" },
           ].map((tab) => (
@@ -3451,6 +3454,261 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
             </ComponentCard>
           </div>
         )}
+
+        {activeSection === "onesignal" && (
+          <div className="space-y-6">
+
+            {/* ── Card 1: App Credentials ── */}
+            <ComponentCard title="🔔 OneSignal Push Notification API">
+              <div className="space-y-5">
+                <div className="flex items-start gap-3 p-4 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-xl">
+                  <Bell className="w-5 h-5 text-indigo-500 mt-0.5 shrink-0" />
+                  <div className="text-xs text-indigo-700 dark:text-indigo-300">
+                    <p className="font-bold mb-1">OneSignal Web Push Notifications</p>
+                    <p>Send real-time push notifications to all website subscribers directly from the admin panel. Get your App ID and REST API Key from <a href="https://app.onesignal.com" target="_blank" rel="noreferrer" className="underline font-semibold">app.onesignal.com</a>.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <Label>OneSignal App ID</Label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. a3377d9a-64ff-4d51-ad12-d624f704ae4f"
+                      value={settings.onesignal_app_id || ""}
+                      onChange={(e) => handleChange("onesignal_app_id", e.target.value)}
+                    />
+                    <p className="mt-1 text-xs text-gray-500">Found in OneSignal → Settings → Keys & IDs</p>
+                  </div>
+
+                  <div>
+                    <Label>REST API Key</Label>
+                    <div className="relative">
+                      <Input
+                        type={showOneSignalApiKey ? "text" : "password"}
+                        placeholder="••••••••••••••••••••••"
+                        value={settings.onesignal_api_key || ""}
+                        onChange={(e) => handleChange("onesignal_api_key", e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowOneSignalApiKey(!showOneSignalApiKey)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showOneSignalApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">REST API Key from OneSignal → Settings → Keys & IDs</p>
+                  </div>
+                </div>
+
+                {/* Enable Toggle */}
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/60 rounded-xl border border-gray-200 dark:border-gray-800">
+                  <input
+                    type="checkbox"
+                    id="onesignal_enabled"
+                    checked={settings.onesignal_enabled === "true"}
+                    onChange={(e) => handleChange("onesignal_enabled", e.target.checked ? "true" : "false")}
+                    className="w-4 h-4 rounded accent-indigo-600"
+                  />
+                  <label htmlFor="onesignal_enabled" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                    Enable OneSignal Push Notifications on frontend
+                  </label>
+                </div>
+
+                {/* Auto-trigger toggles */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/60 rounded-xl border border-gray-200 dark:border-gray-800">
+                    <input
+                      type="checkbox"
+                      id="onesignal_auto_new_car"
+                      checked={settings.onesignal_auto_new_car === "true"}
+                      onChange={(e) => handleChange("onesignal_auto_new_car", e.target.checked ? "true" : "false")}
+                      className="w-4 h-4 rounded accent-indigo-600"
+                    />
+                    <label htmlFor="onesignal_auto_new_car" className="text-xs font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                      🚗 Auto-notify when new car is added to inventory
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/60 rounded-xl border border-gray-200 dark:border-gray-800">
+                    <input
+                      type="checkbox"
+                      id="onesignal_auto_price_drop"
+                      checked={settings.onesignal_auto_price_drop === "true"}
+                      onChange={(e) => handleChange("onesignal_auto_price_drop", e.target.checked ? "true" : "false")}
+                      className="w-4 h-4 rounded accent-indigo-600"
+                    />
+                    <label htmlFor="onesignal_auto_price_drop" className="text-xs font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                      💰 Auto-notify when car price drops
+                    </label>
+                  </div>
+                </div>
+
+                {settings.onesignal_auto_price_drop === "true" && (
+                  <div className="max-w-xs">
+                    <Label>Minimum Price Drop to Trigger (₹)</Label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 5000"
+                      value={settings.onesignal_price_drop_min || "5000"}
+                      onChange={(e) => handleChange("onesignal_price_drop_min", e.target.value)}
+                    />
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <Button type="button" onClick={handleSave} disabled={saving}>
+                    {saving ? "Saving..." : "💾 Save Settings"}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={handleTestOneSignal}
+                    disabled={testingOneSignal || !settings.onesignal_app_id || !settings.onesignal_api_key}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-semibold transition-all"
+                  >
+                    <Zap className="w-4 h-4" />
+                    {testingOneSignal ? "Testing..." : "Test Connection"}
+                  </button>
+                </div>
+
+                {oneSignalTestResult && (
+                  <div className={`flex items-start gap-3 p-4 rounded-xl border text-sm ${
+                    oneSignalTestResult.success
+                      ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
+                      : "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300"
+                  }`}>
+                    {oneSignalTestResult.success ? <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 shrink-0 mt-0.5" />}
+                    <div>
+                      <p className="font-bold">{oneSignalTestResult.success ? "✅ Connected" : "❌ Failed"}</p>
+                      {oneSignalTestResult.appName && <p>App: <strong>{oneSignalTestResult.appName}</strong></p>}
+                      {oneSignalTestResult.subscribers !== undefined && <p>Subscribers: <strong>{oneSignalTestResult.subscribers.toLocaleString()}</strong></p>}
+                      <p className="text-xs mt-1 opacity-80">{oneSignalTestResult.message}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ComponentCard>
+
+            {/* ── Card 2: Send Broadcast Notification ── */}
+            <ComponentCard title="📢 Send Push Notification Broadcast">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Notification Title *</Label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. 🚗 New Car Added!"
+                      value={oneSignalTitle}
+                      onChange={(e) => setOneSignalTitle(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Click URL (optional)</Label>
+                    <Input
+                      type="url"
+                      placeholder="https://selectt.in/cars"
+                      value={oneSignalUrl}
+                      onChange={(e) => setOneSignalUrl(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Message *</Label>
+                  <textarea
+                    rows={3}
+                    placeholder="Enter your push notification message here..."
+                    value={oneSignalMessage}
+                    onChange={(e) => setOneSignalMessage(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                  />
+                </div>
+
+                <div>
+                  <Label>Image URL (optional)</Label>
+                  <Input
+                    type="url"
+                    placeholder="https://api.selectt.in/uploads/car.jpg"
+                    value={oneSignalImage}
+                    onChange={(e) => setOneSignalImage(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleBroadcastOneSignal}
+                  disabled={oneSignalSending || !oneSignalTitle.trim() || !oneSignalMessage.trim()}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-bold transition-all shadow-sm"
+                >
+                  <Send className="w-4 h-4" />
+                  {oneSignalSending ? "Sending..." : "📢 Send to All Subscribers"}
+                </button>
+
+                {oneSignalBroadcastResult && (
+                  <div className={`flex items-start gap-3 p-4 rounded-xl border text-sm ${
+                    oneSignalBroadcastResult.success
+                      ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
+                      : "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300"
+                  }`}>
+                    {oneSignalBroadcastResult.success ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <XCircle className="w-5 h-5 shrink-0" />}
+                    <div>
+                      <p className="font-bold">{oneSignalBroadcastResult.success ? "✅ Notification Sent!" : "❌ Failed"}</p>
+                      {oneSignalBroadcastResult.recipients !== undefined && (
+                        <p>Delivered to <strong>{oneSignalBroadcastResult.recipients.toLocaleString()}</strong> subscribers</p>
+                      )}
+                      <p className="text-xs mt-1 opacity-80">{oneSignalBroadcastResult.message}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ComponentCard>
+
+            {/* ── Card 3: Notification History ── */}
+            <ComponentCard title="📋 Recent Push Notification History">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-500">Last 10 notifications sent via OneSignal</p>
+                  <button
+                    type="button"
+                    onClick={loadOneSignalHistory}
+                    disabled={loadingOneSignalHistory || !settings.onesignal_app_id}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 text-gray-700 dark:text-gray-300 text-xs font-semibold transition-all"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loadingOneSignalHistory ? "animate-spin" : ""}`} />
+                    {loadingOneSignalHistory ? "Loading..." : "Load History"}
+                  </button>
+                </div>
+
+                {oneSignalHistory.length === 0 ? (
+                  <div className="text-center py-10 text-gray-400">
+                    <Bell className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                    <p className="text-sm">No history loaded. Click "Load History" to fetch recent notifications.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {oneSignalHistory.map((n: any) => (
+                      <div key={n.id} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-900/60 rounded-xl border border-gray-200 dark:border-gray-800">
+                        <Bell className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+                            {n.headings?.en || "(No title)"}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">{n.contents?.en || ""}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-xs font-bold text-emerald-600">{n.successful?.toLocaleString() ?? "–"} sent</p>
+                          <p className="text-[10px] text-gray-400">{n.completed_at ? new Date(n.completed_at * 1000).toLocaleDateString() : ""}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </ComponentCard>
+
+          </div>
+        )}
+
       </div>
     </div>
     </>
