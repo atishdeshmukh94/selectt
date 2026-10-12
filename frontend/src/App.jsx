@@ -11,6 +11,7 @@ import PWAInstallPrompt from './components/common/PWAInstallPrompt';
 import PagePreloader from './components/common/PagePreloader';
 import VideoPreloader from './components/common/VideoPreloader';
 import ScrollToTop from './components/common/ScrollToTop';
+import OneSignalInit from './components/common/OneSignalInit';
 import { useVisitorTracker } from './hooks/useVisitorTracker';
 import { API_URL } from './config/api';
 
@@ -206,6 +207,7 @@ function App() {
       <ScrollToTop />
       <VisitorTracker />
       <SiteSettingsProvider>
+        <OneSignalInit />
         <ToastProvider>
           <AuthProvider>
             <div className="font-sans antialiased text-slate-900 dark:text-slate-100 bg-background-light dark:bg-background-dark min-h-screen">
