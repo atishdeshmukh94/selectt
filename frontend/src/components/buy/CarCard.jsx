@@ -319,15 +319,6 @@ const CarCard = ({ car, lightBg = false }) => {
             </div>
           )}
 
-          {/* Booked Overlay */}
-          {car.status === 'booked' && (
-            <div className="absolute inset-0 bg-slate-950/35 backdrop-blur-[0.5px] flex items-center justify-center z-10 pointer-events-none">
-              <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black px-3.5 py-1.5 rounded-xl text-[10.5px] uppercase tracking-wider shadow-2xl border border-amber-300 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-slate-950 animate-pulse" />
-                <span>Booked</span>
-              </div>
-            </div>
-          )}
 
           {/* Coming Soon Badge Overlay */}
           {car.status === 'coming_soon' && (
