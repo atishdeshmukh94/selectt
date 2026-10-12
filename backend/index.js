@@ -272,6 +272,10 @@ db.query("UPDATE coupons SET applies_to = 'car_price' WHERE (min_order_amount >=
     if (!err) console.log("✅ [Coupons] Auto-migrated car price coupons to applies_to = 'car_price'");
 });
 
+// OneSignal Web Push Notification Service
+const OneSignalService = require('./onesignal-service');
+const onesignal = new OneSignalService(db);
+
 // Global Site Setting Lookup Helper (Available to all route handlers)
 function getSetting(key) {
     return new Promise((resolve, reject) => {
@@ -1686,6 +1690,202 @@ app.post('/api/admin/meta-catalog/sync-all', authMiddleware, isAdmin, async (req
     }
 });
 
+// ============================================================
+// ONESIGNAL PUSH NOTIFICATIONS ADMIN API
+// ============================================================
+
+// 1. Get OneSignal Status & Settings
+app.get('/api/admin/push-notifications/status', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const config = await onesignal.getConfig();
+        const maskedKey = config.restApiKey ? `${config.restApiKey.slice(0, 6)}••••••••${config.restApiKey.slice(-4)}` : '';
+
+        // Fetch counts from DB
+        const [counts] = await queryAsync(`
+            SELECT 
+                COUNT(*) as total_sent,
+                SUM(CASE WHEN type = 'custom' THEN 1 ELSE 0 END) as total_custom,
+                SUM(CASE WHEN type = 'new_car' THEN 1 ELSE 0 END) as total_new_car,
+                SUM(CASE WHEN type = 'price_drop' THEN 1 ELSE 0 END) as total_price_drop,
+                SUM(recipients_count) as total_delivered
+            FROM push_notifications
+        `).catch(() => [{}]);
+
+        // Optional: live check subscribers from OneSignal if configured
+        let liveSubscribers = null;
+        let connectionStatus = 'not_configured';
+
+        if (config.appId && config.restApiKey) {
+            try {
+                const liveInfo = await onesignal.testConnection({ appId: config.appId, restApiKey: config.restApiKey });
+                liveSubscribers = liveInfo.subscribers || liveInfo.players || 0;
+                connectionStatus = 'connected';
+            } catch (connErr) {
+                connectionStatus = 'error: ' + connErr.message;
+            }
+        }
+
+        res.json({
+            success: true,
+            settings: {
+                enabled: config.enabled,
+                app_id: config.appId,
+                has_rest_api_key: Boolean(config.restApiKey),
+                masked_rest_api_key: maskedKey,
+                auto_new_car: config.autoNewCar,
+                new_car_title: config.newCarTitle,
+                new_car_message: config.newCarMessage,
+                auto_price_drop: config.autoPriceDrop,
+                price_drop_title: config.priceDropTitle,
+                price_drop_message: config.priceDropMessage,
+                price_drop_min: config.priceDropMin,
+                prompt_enabled: config.promptEnabled,
+                icon_url: config.iconUrl
+            },
+            connection: {
+                status: connectionStatus,
+                live_subscribers: liveSubscribers
+            },
+            stats: {
+                total_sent: counts?.total_sent || 0,
+                total_custom: counts?.total_custom || 0,
+                total_new_car: counts?.total_new_car || 0,
+                total_price_drop: counts?.total_price_drop || 0,
+                total_delivered: counts?.total_delivered || 0
+            }
+        });
+    } catch (err) {
+        console.error('OneSignal Status Error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 2. Save OneSignal Settings
+app.post('/api/admin/push-notifications/settings', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const {
+            enabled,
+            app_id,
+            rest_api_key,
+            auto_new_car,
+            new_car_title,
+            new_car_message,
+            auto_price_drop,
+            price_drop_title,
+            price_drop_message,
+            price_drop_min,
+            prompt_enabled,
+            icon_url
+        } = req.body;
+
+        const updates = [
+            ['onesignal_enabled', enabled ? 'true' : 'false'],
+            ['onesignal_app_id', app_id !== undefined ? String(app_id).trim() : ''],
+            ['onesignal_auto_new_car', auto_new_car !== false ? 'true' : 'false'],
+            ['onesignal_new_car_title', new_car_title || '🚗 New Arrival: {year} {make} {model}'],
+            ['onesignal_new_car_message', new_car_message || 'Just arrived at Selectt for ₹{price}! 200-point certified. Check details & book test drive.'],
+            ['onesignal_auto_price_drop', auto_price_drop !== false ? 'true' : 'false'],
+            ['onesignal_price_drop_title', price_drop_title || '🔥 Price Drop Alert: {make} {model}!'],
+            ['onesignal_price_drop_message', price_drop_message || 'Price reduced by ₹{drop_amount}! Now only ₹{new_price}. Test drive this deal today.'],
+            ['onesignal_price_drop_min', String(Number(price_drop_min) || 1000)],
+            ['onesignal_prompt_enabled', prompt_enabled !== false ? 'true' : 'false'],
+            ['onesignal_icon_url', icon_url || 'https://selectt.in/favicon.png']
+        ];
+
+        // Only update REST API key if provided and not masked
+        if (rest_api_key && !rest_api_key.includes('••••')) {
+            updates.push(['onesignal_rest_api_key', String(rest_api_key).trim()]);
+        }
+
+        for (const [k, v] of updates) {
+            await queryAsync(
+                'INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
+                [k, v, v]
+            );
+        }
+
+        res.json({ success: true, message: 'OneSignal Push Notification settings saved successfully!' });
+    } catch (err) {
+        console.error('Save OneSignal Settings Error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 3. Test OneSignal Connection & Verify Credentials
+app.post('/api/admin/push-notifications/test-connection', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        let { app_id, rest_api_key } = req.body;
+
+        if (!app_id || !rest_api_key || rest_api_key.includes('••••')) {
+            const config = await onesignal.getConfig();
+            app_id = app_id || config.appId;
+            rest_api_key = (!rest_api_key || rest_api_key.includes('••••')) ? config.restApiKey : rest_api_key;
+        }
+
+        const result = await onesignal.testConnection({ appId: app_id, restApiKey: rest_api_key });
+        res.json({ success: true, message: `Connected to OneSignal App "${result.appName}"!`, data: result });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
+
+// 4. Send Custom Push Notification
+app.post('/api/admin/push-notifications/send', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { title, message, url, image_url, icon_url, segments } = req.body;
+
+        if (!title || !title.trim()) {
+            return res.status(400).json({ success: false, error: 'Notification title is required.' });
+        }
+        if (!message || !message.trim()) {
+            return res.status(400).json({ success: false, error: 'Notification message body is required.' });
+        }
+
+        const result = await onesignal.sendPushNotification({
+            title: title.trim(),
+            message: message.trim(),
+            url: url || 'https://selectt.in',
+            imageUrl: image_url || null,
+            iconUrl: icon_url || null,
+            segments: segments || ['Total Subscriptions'],
+            type: 'custom'
+        });
+
+        res.json({
+            success: true,
+            message: `Push notification sent successfully to ${result.recipients || 'all'} subscribers!`,
+            result
+        });
+    } catch (err) {
+        console.error('Send Push Notification Error:', err);
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
+
+// 5. Get Notification History
+app.get('/api/admin/push-notifications/history', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 50;
+        const offset = parseInt(req.query.offset) || 0;
+        const type = req.query.type || null;
+
+        const history = await onesignal.getHistory({ limit, offset, type });
+        res.json({ success: true, history });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 6. Delete Notification History Entry
+app.delete('/api/admin/push-notifications/history/:id', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const deleted = await onesignal.deleteHistoryItem(req.params.id);
+        res.json({ success: true, deleted });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // SEC-001 FIX: Admin notifications now require authentication
 app.get(['/api/admin/notifications', '/api/notifications'], authMiddleware, isAdmin, (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
@@ -2119,6 +2319,18 @@ app.post('/api/cars', authMiddleware, isAdmin, (req, res) => {
     executeSafeCarMutation('INSERT INTO cars SET ?', data, [], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         try { triggerMetaAutoSync(result.insertId, 'CREATE'); } catch (_) {}
+        try {
+            onesignal.notifyNewCar({
+                id: result.insertId,
+                make: data.make,
+                model: data.model,
+                year: data.year,
+                price: data.price,
+                image: data.image
+            });
+        } catch (e) {
+            console.error('OneSignal notifyNewCar error:', e.message);
+        }
         res.status(201).json({ id: result.insertId, ...mapCar({ ...data, id: result.insertId }) });
     });
 });
@@ -2168,8 +2380,8 @@ app.post('/api/cars/bulk-import', authMiddleware, isAdmin, async (req, res) => {
 });
 
 app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
-    // Check old car images before updating to clean up any removed ones
-    db.query('SELECT image, more_images FROM cars WHERE id = ?', [req.params.id], (findErr, findResults) => {
+    // Check old car images and price before updating to clean up any removed ones and check price drops
+    db.query('SELECT id, make, model, year, price, image, more_images FROM cars WHERE id = ?', [req.params.id], (findErr, findResults) => {
         const oldCar = findResults && findResults[0] ? findResults[0] : null;
 
         const { title, make, model, variant, year, price, originalPrice, original_price, discountType, discount_type, discountValue, discount_value, offerPrice, offer_price, emi, km, fuelType, fuel_type, transmission,
@@ -2201,6 +2413,19 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
                 return db.query('UPDATE cars SET ? WHERE id = ?', [partialData, req.params.id], (err) => {
                     if (err) return res.status(500).json({ error: err.message });
                     try { triggerMetaAutoSync(req.params.id, 'UPDATE'); } catch (_) {}
+                    if (partialData.price !== undefined && oldCar && Number(oldCar.price) > 0 && Number(partialData.price) < Number(oldCar.price)) {
+                        try {
+                            onesignal.notifyPriceDrop({
+                                id: req.params.id,
+                                make: oldCar.make,
+                                model: oldCar.model,
+                                year: oldCar.year,
+                                image: oldCar.image
+                            }, oldCar.price, partialData.price);
+                        } catch (e) {
+                            console.error('OneSignal notifyPriceDrop error:', e.message);
+                        }
+                    }
                     return res.json({ message: 'Car updated successfully', updated: partialData });
                 });
             }
@@ -2330,6 +2555,21 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
 
             // Auto-sync updated car with Meta Catalog
             try { triggerMetaAutoSync(req.params.id, 'UPDATE'); } catch (_) {}
+
+            // Trigger price drop notification if price was lowered
+            if (data.price !== undefined && oldCar && Number(oldCar.price) > 0 && Number(data.price) < Number(oldCar.price)) {
+                try {
+                    onesignal.notifyPriceDrop({
+                        id: req.params.id,
+                        make: data.make || oldCar.make,
+                        model: data.model || oldCar.model,
+                        year: data.year || oldCar.year,
+                        image: data.image || oldCar.image
+                    }, oldCar.price, data.price);
+                } catch (e) {
+                    console.error('OneSignal notifyPriceDrop error:', e.message);
+                }
+            }
 
             res.json({ message: 'Car updated successfully' });
         });

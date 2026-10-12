@@ -24,6 +24,13 @@ conn.on('ready', () => {
         if (waErr) console.warn('whatsapp-service.js put err (optional):', waErr.message);
         else console.log('whatsapp-service.js uploaded successfully!');
 
+        const localOs = path.join(__dirname, '../onesignal-service.js');
+        const remoteOs = '/home/selectt-api/htdocs/api.selectt.in/onesignal-service.js';
+        console.log('Uploading', localOs, 'to', remoteOs);
+        sftp.fastPut(localOs, remoteOs, (osErr) => {
+          if (osErr) console.warn('onesignal-service.js put err (optional):', osErr.message);
+          else console.log('onesignal-service.js uploaded successfully!');
+
         const restartCmd = 'export PATH=/home/selectt-api/.nvm/versions/node/v24.21.0/bin:$PATH; pm2 reload selectt-api || pm2 restart selectt-api';
         conn.exec(restartCmd, (execErr, stream) => {
           if (execErr) throw execErr;
@@ -37,6 +44,7 @@ conn.on('ready', () => {
       });
     });
   });
+});
 }).connect({
   host: '200.97.166.12',
   port: 22,
