@@ -2517,7 +2517,7 @@ app.put('/api/cars/:id', authMiddleware, isAdmin, (req, res) => {
             price_breakdown: req.body.priceBreakdown ? (typeof req.body.priceBreakdown === 'string' ? req.body.priceBreakdown : JSON.stringify(req.body.priceBreakdown)) : null,
             more_images: req.body.moreImages ? (typeof req.body.moreImages === 'string' ? req.body.moreImages : JSON.stringify(req.body.moreImages)) : null,
             video_url: finalVideoUrl,
-            status: status || 'active'
+            status: status || (oldCar ? oldCar.status : 'active')
         };
 
         executeSafeCarMutation('UPDATE cars SET ? WHERE id = ?', data, [req.params.id], (err) => {

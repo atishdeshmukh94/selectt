@@ -877,7 +877,16 @@ const MobileRecommendedCarCard = ({ car }) => {
             <span className="text-xs font-black text-[#00C9AF] tracking-wider uppercase leading-none truncate min-w-0">
               {car.make}
             </span>
-            {badge.label && (
+            {car.status === 'booked' ? (
+              <div className="bg-amber-500 text-amber-950 border border-amber-300 px-2 py-0.5 rounded-full text-[10.5px] font-black shrink-0 whitespace-nowrap shadow-xs flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-950 animate-pulse" />
+                <span>BOOKED</span>
+              </div>
+            ) : (car.status === 'sold_out' || car.status === 'sold') ? (
+              <div className="bg-rose-600 text-white border border-rose-400 px-2 py-0.5 rounded-full text-[10.5px] font-black shrink-0 whitespace-nowrap shadow-xs">
+                <span>SOLD OUT</span>
+              </div>
+            ) : badge.label && (
               <div className={`${badge.bg} ${badge.color} ${badge.border || 'border-slate-200'} border px-2.5 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 whitespace-nowrap shadow-xs max-w-[140px]`}>
                 <span className="truncate">{badge.label}</span>
               </div>
@@ -913,6 +922,29 @@ const MobileRecommendedCarCard = ({ car }) => {
 
 const renderHeroBadge = (car) => {
   if (!car) return null;
+  const status = (car.status || '').toLowerCase();
+  if (status === 'booked') {
+    return (
+      <span className="text-[9px] px-2 py-0.5 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-amber-950 border border-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.6)] rounded-full font-black whitespace-nowrap flex items-center gap-1">
+        <span className="w-1 h-1 rounded-full bg-amber-950 animate-pulse" />
+        BOOKED
+      </span>
+    );
+  }
+  if (status === 'sold_out' || status === 'sold') {
+    return (
+      <span className="text-[9px] px-2 py-0.5 bg-gradient-to-r from-rose-600 to-red-500 text-white border border-red-400 shadow-[0_0_10px_rgba(239,68,68,0.6)] rounded-full font-black whitespace-nowrap">
+        SOLD OUT
+      </span>
+    );
+  }
+  if (status === 'coming_soon') {
+    return (
+      <span className="text-[9px] px-2 py-0.5 bg-white text-[#0C1B33] border border-slate-300 rounded-full font-bold whitespace-nowrap">
+        COMING SOON
+      </span>
+    );
+  }
   const rawBadge = (car.tag || car.badgeText || car.badge_text || (car.isAssured ? 'Selectt Assured' : (car.listing_type === 'luxury' || car.listingType === 'luxury' ? 'Selectt Luxury' : '')) || '').trim();
   if (!rawBadge) return null;
   const badge = getBadgeStyles(rawBadge);

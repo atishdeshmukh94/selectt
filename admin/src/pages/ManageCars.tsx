@@ -119,10 +119,11 @@ export default function ManageCars() {
     return import.meta.env.VITE_FRONTEND_URL || "https://selectt.in";
   }, []);
 
+  const activeToken = token || (typeof window !== "undefined" ? (localStorage.getItem("adminToken") || localStorage.getItem("token")) : "");
   const headers = useMemo(() => ({
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`
-  }), [token]);
+    ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {})
+  }), [activeToken]);
 
   const fetchCars = () => {
     setLoading(true);
@@ -185,9 +186,13 @@ export default function ManageCars() {
   // Inline Quick Actions
   const handleInlineStatusChange = async (carId: number, newStatus: string) => {
     try {
+      const authToken = activeToken || (typeof window !== "undefined" ? (localStorage.getItem("adminToken") || localStorage.getItem("token")) : "");
       const res = await fetch(`${API}/api/cars/${carId}`, {
         method: "PATCH",
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+        },
         body: JSON.stringify({ status: newStatus })
       });
       if (res.ok) {
@@ -1081,16 +1086,17 @@ export default function ManageCars() {
                           <select
                             value={
                               ["in_stock", "active"].includes(carStatus) ? "in_stock" :
-                              carStatus === "sold_out" ? "sold_out" :
+                              ["sold_out", "sold"].includes(carStatus) ? "sold_out" :
                               carStatus === "coming_soon" ? "coming_soon" :
                               ["out_of_stock", "deactive"].includes(carStatus) ? "out_of_stock" :
-                              "booked"
+                              carStatus === "booked" ? "booked" :
+                              "in_stock"
                             }
                             onChange={e => handleInlineStatusChange(car.id, e.target.value)}
                             className={`px-2.5 py-1 rounded-full text-xs font-extrabold border focus:outline-none cursor-pointer transition-colors ${
                               ["in_stock", "active"].includes(carStatus)
                                 ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300"
-                                : carStatus === "sold_out"
+                                : ["sold_out", "sold"].includes(carStatus)
                                 ? "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-950/60 dark:text-purple-300"
                                 : carStatus === "coming_soon"
                                 ? "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/60 dark:text-blue-300"

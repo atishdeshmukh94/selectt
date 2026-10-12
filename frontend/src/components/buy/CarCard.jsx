@@ -311,25 +311,48 @@ const CarCard = ({ car, lightBg = false }) => {
           ))}
 
           {/* Sold Out Overlay */}
-          {car.status === 'sold_out' && (
-            <div className="absolute inset-0 bg-slate-950/70 flex items-center justify-center z-10">
-              <div className="bg-red-600 text-white font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-widest shadow-xl border border-red-500 animate-pulse">
-                Sold Out
+          {(car.status === 'sold_out' || car.status === 'sold') && (
+            <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-[1px] flex items-center justify-center z-10 pointer-events-none">
+              <div className="bg-red-600 text-white font-black px-3.5 py-1.5 rounded-lg text-[10.5px] uppercase tracking-widest shadow-xl border border-red-500 animate-pulse flex items-center gap-1.5">
+                <span>Sold Out</span>
               </div>
             </div>
           )}
 
-          {/* Coming Soon Badge Overlay - Placed at bottom of image with white background & clean medium text */}
+          {/* Booked Overlay */}
+          {car.status === 'booked' && (
+            <div className="absolute inset-0 bg-slate-950/35 backdrop-blur-[0.5px] flex items-center justify-center z-10 pointer-events-none">
+              <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black px-3.5 py-1.5 rounded-xl text-[10.5px] uppercase tracking-wider shadow-2xl border border-amber-300 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-slate-950 animate-pulse" />
+                <span>Booked</span>
+              </div>
+            </div>
+          )}
+
+          {/* Coming Soon Badge Overlay */}
           {car.status === 'coming_soon' && (
-            <div className="absolute bottom-2.5 left-2.5 z-20">
+            <div className="absolute bottom-2.5 left-2.5 z-20 pointer-events-none">
               <div className="bg-white text-[#0C1B33] px-3 py-1 rounded-full text-[10.5px] font-sans font-bold flex items-center shadow-md border border-slate-200/90 tracking-wide uppercase">
                 <span>COMING SOON</span>
               </div>
             </div>
           )}
 
-          {/* Top-Left: Badge / Tag (e.g. HOT DEAL, TOP TIER, LUXURY) */}
-          {car.tag && car.status !== 'coming_soon' && (() => {
+          {/* Top-Left: Status Badge or Normal Tag */}
+          {car.status === 'booked' ? (
+            <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none">
+              <div className="badge-glow-shine bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-amber-950 border border-amber-200/90 shadow-[0_0_14px_rgba(245,158,11,0.85)] ring-1 ring-amber-300/80 px-2.5 py-0.5 rounded-full text-[10.5px] font-sans font-black tracking-wide flex items-center gap-1 shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-950 animate-pulse shrink-0" />
+                <span className="relative z-10">BOOKED</span>
+              </div>
+            </div>
+          ) : (car.status === 'sold_out' || car.status === 'sold') ? (
+            <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none">
+              <div className="badge-glow-shine bg-gradient-to-r from-rose-600 via-red-500 to-rose-600 text-white border border-red-300/80 shadow-[0_0_14px_rgba(239,68,68,0.85)] ring-1 ring-red-400/80 px-2.5 py-0.5 rounded-full text-[10.5px] font-sans font-black tracking-wide flex items-center shadow-xs">
+                <span className="relative z-10">SOLD OUT</span>
+              </div>
+            </div>
+          ) : car.tag && car.status !== 'coming_soon' && (() => {
             const badge = getBadgeStyles(car.tag);
             return (
               <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none">
@@ -341,7 +364,7 @@ const CarCard = ({ car, lightBg = false }) => {
           })()}
 
           {/* Bottom-Left: Price Drop Badge (e.g. ₹9,000 ↓) */}
-          {(car.badgeText || car.badge_text) && car.status !== 'coming_soon' && (() => {
+          {(car.badgeText || car.badge_text) && car.status !== 'coming_soon' && car.status !== 'booked' && car.status !== 'sold_out' && car.status !== 'sold' && (() => {
             const rawBadge = (car.badgeText || car.badge_text).trim();
             const badge = getBadgeStyles(rawBadge);
             return (

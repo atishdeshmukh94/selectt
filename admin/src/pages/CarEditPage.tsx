@@ -540,6 +540,7 @@ const CarEditPage = () => {
     rto_code: "",
     image: "",
     listingType: "standard",
+    status: "in_stock",
     isAssured: false,
     tag: "",
     badgeText: "",
@@ -594,8 +595,7 @@ const CarEditPage = () => {
       fullReportUrl: ""
     },
     moreImages: [],
-    videoUrl: "",
-    status: "active"
+    videoUrl: ""
   });
 
   useEffect(() => {
@@ -711,6 +711,7 @@ const CarEditPage = () => {
         km: data.km !== undefined && data.km !== null ? data.km : 0,
         ownership: data.ownership || "1st Owner",
         listingType: data.listingType || data.listing_type || (data.tag && data.tag.toLowerCase().includes('luxury') ? "luxury" : "standard"),
+        status: data.status || "in_stock",
         tag: data.tag || "",
         badgeText: data.badgeText || data.badge_text || "",
         reasonsToBuy: data.reasonsToBuy || [],
@@ -1381,6 +1382,31 @@ const CarEditPage = () => {
                     <select className={inpClass} value={formData.bodyType || ""} onChange={e => setFormData({...formData, bodyType: e.target.value})}>
                       <option value="">Select Body Type...</option>
                       {["Hatchback", "Sedan", "SUV", "Compact SUV", "MUV", "Luxury Sedan", "Luxury SUV", "EV CAR", "Luxury"].map(b => <option key={b} value={b}>{b}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>
+                      Inventory Status <span className="text-rose-500 font-black ml-1">*</span>
+                    </label>
+                    <select 
+                      className={`${inpClass} font-bold ${
+                        formData.status === 'booked' 
+                          ? 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300' 
+                          : (formData.status === 'sold_out' || formData.status === 'sold')
+                          ? 'bg-purple-50 text-purple-900 border-purple-300 dark:bg-purple-950/40 dark:text-purple-300'
+                          : formData.status === 'coming_soon'
+                          ? 'bg-blue-50 text-blue-900 border-blue-300 dark:bg-blue-950/40 dark:text-blue-300'
+                          : 'bg-emerald-50 text-emerald-900 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300'
+                      }`} 
+                      value={formData.status || "in_stock"} 
+                      onChange={e => setFormData({...formData, status: e.target.value})}
+                    >
+                      <option value="in_stock">🟢 In Stock</option>
+                      <option value="booked">🟠 Booked (Reserved)</option>
+                      <option value="sold_out">🏷️ Sold Out</option>
+                      <option value="coming_soon">⏳ Coming Soon</option>
+                      <option value="out_of_stock">🔴 Out of Stock</option>
                     </select>
                   </div>
 

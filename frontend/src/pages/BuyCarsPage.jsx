@@ -372,9 +372,13 @@ const BuyCarsPage = () => {
         setLoading(true);
         const response = await fetch(`${API_URL}/api/cars`);
         const data = await response.json();
-        const available = data.filter(car => car.status !== 'sold_out');
+        const available = data.filter(car => car.status !== 'out_of_stock' && car.status !== 'deactive');
         const userCity = displayCity;
         const sorted = available.sort((a, b) => {
+          const isASold = a.status === 'sold_out' || a.status === 'sold';
+          const isBSold = b.status === 'sold_out' || b.status === 'sold';
+          if (isASold && !isBSold) return 1;
+          if (!isASold && isBSold) return -1;
           if (a.location === userCity && b.location !== userCity) return -1;
           if (a.location !== userCity && b.location === userCity) return 1;
           return 0;

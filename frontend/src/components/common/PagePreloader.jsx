@@ -37,16 +37,28 @@ export default function PagePreloader({ minDisplayTime = 4500 }) {
     }, 450);
   };
 
-  // Lock body scroll while preloader is active so user cannot scroll background blind
+  // Lock html and body scroll & touchmove while preloader is active so user cannot scroll background underneath
   useEffect(() => {
     if (!shouldRender || !isVisible) {
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
       return;
     }
-    const prevOverflow = document.body.style.overflow;
+    const prevDocOverflow = document.documentElement.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
+
+    // Prevent touch scrolling underneath on mobile devices
+    const preventTouchMove = (e) => {
+      e.preventDefault();
+    };
+    window.addEventListener('touchmove', preventTouchMove, { passive: false });
+
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.documentElement.style.overflow = prevDocOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+      window.removeEventListener('touchmove', preventTouchMove);
     };
   }, [shouldRender, isVisible]);
 

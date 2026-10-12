@@ -143,7 +143,7 @@ export default function NewHome2() {
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          const available = data.filter(car => car.status !== 'sold_out');
+          const available = data.filter(car => car.status !== 'out_of_stock' && car.status !== 'deactive');
           setAllCars(available.slice(0, 6));
         }
       })

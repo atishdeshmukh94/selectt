@@ -41,7 +41,7 @@ const BodyTypeFilter = () => {
             try {
                 const res = await fetch(`${API_URL}/api/cars`);
                 const data = await res.json();
-                setAllCars(data.filter(car => car.status !== 'sold_out'));
+                setAllCars(data.filter(car => car.status !== 'out_of_stock' && car.status !== 'deactive'));
             } catch (err) {
                 console.error('Failed to fetch cars:', err);
             } finally {

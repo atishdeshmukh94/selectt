@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
 import VideoPreloader from '../components/common/VideoPreloader';
+import { useToast } from '../components/animation/ToastSystem';
 import {
   ChevronRight,
   ChevronLeft,
@@ -108,6 +109,8 @@ const CarDetailsPage = () => {
   const id = params.id || params['*']?.split('/').filter(Boolean).pop() || window.location.pathname.split('/').filter(Boolean).pop();
   const navigate = useNavigate();
   const { user, token, openLoginModal } = useAuth();
+  const toastCtx = useToast();
+  const addToast = toastCtx?.addToast;
   const [car, setCar] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -206,6 +209,16 @@ const CarDetailsPage = () => {
       setIsComingSoonModalOpen(true);
       return;
     }
+    if (car?.status === 'booked') {
+      if (addToast) addToast('This car has been booked and reserved by a customer.', 'info');
+      else alert('This car has been booked and reserved by a customer.');
+      return;
+    }
+    if (car?.status === 'sold_out' || car?.status === 'sold') {
+      if (addToast) addToast('This vehicle has already been sold.', 'error');
+      else alert('This vehicle has already been sold.');
+      return;
+    }
     const checkoutUrl = `/checkout/${car.id}`;
     if (user) {
       navigate(checkoutUrl);
@@ -217,6 +230,11 @@ const CarDetailsPage = () => {
   const handleTestDriveClick = () => {
     if (car?.status === 'coming_soon') {
       setIsComingSoonModalOpen(true);
+      return;
+    }
+    if (car?.status === 'sold_out' || car?.status === 'sold') {
+      if (addToast) addToast('This vehicle has already been sold.', 'error');
+      else alert('This vehicle has already been sold.');
       return;
     }
     setIsTestDriveOpen(true);
@@ -698,7 +716,22 @@ const CarDetailsPage = () => {
                       }}
                       onClick={openLightbox}
                     >
-                      {/* Coming Soon Badge Tag on Main Image */}
+                      {/* Status Badges on Main Image */}
+                      {car.status === 'booked' && (
+                        <div className="absolute top-4 left-4 z-20 pointer-events-none">
+                          <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-amber-950 px-3.5 py-1.5 rounded-full text-[11px] font-sans font-black flex items-center gap-1.5 shadow-xl border border-amber-200 tracking-wide uppercase">
+                            <span className="w-2 h-2 rounded-full bg-amber-950 animate-pulse" />
+                            <span>BOOKED / RESERVED</span>
+                          </div>
+                        </div>
+                      )}
+                      {(car.status === 'sold_out' || car.status === 'sold') && (
+                        <div className="absolute top-4 left-4 z-20 pointer-events-none">
+                          <div className="bg-gradient-to-r from-rose-600 to-red-500 text-white px-3.5 py-1.5 rounded-full text-[11px] font-sans font-black flex items-center gap-1.5 shadow-xl border border-red-300 tracking-wide uppercase">
+                            <span>SOLD OUT</span>
+                          </div>
+                        </div>
+                      )}
                       {car.status === 'coming_soon' && (
                         <div className="absolute top-4 left-4 z-20 pointer-events-none">
                           <div className="bg-white text-[#0C1B33] px-3.5 py-1.5 rounded-full text-[11px] font-sans font-bold flex items-center shadow-lg border border-slate-200/90 tracking-wide uppercase">
@@ -950,6 +983,28 @@ const CarDetailsPage = () => {
               <div className="lg:hidden bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 mb-4 shadow-md text-left">
                 <div className="flex justify-between items-start mb-2">
                   <div>
+                    {car.status === 'booked' && (
+                      <div className="mb-1.5">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-black uppercase tracking-wide shadow-xs">
+                          <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
+                          Booked / Reserved
+                        </span>
+                      </div>
+                    )}
+                    {(car.status === 'sold_out' || car.status === 'sold') && (
+                      <div className="mb-1.5">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-100 text-rose-900 border border-rose-300 text-[11px] font-black uppercase tracking-wide shadow-xs">
+                          Sold Out
+                        </span>
+                      </div>
+                    )}
+                    {car.status === 'coming_soon' && (
+                      <div className="mb-1.5">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-300 text-[11px] font-black uppercase tracking-wide shadow-xs">
+                          Coming Soon
+                        </span>
+                      </div>
+                    )}
                     <h1 className="text-lg sm:text-xl font-heading font-extrabold text-[#0C1B33] leading-snug mb-1">
                       {car.title || `${car.year} ${car.make} ${car.model}`}
                     </h1>
@@ -1288,6 +1343,28 @@ const CarDetailsPage = () => {
                 <div className="bg-white border border-slate-200 rounded-2xl p-4 xl:p-5 shadow-lg shadow-slate-100/50 text-left">
                   <div className="flex justify-between items-start mb-1.5">
                     <div>
+                      {car.status === 'booked' && (
+                        <div className="mb-2">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-black uppercase tracking-wide shadow-xs">
+                            <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
+                            Booked / Reserved
+                          </span>
+                        </div>
+                      )}
+                      {(car.status === 'sold_out' || car.status === 'sold') && (
+                        <div className="mb-2">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-100 text-rose-900 border border-rose-300 text-[11px] font-black uppercase tracking-wide shadow-xs">
+                            Sold Out
+                          </span>
+                        </div>
+                      )}
+                      {car.status === 'coming_soon' && (
+                        <div className="mb-2">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-300 text-[11px] font-black uppercase tracking-wide shadow-xs">
+                            Coming Soon
+                          </span>
+                        </div>
+                      )}
                       <h1 className="text-base xl:text-lg font-bold text-[#0C1B33] leading-snug mb-0.5">
                         {car.title || `${car.year} ${car.make} ${car.model}`}
                       </h1>
@@ -1413,20 +1490,40 @@ const CarDetailsPage = () => {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={handleBookNow}
-                      className="relative overflow-hidden bg-[#00C9AF] text-[#0C1B33] py-3 rounded-xl font-heading font-semibold text-xs sm:text-sm shadow-xl shadow-[#00C9AF]/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex flex-col items-center justify-center group cursor-pointer"
-                    >
-                      {/* Shimmer/glare animation */}
-                      <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
-                      <span>Book now</span>
-                      <span className="text-[9px] font-sans font-medium opacity-75">100% refundable</span>
-                    </button>
+                    {car?.status === 'booked' ? (
+                      <div className="relative overflow-hidden bg-amber-500/15 border border-amber-400 text-amber-900 py-3 rounded-xl font-heading font-black text-xs sm:text-sm flex flex-col items-center justify-center cursor-not-allowed select-none">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                          Car Booked
+                        </span>
+                        <span className="text-[9px] font-sans font-bold text-amber-800">Slot Reserved</span>
+                      </div>
+                    ) : (car?.status === 'sold_out' || car?.status === 'sold') ? (
+                      <div className="relative overflow-hidden bg-rose-500/15 border border-rose-400 text-rose-900 py-3 rounded-xl font-heading font-black text-xs sm:text-sm flex flex-col items-center justify-center cursor-not-allowed select-none">
+                        <span>Sold Out</span>
+                        <span className="text-[9px] font-sans font-bold text-rose-800">Vehicle Sold</span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleBookNow}
+                        className="relative overflow-hidden bg-[#00C9AF] text-[#0C1B33] py-3 rounded-xl font-heading font-semibold text-xs sm:text-sm shadow-xl shadow-[#00C9AF]/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex flex-col items-center justify-center group cursor-pointer"
+                      >
+                        {/* Shimmer/glare animation */}
+                        <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
+                        <span>Book now</span>
+                        <span className="text-[9px] font-sans font-medium opacity-75">100% refundable</span>
+                      </button>
+                    )}
                     <button
                       onClick={handleTestDriveClick}
-                      className="bg-[#EF4444] text-white hover:bg-[#DC2626] border border-transparent shadow-lg shadow-[#EF4444]/25 py-3 rounded-xl font-heading font-semibold text-xs sm:text-sm hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer"
+                      disabled={car?.status === 'sold_out' || car?.status === 'sold'}
+                      className={`py-3 rounded-xl font-heading font-semibold text-xs sm:text-sm transition-all flex items-center justify-center ${
+                        car?.status === 'sold_out' || car?.status === 'sold'
+                          ? 'bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300'
+                          : 'bg-[#EF4444] text-white hover:bg-[#DC2626] border border-transparent shadow-lg shadow-[#EF4444]/25 hover:scale-[1.02] active:scale-[0.98] cursor-pointer'
+                      }`}
                     >
-                      Free test drive
+                      {car?.status === 'booked' ? 'Waitlist / Drive' : 'Free test drive'}
                     </button>
                   </div>
 
@@ -1643,18 +1740,38 @@ const CarDetailsPage = () => {
         {/* Mobile Sticky Footer (Slim & Premium) */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0A162A]/90 backdrop-blur-2xl border-t border-white/10 px-4 py-2.5 shadow-[0_-8px_25px_rgba(0,0,0,0.5)] text-white">
           <div className="grid grid-cols-2 gap-2.5 max-w-7xl mx-auto">
-            <button
-              onClick={handleBookNow}
-              className="bg-gradient-to-r from-[#00E5C9] to-[#00C9AF] text-[#0A1C3A] py-2.5 px-3 rounded-2xl font-sans font-bold text-xs shadow-[0_4px_16px_rgba(0,201,175,0.4)] transition-all flex flex-col items-center justify-center uppercase tracking-wider active:scale-[0.97] cursor-pointer"
-            >
-              <span className="font-sans font-bold leading-tight">BOOK NOW</span>
-              <span className="text-[8.5px] font-sans font-bold opacity-80 tracking-tight leading-none mt-0.5">100% refundable</span>
-            </button>
+            {car?.status === 'booked' ? (
+              <div className="bg-amber-500/20 border border-amber-400 text-amber-300 py-2.5 px-3 rounded-2xl font-sans font-bold text-xs flex flex-col items-center justify-center uppercase tracking-wider select-none">
+                <span className="flex items-center gap-1.5 leading-tight">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  BOOKED
+                </span>
+                <span className="text-[8.5px] font-sans font-bold opacity-80 tracking-tight leading-none mt-0.5">Slot Reserved</span>
+              </div>
+            ) : (car?.status === 'sold_out' || car?.status === 'sold') ? (
+              <div className="bg-rose-500/20 border border-rose-400 text-rose-300 py-2.5 px-3 rounded-2xl font-sans font-bold text-xs flex flex-col items-center justify-center uppercase tracking-wider select-none">
+                <span className="leading-tight">SOLD OUT</span>
+                <span className="text-[8.5px] font-sans font-bold opacity-80 tracking-tight leading-none mt-0.5">Vehicle Sold</span>
+              </div>
+            ) : (
+              <button
+                onClick={handleBookNow}
+                className="bg-gradient-to-r from-[#00E5C9] to-[#00C9AF] text-[#0A1C3A] py-2.5 px-3 rounded-2xl font-sans font-bold text-xs shadow-[0_4px_16px_rgba(0,201,175,0.4)] transition-all flex flex-col items-center justify-center uppercase tracking-wider active:scale-[0.97] cursor-pointer"
+              >
+                <span className="font-sans font-bold leading-tight">BOOK NOW</span>
+                <span className="text-[8.5px] font-sans font-bold opacity-80 tracking-tight leading-none mt-0.5">100% refundable</span>
+              </button>
+            )}
             <button
               onClick={handleTestDriveClick}
-              className="bg-gradient-to-r from-[#FF5252] to-[#FF2A55] text-white py-2.5 px-3 rounded-2xl font-sans font-bold text-xs shadow-[0_4px_16px_rgba(255,42,85,0.4)] transition-all flex flex-col items-center justify-center uppercase tracking-wider active:scale-[0.97] cursor-pointer"
+              disabled={car?.status === 'sold_out' || car?.status === 'sold'}
+              className={`py-2.5 px-3 rounded-2xl font-sans font-bold text-xs transition-all flex flex-col items-center justify-center uppercase tracking-wider ${
+                car?.status === 'sold_out' || car?.status === 'sold'
+                  ? 'bg-slate-700 text-slate-400 cursor-not-allowed select-none'
+                  : 'bg-gradient-to-r from-[#FF5252] to-[#FF2A55] text-white shadow-[0_4px_16px_rgba(255,42,85,0.4)] active:scale-[0.97] cursor-pointer'
+              }`}
             >
-              <span className="font-sans font-bold leading-tight">FREE TEST DRIVE</span>
+              <span className="font-sans font-bold leading-tight">{car?.status === 'booked' ? 'WAITLIST / DRIVE' : 'FREE TEST DRIVE'}</span>
               <span className="text-[8.5px] font-sans font-bold opacity-90 tracking-tight leading-none mt-0.5">Schedule from home</span>
             </button>
           </div>
