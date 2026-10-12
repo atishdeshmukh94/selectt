@@ -1,4 +1,16 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const resolveApiBaseUrl = () => {
+  const envUrl = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '').trim();
+  if (envUrl) return envUrl;
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host && host !== 'localhost' && host !== '127.0.0.1') {
+      return 'https://api.selectt.in';
+    }
+  }
+  return 'http://localhost:5000';
+};
+
+export const API_BASE_URL = resolveApiBaseUrl();
 export const API_URL = API_BASE_URL;
 
 // Clean neutral white blank placeholder (No 3rd-party stock images)
@@ -19,6 +31,7 @@ export const getCarImageUrl = (img, fallback = DEFAULT_CAR_FALLBACK_IMAGE) => {
     return trimmed;
   }
   const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-  return `${API_URL}${cleanPath}`;
+  const base = (API_URL && API_URL.trim()) || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ? 'https://api.selectt.in' : 'http://localhost:5000');
+  return `${base}${cleanPath}`;
 };
 

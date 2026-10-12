@@ -2,8 +2,9 @@
  * ImageKit CDN URL Generator & Optimizer for Frontend
  */
 
-const IMAGEKIT_ENDPOINT = import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/selectt';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { API_URL } from '../config/api';
+
+const IMAGEKIT_ENDPOINT = (import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || '').trim();
 
 /**
  * Transforms an image URL or relative path into an optimized ImageKit CDN URL

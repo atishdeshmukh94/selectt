@@ -1,11 +1,15 @@
 {
   "rewrites": [
     {
-      "source": "/sitemap.xml",
-      "destination": "https://api.selectt.in/api/sitemap.xml"
+      "source": "/uploads/:path*",
+      "destination": "https://api.selectt.in/uploads/:path*"
     },
     {
       "source": "/api/sitemap.xml",
+      "destination": "https://api.selectt.in/api/sitemap.xml"
+    },
+    {
+      "source": "/sitemap.xml",
       "destination": "https://api.selectt.in/api/sitemap.xml"
     },
     {
