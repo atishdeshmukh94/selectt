@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import lottie from 'lottie-web';
-import searchingCarAnimation from '../../assets/searching-car.json';
+import brandPreloaderAnimation from '../../assets/selectt-brand-preloader.json';
 
 /**
- * Universal Selectt Lottie Preloader Component
- * Shows the animated "Searching for a car" vector animation with smooth looping.
+ * Universal Selectt Brand Lottie Preloader Component (from IMG_4600.lottie)
+ * Displays the signature Selectt animated logo and car reveal.
  */
 export default function VideoPreloader({
   fullScreen = true,
@@ -23,7 +23,10 @@ export default function VideoPreloader({
         renderer: 'svg',
         loop: loop,
         autoplay: true,
-        animationData: searchingCarAnimation
+        animationData: brandPreloaderAnimation,
+        rendererSettings: {
+          preserveAspectRatio: 'xMidYMid meet'
+        }
       });
     } catch (err) {
       console.warn('Lottie preloader animation failed', err);
@@ -39,7 +42,7 @@ export default function VideoPreloader({
     return (
       <div
         style={{
-          backgroundColor: '#FFFFFF',
+          backgroundColor: '#000000',
           position: 'fixed',
           top: 0,
           left: 0,
@@ -52,17 +55,13 @@ export default function VideoPreloader({
           padding: 0,
           overflow: 'hidden'
         }}
-        className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-white ${className}`}
+        className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black ${className}`}
       >
-        <div className="relative flex flex-col items-center justify-center w-full h-full p-4">
+        <div className="relative flex flex-col items-center justify-center w-full h-full p-4 sm:p-6">
           <div
             ref={containerRef}
-            className="w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center"
-            style={{ minHeight: '220px' }}
+            className="w-full max-w-[360px] sm:max-w-[480px] md:max-w-[580px] aspect-[16/9] flex items-center justify-center overflow-hidden"
           />
-          <p className="text-xs sm:text-sm font-bold text-slate-700 tracking-wide mt-2 text-center animate-pulse">
-            {message || 'Finding your perfect car...'}
-          </p>
         </div>
       </div>
     );
@@ -70,19 +69,13 @@ export default function VideoPreloader({
 
   return (
     <div
-      style={{ backgroundColor: '#F8FAFC' }}
-      className={`w-full min-h-[340px] flex flex-col items-center justify-center bg-slate-50/90 rounded-2xl p-6 overflow-hidden ${className}`}
+      style={{ backgroundColor: '#090D16' }}
+      className={`w-full min-h-[300px] flex flex-col items-center justify-center bg-[#090D16] rounded-2xl p-6 overflow-hidden border border-slate-800/60 shadow-xl ${className}`}
     >
       <div
         ref={containerRef}
-        className="w-48 h-48 sm:w-60 sm:h-60 flex items-center justify-center"
-        style={{ minHeight: '180px' }}
+        className="w-full max-w-[280px] sm:max-w-[340px] aspect-[16/9] flex items-center justify-center overflow-hidden"
       />
-      {message && (
-        <p className="text-xs font-semibold text-slate-600 mt-2 tracking-wider text-center animate-pulse">
-          {message}
-        </p>
-      )}
     </div>
   );
 }

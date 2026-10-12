@@ -659,6 +659,7 @@ const CheckoutPage = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(-1);
   const [activeBreakdownModal, setActiveBreakdownModal] = useState(null); // 'servicing' | 'fixes' | 'gst' | null
   const [isRefundPolicyOpen, setIsRefundPolicyOpen] = useState(false);
+  const [warrantySelected, setWarrantySelected] = useState(false);
 
   // Payment Success Modal state
   const [showPaymentSuccessModal, setShowPaymentSuccessModal] = useState(false);
@@ -783,6 +784,9 @@ const CheckoutPage = () => {
   const servicingIncluded = pb.servicingIncluded !== undefined ? Boolean(pb.servicingIncluded) : true;
   const warrantyFee = (pb.warrantyFee !== undefined && pb.warrantyFee !== '') ? Number(pb.warrantyFee) : 5500;
   const warrantyIncluded = pb.warrantyIncluded !== undefined ? Boolean(pb.warrantyIncluded) : true;
+  const warrantyOptional = pb.warrantyOptional === true || pb.warrantyIncluded === false;
+  const activeWarrantyFee = warrantyIncluded ? 0 : (warrantySelected ? warrantyFee : 0);
+  const isWarrantyActive = warrantyIncluded || warrantySelected;
   const fixesFee = (pb.fixesFee !== undefined && pb.fixesFee !== '') ? Number(pb.fixesFee) : 0;
   const fixesIncluded = pb.fixesIncluded !== undefined ? Boolean(pb.fixesIncluded) : true;
   const gstTax = (pb.gstTax !== undefined && pb.gstTax !== '') ? Number(pb.gstTax) : 2430;
@@ -796,7 +800,7 @@ const CheckoutPage = () => {
     ? (Number(car.original_price) - Number(car.price))
     : 15000) + couponDiscount + totalIncludedBenefits;
 
-  const totalVehicleAmount = Math.max(0, carPrice + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - couponDiscount);
+  const totalVehicleAmount = Math.max(0, carPrice + activeWarrantyFee + (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) - couponDiscount);
   const totalOnRoadPrice = Math.max(
     0,
     carPrice +
@@ -804,7 +808,7 @@ const CheckoutPage = () => {
     tcsAmount +
     gstTax +
     (!servicingIncluded ? servicingFee : 0) +
-    (!warrantyIncluded ? warrantyFee : 0) +
+    activeWarrantyFee +
     (!fixesIncluded ? fixesFee : 0) +
     (maintenancePackageAdded && maintenancePaymentType === 'full' ? 11287 : 0) -
     couponDiscount
@@ -1058,6 +1062,8 @@ const CheckoutPage = () => {
           maintenance_package: maintenancePackageAdded ? 1 : 0,
           maintenance_plan_type: maintenancePackageAdded ? maintenancePaymentType : null,
           maintenance_price: maintenancePackageAdded ? (maintenancePaymentType === 'full' ? 11287 : 990) : null,
+          warranty_selected: isWarrantyActive ? 1 : 0,
+          warranty_price: activeWarrantyFee,
           coupon_code: appliedCoupon ? appliedCoupon.code : null,
           discount_amount: appliedCoupon ? appliedCoupon.discount_amount : 0
         })
@@ -1370,6 +1376,78 @@ const CheckoutPage = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Optional Warranty Protect Card */}
+              {warrantyOptional && (
+                <div className={`rounded-2xl border transition-all p-4 sm:p-5 my-2 mx-0.5 relative overflow-hidden ${
+                  warrantySelected
+                    ? 'bg-gradient-to-r from-emerald-50/90 via-teal-50/40 to-white border-[#00C9AF] shadow-sm'
+                    : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
+                }`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4">
+                    {/* Left Icon & Info */}
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${
+                        warrantySelected ? 'bg-[#00C9AF]/15 text-[#00A38D]' : 'bg-slate-100 text-slate-500'
+                      }`}>
+                        <ShieldCheck className="w-8 h-8 sm:w-9 sm:h-9" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <h3 className="font-extrabold text-[#0C1B33] text-sm sm:text-base leading-snug">
+                            Warranty (Protect)
+                          </h3>
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                            warrantySelected ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {warrantySelected ? 'Added to Booking' : 'Optional Add-on'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                          6 Months engine & transmission protection, electricals, and emergency support.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setActiveBreakdownModal('warranty')}
+                          className="text-xs text-[#00A38D] font-bold inline-flex items-center gap-0.5 mt-1 hover:underline cursor-pointer"
+                        >
+                          <span>Coverage details</span>
+                          <ChevronRight size={13} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Right Price & Checkbox Button */}
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center shrink-0 gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                      <div className="text-left sm:text-right">
+                        <span className="text-base sm:text-lg font-bold text-[#0C1B33] tracking-tight leading-snug font-price">
+                          + ₹{warrantyFee.toLocaleString('en-IN')}
+                        </span>
+                        <span className="block text-[11px] text-slate-400 font-medium">One-time payment</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        id="btn-warranty-protect-toggle"
+                        onClick={() => setWarrantySelected(!warrantySelected)}
+                        className={`py-2 px-4.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer active:scale-95 shadow-2xs ${
+                          warrantySelected
+                            ? 'border border-[#00A38D] bg-emerald-50 text-[#00A38D] hover:bg-emerald-100/70'
+                            : 'border border-[#00C9AF] text-[#00A38D] bg-teal-50/40 hover:bg-[#00C9AF]/15'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={warrantySelected}
+                          onChange={() => {}}
+                          className="w-4 h-4 rounded text-[#00A38D] border-gray-300 accent-[#00C9AF] cursor-pointer"
+                        />
+                        <span>{warrantySelected ? 'Protect Added' : 'Add Protect'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* 2. Interested in Car Loan? (Matching Spinny Reference Screenshot 1) */}
               <div className={`${!showLoanBoxOnMobile && !interestedInLoan ? 'hidden lg:block' : 'block'} bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm relative overflow-hidden transition-all hover:border-slate-300 animate-in fade-in duration-200`}>
@@ -1787,29 +1865,69 @@ const CheckoutPage = () => {
                       </div>
                     </div>
 
-                    {/* Warranty */}
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-medium flex items-center gap-1.5">
-                        <span>Warranty (Protect)</span>
-                        <PriceInfoPopover
-                          title="Warranty (Protect)"
-                          onOpenModal={() => setActiveBreakdownModal('warranty')}
-                        />
-                      </span>
-                      <div className="flex items-center gap-2">
-                        {warrantyIncluded ? (
-                          <>
+                    {/* Warranty (Protect) */}
+                    <div className={`flex justify-between items-center transition-all ${
+                      warrantyOptional
+                        ? 'p-2.5 -mx-2.5 rounded-xl border ' + (warrantySelected ? 'bg-emerald-50/70 border-emerald-300 shadow-2xs' : 'bg-slate-50/80 border-slate-200/90 hover:border-slate-300')
+                        : ''
+                    }`}>
+                      {warrantyIncluded ? (
+                        <>
+                          <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                            <span>Warranty (Protect)</span>
+                            <PriceInfoPopover
+                              title="Warranty (Protect)"
+                              onOpenModal={() => setActiveBreakdownModal('warranty')}
+                            />
+                          </span>
+                          <div className="flex items-center gap-2">
                             <span className="text-slate-400 line-through font-normal text-xs font-price">
                               ₹{warrantyFee.toLocaleString('en-IN')}
                             </span>
                             <span className="text-emerald-600 font-bold">Included</span>
-                          </>
-                        ) : (
-                          <span className="font-bold text-[#0C1B33] font-price">
-                            + ₹{warrantyFee.toLocaleString('en-IN')}
-                          </span>
-                        )}
-                      </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <label className="flex items-center gap-2.5 cursor-pointer select-none flex-1 min-w-0 pr-2">
+                            <input
+                              type="checkbox"
+                              id="checkout-warranty-checkbox-desktop"
+                              checked={warrantySelected}
+                              onChange={(e) => setWarrantySelected(e.target.checked)}
+                              className="w-4.5 h-4.5 rounded text-brand-600 focus:ring-brand-500 border-slate-300 cursor-pointer accent-[#00C9AF] shrink-0"
+                            />
+                            <span className="text-slate-800 font-semibold flex items-center gap-1.5 text-xs sm:text-sm">
+                              <span>Warranty (Protect)</span>
+                              <PriceInfoPopover
+                                title="Warranty (Protect)"
+                                onOpenModal={() => setActiveBreakdownModal('warranty')}
+                              />
+                            </span>
+                          </label>
+                          <div className="flex items-center gap-2 shrink-0">
+                            {warrantySelected ? (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.5 rounded-md">
+                                  Added
+                                </span>
+                                <span className="font-bold text-[#0C1B33] font-price text-sm">
+                                  + ₹{warrantyFee.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setWarrantySelected(true)}
+                                className="text-[11px] font-bold text-[#00A38D] hover:text-white bg-[#00C9AF]/15 hover:bg-[#00A38D] px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+                              >
+                                <Plus size={12} strokeWidth={2.5} />
+                                <span>Add (+₹{warrantyFee.toLocaleString('en-IN')})</span>
+                              </button>
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     {/* Fixes & Upgrades */}
@@ -3105,29 +3223,69 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                {/* Warranty */}
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-600 font-medium flex items-center gap-1.5">
-                    <span>Warranty (Protect)</span>
-                    <PriceInfoPopover
-                      title="Warranty (Protect)"
-                      onOpenModal={() => setActiveBreakdownModal('warranty')}
-                    />
-                  </span>
-                  <div className="flex items-center gap-2">
-                    {warrantyIncluded ? (
-                      <>
+                {/* Warranty (Protect) */}
+                <div className={`flex justify-between items-center transition-all ${
+                  warrantyOptional
+                    ? 'p-2.5 -mx-2.5 rounded-xl border ' + (warrantySelected ? 'bg-emerald-50/70 border-emerald-300 shadow-2xs' : 'bg-slate-50/80 border-slate-200/90')
+                    : ''
+                }`}>
+                  {warrantyIncluded ? (
+                    <>
+                      <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                        <span>Warranty (Protect)</span>
+                        <PriceInfoPopover
+                          title="Warranty (Protect)"
+                          onOpenModal={() => setActiveBreakdownModal('warranty')}
+                        />
+                      </span>
+                      <div className="flex items-center gap-2">
                         <span className="text-slate-400 line-through font-normal text-xs font-price">
                           ₹{warrantyFee.toLocaleString('en-IN')}
                         </span>
                         <span className="text-emerald-600 font-bold">Included</span>
-                      </>
-                    ) : (
-                      <span className="font-bold text-[#0C1B33] font-price">
-                        + ₹{warrantyFee.toLocaleString('en-IN')}
-                      </span>
-                    )}
-                  </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <label className="flex items-center gap-2 cursor-pointer select-none flex-1 min-w-0 pr-2">
+                        <input
+                          type="checkbox"
+                          id="checkout-warranty-checkbox-mobile"
+                          checked={warrantySelected}
+                          onChange={(e) => setWarrantySelected(e.target.checked)}
+                          className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 border-slate-300 cursor-pointer accent-[#00C9AF] shrink-0"
+                        />
+                        <span className="text-slate-800 font-semibold flex items-center gap-1 text-xs">
+                          <span>Warranty (Protect)</span>
+                          <PriceInfoPopover
+                            title="Warranty (Protect)"
+                            onOpenModal={() => setActiveBreakdownModal('warranty')}
+                          />
+                        </span>
+                      </label>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {warrantySelected ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.5 rounded-md">
+                              Added
+                            </span>
+                            <span className="font-bold text-[#0C1B33] font-price text-xs sm:text-sm">
+                              + ₹{warrantyFee.toLocaleString('en-IN')}
+                            </span>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setWarrantySelected(true)}
+                            className="text-[10px] sm:text-[11px] font-bold text-[#00A38D] hover:text-white bg-[#00C9AF]/15 hover:bg-[#00A38D] px-2 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+                          >
+                            <Plus size={11} strokeWidth={2.5} />
+                            <span>Add (+₹{warrantyFee.toLocaleString('en-IN')})</span>
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Fixes & Upgrades */}

@@ -112,6 +112,15 @@ class ErrorBoundary extends Component {
 
 import WhatsAppChatButton from './components/common/WhatsAppChatButton';
 
+function RedirectToAdmin() {
+  useEffect(() => {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const targetBase = isLocal ? 'http://localhost:5174' : 'https://admin.selectt.in';
+    window.location.replace(`${targetBase}${window.location.pathname}${window.location.search}`);
+  }, []);
+  return null;
+}
+
 function MainLayout() {
   const location = useLocation();
   const isCheckout = location.pathname.startsWith('/checkout');
@@ -193,7 +202,7 @@ function App() {
 
   return (
     <Router>
-      <PagePreloader minDisplayTime={1200} />
+      <PagePreloader minDisplayTime={1800} />
       <ScrollToTop />
       <VisitorTracker />
       <SiteSettingsProvider>
@@ -230,6 +239,9 @@ function App() {
                       <Route path="/about-us" element={<AboutUsPage />} />
                       <Route path="/contact-us" element={<ContactUsPage />} />
                       <Route path="/careers" element={<CareersPage />} />
+                      <Route path="/settings/*" element={<RedirectToAdmin />} />
+                      <Route path="/admin" element={<RedirectToAdmin />} />
+                      <Route path="/admin/*" element={<RedirectToAdmin />} />
                       <Route path="/faq" element={<FAQPage />} />
                       <Route path="/sitemap" element={<SitemapPage />} />
                       <Route path="/car-insurance" element={<CarInsurancePage />} />

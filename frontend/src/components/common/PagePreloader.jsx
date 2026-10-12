@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import lottie from 'lottie-web';
-import searchingCarAnimation from '../../assets/searching-car.json';
+import brandPreloaderAnimation from '../../assets/selectt-brand-preloader.json';
 
 function checkShouldSkipPreloader() {
   if (typeof window === 'undefined') return true;
@@ -20,7 +20,7 @@ function checkShouldSkipPreloader() {
   return false;
 }
 
-export default function PagePreloader({ minDisplayTime = 1400 }) {
+export default function PagePreloader({ minDisplayTime = 2200 }) {
   const [shouldSkip] = useState(checkShouldSkipPreloader);
   const [isVisible, setIsVisible] = useState(!shouldSkip);
   const [shouldRender, setShouldRender] = useState(!shouldSkip);
@@ -38,7 +38,7 @@ export default function PagePreloader({ minDisplayTime = 1400 }) {
     setIsVisible(false);
     setTimeout(() => {
       setShouldRender(false);
-    }, 400);
+    }, 450);
   };
 
   useEffect(() => {
@@ -51,7 +51,10 @@ export default function PagePreloader({ minDisplayTime = 1400 }) {
           renderer: 'svg',
           loop: true,
           autoplay: true,
-          animationData: searchingCarAnimation,
+          animationData: brandPreloaderAnimation,
+          rendererSettings: {
+            preserveAspectRatio: 'xMidYMid meet'
+          }
         });
       } catch (e) {
         console.warn('Lottie failed, dismissing', e);
@@ -83,7 +86,7 @@ export default function PagePreloader({ minDisplayTime = 1400 }) {
     <div
       onClick={dismiss}
       style={{
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#000000',
         position: 'fixed',
         top: 0,
         left: 0,
@@ -96,23 +99,15 @@ export default function PagePreloader({ minDisplayTime = 1400 }) {
         padding: 0,
         overflow: 'hidden',
       }}
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-white transition-opacity duration-400 ease-out cursor-pointer ${
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black transition-opacity duration-500 ease-out cursor-pointer select-none ${
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
-      <div className="relative flex flex-col items-center justify-center w-full h-full p-4">
+      <div className="relative flex flex-col items-center justify-center w-full h-full p-4 sm:p-6">
         <div
           ref={containerRef}
-          className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center"
+          className="w-full max-w-[360px] sm:max-w-[480px] md:max-w-[580px] aspect-[16/9] flex items-center justify-center overflow-hidden"
         />
-        <div className="text-center mt-3 space-y-1">
-          <p className="text-xs sm:text-sm font-extrabold text-[#0C1B33] tracking-wider uppercase">
-            Selectt.
-          </p>
-          <p className="text-xs font-semibold text-slate-500">
-            Finding certified cars for you...
-          </p>
-        </div>
       </div>
     </div>
   );

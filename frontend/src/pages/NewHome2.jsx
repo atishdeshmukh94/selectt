@@ -290,10 +290,10 @@ export default function NewHome2() {
                   className="w-full bg-[#0c1b33] border border-white/15 rounded-xl px-3 py-2.5 text-sm text-[#f9f9f9] focus:outline-none focus:border-[#00e4c0] cursor-pointer"
                 >
                   <option value="All budgets">All Budgets</option>
-                  <option value="Under 5 Lakh">Under 5 Lakh</option>
-                  <option value="5-10 Lakh">5 - 10 Lakh</option>
-                  <option value="10-15 Lakh">10 - 15 Lakh</option>
-                  <option value="Above 15 Lakh">Above 15 Lakh</option>
+                  <option value="Under 10 L">Under 10 L</option>
+                  <option value="10 - 20 Lakhs">10 - 20 Lakhs</option>
+                  <option value="20 - 30 Lakhs">20 - 30 Lakhs</option>
+                  <option value="30 Lakhs +">30 Lakhs +</option>
                 </select>
               </div>
             </div>
