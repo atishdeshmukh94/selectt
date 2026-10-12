@@ -196,10 +196,9 @@ class OneSignalService {
 
     const payload = {
       app_id: config.appId,
-      included_segments: Array.isArray(segments) && segments.length > 0 ? segments : ['Total Subscriptions', 'Subscribed Users'],
+      included_segments: Array.isArray(segments) && segments.length > 0 ? segments : ['Total Subscriptions'],
       headings: { en: title },
       contents: { en: message },
-      url: finalUrl,
       web_url: finalUrl,
       target_channel: 'push',
       idempotency_key: crypto.randomUUID(),
