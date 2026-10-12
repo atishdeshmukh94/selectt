@@ -17,7 +17,16 @@ import {
   Eye,
   EyeOff,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Bell,
+  Send,
+  Radio,
+  Sparkles,
+  RefreshCw,
+  Trash2,
+  Key,
+  Users,
+  Car
 } from "lucide-react";
 
 interface Setting {
@@ -49,7 +58,7 @@ const getGallaboxEmbedCode = (token: string) => {
 };
 
 interface SiteSettingsProps {
-  section?: "payment" | "smtp" | "maintenance" | "whatsapp" | "whatsapp_chat" | "branding" | "api_keys" | "crm";
+  section?: "payment" | "smtp" | "maintenance" | "whatsapp" | "whatsapp_chat" | "branding" | "api_keys" | "crm" | "onesignal";
 }
 
 const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
@@ -76,6 +85,19 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
   const [testingSmtp, setTestingSmtp] = useState(false);
   const [testSmtpEmail, setTestSmtpEmail] = useState("");
   const [smtpTestResult, setSmtpTestResult] = useState<{ success?: boolean; message?: string } | null>(null);
+
+  // OneSignal Push Notification state
+  const [showOneSignalApiKey, setShowOneSignalApiKey] = useState(false);
+  const [testingOneSignal, setTestingOneSignal] = useState(false);
+  const [oneSignalTestResult, setOneSignalTestResult] = useState<{ success?: boolean; message?: string; appName?: string; subscribers?: number } | null>(null);
+  const [oneSignalTitle, setOneSignalTitle] = useState("");
+  const [oneSignalMessage, setOneSignalMessage] = useState("");
+  const [oneSignalUrl, setOneSignalUrl] = useState("");
+  const [oneSignalImage, setOneSignalImage] = useState("");
+  const [oneSignalSending, setOneSignalSending] = useState(false);
+  const [oneSignalBroadcastResult, setOneSignalBroadcastResult] = useState<{ success?: boolean; message?: string; recipients?: number } | null>(null);
+  const [oneSignalHistory, setOneSignalHistory] = useState<any[]>([]);
+  const [loadingOneSignalHistory, setLoadingOneSignalHistory] = useState(false);
 
   // WhatsApp Notification & Template state (29 Use Cases)
   const [testPhone, setTestPhone] = useState("");
@@ -519,6 +541,90 @@ const SiteSettings: React.FC<SiteSettingsProps> = ({ section = "payment" }) => {
       toast.error("Error: " + e.message);
     } finally {
       setSyncingAllCustomers(false);
+    }
+  };
+
+  const handleTestOneSignal = async () => {
+    try {
+      setTestingOneSignal(true);
+      setOneSignalTestResult(null);
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(`${API_URL}/api/admin/onesignal/test-connection`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ app_id: settings.onesignal_app_id, api_key: settings.onesignal_api_key })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOneSignalTestResult({ success: true, message: data.message, appName: data.appName, subscribers: data.subscribers });
+        toast.success(`✅ OneSignal connected! App: ${data.appName}`);
+      } else {
+        setOneSignalTestResult({ success: false, message: data.error || "Connection failed" });
+        toast.error(`❌ OneSignal Error: ${data.error || "Failed"}`);
+      }
+    } catch (err: any) {
+      setOneSignalTestResult({ success: false, message: err.message });
+      toast.error("OneSignal connection test failed");
+    } finally {
+      setTestingOneSignal(false);
+    }
+  };
+
+  const handleBroadcastOneSignal = async () => {
+    if (!oneSignalTitle.trim() || !oneSignalMessage.trim()) {
+      toast.error("Please enter a title and message");
+      return;
+    }
+    try {
+      setOneSignalSending(true);
+      setOneSignalBroadcastResult(null);
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(`${API_URL}/api/admin/onesignal/broadcast`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          app_id: settings.onesignal_app_id,
+          api_key: settings.onesignal_api_key,
+          title: oneSignalTitle,
+          message: oneSignalMessage,
+          url: oneSignalUrl || undefined,
+          image: oneSignalImage || undefined
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOneSignalBroadcastResult({ success: true, message: data.message, recipients: data.recipients });
+        toast.success(`✅ Notification sent to ${data.recipients} subscribers!`);
+        setOneSignalTitle(""); setOneSignalMessage(""); setOneSignalUrl(""); setOneSignalImage("");
+      } else {
+        setOneSignalBroadcastResult({ success: false, message: data.error || "Broadcast failed" });
+        toast.error(`❌ ${data.error || "Broadcast failed"}`);
+      }
+    } catch (err: any) {
+      setOneSignalBroadcastResult({ success: false, message: err.message });
+      toast.error("Broadcast failed: " + err.message);
+    } finally {
+      setOneSignalSending(false);
+    }
+  };
+
+  const loadOneSignalHistory = async () => {
+    try {
+      setLoadingOneSignalHistory(true);
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(`${API_URL}/api/admin/onesignal/history?app_id=${settings.onesignal_app_id}&api_key=${settings.onesignal_api_key}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOneSignalHistory(data.notifications || []);
+      } else {
+        toast.error(data.error || "Failed to load history");
+      }
+    } catch (err: any) {
+      toast.error("Failed to load history: " + err.message);
+    } finally {
+      setLoadingOneSignalHistory(false);
     }
   };
 

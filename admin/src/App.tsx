@@ -105,6 +105,9 @@ export default function App() {
                   <Route path="/whatsapp-chat-settings" element={<SiteSettings section="whatsapp_chat" />} />
                   <Route path="/settings/crm" element={<SiteSettings section="crm" />} />
                   <Route path="/crm-settings" element={<SiteSettings section="crm" />} />
+                  <Route path="/settings/onesignal" element={<SiteSettings section="onesignal" />} />
+                  <Route path="/settings/push-notifications" element={<SiteSettings section="onesignal" />} />
+                  <Route path="/onesignal-settings" element={<SiteSettings section="onesignal" />} />
                   <Route path="/settings/receipt" element={<ReceiptSettings />} />
                   <Route path="/receipt-settings" element={<ReceiptSettings />} />
                   <Route path="/settings/meta-catalog" element={<MetaCatalogSettings />} />

@@ -5548,6 +5548,142 @@ app.post('/api/admin/crm/sync-customers', authMiddleware, isAdmin, async (req, r
 });
 
 // ============================================================
+// ONESIGNAL WEB PUSH NOTIFICATIONS API (ADMIN)
+// ============================================================
+
+// 1. Get OneSignal Push Configuration & Stats
+app.get('/api/admin/push/config', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const config = await onesignal.getConfig();
+        let maskedKey = '';
+        if (config.restApiKey) {
+            maskedKey = config.restApiKey.length > 8
+                ? `${config.restApiKey.slice(0, 4)}••••••••${config.restApiKey.slice(-4)}`
+                : '••••••••';
+        }
+        res.json({
+            success: true,
+            config: {
+                ...config,
+                hasRestApiKey: Boolean(config.restApiKey),
+                maskedRestApiKey: maskedKey,
+                appId: config.appId || 'a3377d9a-64ff-4d51-ad12-d624f704ae4f'
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 2. Save OneSignal Push Configuration
+app.post('/api/admin/push/config', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const {
+            onesignal_enabled,
+            onesignal_app_id,
+            onesignal_rest_api_key,
+            onesignal_auto_new_car,
+            onesignal_auto_price_drop,
+            onesignal_price_drop_min,
+            onesignal_prompt_enabled,
+            onesignal_icon_url
+        } = req.body;
+
+        const updates = [];
+        if (onesignal_enabled !== undefined) updates.push(['onesignal_enabled', String(onesignal_enabled)]);
+        if (onesignal_app_id !== undefined) updates.push(['onesignal_app_id', String(onesignal_app_id).trim()]);
+        if (onesignal_rest_api_key !== undefined && String(onesignal_rest_api_key).trim() && !String(onesignal_rest_api_key).includes('••••')) {
+            updates.push(['onesignal_rest_api_key', String(onesignal_rest_api_key).trim()]);
+        }
+        if (onesignal_auto_new_car !== undefined) updates.push(['onesignal_auto_new_car', String(onesignal_auto_new_car)]);
+        if (onesignal_auto_price_drop !== undefined) updates.push(['onesignal_auto_price_drop', String(onesignal_auto_price_drop)]);
+        if (onesignal_price_drop_min !== undefined) updates.push(['onesignal_price_drop_min', String(onesignal_price_drop_min)]);
+        if (onesignal_prompt_enabled !== undefined) updates.push(['onesignal_prompt_enabled', String(onesignal_prompt_enabled)]);
+        if (onesignal_icon_url !== undefined) updates.push(['onesignal_icon_url', String(onesignal_icon_url).trim()]);
+
+        for (const [key, val] of updates) {
+            await queryAsync('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', [key, val, val]);
+        }
+
+        res.json({ success: true, message: 'OneSignal Push Notification settings saved successfully.' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 3. Test OneSignal Connection & Fetch Live Subscriber Count
+app.post('/api/admin/push/test', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        let { appId, restApiKey } = req.body || {};
+        if (!appId || !restApiKey || restApiKey.includes('••••')) {
+            const config = await onesignal.getConfig();
+            appId = appId || config.appId;
+            restApiKey = (restApiKey && !restApiKey.includes('••••')) ? restApiKey : config.restApiKey;
+        }
+
+        if (!appId || !restApiKey) {
+            return res.status(400).json({ success: false, message: 'Both OneSignal App ID and REST API Key are required to test connection.' });
+        }
+
+        const result = await onesignal.testConnection({ appId, restApiKey });
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
+
+// 4. Send Custom Broadcast Push Notification
+app.post('/api/admin/push/send', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const { title, message, url, imageUrl } = req.body;
+        if (!title || !message) {
+            return res.status(400).json({ success: false, message: 'Title and message are required.' });
+        }
+
+        const result = await onesignal.sendPushNotification({
+            title: title.trim(),
+            message: message.trim(),
+            url: url ? url.trim() : 'https://selectt.in',
+            imageUrl: imageUrl ? imageUrl.trim() : null,
+            type: 'custom'
+        });
+
+        res.json({
+            success: true,
+            message: `Push notification dispatched! Sent to ${result.recipients || 0} subscriber(s).`,
+            id: result.id,
+            recipients: result.recipients
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 5. Get Past Push Notification History
+app.get('/api/admin/push/history', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const limit = Number(req.query.limit) || 50;
+        const offset = Number(req.query.offset) || 0;
+        const type = req.query.type || null;
+
+        const history = await onesignal.getHistory({ limit, offset, type });
+        res.json({ success: true, data: history });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 6. Delete History Item
+app.delete('/api/admin/push/history/:id', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        await onesignal.deleteHistoryItem(req.params.id);
+        res.json({ success: true, message: 'Notification log entry deleted.' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ============================================================
 // CAREERS MODULE (PUBLIC & ADMIN)
 // ============================================================
 

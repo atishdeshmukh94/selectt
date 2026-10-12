@@ -159,6 +159,7 @@ const navItems: NavItem[] = [
       { name: "WhatsApp API", path: "/settings/whatsapp", permissionKey: "site_settings" },
       { name: "WhatsApp Chat Widget", path: "/settings/whatsapp-chat", permissionKey: "site_settings" },
       { name: "Neodove CRM", path: "/settings/crm", permissionKey: "site_settings" },
+      { name: "OneSignal Push API", path: "/settings/onesignal", permissionKey: "site_settings" },
       { name: "Payment Receipt", path: "/settings/receipt", permissionKey: "site_settings" },
       { name: "Maintenance Mode", path: "/settings/maintenance", permissionKey: "site_settings" },
       { name: "Booking Settings", path: "/settings/booking", permissionKey: "site_settings" },
