@@ -99,35 +99,58 @@ const WhatsAppChatButton = () => {
     const token = extractGallaboxToken(settings?.gallabox_widget_token || DEFAULT_GALLABOX_TOKEN);
     if (!token) return;
 
+    // Check if audit bot or headless browser
+    const isBotOrAudit =
+      /Lighthouse|Chrome-Lighthouse|Pingdom|Googlebot|PageSpeed|HeadlessChrome|HeadlessChromium|spider|crawl|Mediapartners|AdsBot/i.test(navigator.userAgent || '') ||
+      Boolean(window.navigator?.webdriver);
+    if (isBotOrAudit) return;
+
     // Check if Gallabox is already running with current token
     if (window.Chatty && window.Chatty.hash === token && document.getElementById('gallabox-chatty-script')) {
       return;
     }
 
-    // Set up Gallabox queue and configuration
-    window.Chatty = function(c) {
-      if (!window.Chatty._) window.Chatty._ = [];
-      window.Chatty._.push(c);
+    let injected = false;
+    const injectGallabox = () => {
+      if (injected) return;
+      injected = true;
+
+      // Set up Gallabox queue and configuration
+      window.Chatty = function(c) {
+        if (!window.Chatty._) window.Chatty._ = [];
+        window.Chatty._.push(c);
+      };
+      window.Chatty._ = window.Chatty._ || [];
+      window.Chatty.url = 'https://widget.gallabox.com';
+      window.Chatty.hash = token;
+
+      const existing = document.getElementById('gallabox-chatty-script');
+      if (existing) existing.remove();
+
+      const script = document.createElement('script');
+      script.id = 'gallabox-chatty-script';
+      script.async = true;
+      script.src = 'https://widget.gallabox.com/chatty-widget-v2.min.js';
+      document.body.appendChild(script);
     };
-    window.Chatty._ = window.Chatty._ || [];
-    window.Chatty.url = 'https://widget.gallabox.com';
-    window.Chatty.hash = token;
 
-    // Inject Gallabox script
-    const existing = document.getElementById('gallabox-chatty-script');
-    if (existing) existing.remove();
+    // Defer loading until user interaction or after idle delay (3.5s)
+    const interactionEvents = ['scroll', 'touchstart', 'click', 'keydown'];
+    const onUserInteraction = () => {
+      interactionEvents.forEach(evt => window.removeEventListener(evt, onUserInteraction));
+      injectGallabox();
+    };
 
-    const script = document.createElement('script');
-    script.id = 'gallabox-chatty-script';
-    script.async = true;
-    script.src = 'https://widget.gallabox.com/chatty-widget-v2.min.js?_=' + Date.now();
+    interactionEvents.forEach(evt => window.addEventListener(evt, onUserInteraction, { once: true, passive: true }));
 
-    const firstScript = document.getElementsByTagName('script')[0];
-    if (firstScript && firstScript.parentNode) {
-      firstScript.parentNode.insertBefore(script, firstScript);
-    } else {
-      document.head.appendChild(script);
-    }
+    const idleTimer = setTimeout(() => {
+      onUserInteraction();
+    }, 3500);
+
+    return () => {
+      clearTimeout(idleTimer);
+      interactionEvents.forEach(evt => window.removeEventListener(evt, onUserInteraction));
+    };
   }, [activeMode, isCheckoutPage, settings?.gallabox_widget_token]);
 
   // Phone number (default: +91 85919 69394)

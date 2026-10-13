@@ -575,14 +575,14 @@ const BuyCarsPage = () => {
     const banner2 = {
       logoUrl: extraCardData?.buy_grid_banner_2_img,
       btnLink: extraCardData?.buy_grid_banner_2_link || "/car-insurance",
-      isActive: extraCardData?.buy_grid_banner_2_active !== "false" && extraCardData?.buy_grid_banner_2_active !== "0",
+      isActive: Boolean(extraCardData?.buy_grid_banner_2_img) && extraCardData?.buy_grid_banner_2_active !== "0" && extraCardData?.buy_grid_banner_2_active !== "disabled",
       title: "Insurance & Warranty Banner",
     };
 
     const banner3 = {
       logoUrl: extraCardData?.buy_grid_banner_3_img,
       btnLink: extraCardData?.buy_grid_banner_3_link || "/sell-car",
-      isActive: extraCardData?.buy_grid_banner_3_active !== "false" && extraCardData?.buy_grid_banner_3_active !== "0",
+      isActive: Boolean(extraCardData?.buy_grid_banner_3_img) && extraCardData?.buy_grid_banner_3_active !== "0" && extraCardData?.buy_grid_banner_3_active !== "disabled",
       title: "Instant Valuation & Buyback Banner",
     };
 

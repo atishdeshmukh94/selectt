@@ -5374,6 +5374,19 @@ app.post('/api/settings/upload', authMiddleware, isAdmin, upload.any(), convertR
                             if (oldVal && oldVal !== filePath && oldVal.startsWith('/uploads/')) {
                                 deleteLocalUploadFile(oldVal);
                             }
+                            // Auto-activate associated visibility key if an image is uploaded for in-grid / side banners
+                            const visibilityKeyMap = {
+                                'buy_grid_banner_2_img': 'buy_grid_banner_2_active',
+                                'buy_grid_banner_3_img': 'buy_grid_banner_3_active',
+                                'extra_card_logo_url': 'extra_card_is_active',
+                                'careers_side_banner_img': 'careers_side_banner_active'
+                            };
+                            if (visibilityKeyMap[key]) {
+                                const visKey = visibilityKeyMap[key];
+                                db.query('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, "true") ON DUPLICATE KEY UPDATE setting_value = "true"', [visKey], (visErr) => {
+                                    if (visErr) console.error(`Error auto-activating ${visKey}:`, visErr);
+                                });
+                            }
                             resolve();
                         }
                     });
@@ -5420,7 +5433,13 @@ app.get('/api/settings/public', (req, res) => {
             extra_card_btn_link: settings.extra_card_btn_link || "#",
             extra_card_logo_url: settings.extra_card_logo_url || "",
             extra_card_bg_gradient: settings.extra_card_bg_gradient || "linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)",
-            extra_card_is_active: settings.extra_card_is_active !== 'false',
+            extra_card_is_active: settings.extra_card_is_active !== 'false' && settings.extra_card_is_active !== false,
+            buy_grid_banner_2_img: settings.buy_grid_banner_2_img || "",
+            buy_grid_banner_2_link: settings.buy_grid_banner_2_link || "/car-insurance",
+            buy_grid_banner_2_active: Boolean(settings.buy_grid_banner_2_img) ? (settings.buy_grid_banner_2_active !== '0' && settings.buy_grid_banner_2_active !== 'disabled') : (settings.buy_grid_banner_2_active !== 'false' && settings.buy_grid_banner_2_active !== false && settings.buy_grid_banner_2_active !== undefined),
+            buy_grid_banner_3_img: settings.buy_grid_banner_3_img || "",
+            buy_grid_banner_3_link: settings.buy_grid_banner_3_link || "/sell-car",
+            buy_grid_banner_3_active: Boolean(settings.buy_grid_banner_3_img) ? (settings.buy_grid_banner_3_active !== '0' && settings.buy_grid_banner_3_active !== 'disabled') : (settings.buy_grid_banner_3_active !== 'false' && settings.buy_grid_banner_3_active !== false && settings.buy_grid_banner_3_active !== undefined),
             booking_special_enabled: settings.booking_special_enabled !== 'false',
             booking_special_badge: settings.booking_special_badge || "🪔 Navratri Special",
             booking_special_title: settings.booking_special_title || "Reserve till Navratri",

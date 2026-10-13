@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { SiteSettingsProvider } from './context/SiteSettingsContext';
+import { SiteSettingsProvider, getCachedPublicSettings } from './context/SiteSettingsContext';
 import { ToastProvider } from './components/animation/ToastSystem';
 import LoginModal from './components/auth/LoginModal';
 import PremiumHeader from './components/layout/PremiumHeader/PremiumHeader';
@@ -182,9 +182,8 @@ function App() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/settings/public`);
-        if (res.ok) {
-          const data = await res.json();
+        const data = await getCachedPublicSettings();
+        if (data) {
           if (data.site_logo) {
             setLogo(data.site_logo);
           } else if (data.admin_logo_dark || data.auth_logo) {

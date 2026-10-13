@@ -901,6 +901,17 @@ export default function ImageSettings() {
         if (!settingsData.buy_top_banner_3_link) settingsData.buy_top_banner_3_link = "/sell-car";
       }
 
+      // Default fallbacks for In-Grid Promotional Banners (Cards #1, #2, #3)
+      if (settingsData.extra_card_logo_url && (settingsData.extra_card_is_active === undefined || settingsData.extra_card_is_active === "")) {
+        settingsData.extra_card_is_active = "true";
+      }
+      if (settingsData.buy_grid_banner_2_img && (settingsData.buy_grid_banner_2_active === undefined || settingsData.buy_grid_banner_2_active === "" || settingsData.buy_grid_banner_2_active === "false")) {
+        settingsData.buy_grid_banner_2_active = "true";
+      }
+      if (settingsData.buy_grid_banner_3_img && (settingsData.buy_grid_banner_3_active === undefined || settingsData.buy_grid_banner_3_active === "" || settingsData.buy_grid_banner_3_active === "false")) {
+        settingsData.buy_grid_banner_3_active = "true";
+      }
+
       // Default fallback for Car Details Sidebar Banner
       if (!contentData.car_details_sidebar_banner && !settingsData.car_details_sidebar_banner) {
         contentData.car_details_sidebar_banner = "https://api.selectt.in/uploads/banner_1788683587959_top-banner.webp";
@@ -1154,6 +1165,20 @@ export default function ImageSettings() {
 
         if (res.ok) {
           toast.success(`${title} updated successfully!`);
+          // Auto-enable slot visibility if it has a visibility key so uploaded banner immediately displays
+          const matchedSlot = BUY_CARS_SLOTS.find(s => s.key === key) || CAREERS_SLOTS.find(s => s.key === key);
+          if (matchedSlot?.hasVisibility && matchedSlot.visibilityKey) {
+            try {
+              await fetch(`${API}/api/settings`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ [matchedSlot.visibilityKey]: "true" }),
+              });
+            } catch (_) {}
+          }
           loadData();
         } else {
           toast.error("Failed to upload image");
@@ -2457,7 +2482,22 @@ export default function ImageSettings() {
                                 <input
                                   type="checkbox"
                                   checked={siteSettings[slot.visibilityKey] !== "false" && siteSettings[slot.visibilityKey] !== "0"}
-                                  onChange={(e) => setSiteSettings((prev) => ({ ...prev, [slot.visibilityKey!]: e.target.checked ? "true" : "false" }))}
+                                  onChange={async (e) => {
+                                    const newVal = e.target.checked ? "true" : "false";
+                                    setSiteSettings((prev) => ({ ...prev, [slot.visibilityKey!]: newVal }));
+                                    try {
+                                      const token = getAuthToken();
+                                      await fetch(`${API}/api/settings`, {
+                                        method: "POST",
+                                        headers: {
+                                          "Content-Type": "application/json",
+                                          Authorization: `Bearer ${token}`,
+                                        },
+                                        body: JSON.stringify({ [slot.visibilityKey!]: newVal }),
+                                      });
+                                      toast.success(`${slot.title} set to ${newVal === "true" ? "Visible" : "Hidden"}`);
+                                    } catch (_) {}
+                                  }}
                                   className="sr-only peer"
                                 />
                                 <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500"></div>

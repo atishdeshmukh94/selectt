@@ -3,17 +3,28 @@ import { API_URL } from "../config/api";
 
 const SiteSettingsContext = createContext();
 
+let publicSettingsPromise = null;
+
+export const getCachedPublicSettings = (force = false) => {
+  if (force || !publicSettingsPromise) {
+    publicSettingsPromise = fetch(`${API_URL}/api/settings/public`)
+      .then((res) => (res.ok ? res.json() : {}))
+      .catch((err) => {
+        console.error("Failed to fetch public site settings:", err);
+        return {};
+      });
+  }
+  return publicSettingsPromise;
+};
+
 export const SiteSettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const fetchPublicSettings = async () => {
+  const fetchPublicSettings = async (force = false) => {
     try {
-      const res = await fetch(`${API_URL}/api/settings/public`);
-      if (res.ok) {
-        const data = await res.json();
-        setSettings(data || {});
-      }
+      const data = await getCachedPublicSettings(force);
+      setSettings(data || {});
     } catch (err) {
       console.error("Failed to fetch public site settings:", err);
     } finally {

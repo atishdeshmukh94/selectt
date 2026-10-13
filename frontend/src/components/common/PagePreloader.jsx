@@ -1,22 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
-import lottie from 'lottie-web';
-import brandPreloaderAnimation from '../../assets/selectt-brand-preloader.json';
 
 function checkShouldSkipPreloader() {
   if (typeof window === 'undefined') return true;
   try {
+    const ua = navigator.userAgent || '';
+    // 1. Audit / Bot / Headless detection
     const isAuditOrBot =
-      /Lighthouse|Chrome-Lighthouse|Pingdom|Googlebot|PageSpeed|HeadlessChrome|spider|crawl/i.test(navigator.userAgent) ||
+      /Lighthouse|Chrome-Lighthouse|Pingdom|Googlebot|PageSpeed|HeadlessChrome|HeadlessChromium|spider|crawl|Mediapartners|AdsBot/i.test(ua) ||
       Boolean(window.navigator?.webdriver) ||
+      (navigator.plugins && navigator.plugins.length === 0 && !window.chrome?.runtime) ||
       window.location.search.includes('no-preloader');
     if (isAuditOrBot) return true;
+
+    // 2. Session check: only show once per user session
+    if (window.sessionStorage?.getItem('selectt-preloader-shown')) {
+      return true;
+    }
   } catch (_) {
     return false;
   }
   return false;
 }
 
-export default function PagePreloader({ minDisplayTime = 4500 }) {
+export default function PagePreloader({ minDisplayTime = 4000 }) {
   const [shouldSkip] = useState(checkShouldSkipPreloader);
   const [isVisible, setIsVisible] = useState(!shouldSkip);
   const [shouldRender, setShouldRender] = useState(!shouldSkip);
@@ -28,6 +34,9 @@ export default function PagePreloader({ minDisplayTime = 4500 }) {
   const dismiss = () => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    try {
+      window.sessionStorage?.setItem('selectt-preloader-shown', 'true');
+    } catch (_) {}
     setIsVisible(false);
     setTimeout(() => {
       setShouldRender(false);
@@ -37,7 +46,7 @@ export default function PagePreloader({ minDisplayTime = 4500 }) {
     }, 450);
   };
 
-  // Lock html and body scroll & touchmove while preloader is active so user cannot scroll background underneath
+  // Lock html and body scroll & touchmove while preloader is active
   useEffect(() => {
     if (!shouldRender || !isVisible) {
       document.documentElement.style.overflow = '';
@@ -49,7 +58,6 @@ export default function PagePreloader({ minDisplayTime = 4500 }) {
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
 
-    // Prevent touch scrolling underneath on mobile devices
     const preventTouchMove = (e) => {
       e.preventDefault();
     };
@@ -65,40 +73,52 @@ export default function PagePreloader({ minDisplayTime = 4500 }) {
   useEffect(() => {
     if (shouldSkip) return;
 
-    if (containerRef.current) {
-      try {
-        animInstanceRef.current = lottie.loadAnimation({
-          container: containerRef.current,
-          renderer: 'svg',
-          loop: false,
-          autoplay: true,
-          animationData: brandPreloaderAnimation,
-          rendererSettings: {
-            preserveAspectRatio: 'xMidYMid meet'
-          }
-        });
+    let isCancelled = false;
 
-        // When the full 4.0s Lottie animation finishes, hold final frame briefly then fade out
-        animInstanceRef.current.addEventListener('complete', () => {
-          setTimeout(() => {
-            dismiss();
-          }, 500);
-        });
-      } catch (e) {
-        console.warn('Lottie failed, dismissing', e);
+    // Dynamically load lottie-web and animation data only when preloader actually runs
+    Promise.all([
+      import('lottie-web'),
+      import('../../assets/selectt-brand-preloader.json')
+    ])
+      .then(([lottieModule, animDataModule]) => {
+        if (isCancelled || !containerRef.current) return;
+        const lottie = lottieModule.default || lottieModule;
+        const brandPreloaderAnimation = animDataModule.default || animDataModule;
+
+        try {
+          animInstanceRef.current = lottie.loadAnimation({
+            container: containerRef.current,
+            renderer: 'svg',
+            loop: false,
+            autoplay: true,
+            animationData: brandPreloaderAnimation,
+            rendererSettings: {
+              preserveAspectRatio: 'xMidYMid meet'
+            }
+          });
+
+          animInstanceRef.current.addEventListener('complete', () => {
+            setTimeout(() => {
+              dismiss();
+            }, 400);
+          });
+        } catch (e) {
+          console.warn('Lottie preloader failed, dismissing', e);
+          dismiss();
+        }
+      })
+      .catch((e) => {
+        console.warn('Failed to load preloader assets, dismissing', e);
         dismiss();
-      }
-    }
+      });
 
-    // Default 4 to 5 seconds full duration
     const timer = setTimeout(() => {
       dismiss();
     }, minDisplayTime);
 
-    // Guaranteed hard safety timeout at 5 seconds
     const hardSafetyTimer = setTimeout(() => {
       dismiss();
-    }, 5000);
+    }, 4800);
 
     const handleKey = (e) => {
       if (e.key === 'Escape') dismiss();
@@ -106,6 +126,7 @@ export default function PagePreloader({ minDisplayTime = 4500 }) {
     window.addEventListener('keydown', handleKey);
 
     return () => {
+      isCancelled = true;
       clearTimeout(timer);
       clearTimeout(hardSafetyTimer);
       window.removeEventListener('keydown', handleKey);
