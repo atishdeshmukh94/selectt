@@ -103,8 +103,15 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
-app.use('/img', express.static(path.join(__dirname, 'public/img')));
+const staticCacheOptions = {
+    maxAge: '365d',
+    immutable: true,
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+};
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), staticCacheOptions));
+app.use('/img', express.static(path.join(__dirname, 'public/img'), staticCacheOptions));
 
 // Production Health & Monitoring Endpoint
 app.get(['/health', '/api/health'], (req, res) => {

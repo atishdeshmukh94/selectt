@@ -1,33 +1,52 @@
 {
-  "$schema": "https://agenticresourcediscovery.org/spec/v1/schema.json",
-  "name": "Selectt Certified Cars Catalog",
-  "description": "Agentic discovery manifest for Selectt certified pre-owned cars, pricing, and automotive services.",
-  "version": "1.0.0",
-  "provider": {
-    "name": "Selectt",
-    "url": "https://selectt.in"
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "Selectt",
+    "documentationUrl": "https://selectt.in",
+    "logoUrl": "https://selectt.in/img/header-logo.png"
   },
-  "capabilities": [
+  "entries": [
     {
-      "id": "browse-cars",
-      "name": "Browse Pre-Owned Cars",
-      "description": "Browse and filter certified used cars with 200-point inspection reports.",
-      "endpoint": "https://selectt.in/cars",
-      "type": "web"
+      "identifier": "urn:air:selectt.in:services:browse-cars",
+      "displayName": "Browse Certified Pre-Owned Cars",
+      "type": "text/html",
+      "url": "https://selectt.in/cars",
+      "description": "Search and filter certified used cars with 200-point inspection guarantees.",
+      "tags": ["cars", "used-cars", "buy-car", "inspection"],
+      "capabilities": ["CarSearch", "InspectionReport"],
+      "representativeQueries": [
+        "Find certified pre-owned cars in Mumbai",
+        "Buy inspected used cars with warranty"
+      ],
+      "version": "1.0.0"
     },
     {
-      "id": "sell-car-valuation",
-      "name": "Sell Car Instant Valuation",
-      "description": "Instant valuation and doorstep inspection booking for selling used cars.",
-      "endpoint": "https://selectt.in/sell-car",
-      "type": "web"
+      "identifier": "urn:air:selectt.in:services:sell-car",
+      "displayName": "Sell Car Instant Valuation",
+      "type": "text/html",
+      "url": "https://selectt.in/sell-car",
+      "description": "Instant car valuation and doorstep inspection booking for selling used cars.",
+      "tags": ["sell-car", "valuation", "inspection"],
+      "capabilities": ["CarValuation", "DoorstepInspection"],
+      "representativeQueries": [
+        "Get instant car valuation online",
+        "Sell my used car doorstep inspection"
+      ],
+      "version": "1.0.0"
     },
     {
-      "id": "used-car-loans",
-      "name": "Used Car Financing",
-      "description": "Calculate EMIs and apply for low-interest pre-approved car loans.",
-      "endpoint": "https://selectt.in/used-car-loan",
-      "type": "web"
+      "identifier": "urn:air:selectt.in:services:used-car-loan",
+      "displayName": "Used Car Financing",
+      "type": "text/html",
+      "url": "https://selectt.in/used-car-loan",
+      "description": "Calculate EMIs and apply for low-interest pre-approved used car loans.",
+      "tags": ["finance", "car-loan", "emi-calculator"],
+      "capabilities": ["LoanCalculator", "LoanApplication"],
+      "representativeQueries": [
+        "Calculate used car loan EMI",
+        "Apply for instant pre-approved car finance"
+      ],
+      "version": "1.0.0"
     }
   ]
 }

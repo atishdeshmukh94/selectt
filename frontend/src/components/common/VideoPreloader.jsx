@@ -10,16 +10,20 @@ export default function VideoPreloader({
   className = ''
 }) {
   const content = (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <div className="relative w-14 h-14 flex items-center justify-center">
+    <div className="flex flex-col items-center justify-center gap-5">
+      <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+        {/* Soft glowing ambient circle */}
+        <div className="absolute w-28 h-28 rounded-full bg-[#00C9AF]/15 blur-xl animate-pulse" />
+        {/* Outer subtle track ring */}
+        <div className="w-full h-full border-4 border-slate-200/20 rounded-full" />
         {/* Spinning gradient ring */}
-        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#00C9AF] border-r-[#00C9AF] animate-spin" />
+        <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#00C9AF] border-r-[#00C9AF] animate-spin" />
         {/* Signature Brand Badge */}
-        <div className="w-9 h-9 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center text-sm font-extrabold shadow-[0_0_15px_rgba(0,201,175,0.5)]">
+        <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center text-base sm:text-lg font-black shadow-[0_0_20px_rgba(0,201,175,0.6)]">
           S
         </div>
       </div>
-      <span className="text-white text-xs font-semibold tracking-wider uppercase opacity-80">
+      <span className="text-white text-xs sm:text-sm font-bold tracking-[0.2em] uppercase opacity-90">
         {message || 'Selectt Certified'}
       </span>
     </div>
