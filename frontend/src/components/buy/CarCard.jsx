@@ -37,23 +37,12 @@ const formatBadgeText = (text) => {
     .join(' ');
 };
 
-export const getBadgeStyles = (tagText) => {
+export const getBadgeStyles = (tagText, isBottom = false) => {
   const raw = (tagText || '').trim();
   const text = raw.toLowerCase();
 
-  // Selectt Luxury
-  if (text.includes('luxury') || text.includes('selectt luxury')) {
-    return {
-      bg: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400',
-      color: 'text-amber-950 font-normal',
-      border: 'border-amber-200/90',
-      glow: 'shadow-[0_0_14px_rgba(251,191,36,0.85)] ring-1 ring-amber-300/80',
-      label: 'Selectt Luxury'
-    };
-  }
-
-  // Offer Zone / Price Drop / Discount / Deal / Arrow / Currency / Off - Default black obsidian glass
-  if (text.includes('offer zone') || text.includes('discount') || text.includes('price drop') || text.includes('deal') || text.includes('↓') || text.includes('₹') || text.includes('off')) {
+  // If this is specifically the bottom badge (discount pill like ₹ 55,000 off, Price Drop, etc.)
+  if (isBottom) {
     return {
       bg: 'bg-slate-900/90 backdrop-blur-md',
       color: 'text-white font-normal',
@@ -63,67 +52,114 @@ export const getBadgeStyles = (tagText) => {
     };
   }
 
-  // Like New - Distinct light radiant lime color with vivid glow
+  // --- UPPER / TOP-LEFT BADGES (NEVER BLACK - distinct & vibrant colors) ---
+
+  // 1. Hot Deal / Hot Deals / Hot (Fiery Rose/Red gradient)
+  if (text.includes('hot') || (text.includes('deal') && !text.includes('price drop'))) {
+    return {
+      bg: 'bg-gradient-to-r from-rose-600 via-red-500 to-rose-600',
+      color: 'text-white font-semibold',
+      border: 'border-rose-200/90',
+      glow: 'shadow-[0_0_14px_rgba(244,63,94,0.85)] ring-1 ring-rose-300/80',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  // 2. Just Arrived / Just Arrive / New Arrival / Fresh (Electric Royal Blue / Sky gradient)
+  if (text.includes('just arrive') || text.includes('just arrived') || text.includes('arrived') || text.includes('new arrival') || text.includes('just in') || text.includes('fresh')) {
+    return {
+      bg: 'bg-gradient-to-r from-blue-600 via-sky-500 to-blue-600',
+      color: 'text-white font-semibold',
+      border: 'border-blue-200/90',
+      glow: 'shadow-[0_0_14px_rgba(37,99,235,0.85)] ring-1 ring-blue-300/80',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  // 3. Selectt Luxury (Gold gradient)
+  if (text.includes('luxury') || text.includes('selectt luxury')) {
+    return {
+      bg: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400',
+      color: 'text-amber-950 font-semibold',
+      border: 'border-amber-200/90',
+      glow: 'shadow-[0_0_14px_rgba(251,191,36,0.85)] ring-1 ring-amber-300/80',
+      label: 'Selectt Luxury'
+    };
+  }
+
+  // 4. Like New (Radiant lime)
   if (text.includes('like new')) {
     return {
       bg: 'bg-gradient-to-r from-[#E2F952] via-[#BEF264] to-[#A3E635]',
-      color: 'text-slate-950 font-normal',
+      color: 'text-slate-950 font-semibold',
       border: 'border-lime-400/90',
       glow: 'shadow-[0_0_14px_rgba(190,242,100,0.95)] ring-1 ring-lime-300/90',
       label: formatBadgeText(raw)
     };
   }
 
-  // Certified / Verified / Assured
+  // 5. Certified / Verified / Assured (Mint / Cyan / Teal)
   if (text.includes('certified') || text.includes('verified') || text.includes('assured')) {
     return {
       bg: 'bg-gradient-to-r from-[#00E5C6] to-[#00B8A0]',
-      color: 'text-slate-950 font-normal',
+      color: 'text-slate-950 font-semibold',
       border: 'border-teal-200/90',
       glow: 'shadow-[0_0_14px_rgba(0,229,198,0.85)] ring-1 ring-teal-300/80',
       label: formatBadgeText(raw)
     };
   }
 
-  // Electric / EV / Hybrid
+  // 6. Electric / EV / Hybrid (Emerald green)
   if (text.includes('electric') || text.includes('hybrid') || text.includes('ev')) {
     return {
       bg: 'bg-gradient-to-r from-emerald-500 to-teal-500',
-      color: 'text-white font-normal',
+      color: 'text-white font-semibold',
       border: 'border-emerald-200/80',
       glow: 'shadow-[0_0_14px_rgba(16,185,129,0.85)] ring-1 ring-emerald-300/80',
       label: formatBadgeText(raw)
     };
   }
 
-  // Top Rated / Hot / Trending
-  if (text.includes('top rated') || text.includes('rated') || text.includes('hot') || text.includes('trending')) {
+  // 7. Top Rated / Trending (Vibrant Sunset Orange)
+  if (text.includes('top rated') || text.includes('rated') || text.includes('trending')) {
     return {
       bg: 'bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500',
-      color: 'text-white font-normal',
+      color: 'text-white font-semibold',
       border: 'border-amber-200/90',
       glow: 'shadow-[0_0_14px_rgba(249,115,22,0.85)] ring-1 ring-orange-300/80',
       label: formatBadgeText(raw)
     };
   }
 
-  // Premium
+  // 8. Premium (Royal Indigo/Purple)
   if (text.includes('premium')) {
     return {
-      bg: 'bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600',
-      color: 'text-white font-normal',
+      bg: 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600',
+      color: 'text-white font-semibold',
       border: 'border-indigo-200/80',
       glow: 'shadow-[0_0_14px_rgba(99,102,241,0.85)] ring-1 ring-indigo-300/80',
       label: formatBadgeText(raw)
     };
   }
 
-  // Refined Obsidian Glass Badge for features (German Engineered, Manual Fun, Low KM, Sunroof, etc.)
+  // 9. If discount / price drop passed as upper tag (Fuchsia/Pink)
+  if (text.includes('price drop') || text.includes('discount') || text.includes('offer zone') || text.includes('↓') || text.includes('₹') || text.includes('off')) {
+    return {
+      bg: 'bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600',
+      color: 'text-white font-semibold',
+      border: 'border-pink-200/80',
+      glow: 'shadow-[0_0_14px_rgba(219,39,119,0.85)] ring-1 ring-pink-300/80',
+      label: raw
+    };
+  }
+
+  // 10. Fallback for general upper feature tags (German Engineered, Manual Fun, Low KM, Sunroof, etc.)
+  // Never pitch black; polished slate gradient
   return {
-    bg: 'bg-slate-900/90 backdrop-blur-md',
-    color: 'text-white font-normal',
-    border: 'border-white/35',
-    glow: 'shadow-[0_0_12px_rgba(255,255,255,0.35)] ring-1 ring-white/25',
+    bg: 'bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700',
+    color: 'text-white font-semibold',
+    border: 'border-slate-300/50',
+    glow: 'shadow-[0_0_12px_rgba(148,163,184,0.4)] ring-1 ring-slate-400/30',
     label: formatBadgeText(raw)
   };
 };
@@ -344,7 +380,7 @@ const CarCard = ({ car, lightBg = false }) => {
               </div>
             </div>
           ) : car.tag && car.status !== 'coming_soon' && (() => {
-            const badge = getBadgeStyles(car.tag);
+            const badge = getBadgeStyles(car.tag, false);
             return (
               <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none">
                 <div className={`badge-glow-shine ${badge.bg} ${badge.color} ${badge.border} ${badge.glow} border px-2.5 py-0.5 rounded-full text-[10.5px] font-sans font-normal tracking-wide flex items-center shadow-xs`}>
@@ -354,10 +390,10 @@ const CarCard = ({ car, lightBg = false }) => {
             );
           })()}
 
-          {/* Bottom-Left: Price Drop Badge (e.g. ₹9,000 ↓) */}
+          {/* Bottom-Left: Price Drop Badge (e.g. ₹9,000 ↓ / ₹ 55,000 off) */}
           {(car.badgeText || car.badge_text) && car.status !== 'coming_soon' && car.status !== 'booked' && car.status !== 'sold_out' && car.status !== 'sold' && (() => {
             const rawBadge = (car.badgeText || car.badge_text).trim();
-            const badge = getBadgeStyles(rawBadge);
+            const badge = getBadgeStyles(rawBadge, true);
             return (
               <div className="absolute bottom-2.5 left-2.5 z-20 pointer-events-none">
                 <div className={`badge-glow-shine ${badge.bg} ${badge.color} ${badge.border} ${badge.glow} border px-2.5 py-0.5 rounded-full text-[10.5px] font-sans font-semibold tracking-wide flex items-center shadow-md`}>

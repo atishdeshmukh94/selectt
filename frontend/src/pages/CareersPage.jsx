@@ -22,6 +22,13 @@ const CareersPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const [sectionTitle, setSectionTitle] = useState('Current Openings');
+  const [sideBannerImg, setSideBannerImg] = useState('');
+  const [sideBannerLink, setSideBannerLink] = useState('#apply-form');
+  const [sideBannerActive, setSideBannerActive] = useState(true);
+  const [minCtc, setMinCtc] = useState(2);
+  const [maxCtc, setMaxCtc] = useState(30);
+  const [customPositions, setCustomPositions] = useState('');
+  const [allowOther, setAllowOther] = useState(true);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -63,6 +70,27 @@ const CareersPage = () => {
           if (data && data.careers_post_section_title) {
             setSectionTitle(data.careers_post_section_title);
           }
+          if (data && data.careers_side_banner_img) {
+            setSideBannerImg(data.careers_side_banner_img);
+          }
+          if (data && data.careers_side_banner_link) {
+            setSideBannerLink(data.careers_side_banner_link);
+          }
+          if (data && data.careers_side_banner_active !== undefined) {
+            setSideBannerActive(data.careers_side_banner_active !== 'false' && data.careers_side_banner_active !== '0');
+          }
+          if (data && data.careers_min_ctc !== undefined && data.careers_min_ctc !== '') {
+            setMinCtc(Number(data.careers_min_ctc) || 2);
+          }
+          if (data && data.careers_max_ctc !== undefined && data.careers_max_ctc !== '') {
+            setMaxCtc(Number(data.careers_max_ctc) || 30);
+          }
+          if (data && data.careers_custom_positions) {
+            setCustomPositions(data.careers_custom_positions);
+          }
+          if (data && data.careers_allow_other_position !== undefined) {
+            setAllowOther(data.careers_allow_other_position !== 'false' && data.careers_allow_other_position !== '0');
+          }
         }
       } catch (_) {}
     };
@@ -94,6 +122,14 @@ const CareersPage = () => {
       return;
     }
 
+    if (formData.expectedCtc) {
+      const ctcNum = parseFloat(formData.expectedCtc);
+      if (isNaN(ctcNum) || ctcNum < minCtc || ctcNum > maxCtc) {
+        setErrorMessage(`Expected CTC must be between ₹${minCtc} LPA and ₹${maxCtc} LPA.`);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     setErrorMessage('');
 
@@ -106,7 +142,7 @@ const CareersPage = () => {
       data.append('experience', formData.experience || '');
       data.append('currentLocation', formData.currentLocation || '');
       data.append('currentCtc', formData.currentCtc || '');
-      data.append('expectedCtc', formData.expectedCtc || '');
+      data.append('expectedCtc', formData.expectedCtc ? `${formData.expectedCtc} LPA` : '');
       data.append('noticePeriod', formData.noticePeriod || '');
       data.append('linkedinUrl', formData.linkedinUrl || '');
       data.append('message', formData.message || '');
@@ -166,57 +202,91 @@ const CareersPage = () => {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 items-start">
-            {/* Left Info Section */}
-            <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100 text-slate-600">
-              <h2 className="text-2xl font-bold mb-3.5 text-[#0C1B33]">Join the Revolution</h2>
-              <p className="mb-8 leading-relaxed text-sm sm:text-base text-slate-600">
-                We are always looking for passionate, driven individuals to join our team and help us build the most trusted and transparent platform for used cars in India.
-              </p>
-
-              <div className="flex items-center justify-between mt-8 mb-5">
-                <h3 className="font-bold text-[#0C1B33] text-lg flex items-center gap-2">
-                  <Briefcase size={18} className="text-[#00C9AF]" /> {sectionTitle || 'Current Openings'}:
-                </h3>
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#E6FAF7] text-[#0A524A]">
-                  {jobs.length} Available
-                </span>
-              </div>
-
-              <ul className="space-y-3.5">
-                {jobs.map((job) => (
-                  <li
-                    key={job.id}
-                    className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-50/80 hover:bg-[#E6FAF7]/50 border border-slate-100/80 transition-colors"
-                  >
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#00C9AF] mt-2 shrink-0"></div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-[#0C1B33] text-base mb-1.5">{job.title}</h4>
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
-                        <span className="flex items-center gap-1">
-                          <MapPin size={12} className="text-slate-400" /> {job.location || 'Mumbai'}
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Clock size={12} className="text-slate-400" /> {job.job_type || 'Full-time'}
-                        </span>
-                      </div>
-                      {job.description && (
-                        <p className="text-xs text-slate-500 mt-2 line-clamp-2">{job.description}</p>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-8 pt-5 border-t border-slate-100">
-                <p className="text-xs sm:text-sm text-slate-500">
-                  Don't see a role that fits your profile? Feel free to apply with <strong>"Other"</strong> as your position and tell us how you can make an impact.
+            {/* Left Info Column */}
+            <div className="flex flex-col gap-6">
+              {/* Current Openings Card */}
+              <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100 text-slate-600">
+                <h2 className="text-2xl font-bold mb-3.5 text-[#0C1B33]">Join the Revolution</h2>
+                <p className="mb-8 leading-relaxed text-sm sm:text-base text-slate-600">
+                  We are always looking for passionate, driven individuals to join our team and help us build the most trusted and transparent platform for used cars in India.
                 </p>
+
+                <div className="flex items-center justify-between mt-8 mb-5">
+                  <h3 className="font-bold text-[#0C1B33] text-lg flex items-center gap-2">
+                    <Briefcase size={18} className="text-[#00C9AF]" /> {sectionTitle || 'Current Openings'}:
+                  </h3>
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#E6FAF7] text-[#0A524A]">
+                    {jobs.length} Available
+                  </span>
+                </div>
+
+                <ul className="space-y-3.5">
+                  {jobs.map((job) => (
+                    <li
+                      key={job.id}
+                      className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-50/80 hover:bg-[#E6FAF7]/50 border border-slate-100/80 transition-colors"
+                    >
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#00C9AF] mt-2 shrink-0"></div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-[#0C1B33] text-base mb-1.5">{job.title}</h4>
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
+                          <span className="flex items-center gap-1">
+                            <MapPin size={12} className="text-slate-400" /> {job.location || 'Mumbai'}
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} className="text-slate-400" /> {job.job_type || 'Full-time'}
+                          </span>
+                        </div>
+                        {job.description && (
+                          <p className="text-xs text-slate-500 mt-2 line-clamp-2">{job.description}</p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-8 pt-5 border-t border-slate-100">
+                  <p className="text-xs sm:text-sm text-slate-500">
+                    Don't see a role that fits your profile? Feel free to apply with <strong>"Other"</strong> as your position and tell us how you can make an impact.
+                  </p>
+                </div>
               </div>
+
+              {/* Careers Side Promo Banner (Configured in Admin Image Settings) */}
+              {sideBannerActive && (
+                <div className="rounded-[2rem] overflow-hidden shadow-xl border border-slate-200/80 bg-slate-900 relative group transition-all duration-300 hover:shadow-2xl">
+                  <a
+                    href={sideBannerLink || '#apply-form'}
+                    className="block relative w-full overflow-hidden"
+                  >
+                    <img
+                      src={
+                        sideBannerImg
+                          ? (sideBannerImg.startsWith('/') ? `${API_URL}${sideBannerImg}` : sideBannerImg)
+                          : 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80'
+                      }
+                      alt="Life at Selectt Careers"
+                      className="w-full h-auto max-h-[460px] object-cover transition-transform duration-700 group-hover:scale-105"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent flex flex-col justify-end p-6 pointer-events-none">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10.5px] font-black uppercase tracking-wider bg-[#00C9AF] text-[#0C1B33] w-max shadow-md mb-1.5">
+                        🚀 We Are Hiring
+                      </span>
+                      <h4 className="text-white font-extrabold text-base sm:text-lg leading-tight">
+                        Build India's Most Trusted Car Platform
+                      </h4>
+                    </div>
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Right Form Section */}
-            <div className="bg-[#0C1B33] rounded-[2rem] p-8 md:p-10 shadow-2xl text-white relative overflow-hidden">
+            <div id="apply-form" className="bg-[#0C1B33] rounded-[2rem] p-8 md:p-10 shadow-2xl text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#00C9AF] rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
 
               <h2 className="text-2xl font-bold mb-3.5 text-white relative z-10">Apply Online</h2>
@@ -286,7 +356,14 @@ const CareersPage = () => {
                         {job.title} ({job.location || 'Mumbai'})
                       </option>
                     ))}
-                    <option value="Other" className="bg-[#0C1B33] text-white">Other / General Application</option>
+                    {customPositions && customPositions.split(/[\n,]+/).map(s => s.trim()).filter(Boolean).map((pos, idx) => (
+                      <option key={`custom-pos-${idx}`} value={pos} className="bg-[#0C1B33] text-white">
+                        {pos}
+                      </option>
+                    ))}
+                    {allowOther && (
+                      <option value="Other" className="bg-[#0C1B33] text-white">Other / General Application</option>
+                    )}
                   </select>
                 </div>
 
@@ -323,15 +400,27 @@ const CareersPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">Expected CTC</label>
-                    <input
-                      type="text"
-                      name="expectedCtc"
-                      className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm"
-                      placeholder="e.g. ₹5 - ₹8 LPA"
-                      value={formData.expectedCtc}
-                      onChange={handleChange}
-                    />
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">Expected CTC (in ₹ LPA) *</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#00C9AF] font-bold text-sm">₹</span>
+                      <input
+                        type="number"
+                        name="expectedCtc"
+                        required
+                        min={minCtc}
+                        max={maxCtc}
+                        step="0.1"
+                        placeholder={`e.g. ${minCtc} - ${maxCtc}`}
+                        value={formData.expectedCtc}
+                        onChange={handleChange}
+                        className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl pl-8 pr-14 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm font-semibold"
+                      />
+                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">LPA</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10.5px] text-slate-400 mt-1">
+                      <span>Min: ₹{minCtc} LPA</span>
+                      <span>Max: ₹{maxCtc} LPA</span>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">Notice Period</label>

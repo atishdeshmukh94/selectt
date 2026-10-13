@@ -19,7 +19,8 @@ import {
   Calendar,
   X,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  Sliders
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import PageMeta from "../components/common/PageMeta";
@@ -35,11 +36,19 @@ const STATUS_BADGES: Record<string, { bg: string; text: string; icon: any }> = {
 
 export default function CareerManagement() {
   const { token } = useAuth();
-  const [activeTab, setActiveTab] = useState<"applications" | "jobs">("applications");
+  const [activeTab, setActiveTab] = useState<"applications" | "jobs" | "form-settings">("applications");
 
   // Post Section Title State
   const [postSectionTitle, setPostSectionTitle] = useState("Current Openings");
   const [savingTitle, setSavingTitle] = useState(false);
+
+  // Form Controls State (CTC & Positions)
+  const [minCtc, setMinCtc] = useState("2");
+  const [maxCtc, setMaxCtc] = useState("30");
+  const [customPositions, setCustomPositions] = useState("");
+  const [allowOtherPosition, setAllowOtherPosition] = useState(true);
+  const [savingFormSettings, setSavingFormSettings] = useState(false);
+  const [showFormSettingsSuccessModal, setShowFormSettingsSuccessModal] = useState(false);
 
   // Applications State
   const [applications, setApplications] = useState<any[]>([]);
@@ -121,6 +130,18 @@ export default function CareerManagement() {
           if (data?.careers_post_section_title) {
             setPostSectionTitle(data.careers_post_section_title);
           }
+          if (data?.careers_min_ctc !== undefined) {
+            setMinCtc(String(data.careers_min_ctc));
+          }
+          if (data?.careers_max_ctc !== undefined) {
+            setMaxCtc(String(data.careers_max_ctc));
+          }
+          if (data?.careers_custom_positions !== undefined) {
+            setCustomPositions(String(data.careers_custom_positions));
+          }
+          if (data?.careers_allow_other_position !== undefined) {
+            setAllowOtherPosition(data.careers_allow_other_position !== "false" && data.careers_allow_other_position !== "0");
+          }
         }
       } catch (_) {}
     };
@@ -130,10 +151,36 @@ export default function CareerManagement() {
   useEffect(() => {
     if (activeTab === "applications") {
       fetchApplications();
-    } else {
+    } else if (activeTab === "jobs") {
       fetchJobs();
     }
   }, [activeTab, page, statusFilter]);
+
+  const handleSaveFormSettings = async () => {
+    setSavingFormSettings(true);
+    try {
+      const res = await fetch(`${API_URL}/api/settings`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          careers_min_ctc: minCtc,
+          careers_max_ctc: maxCtc,
+          careers_custom_positions: customPositions,
+          careers_allow_other_position: allowOtherPosition ? "true" : "false"
+        })
+      });
+      if (res.ok) {
+        setShowFormSettingsSuccessModal(true);
+        toast.success("✅ Career form controls & CTC limits saved successfully!");
+      } else {
+        toast.error("Failed to save career form controls");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save settings");
+    } finally {
+      setSavingFormSettings(false);
+    }
+  };
 
   const handleSavePostSectionTitle = async () => {
     setSavingTitle(true);
@@ -352,6 +399,17 @@ export default function CareerManagement() {
             }`}
           >
             <Briefcase className="w-4 h-4" /> Current Openings ({jobs.length})
+          </button>
+
+          <button
+            onClick={() => setActiveTab("form-settings")}
+            className={`pb-3 text-sm font-semibold flex items-center gap-2 relative transition-colors cursor-pointer ${
+              activeTab === "form-settings"
+                ? "text-brand-500 border-b-2 border-brand-500"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
+            }`}
+          >
+            <Sliders className="w-4 h-4" /> Form Controls & CTC Limits
           </button>
         </div>
 
@@ -671,6 +729,190 @@ export default function CareerManagement() {
           </div>
         )}
 
+        {/* TAB 3: FORM CONTROLS & CTC SETTINGS */}
+        {activeTab === "form-settings" && (
+          <div className="space-y-6">
+            {/* Header banner */}
+            <div className="bg-gradient-to-r from-brand-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-brand-950/40 p-6 rounded-2xl border border-brand-200 dark:border-brand-900/60 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Sliders className="w-5 h-5 text-brand-500" />
+                  Frontend Career Application Form Controls
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-2xl leading-relaxed">
+                  Configure Expected CTC Min/Max limits and customize the positions available in the <strong>"Position Applying For *"</strong> dropdown on{" "}
+                  <a href="https://selectt.in/careers" target="_blank" rel="noreferrer" className="text-brand-500 underline font-semibold">
+                    selectt.in/careers
+                  </a>.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSaveFormSettings}
+                disabled={savingFormSettings}
+                className="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 shrink-0"
+              >
+                {savingFormSettings ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  <>
+                    <span>💾 Save Form Settings</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Card 1: Expected CTC Configuration */}
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-5">
+                <div className="flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-gray-800">
+                  <span className="text-xl">💰</span>
+                  <div>
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">Expected CTC Range & Limits</h4>
+                    <p className="text-[11px] text-gray-500">Allowed annual salary range candidates can enter in LPA (Lakhs Per Annum)</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                      Minimum Allowed CTC (₹ LPA) *
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">₹</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.5"
+                        value={minCtc}
+                        onChange={(e) => setMinCtc(e.target.value)}
+                        placeholder="e.g. 2"
+                        className="w-full pl-7 pr-12 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-brand-500"
+                      />
+                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-[11px]">LPA</span>
+                    </div>
+                    <span className="text-[10px] text-gray-400 mt-1 block">Candidates cannot enter lower than this</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                      Maximum Allowed CTC (₹ LPA) *
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">₹</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="500"
+                        step="0.5"
+                        value={maxCtc}
+                        onChange={(e) => setMaxCtc(e.target.value)}
+                        placeholder="e.g. 30"
+                        className="w-full pl-7 pr-12 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-brand-500"
+                      />
+                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-[11px]">LPA</span>
+                    </div>
+                    <span className="text-[10px] text-gray-400 mt-1 block">Candidates cannot enter higher than this</span>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-800/60 border border-slate-200 dark:border-gray-700 text-xs">
+                  <div className="font-bold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+                    <span>👀 Candidate Form Live Preview:</span>
+                  </div>
+                  <div className="bg-[#0C1B33] text-white p-3.5 rounded-xl mt-2">
+                    <span className="text-[11px] font-semibold text-slate-300 block mb-1.5">Expected CTC (in ₹ LPA) *</span>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#00C9AF] font-bold text-xs">₹</span>
+                      <input
+                        type="number"
+                        disabled
+                        placeholder={`e.g. ${minCtc || 2} - ${maxCtc || 30} LPA`}
+                        className="w-full bg-[#162947] border border-[#2A3E54] rounded-lg pl-7 pr-12 py-2 text-white text-xs opacity-90 cursor-not-allowed"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-[10px]">LPA</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px] text-slate-400 mt-1">
+                      <span>Min: ₹{minCtc || 2} LPA</span>
+                      <span>Max: ₹{maxCtc || 30} LPA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Position Applying For Controls */}
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-5">
+                <div className="flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-gray-800">
+                  <span className="text-xl">🎯</span>
+                  <div>
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">Position Applying For * Dropdown</h4>
+                    <p className="text-[11px] text-gray-500">Manage which positions appear in the candidate application form</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                    Extra / Additional Custom Positions
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={customPositions}
+                    onChange={(e) => setCustomPositions(e.target.value)}
+                    placeholder="Enter positions separated by comma or new line (e.g. Digital Marketing Lead, Business Analyst, Intern)"
+                    className="w-full px-3.5 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500"
+                  />
+                  <span className="text-[10px] text-gray-400 mt-1 block">
+                    These positions will appear in the dropdown alongside your active jobs from the Openings tab.
+                  </span>
+                </div>
+
+                <div className="pt-1">
+                  <label className="flex items-center gap-2.5 text-xs font-bold text-gray-700 dark:text-gray-300 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={allowOtherPosition}
+                      onChange={(e) => setAllowOtherPosition(e.target.checked)}
+                      className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500"
+                    />
+                    <span>Allow "Other / General Application" option in dropdown</span>
+                  </label>
+                  <p className="text-[10px] text-gray-400 ml-6 mt-0.5">
+                    Allows candidates to apply even if their exact profile isn't listed above.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-800/60 border border-slate-200 dark:border-gray-700 text-xs">
+                  <div className="font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center justify-between">
+                    <span>👀 Dropdown Preview on Website:</span>
+                    <span className="text-[10px] text-brand-600 font-semibold">
+                      {jobs.filter(j => j.is_active).length + (customPositions ? customPositions.split(/[\n,]+/).filter(Boolean).length : 0) + (allowOtherPosition ? 1 : 0)} options
+                    </span>
+                  </div>
+                  <select
+                    disabled
+                    className="w-full bg-[#162947] border border-[#2A3E54] rounded-lg px-3 py-2 text-white text-xs opacity-90 cursor-not-allowed"
+                  >
+                    <option>Select a position</option>
+                    {jobs.filter(j => j.is_active).map(j => (
+                      <option key={j.id}>{j.title} ({j.location || 'Mumbai'})</option>
+                    ))}
+                    {customPositions && customPositions.split(/[\n,]+/).map(s => s.trim()).filter(Boolean).map((p, idx) => (
+                      <option key={`custom-${idx}`}>{p}</option>
+                    ))}
+                    {allowOtherPosition && (
+                      <option>Other / General Application</option>
+                    )}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* CANDIDATE RESUME PREVIEW MODAL */}
         {selectedApp && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -976,6 +1218,60 @@ export default function CareerManagement() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+        {/* FORM SETTINGS SUCCESS MODAL */}
+        {showFormSettingsSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-gray-100 dark:border-gray-800 text-center relative transform animate-scale-up">
+              <button
+                type="button"
+                onClick={() => setShowFormSettingsSuccessModal(false)}
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner ring-8 ring-emerald-50 dark:ring-emerald-900/20">
+                <CheckCircle className="w-9 h-9" />
+              </div>
+
+              <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">
+                Settings Saved Successfully!
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">
+                Career application form controls and CTC limits have been updated and are now live on the website.
+              </p>
+
+              <div className="bg-gray-50 dark:bg-gray-800/60 rounded-2xl p-4 text-left text-xs space-y-2.5 border border-gray-100 dark:border-gray-700 mb-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500 dark:text-gray-400 font-medium">Expected CTC Range:</span>
+                  <span className="font-bold text-gray-900 dark:text-white bg-white dark:bg-gray-700 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
+                    ₹{minCtc || 2} LPA — ₹{maxCtc || 30} LPA
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500 dark:text-gray-400 font-medium">Positions in Dropdown:</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                    {jobs.filter(j => j.is_active).length + (customPositions ? customPositions.split(/[\n,]+/).filter(Boolean).length : 0) + (allowOtherPosition ? 1 : 0)} Available
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-gray-200/60 dark:border-gray-700/60">
+                  <span className="text-gray-500 dark:text-gray-400 font-medium">General Application:</span>
+                  <span className={`text-[11px] font-bold ${allowOtherPosition ? "text-blue-600 dark:text-blue-400" : "text-gray-400"}`}>
+                    {allowOtherPosition ? "Enabled ('Other' Option)" : "Disabled"}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowFormSettingsSuccessModal(false)}
+                className="w-full px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-brand-500/25 transition-all cursor-pointer"
+              >
+                Done / Okay
+              </button>
             </div>
           </div>
         )}

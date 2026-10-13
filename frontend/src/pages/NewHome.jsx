@@ -224,7 +224,27 @@ const getBadgeStyles = (tagText) => {
     };
   }
 
-  if (text.includes('hot') || text.includes('deal') || text.includes('trending') || text.includes('top rated') || text.includes('rated')) {
+  // Hot Deal / Deals (Fiery Rose/Red)
+  if (text.includes('hot') || (text.includes('deal') && !text.includes('price drop'))) {
+    return {
+      bg: 'bg-rose-50 dark:bg-rose-950/60',
+      color: 'text-rose-700 dark:text-rose-300',
+      border: 'border-rose-300/60',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  // Just Arrived / New Arrival (Electric Blue)
+  if (text.includes('just arrive') || text.includes('just arrived') || text.includes('arrived') || text.includes('new arrival') || text.includes('just in') || text.includes('fresh')) {
+    return {
+      bg: 'bg-blue-50 dark:bg-blue-950/60',
+      color: 'text-blue-700 dark:text-blue-300',
+      border: 'border-blue-300/60',
+      label: formatBadgeText(raw)
+    };
+  }
+
+  if (text.includes('trending') || text.includes('top rated') || text.includes('rated')) {
     return {
       bg: 'bg-orange-50 dark:bg-orange-950/60',
       color: 'text-orange-800 dark:text-orange-300',

@@ -518,7 +518,26 @@ const CAR_DETAILS_SLOTS: ImageSlotConfig[] = [
   },
 ];
 
-type ActiveTabType = "branding" | "mobile-hero" | "step-sliders" | "buy-cars" | "home-sell" | "car-details";
+// 5. CAREERS PAGE VISUALS
+const CAREERS_SLOTS: ImageSlotConfig[] = [
+  {
+    key: "careers_side_banner_img",
+    type: "site_setting",
+    title: "Careers Page Side Promo Banner",
+    placement: "Careers Page (/careers) > Left Side (Below Openings)",
+    recommendedSize: "600 × 450 px (4:3 Ratio)",
+    aspectRatio: "aspect-[4/3]",
+    description: "Promotional culture or hiring poster displayed on the left column below current openings to balance the application form.",
+    defaultPlaceholder: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80",
+    hasLink: true,
+    linkKey: "careers_side_banner_link",
+    defaultLink: "#apply-form",
+    hasVisibility: true,
+    visibilityKey: "careers_side_banner_active",
+  },
+];
+
+type ActiveTabType = "branding" | "mobile-hero" | "step-sliders" | "buy-cars" | "home-sell" | "car-details" | "careers";
 
 const DEFAULT_MOBILE_HOME_VIDEO = "https://mda-dev.spinny.com/sp-file-system/public/2026-02-16/3f7957ad509b4fc888114ae91d3690be/raw/file.mp4";
 
@@ -612,7 +631,7 @@ export default function ImageSettings() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as ActiveTabType) || "branding";
   const [activeTab, setActiveTab] = useState<ActiveTabType>(
-    ["branding", "mobile-hero", "step-sliders", "buy-cars", "home-sell", "car-details"].includes(initialTab) ? initialTab : "branding"
+    ["branding", "mobile-hero", "step-sliders", "buy-cars", "home-sell", "car-details", "careers"].includes(initialTab) ? initialTab : "branding"
   );
 
   const [stepSubTab, setStepSubTab] = useState<"sell" | "buy">("sell");
@@ -1387,6 +1406,7 @@ export default function ImageSettings() {
             { id: "buy-cars", label: "🚗 Buy Cars Page Banners", count: BUY_CARS_SLOTS.length },
             { id: "home-sell", label: "🏠 Home Features & Badges", count: HOME_SELL_SLOTS.length },
             { id: "car-details", label: "📄 Car Details Page Visuals", count: CAR_DETAILS_SLOTS.length },
+            { id: "careers", label: "💼 Careers Page Banner", count: CAREERS_SLOTS.length },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -2272,6 +2292,8 @@ export default function ImageSettings() {
                   ? HOME_SELL_SLOTS
                   : activeTab === "car-details"
                   ? CAR_DETAILS_SLOTS
+                  : activeTab === "careers"
+                  ? CAREERS_SLOTS
                   : BRANDING_SLOTS
                 ).map((slot) => {
                   const currentValue = getSlotValue(slot);
