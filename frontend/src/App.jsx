@@ -163,10 +163,6 @@ function LoadingFallback() {
         <div className="w-20 h-20 sm:w-24 sm:h-24 border-4 border-slate-200/80 rounded-full" />
         {/* Active spinning ring */}
         <div className="absolute w-20 h-20 sm:w-24 sm:h-24 border-4 border-transparent border-t-[#00C9AF] border-r-[#00C9AF] rounded-full animate-spin" />
-        {/* Center Selectt Brand Icon / S mark */}
-        <div className="absolute w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-gradient-to-tr from-[#0C1B33] to-[#162C4E] text-[#00C9AF] flex items-center justify-center font-black text-base sm:text-lg shadow-md">
-          S
-        </div>
       </div>
       <span className="text-sm sm:text-base font-extrabold text-[#0C1B33] tracking-[0.25em] uppercase animate-pulse">
         Loading...

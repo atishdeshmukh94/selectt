@@ -18,10 +18,6 @@ export default function VideoPreloader({
         <div className="w-full h-full border-4 border-slate-200/20 rounded-full" />
         {/* Spinning gradient ring */}
         <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#00C9AF] border-r-[#00C9AF] animate-spin" />
-        {/* Signature Brand Badge */}
-        <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center text-base sm:text-lg font-black shadow-[0_0_20px_rgba(0,201,175,0.6)]">
-          S
-        </div>
       </div>
       <span className="text-white text-xs sm:text-sm font-bold tracking-[0.2em] uppercase opacity-90">
         {message || 'Selectt Certified'}
