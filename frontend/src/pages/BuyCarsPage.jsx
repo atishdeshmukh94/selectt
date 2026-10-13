@@ -15,6 +15,7 @@ import TopSearchAndBanners from '../components/buy/sections/TopSearchAndBanners'
 import MobileBudgetAndBodySection from '../components/buy/MobileBudgetAndBodySection';
 import PageMeta from '../components/common/PageMeta';
 import { SemanticCarCardSkeleton, SemanticBannerSkeleton } from '../components/common/SemanticPlaceholderCard';
+import { CarCardSkeleton } from '../components/skeletons/CarCardSkeleton';
 import { parseBudgetRange } from '../utils/formatters';
 import { API_URL } from '../config/api';
 
@@ -218,10 +219,10 @@ const BuyCarsSkeleton = () => {
             <div className="w-36 h-9 bg-slate-200 rounded-xl animate-pulse" />
           </div>
 
-          {/* Car Grid Skeleton using Semantic UI Placeholder */}
+          {/* Car Grid Skeleton using react-loading-skeleton */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
             {Array(6).fill(0).map((_, i) => (
-              <SemanticCarCardSkeleton key={i} />
+              <CarCardSkeleton key={i} />
             ))}
           </div>
         </main>

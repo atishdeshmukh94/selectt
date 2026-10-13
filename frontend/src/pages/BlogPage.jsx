@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Search, FileText } from 'lucide-react';
 import PageMeta from '../components/common/PageMeta';
+import { BlogGridSkeleton } from '../components/skeletons/BlogSkeleton';
 
 import { API_URL } from "../config/api";
 const API = API_URL;
@@ -87,16 +88,7 @@ const BlogPage = () => {
 
         <div className="max-w-7xl mx-auto px-4 md:px-6 mt-14">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="animate-pulse">
-                  <div className="aspect-[16/9] bg-gray-200 dark:bg-gray-800 rounded-3xl mb-4" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 w-1/4 rounded mb-3" />
-                  <div className="h-6 bg-gray-200 dark:bg-gray-800 w-full rounded mb-2" />
-                  <div className="h-6 bg-gray-200 dark:bg-gray-800 w-2/3 rounded" />
-                </div>
-              ))}
-            </div>
+            <BlogGridSkeleton count={6} />
           ) : posts.length === 0 ? (
             <div className="text-center py-20">
               <FileText size={48} className="mx-auto text-gray-300 mb-4" />

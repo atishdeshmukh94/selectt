@@ -16,6 +16,7 @@ import {
 import { API_URL } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
 import VideoPreloader from '../components/common/VideoPreloader';
+import { CarHubGridSkeleton } from '../components/skeletons/CommonSkeletons';
 
 const DEFAULT_HUBS = [
   {
@@ -236,8 +237,8 @@ export default function CarHubLocationsPage() {
         {/* ───────────── Main Content Container ───────────── */}
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
           {loading ? (
-            <div className="py-12">
-              <VideoPreloader fullScreen={false} message="Loading car hub locations..." />
+            <div className="py-6 w-full">
+              <CarHubGridSkeleton count={4} />
             </div>
           ) : (
             <div className="flex flex-col md:flex-row gap-8 items-start">

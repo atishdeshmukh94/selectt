@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ChevronRight, Calendar, User, Facebook, Twitter, Linkedin, Link as LinkIcon, MapPin, FileText } from 'lucide-react';
 import PageMeta from '../components/common/PageMeta';
 import VideoPreloader from '../components/common/VideoPreloader';
+import { BlogPostDetailSkeleton } from '../components/skeletons/BlogSkeleton';
 import { getCarDetailsUrl } from '../utils/formatters';
 
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from "../config/api";
@@ -35,7 +36,12 @@ const BlogSinglePage = () => {
   }, [slug]);
 
   if (loading) {
-    return <VideoPreloader fullScreen={true} />;
+    return (
+      <>
+        <PageMeta title="Loading Article... | Selectt Blog" description="Reading car buying guides and automotive tips on Selectt." />
+        <BlogPostDetailSkeleton />
+      </>
+    );
   }
 
   if (!post) {

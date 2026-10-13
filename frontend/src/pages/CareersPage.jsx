@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, Send, CheckCircle, Briefcase, MapPin, Clock, X, Loader2 } from 'lucide-react';
 import PageMeta from '../components/common/PageMeta';
+import Skeleton from 'react-loading-skeleton';
 import { API_URL } from '../config/api';
 
 const DEFAULT_JOBS = [
@@ -220,31 +221,45 @@ const CareersPage = () => {
                   </span>
                 </div>
 
-                <ul className="space-y-3.5">
-                  {jobs.map((job) => (
-                    <li
-                      key={job.id}
-                      className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-50/80 hover:bg-[#E6FAF7]/50 border border-slate-100/80 transition-colors"
-                    >
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#00C9AF] mt-2 shrink-0"></div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-[#0C1B33] text-base mb-1.5">{job.title}</h4>
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
-                          <span className="flex items-center gap-1">
-                            <MapPin size={12} className="text-slate-400" /> {job.location || 'Mumbai'}
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Clock size={12} className="text-slate-400" /> {job.job_type || 'Full-time'}
-                          </span>
+                {loadingJobs ? (
+                  <div className="space-y-3.5">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="p-4 rounded-2xl bg-slate-50/80 border border-slate-100/80 space-y-2">
+                        <Skeleton height={18} width="65%" borderRadius={4} />
+                        <div className="flex gap-3">
+                          <Skeleton height={12} width={80} borderRadius={4} />
+                          <Skeleton height={12} width={70} borderRadius={4} />
                         </div>
-                        {job.description && (
-                          <p className="text-xs text-slate-500 mt-2 line-clamp-2">{job.description}</p>
-                        )}
                       </div>
-                    </li>
-                  ))}
-                </ul>
+                    ))}
+                  </div>
+                ) : (
+                  <ul className="space-y-3.5">
+                    {jobs.map((job) => (
+                      <li
+                        key={job.id}
+                        className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-50/80 hover:bg-[#E6FAF7]/50 border border-slate-100/80 transition-colors"
+                      >
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#00C9AF] mt-2 shrink-0"></div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-[#0C1B33] text-base mb-1.5">{job.title}</h4>
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
+                            <span className="flex items-center gap-1">
+                              <MapPin size={12} className="text-slate-400" /> {job.location || 'Mumbai'}
+                            </span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1">
+                              <Clock size={12} className="text-slate-400" /> {job.job_type || 'Full-time'}
+                            </span>
+                          </div>
+                          {job.description && (
+                            <p className="text-xs text-slate-500 mt-2 line-clamp-2">{job.description}</p>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
                 <div className="mt-8 pt-5 border-t border-slate-100">
                   <p className="text-xs sm:text-sm text-slate-500">

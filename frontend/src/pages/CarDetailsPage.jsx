@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
 import VideoPreloader from '../components/common/VideoPreloader';
+import { CarDetailsSkeleton } from '../components/skeletons/CarDetailsSkeleton';
 import { useToast } from '../components/animation/ToastSystem';
 import {
   ChevronRight,
@@ -476,7 +477,12 @@ const CarDetailsPage = () => {
   };
 
   if (loading) {
-    return <VideoPreloader fullScreen={true} />;
+    return (
+      <>
+        <PageMeta title="Loading Vehicle Details... | Selectt" description="Loading certified pre-owned car details." />
+        <CarDetailsSkeleton />
+      </>
+    );
   }
 
   if (error || !car) {
