@@ -4,6 +4,7 @@ import AppHeader from "./AppHeader";
 import Backdrop from "./Backdrop";
 import AppSidebar from "./AppSidebar";
 import AppFooter from "./AppFooter";
+import { ScrollToTopButton } from "../components/common/ScrollToTopButton";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
@@ -24,6 +25,7 @@ const LayoutContent: React.FC = () => {
           <Outlet />
         </main>
         <AppFooter />
+        <ScrollToTopButton />
       </div>
     </div>
   );

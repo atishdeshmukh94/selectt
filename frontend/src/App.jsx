@@ -11,6 +11,7 @@ import PWAInstallPrompt from './components/common/PWAInstallPrompt';
 import PagePreloader from './components/common/PagePreloader';
 import VideoPreloader from './components/common/VideoPreloader';
 import ScrollToTop from './components/common/ScrollToTop';
+import ScrollToTopButton from './components/common/ScrollToTopButton';
 import OneSignalInit from './components/common/OneSignalInit';
 import { useVisitorTracker } from './hooks/useVisitorTracker';
 import { API_URL } from './config/api';
@@ -133,6 +134,7 @@ function MainLayout() {
         <main>
           <Outlet />
         </main>
+        <ScrollToTopButton />
       </>
     );
   }
@@ -148,6 +150,7 @@ function MainLayout() {
       </main>
       <Footer />
       <WhatsAppChatButton />
+      <ScrollToTopButton />
     </>
   );
 }
