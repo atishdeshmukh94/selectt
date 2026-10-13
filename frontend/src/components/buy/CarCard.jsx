@@ -302,16 +302,7 @@ const CarCard = ({ car, lightBg = false }) => {
     return () => clearInterval(interval);
   }, [carImages.length]);
 
-  // Preload additional images in background
-  useEffect(() => {
-    if (carImages.length <= 1) return;
-    carImages.forEach(img => {
-      if (img) {
-        const preload = new Image();
-        preload.src = getCarImageUrl(img);
-      }
-    });
-  }, [carImages]);
+  // Background images will load on demand / viewport scroll, avoiding multi-megabyte eager payload
 
   return (
     <motion.div
@@ -450,8 +441,8 @@ const CarCard = ({ car, lightBg = false }) => {
                 }
                 return (
                   <div className="shrink-0 pt-0.5">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight">
-                      <TrendingDown size={12} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-[#FFF0F3] text-[#BE123C] border border-[#FFE0E6] shadow-xs tracking-tight">
+                      <TrendingDown size={12} strokeWidth={2.5} className="shrink-0 text-[#BE123C]" />
                       <span>{dropBadgeText}</span>
                     </span>
                   </div>
@@ -497,7 +488,7 @@ const CarCard = ({ car, lightBg = false }) => {
 
                 if (hasDiscount) {
                   return (
-                    <span className={`block text-[12px] font-medium line-through leading-none mb-1.5 ${lightBg ? 'text-slate-400' : 'text-slate-500'}`}>
+                    <span className={`block text-[12px] font-medium line-through leading-none mb-1.5 ${lightBg ? 'text-slate-600' : 'text-slate-400'}`}>
                       ₹{(orig / 100000).toFixed(2)} Lakh
                     </span>
                   );

@@ -40,13 +40,17 @@ const VideoCard = ({ item, isActive, onPlayChange }) => {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
   const resolveUrl = (url) => url?.startsWith('/') ? `${API}${url}` : url;
   
   const rawUrl = item.youtube_url || item.video_url || item.video;
   const videoId = extractYouTubeId(rawUrl);
 
   const togglePlay = () => {
-    if (videoId) return;
+    if (videoId) {
+      setIsIframeLoaded(true);
+      return;
+    }
     if (!videoRef.current) return;
     if (isPlaying) {
       videoRef.current.pause();
@@ -80,14 +84,57 @@ const VideoCard = ({ item, isActive, onPlayChange }) => {
       onClick={togglePlay}
     >
       {videoId ? (
-        <iframe
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=0`}
-          title={item.name || "YouTube Short"}
-          className="w-full h-full border-0 rounded-[2rem] pointer-events-auto"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        />
+        isIframeLoaded ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+            title={item.name ? `Testimonial video of ${item.name}` : "Customer video testimonial"}
+            className="w-full h-full border-0 rounded-[2rem] pointer-events-auto"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
+        ) : (
+          <div className="relative w-full h-full">
+            <img
+              src={resolveUrl(item.poster_url || item.poster) || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
+              alt={item.name ? `Testimonial from ${item.name}` : "Customer Story"}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover rounded-[2rem] transition-transform duration-500 group-hover:scale-105"
+              onError={(e) => {
+                if (e.target.src !== `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`) {
+                  e.target.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+                }
+              }}
+            />
+            <div
+              className="absolute inset-0 pointer-events-none z-10"
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.2) 70%, transparent 100%)' }}
+            />
+            <div className="absolute top-5 left-5 flex items-center gap-1.5 bg-black/40 backdrop-blur-md py-1 px-3 rounded-full border border-white/10 z-10">
+              <div className="w-4 h-4 bg-[#00C9AF] rounded-full flex items-center justify-center text-[9px] text-[#0A1C3A] font-extrabold">S</div>
+              <span className="text-white text-[10px] font-medium tracking-tight">selectt</span>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center z-20">
+              <div
+                className="w-14 h-14 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center shadow-[0_0_24px_rgba(0,201,175,0.7)] group-hover:scale-115 transition-transform"
+                aria-label={`Play testimonial from ${item.name || 'customer'}`}
+              >
+                <Play size={24} fill="currentColor" className="ml-1" />
+              </div>
+            </div>
+            <div className="absolute inset-x-0 bottom-0 p-5 z-20 text-left pointer-events-none">
+              <h3 className="text-white font-extrabold text-[15px] sm:text-[16px] leading-tight mb-1 drop-shadow-md">
+                {item.name || "Happy Customer"}
+              </h3>
+              {item.car_purchased && (
+                <p className="text-[#00C9AF] font-bold text-xs truncate drop-shadow-sm">
+                  Bought {item.car_purchased}
+                </p>
+              )}
+            </div>
+          </div>
+        )
       ) : (
         <>
           <video

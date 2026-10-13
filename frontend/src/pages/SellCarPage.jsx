@@ -767,27 +767,20 @@ const SellCarPage = () => {
                     key={idx}
                     type="button"
                     onClick={() => setActiveStep(idx)}
-                    style={{
-                      height: '4px',
-                      minHeight: '4px',
-                      maxHeight: '4px',
-                      width: activeStep === idx ? '18px' : '4px',
-                      minWidth: activeStep === idx ? '18px' : '4px',
-                      maxWidth: activeStep === idx ? '18px' : '4px',
-                      padding: 0,
-                      margin: 0,
-                      border: 'none',
-                      outline: 'none',
-                      boxSizing: 'border-box',
-                      backgroundColor: activeStep === idx ? '#00C9AF' : '#cbd5e1',
-                      borderRadius: '9999px',
-                      display: 'inline-block',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                    className="shrink-0"
+                    className="min-h-[44px] min-w-[28px] flex items-center justify-center p-1 bg-transparent border-0 cursor-pointer shrink-0"
                     aria-label={`Go to step ${idx + 1}`}
-                  />
+                  >
+                    <span
+                      style={{
+                        height: '4px',
+                        width: activeStep === idx ? '18px' : '4px',
+                        backgroundColor: activeStep === idx ? '#00C9AF' : '#cbd5e1',
+                        borderRadius: '9999px',
+                        display: 'inline-block',
+                        transition: 'all 0.3s ease'
+                      }}
+                    />
+                  </button>
                 ))}
               </div>
             </div>

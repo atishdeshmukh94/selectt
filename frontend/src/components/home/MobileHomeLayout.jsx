@@ -108,6 +108,9 @@ const MobileHomeLayout = () => {
                 <Search size={18} className="mr-3 text-white/50 shrink-0" />
                 <div className="relative flex-1 flex items-center">
                     <input
+                        id="mobile-layout-search-input"
+                        name="search"
+                        aria-label="Search used cars"
                         type="text"
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}

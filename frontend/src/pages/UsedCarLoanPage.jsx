@@ -334,27 +334,20 @@ const CityServicesSection = () => {
                   key={i}
                   type="button"
                   onClick={() => setActiveIdx(i)}
-                  style={{
-                    height: '4px',
-                    minHeight: '4px',
-                    maxHeight: '4px',
-                    width: activeIdx === i ? '18px' : '4px',
-                    minWidth: activeIdx === i ? '18px' : '4px',
-                    maxWidth: activeIdx === i ? '18px' : '4px',
-                    padding: 0,
-                    margin: 0,
-                    border: 'none',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    backgroundColor: activeIdx === i ? '#00C9AF' : '#cbd5e1',
-                    borderRadius: '9999px',
-                    display: 'inline-block',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  className="shrink-0"
                   aria-label={`Go to slide ${i + 1}`}
-                />
+                  className="min-h-[44px] min-w-[28px] flex items-center justify-center p-1 bg-transparent border-0 cursor-pointer shrink-0"
+                >
+                  <span
+                    style={{
+                      height: '4px',
+                      width: activeIdx === i ? '18px' : '4px',
+                      backgroundColor: activeIdx === i ? '#00C9AF' : '#cbd5e1',
+                      borderRadius: '9999px',
+                      display: 'inline-block',
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                </button>
               ))}
             </div>
 

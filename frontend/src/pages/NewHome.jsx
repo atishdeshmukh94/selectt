@@ -717,8 +717,11 @@ const HowItWorksCarousel = () => {
           >
             <div className="flex flex-col items-start gap-2">
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black shadow-md"
-                style={{ backgroundColor: item.accentColor }}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shadow-md"
+                style={{
+                  backgroundColor: item.accentColor,
+                  color: (item.accentColor === '#FFAE00' || item.accentColor === '#00C4AF') ? '#0C1B33' : '#FFFFFF'
+                }}
               >
                 {item.step}
               </div>
@@ -768,26 +771,19 @@ const HowItWorksCarousel = () => {
               }
             }}
             aria-label={`Go to step ${idx + 1}`}
-            style={{
-              height: '4px',
-              minHeight: '4px',
-              maxHeight: '4px',
-              width: activeIndex === idx ? '18px' : '4px',
-              minWidth: activeIndex === idx ? '18px' : '4px',
-              maxWidth: activeIndex === idx ? '18px' : '4px',
-              padding: 0,
-              margin: 0,
-              border: 'none',
-              outline: 'none',
-              boxSizing: 'border-box',
-              backgroundColor: activeIndex === idx ? '#00C9AF' : 'rgba(255, 255, 255, 0.35)',
-              borderRadius: '9999px',
-              display: 'inline-block',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
-            className="shrink-0"
-          />
+            className="min-h-[44px] min-w-[28px] flex items-center justify-center p-1 bg-transparent border-0 cursor-pointer shrink-0"
+          >
+            <span
+              style={{
+                height: '4px',
+                width: activeIndex === idx ? '18px' : '4px',
+                backgroundColor: activeIndex === idx ? '#00C9AF' : 'rgba(255, 255, 255, 0.45)',
+                borderRadius: '9999px',
+                display: 'inline-block',
+                transition: 'all 0.3s ease'
+              }}
+            />
+          </button>
         ))}
       </div>
     </div>
@@ -857,16 +853,7 @@ const MobileRecommendedCarCard = ({ car }) => {
     return () => clearInterval(interval);
   }, [carImages.length]);
 
-  // Preload remaining images in background
-  useEffect(() => {
-    if (carImages.length <= 1) return;
-    carImages.forEach((img) => {
-      if (img) {
-        const preload = new Image();
-        preload.src = getCarImageUrl(img);
-      }
-    });
-  }, [carImages]);
+  // Lazy load images on viewport scroll to conserve data and prevent enormous network payloads
 
   return (
     <Link
@@ -1708,6 +1695,9 @@ const NewHome = () => {
                 </button>
                 <div className="relative flex-1 flex items-center">
                   <input
+                    id="home-mobile-search-input"
+                    name="search"
+                    aria-label="Search used cars by make, model, or body type"
                     type="text"
                     value={mobileSearchText}
                     onChange={(e) => {
@@ -1726,7 +1716,7 @@ const NewHome = () => {
                   />
                   {!mobileSearchText && (
                     <div className="absolute left-0 pointer-events-none flex items-center text-[14px] tracking-wide text-left">
-                      <span className="text-white/60 font-normal mr-1">Search by</span>
+                      <span className="text-white/80 font-normal mr-1">Search by</span>
                       <span className="text-[#00C9AF] font-bold">{typingSearchText}</span>
                       <span className="w-[1.5px] h-[16px] bg-[#00C9AF] ml-[1px] animate-pulse"></span>
                     </div>
@@ -1887,26 +1877,19 @@ const NewHome = () => {
               type="button"
               onClick={() => setMobileHeroIdx(idx)}
               aria-label={`Go to slide ${idx + 1}`}
-              style={{
-                height: '4px',
-                minHeight: '4px',
-                maxHeight: '4px',
-                width: mobileHeroIdx === idx ? '18px' : '4px',
-                minWidth: mobileHeroIdx === idx ? '18px' : '4px',
-                maxWidth: mobileHeroIdx === idx ? '18px' : '4px',
-                padding: 0,
-                margin: 0,
-                border: 'none',
-                outline: 'none',
-                boxSizing: 'border-box',
-                backgroundColor: mobileHeroIdx === idx ? '#00C9AF' : 'rgba(255, 255, 255, 0.45)',
-                borderRadius: '9999px',
-                display: 'inline-block',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              className="shrink-0"
-            />
+              className="min-h-[44px] min-w-[28px] flex items-center justify-center p-1 bg-transparent border-0 cursor-pointer shrink-0"
+            >
+              <span
+                style={{
+                  height: '4px',
+                  width: mobileHeroIdx === idx ? '18px' : '4px',
+                  backgroundColor: mobileHeroIdx === idx ? '#00C9AF' : 'rgba(255, 255, 255, 0.45)',
+                  borderRadius: '9999px',
+                  display: 'inline-block',
+                  transition: 'all 0.3s ease'
+                }}
+              />
+            </button>
           ))}
         </div>
       </div>
@@ -2475,7 +2458,7 @@ const NewHome = () => {
               🏆
             </div>
             <div>
-              <h4 className="font-extrabold text-[13px] text-white leading-tight group-hover:text-[#00CCB3] transition-colors">200-pt Inspection</h4>
+              <p className="font-extrabold text-[13px] text-white leading-tight group-hover:text-[#00CCB3] transition-colors">200-pt Inspection</p>
               <p className="text-[11px] text-slate-400 mt-0.5">Every car, no exceptions</p>
             </div>
           </div>
@@ -2487,7 +2470,7 @@ const NewHome = () => {
               🤖
             </div>
             <div>
-              <h4 className="font-extrabold text-[13px] text-white leading-tight group-hover:text-[#00CCB3] transition-colors">AI Fair Pricing</h4>
+              <p className="font-extrabold text-[13px] text-white leading-tight group-hover:text-[#00CCB3] transition-colors">AI Fair Pricing</p>
               <p className="text-[11px] text-slate-400 mt-0.5">50,000+ data points</p>
             </div>
           </div>
@@ -2499,7 +2482,7 @@ const NewHome = () => {
               🚚
             </div>
             <div>
-              <h4 className="font-extrabold text-[13px] text-white leading-tight group-hover:text-[#00CCB3] transition-colors">Doorstep Delivery</h4>
+              <p className="font-extrabold text-[13px] text-white leading-tight group-hover:text-[#00CCB3] transition-colors">Doorstep Delivery</p>
               <p className="text-[11px] text-slate-400 mt-0.5">Available in 30+ cities</p>
             </div>
           </div>
@@ -2511,7 +2494,7 @@ const NewHome = () => {
               ↩️
             </div>
             <div>
-              <h4 className="font-extrabold text-[13px] text-white leading-tight group-hover:text-[#00CCB3] transition-colors">7-Day Returns</h4>
+              <p className="font-extrabold text-[13px] text-white leading-tight group-hover:text-[#00CCB3] transition-colors">7-Day Returns</p>
               <p className="text-[11px] text-slate-400 mt-0.5">No questions asked return</p>
             </div>
           </div>
@@ -2523,7 +2506,7 @@ const NewHome = () => {
               📋
             </div>
             <div>
-              <h4 className="font-extrabold text-[13px] text-white leading-tight group-hover:text-[#00CCB3] transition-colors">RC Transfer</h4>
+              <p className="font-extrabold text-[13px] text-white leading-tight group-hover:text-[#00CCB3] transition-colors">RC Transfer</p>
               <p className="text-[11px] text-slate-400 mt-0.5">Complete end-to-end help</p>
             </div>
           </div>
@@ -2539,7 +2522,7 @@ const NewHome = () => {
 
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <span className="text-[#00CCB3] text-[11px] font-bold tracking-widest uppercase mb-2 block font-heading">
+              <span className="text-[#007A6B] text-[11px] font-bold tracking-widest uppercase mb-2 block font-heading">
                 {featuredTab === 'selected' ? 'Selected For You' : 'Handpicked Stock'}
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-heading text-[#0C1B33] mb-2 sm:mb-2.5 tracking-tight">
@@ -2554,7 +2537,7 @@ const NewHome = () => {
             </div>
             <Link
               to="/buy-cars"
-              className="inline-flex items-center gap-2 text-[#00CCB3] hover:text-[#00FFDF] font-bold text-sm transition-colors group"
+              className="inline-flex items-center gap-2 text-[#007A6B] hover:text-[#005B4F] font-bold text-sm transition-colors group"
             >
               See all 12,400+ cars
               <ArrowRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
@@ -2563,29 +2546,29 @@ const NewHome = () => {
 
           {/* Tab switcher if user has recently viewed/searched cars */}
           {selectedForYouCars.length > 0 && (
-            <div className="flex gap-6 mb-8 border-b border-white/10">
+            <div className="flex gap-6 mb-8 border-b border-slate-200">
               <button
                 onClick={() => setFeaturedTab('selected')}
                 className={`pb-3 font-bold text-sm transition-all relative cursor-pointer ${featuredTab === 'selected'
-                  ? 'text-[#00CCB3] font-extrabold'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-[#007A6B] font-extrabold'
+                  : 'text-slate-600 hover:text-slate-900'
                   }`}
               >
                 Selected for You
                 {featuredTab === 'selected' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#00CCB3] rounded-full"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#007A6B] rounded-full"></div>
                 )}
               </button>
               <button
                 onClick={() => setFeaturedTab('featured')}
                 className={`pb-3 font-bold text-sm transition-all relative cursor-pointer ${featuredTab === 'featured'
-                  ? 'text-[#00CCB3] font-extrabold'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-[#007A6B] font-extrabold'
+                  : 'text-slate-600 hover:text-slate-900'
                   }`}
               >
                 Featured Listings
                 {featuredTab === 'featured' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#00CCB3] rounded-full"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#007A6B] rounded-full"></div>
                 )}
               </button>
             </div>
@@ -2626,7 +2609,7 @@ const NewHome = () => {
 
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
             <div>
-              <span className="text-[#00CCB3] text-[11px] font-bold tracking-widest uppercase mb-1.5 block font-heading">Choose Brand</span>
+              <span className="text-[#007A6B] text-[11px] font-bold tracking-widest uppercase mb-1.5 block font-heading">Choose Brand</span>
               <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-[#0C1B33] tracking-tight mb-2 sm:mb-2.5">Explore Popular Brands</h2>
               <p className="text-slate-600 text-sm sm:text-base font-normal leading-relaxed">Directly view stock segments matching your favourite brand with live counts.</p>
             </div>
@@ -2635,13 +2618,15 @@ const NewHome = () => {
             <div className="hidden md:flex items-center gap-2">
               <button
                 onClick={scrollLeft}
-                className="w-8 h-8 rounded-full bg-[#0C1B33] border border-white/10 hover:border-[#00CCB3] flex items-center justify-center text-white transition-colors shadow-none cursor-pointer"
+                aria-label="Previous brand"
+                className="w-8 h-8 rounded-full bg-[#0C1B33] border border-white/10 hover:border-[#00C9AF] flex items-center justify-center text-white transition-colors shadow-none cursor-pointer"
               >
                 <ChevronLeft size={16} strokeWidth={2.5} />
               </button>
               <button
                 onClick={scrollRight}
-                className="w-8 h-8 rounded-full bg-[#0C1B33] border border-white/10 hover:border-[#00CCB3] flex items-center justify-center text-white transition-colors shadow-none cursor-pointer"
+                aria-label="Next brand"
+                className="w-8 h-8 rounded-full bg-[#0C1B33] border border-white/10 hover:border-[#00C9AF] flex items-center justify-center text-white transition-colors shadow-none cursor-pointer"
               >
                 <ChevronRight size={16} strokeWidth={2.5} />
               </button>
@@ -2860,7 +2845,7 @@ const NewHome = () => {
 
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <span className="text-[#00CCB3] text-[11px] font-bold tracking-widest uppercase mb-2 block font-heading">
+              <span className="text-[#007A6B] text-[11px] font-bold tracking-widest uppercase mb-2 block font-heading">
                 BROWSE BY TYPE
               </span>
               <h2 className="text-2xl md:text-4xl font-extrabold font-heading text-[#0C1B33]">
@@ -2875,7 +2860,7 @@ const NewHome = () => {
             <div className="flex items-center gap-6">
               <button
                 onClick={handleViewAllBodyType}
-                className="inline-flex items-center gap-1.5 text-[#00CCB3] hover:text-[#00B5A2] font-bold text-sm transition-colors group cursor-pointer bg-transparent border-none outline-none"
+                className="inline-flex items-center gap-1.5 text-[#007A6B] hover:text-[#005B4F] font-bold text-sm transition-colors group cursor-pointer bg-transparent border-none outline-none"
               >
                 View All Cars
                 <ArrowRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
@@ -2885,20 +2870,22 @@ const NewHome = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={prevBodyTypeSlide}
+                    aria-label="Previous cars"
                     disabled={bodyTypeCarouselIdx === 0}
                     className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all cursor-pointer ${bodyTypeCarouselIdx === 0
                       ? 'border-slate-200 text-slate-350 bg-slate-100/50 pointer-events-none'
-                      : 'border-slate-350 text-slate-700 hover:text-[#00CCB3] hover:border-[#00CCB3] bg-white hover:bg-slate-50'
+                      : 'border-slate-350 text-slate-700 hover:text-[#007A6B] hover:border-[#007A6B] bg-white hover:bg-slate-50'
                       }`}
                   >
                     <ChevronLeft size={16} strokeWidth={2.5} />
                   </button>
                   <button
                     onClick={nextBodyTypeSlide}
+                    aria-label="Next cars"
                     disabled={bodyTypeCarouselIdx >= getFilteredCars().length - itemsPerView}
                     className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all cursor-pointer ${bodyTypeCarouselIdx >= getFilteredCars().length - itemsPerView
                       ? 'border-slate-200 text-slate-350 bg-slate-100/50 pointer-events-none'
-                      : 'border-slate-350 text-slate-700 hover:text-[#00CCB3] hover:border-[#00CCB3] bg-white hover:bg-slate-50'
+                      : 'border-slate-350 text-slate-700 hover:text-[#007A6B] hover:border-[#007A6B] bg-white hover:bg-slate-50'
                       }`}
                   >
                     <ChevronRight size={16} strokeWidth={2.5} />
@@ -2972,7 +2959,7 @@ const NewHome = () => {
         <div className="max-w-6xl mx-auto">
 
           <div className="text-center max-w-xl mx-auto mb-10">
-            <span className="text-[#00A38D] text-xs font-semibold tracking-wider uppercase mb-2 block font-heading">
+            <span className="text-[#007A6B] text-xs font-semibold tracking-wider uppercase mb-2 block font-heading">
               Vs competition
             </span>
             <h2 className="text-[28px] sm:text-[38px] md:text-[42px] font-heading font-semibold text-[#0F172A] leading-[1.2]">
@@ -3061,7 +3048,7 @@ const NewHome = () => {
           >
             <div className="max-w-7xl mx-auto px-4 relative z-10">
               <div className="text-center mb-0">
-                <span className="text-[#00D3B7] text-xs font-extrabold tracking-[0.2em] uppercase mb-2 block">Step by Step</span>
+                <span className="text-[#007A6B] text-xs font-extrabold tracking-[0.2em] uppercase mb-2 block">Step by Step</span>
                 <h2 className="text-3xl lg:text-5xl font-black text-[#0C1B33] mb-3 tracking-tight">Buy your car in easy steps</h2>
                 <p className="text-slate-500 text-lg max-w-2xl mx-auto font-semibold">Fast, transparent, and hassle-free.</p>
               </div>
@@ -3072,6 +3059,7 @@ const NewHome = () => {
                 {/* Left arrow */}
                 <button
                   onClick={() => setBuyStepIdx(prev => prev === 0 ? total - 1 : prev - 1)}
+                  aria-label="Previous step"
                   className="absolute left-2 md:-left-16 z-40 bg-white hover:bg-slate-100 border border-slate-200/80 p-3 md:p-4 rounded-full shadow-lg text-slate-700 hover:text-black transition-all hover:scale-110 active:scale-95 flex items-center justify-center focus:outline-none"
                 >
                   <ChevronLeft size={22} className="stroke-[3]" />
@@ -3102,6 +3090,7 @@ const NewHome = () => {
                 {/* Right arrow */}
                 <button
                   onClick={() => setBuyStepIdx(prev => prev === total - 1 ? 0 : prev + 1)}
+                  aria-label="Next step"
                   className="absolute right-2 md:-right-16 z-40 bg-white hover:bg-slate-100 border border-slate-200/80 p-3 md:p-4 rounded-full shadow-lg text-slate-700 hover:text-black transition-all hover:scale-110 active:scale-95 flex items-center justify-center focus:outline-none"
                 >
                   <ChevronRight size={22} className="stroke-[3]" />
@@ -3116,26 +3105,19 @@ const NewHome = () => {
                     type="button"
                     onClick={() => setBuyStepIdx(i)}
                     aria-label={`Go to step ${i + 1}`}
-                    style={{
-                      height: '4px',
-                      minHeight: '4px',
-                      maxHeight: '4px',
-                      width: buyStepIdx === i ? '18px' : '4px',
-                      minWidth: buyStepIdx === i ? '18px' : '4px',
-                      maxWidth: buyStepIdx === i ? '18px' : '4px',
-                      padding: 0,
-                      margin: 0,
-                      border: 'none',
-                      outline: 'none',
-                      boxSizing: 'border-box',
-                      backgroundColor: buyStepIdx === i ? '#00C9AF' : '#cbd5e1',
-                      borderRadius: '9999px',
-                      display: 'inline-block',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                    className="shrink-0"
-                  />
+                    className="min-h-[44px] min-w-[28px] flex items-center justify-center p-1 bg-transparent border-0 cursor-pointer shrink-0"
+                  >
+                    <span
+                      style={{
+                        height: '4px',
+                        width: buyStepIdx === i ? '18px' : '4px',
+                        backgroundColor: buyStepIdx === i ? '#00C9AF' : '#cbd5e1',
+                        borderRadius: '9999px',
+                        display: 'inline-block',
+                        transition: 'all 0.3s ease'
+                      }}
+                    />
+                  </button>
                 ))}
               </div>
 

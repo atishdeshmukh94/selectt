@@ -68,10 +68,10 @@ const FAQ = ({ dark = true }) => {
                 <button
                   onClick={() => handleToggle(index)}
                   className={`w-full cursor-pointer flex items-center justify-between p-5 md:p-6 text-left font-heading font-semibold select-none transition-colors duration-200 outline-none ${isOpen
-                    ? 'text-[#00C9AF]'
+                    ? (dark ? 'text-[#00C9AF]' : 'text-[#007A6B]')
                     : dark
                       ? 'text-white hover:text-[#00C9AF]'
-                      : 'text-[#0F172A] hover:text-[#00A38D]'
+                      : 'text-[#0F172A] hover:text-[#007A6B]'
                     }`}
                 >
                   <span className="text-[16px] sm:text-[17px] pr-4 leading-[1.45]">{faq.question}</span>

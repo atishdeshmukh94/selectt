@@ -214,7 +214,7 @@ const PWAInstallPrompt = () => {
           </div>
 
           {/* Title & Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6FAF7] text-[#008A77] text-[11px] font-bold uppercase tracking-wider mb-3.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6FAF7] text-[#0A524A] text-[11px] font-bold uppercase tracking-wider mb-3.5">
             <Zap size={12} /> Official Mobile App
           </div>
 
