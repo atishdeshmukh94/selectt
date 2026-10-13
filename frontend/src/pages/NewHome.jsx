@@ -620,10 +620,10 @@ const HOW_IT_WORKS_STEPS = [
     title: 'Browse & Shortlist',
     desc: 'Filter by brand, budget. Every listing shows real inspection scores and AI-verified pricing.',
     icon: '/icons/Browse & shortlist.png',
-    accentColor: '#6366F1',
-    bgGradient: 'linear-gradient(145deg, rgba(99,102,241,0.15) 0%, rgba(25,43,70,0.7) 60%)',
-    borderColor: 'rgba(99,102,241,0.3)',
-    shadowColor: 'rgba(99,102,241,0.15)'
+    accentColor: '#4338CA',
+    bgGradient: 'linear-gradient(145deg, rgba(67,56,202,0.15) 0%, rgba(25,43,70,0.7) 60%)',
+    borderColor: 'rgba(67,56,202,0.3)',
+    shadowColor: 'rgba(67,56,202,0.15)'
   },
   {
     step: '02',
@@ -650,10 +650,10 @@ const HOW_IT_WORKS_STEPS = [
     title: 'Drive It Home',
     desc: 'Get your certified car delivered to your home with RC transfer & 5-day money-back guarantee.',
     icon: '/icons/Drive it home.png',
-    accentColor: '#EC4899',
-    bgGradient: 'linear-gradient(145deg, rgba(236,72,153,0.15) 0%, rgba(25,43,70,0.7) 60%)',
-    borderColor: 'rgba(236,72,153,0.3)',
-    shadowColor: 'rgba(236,72,153,0.15)'
+    accentColor: '#BE185D',
+    bgGradient: 'linear-gradient(145deg, rgba(190,24,93,0.15) 0%, rgba(25,43,70,0.7) 60%)',
+    borderColor: 'rgba(190,24,93,0.3)',
+    shadowColor: 'rgba(190,24,93,0.15)'
   }
 ];
 
@@ -1767,9 +1767,9 @@ const NewHome = () => {
                                 />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-xs font-black text-white group-hover:text-[#00C9AF] transition-colors truncate">
+                                <span className="text-xs font-black text-white group-hover:text-[#00C9AF] transition-colors truncate block">
                                   {car.year} {car.make} {car.model}
-                                </h4>
+                                </span>
                                 <p className="text-[10px] font-semibold text-slate-400 truncate mt-0.5">
                                   {(car.km || 0).toLocaleString()} km · {car.fuelType} · {car.transmission}
                                 </p>
@@ -2351,9 +2351,12 @@ const NewHome = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4 items-end">
                 {/* Budget */}
                 <div className="text-left">
-                  <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">Budget</label>
+                  <label htmlFor="hero-filter-budget" className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">Budget</label>
                   <div className="relative">
                     <select
+                      id="hero-filter-budget"
+                      name="budget"
+                      aria-label="Filter cars by budget"
                       value={budget}
                       onChange={(e) => setBudget(e.target.value)}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] text-slate-900 focus:outline-none focus:border-[#00C9AF] transition-colors appearance-none cursor-pointer font-semibold"
@@ -2369,9 +2372,12 @@ const NewHome = () => {
 
                 {/* Brand */}
                 <div className="text-left">
-                  <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">Brand</label>
+                  <label htmlFor="hero-filter-brand" className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">Brand</label>
                   <div className="relative">
                     <select
+                      id="hero-filter-brand"
+                      name="brand"
+                      aria-label="Filter cars by brand"
                       value={brand}
                       onChange={(e) => setBrand(e.target.value)}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] text-slate-900 focus:outline-none focus:border-[#00C9AF] transition-colors appearance-none cursor-pointer font-semibold"
@@ -2397,9 +2403,12 @@ const NewHome = () => {
 
                 {/* Fuel Type */}
                 <div className="text-left">
-                  <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">Fuel Type</label>
+                  <label htmlFor="hero-filter-fuel" className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">Fuel Type</label>
                   <div className="relative">
                     <select
+                      id="hero-filter-fuel"
+                      name="fuelType"
+                      aria-label="Filter cars by fuel type"
                       value={fuelType}
                       onChange={(e) => setFuelType(e.target.value)}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] text-slate-900 focus:outline-none focus:border-[#00C9AF] transition-colors appearance-none cursor-pointer font-semibold"
@@ -2415,9 +2424,12 @@ const NewHome = () => {
 
                 {/* City */}
                 <div className="text-left">
-                  <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">City</label>
+                  <label htmlFor="hero-filter-city" className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">City</label>
                   <div className="relative">
                     <select
+                      id="hero-filter-city"
+                      name="city"
+                      aria-label="Filter cars by city"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] text-slate-900 focus:outline-none focus:border-[#00C9AF] transition-colors appearance-none cursor-pointer font-semibold"

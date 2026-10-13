@@ -143,11 +143,17 @@ const WhatsAppChatButton = () => {
 
     interactionEvents.forEach(evt => window.addEventListener(evt, onUserInteraction, { once: true, passive: true }));
 
-    const idleTimer = setTimeout(() => {
-      onUserInteraction();
-    }, 3500);
+    // Ensure any dynamically injected iframes have an accessible title
+    const observer = new MutationObserver(() => {
+      const iframes = document.querySelectorAll('iframe:not([title]), iframe[title=""]');
+      iframes.forEach((iframe) => {
+        iframe.setAttribute('title', 'Selectt WhatsApp Customer Support');
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
+      observer.disconnect();
       clearTimeout(idleTimer);
       interactionEvents.forEach(evt => window.removeEventListener(evt, onUserInteraction));
     };

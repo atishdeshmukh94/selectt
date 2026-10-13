@@ -8,8 +8,6 @@ import PremiumHeader from './components/layout/PremiumHeader/PremiumHeader';
 import Footer from './components/layout/Footer';
 import LocationPopup from './components/home/LocationPopup';
 import PWAInstallPrompt from './components/common/PWAInstallPrompt';
-import PagePreloader from './components/common/PagePreloader';
-import VideoPreloader from './components/common/VideoPreloader';
 import ScrollToTop from './components/common/ScrollToTop';
 import ScrollToTopButton from './components/common/ScrollToTopButton';
 import OneSignalInit from './components/common/OneSignalInit';
@@ -210,7 +208,6 @@ function App() {
 
   return (
     <Router>
-      <PagePreloader minDisplayTime={4500} />
       <ScrollToTop />
       <VisitorTracker />
       <SiteSettingsProvider>

@@ -1,0 +1,18 @@
+# Selectt - Certified Pre-Owned Car Marketplace
+
+> Selectt is India's premium trusted platform for certified used cars, free doorstep test drives, transparent pricing, 200-point inspection guarantees, and seamless financing.
+
+## Core Services
+
+- [Browse Certified Cars](https://selectt.in/cars): Search and filter verified pre-owned cars by budget, brand, fuel type, and location.
+- [Sell Your Car](https://selectt.in/sell-car): Get an instant AI valuation and doorstep vehicle inspection with same-day payment.
+- [Used Car Loans](https://selectt.in/used-car-loan): Instant EMI calculator and competitive used car financing options.
+- [Selectt Assured Guarantee](https://selectt.in/selectt-assured): Our 200-point inspection checklist, 1-year warranty, and 5-day money-back guarantee.
+- [E-Challan Check](https://selectt.in/e-challan): Verify and check vehicle traffic violation records and challan status.
+- [Frequently Asked Questions](https://selectt.in/faqs): Comprehensive buyer and seller questions answered.
+- [Contact Support](https://selectt.in/contact): Connect with our automotive experts and offline hub locations.
+
+## Optional Documentation
+
+- [Privacy Policy](https://selectt.in/privacy-policy): User privacy and data protection details.
+- [Terms & Conditions](https://selectt.in/terms-and-conditions): Legal terms of service.

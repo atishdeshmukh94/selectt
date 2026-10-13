@@ -116,12 +116,13 @@ const VideoCard = ({ item, isActive, onPlayChange }) => {
               <span className="text-white text-[10px] font-medium tracking-tight">selectt</span>
             </div>
             <div className="absolute inset-0 flex items-center justify-center z-20">
-              <div
-                className="w-14 h-14 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center shadow-[0_0_24px_rgba(0,201,175,0.7)] group-hover:scale-115 transition-transform"
+              <button
+                type="button"
+                className="w-14 h-14 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center shadow-[0_0_24px_rgba(0,201,175,0.7)] group-hover:scale-115 transition-transform border-0 cursor-pointer"
                 aria-label={`Play testimonial from ${item.name || 'customer'}`}
               >
                 <Play size={24} fill="currentColor" className="ml-1" />
-              </div>
+              </button>
             </div>
             <div className="absolute inset-x-0 bottom-0 p-5 z-20 text-left pointer-events-none">
               <h3 className="text-white font-extrabold text-[15px] sm:text-[16px] leading-tight mb-1 drop-shadow-md">

@@ -1,81 +1,49 @@
-import React, { useEffect, useRef } from 'react';
-import lottie from 'lottie-web';
-import brandPreloaderAnimation from '../../assets/selectt-brand-preloader.json';
+import React from 'react';
 
 /**
- * Universal Selectt Brand Lottie Preloader Component (from IMG_4600.lottie)
- * Displays the signature Selectt animated logo and car reveal.
+ * Lightweight Selectt Brand Preloader Component
+ * High performance, zero external libraries (0KB bundle overhead), instant rendering.
  */
 export default function VideoPreloader({
   fullScreen = true,
-  loop = true,
   message = '',
   className = ''
 }) {
-  const containerRef = useRef(null);
-  const animInstanceRef = useRef(null);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    try {
-      animInstanceRef.current = lottie.loadAnimation({
-        container: containerRef.current,
-        renderer: 'svg',
-        loop: loop,
-        autoplay: true,
-        animationData: brandPreloaderAnimation,
-        rendererSettings: {
-          preserveAspectRatio: 'xMidYMid meet'
-        }
-      });
-    } catch (err) {
-      console.warn('Lottie preloader animation failed', err);
-    }
-    return () => {
-      if (animInstanceRef.current) {
-        animInstanceRef.current.destroy();
-      }
-    };
-  }, [loop]);
+  const content = (
+    <div className="flex flex-col items-center justify-center gap-4">
+      <div className="relative w-14 h-14 flex items-center justify-center">
+        {/* Spinning gradient ring */}
+        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#00C9AF] border-r-[#00C9AF] animate-spin" />
+        {/* Signature Brand Badge */}
+        <div className="w-9 h-9 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center text-sm font-extrabold shadow-[0_0_15px_rgba(0,201,175,0.5)]">
+          S
+        </div>
+      </div>
+      <span className="text-white text-xs font-semibold tracking-wider uppercase opacity-80">
+        {message || 'Selectt Certified'}
+      </span>
+    </div>
+  );
 
   if (fullScreen) {
     return (
       <div
-        style={{
-          backgroundColor: '#000000',
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100vw',
-          height: '100vh',
-          zIndex: 999999,
-          margin: 0,
-          padding: 0,
-          overflow: 'hidden'
-        }}
-        className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black ${className}`}
+        className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#0C1B33]/90 backdrop-blur-md ${className}`}
+        aria-live="polite"
+        role="status"
       >
-        <div className="relative flex flex-col items-center justify-center w-full h-full p-4 sm:p-6">
-          <div
-            ref={containerRef}
-            className="w-full max-w-[360px] sm:max-w-[480px] md:max-w-[580px] aspect-[16/9] flex items-center justify-center overflow-hidden"
-          />
-        </div>
+        {content}
       </div>
     );
   }
 
   return (
     <div
-      style={{ backgroundColor: '#090D16' }}
-      className={`w-full min-h-[300px] flex flex-col items-center justify-center bg-[#090D16] rounded-2xl p-6 overflow-hidden border border-slate-800/60 shadow-xl ${className}`}
+      className={`w-full min-h-[220px] flex flex-col items-center justify-center bg-[#0C1B33]/50 rounded-2xl p-6 border border-white/5 shadow-xl ${className}`}
+      aria-live="polite"
+      role="status"
     >
-      <div
-        ref={containerRef}
-        className="w-full max-w-[280px] sm:max-w-[340px] aspect-[16/9] flex items-center justify-center overflow-hidden"
-      />
+      {content}
     </div>
   );
 }

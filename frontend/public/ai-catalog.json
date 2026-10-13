@@ -1,0 +1,33 @@
+{
+  "$schema": "https://agenticresourcediscovery.org/spec/v1/schema.json",
+  "name": "Selectt Certified Cars Catalog",
+  "description": "Agentic discovery manifest for Selectt certified pre-owned cars, pricing, and automotive services.",
+  "version": "1.0.0",
+  "provider": {
+    "name": "Selectt",
+    "url": "https://selectt.in"
+  },
+  "capabilities": [
+    {
+      "id": "browse-cars",
+      "name": "Browse Pre-Owned Cars",
+      "description": "Browse and filter certified used cars with 200-point inspection reports.",
+      "endpoint": "https://selectt.in/cars",
+      "type": "web"
+    },
+    {
+      "id": "sell-car-valuation",
+      "name": "Sell Car Instant Valuation",
+      "description": "Instant valuation and doorstep inspection booking for selling used cars.",
+      "endpoint": "https://selectt.in/sell-car",
+      "type": "web"
+    },
+    {
+      "id": "used-car-loans",
+      "name": "Used Car Financing",
+      "description": "Calculate EMIs and apply for low-interest pre-approved car loans.",
+      "endpoint": "https://selectt.in/used-car-loan",
+      "type": "web"
+    }
+  ]
+}

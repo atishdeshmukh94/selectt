@@ -30,7 +30,6 @@ const FeatureCard = ({ icon, emoji, title, description, index, isActive, onClick
           ? '0 8px 32px rgba(0,196,175,0.12)'
           : '0 2px 8px rgba(0,0,0,0.2)',
       }}
-      aria-label={title}
     >
 
 
@@ -54,12 +53,12 @@ const FeatureCard = ({ icon, emoji, title, description, index, isActive, onClick
 
       {/* Text */}
       <div className="pt-0.5">
-        <h4
+        <h3
           className="font-extrabold text-base leading-tight mb-1 transition-colors duration-300"
           style={{ color: isActive || hovered ? '#00C9AF' : '#ffffff' }}
         >
           {title}
-        </h4>
+        </h3>
         <p className="text-slate-400 text-sm leading-[1.75]">{description}</p>
       </div>
     </motion.div>

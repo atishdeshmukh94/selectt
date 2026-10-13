@@ -142,9 +142,9 @@ const Footer = () => {
                 onClick={() => toggleSection('buy')}
                 className="w-full md:pointer-events-none flex justify-between items-center text-left focus:outline-none"
               >
-                <h4 className="font-extrabold text-sm uppercase tracking-widest text-white">
+                <span className="font-extrabold text-sm uppercase tracking-widest text-white block">
                   Buy
-                </h4>
+                </span>
                 <span className="md:hidden text-slate-400 text-lg font-bold">
                   {activeSection === 'buy' ? '−' : '+'}
                 </span>
@@ -165,9 +165,9 @@ const Footer = () => {
                 onClick={() => toggleSection('sell')}
                 className="w-full md:pointer-events-none flex justify-between items-center text-left focus:outline-none"
               >
-                <h4 className="font-extrabold text-sm uppercase tracking-widest text-white">
+                <span className="font-extrabold text-sm uppercase tracking-widest text-white block">
                   Sell
-                </h4>
+                </span>
                 <span className="md:hidden text-slate-400 text-lg font-bold">
                   {activeSection === 'sell' ? '−' : '+'}
                 </span>
@@ -186,9 +186,9 @@ const Footer = () => {
                 onClick={() => toggleSection('company')}
                 className="w-full md:pointer-events-none flex justify-between items-center text-left focus:outline-none"
               >
-                <h4 className="font-extrabold text-sm uppercase tracking-widest text-white">
+                <span className="font-extrabold text-sm uppercase tracking-widest text-white block">
                   Company
-                </h4>
+                </span>
                 <span className="md:hidden text-slate-400 text-lg font-bold">
                   {activeSection === 'company' ? '−' : '+'}
                 </span>
