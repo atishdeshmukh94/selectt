@@ -1018,14 +1018,21 @@ const renderHeroBadge = (car) => {
 const NewHome = () => {
   const navigate = useNavigate();
   const resolveUrl = (url) => {
-    if (!url) return '';
-    if (url.includes('car_loan_banner_1to1')) return '/img/car_loan_banner_1to1.webp';
-    if (url.includes('mobile_hero_cover')) return '/img/mobile_hero_cover.webp';
-    if (url.includes('warranty_banner_1to1')) return '/img/warranty_banner_1to1.webp';
-    if (url.includes('Best_car_ads_-_right_video_-_cover')) return '/img/warranty_banner_1to1.webp';
-    if (url.startsWith('https://api.selectt.in/uploads/')) return url.replace('https://api.selectt.in', CDN_URL);
-    if (url.startsWith('/uploads/')) return `${CDN_URL}${url}`;
-    return url;
+    if (!url || typeof url !== 'string') return '';
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    // Filter out old predefault static images so ONLY uploaded images show
+    if (
+      trimmed.includes('warranty_banner_1to1') ||
+      trimmed.includes('car_loan_banner_1to1') ||
+      trimmed.includes('mobile_hero_cover') ||
+      trimmed.includes('Best_car_ads_-_right_video_-_cover')
+    ) {
+      return '';
+    }
+    if (trimmed.startsWith('https://api.selectt.in/uploads/')) return trimmed.replace('https://api.selectt.in', CDN_URL);
+    if (trimmed.startsWith('/uploads/')) return `${CDN_URL}${trimmed}`;
+    return trimmed;
   };
 
   const [coords, setCoords] = useState({ x: 0, y: 0 });
@@ -1055,14 +1062,36 @@ const NewHome = () => {
   const [showMobileSearchDropdown, setShowMobileSearchDropdown] = useState(false);
   const mobileSearchContainerRef = useRef(null);
 
-  const [heroContent, setHeroContent] = useState({
-    mobile_hero_video: '',
-    mobile_hero_image: '/img/warranty_banner_1to1.webp',
-    mobile_hero_badge: 'Selectt assured cover',
-    mobile_hero_heading: "Don't just buy.Selectt.",
-    mobile_hero_subheading: "India's most-trusted car home*",
-    mobile_hero_btn_text: 'Buy Car',
-    mobile_hero_btn_link: '/buy-cars',
+  const [heroContent, setHeroContent] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('selectt_site_content_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && typeof parsed === 'object') {
+            return {
+              mobile_hero_video: parsed.mobile_hero_video || '',
+              mobile_hero_image: parsed.mobile_hero_image || '',
+              mobile_hero_badge: parsed.mobile_hero_badge || 'Selectt assured cover',
+              mobile_hero_heading: parsed.mobile_hero_heading || "Don't just buy.Selectt.",
+              mobile_hero_subheading: parsed.mobile_hero_subheading || "India's most-trusted car home*",
+              mobile_hero_btn_text: parsed.mobile_hero_btn_text || 'Buy Car',
+              mobile_hero_btn_link: parsed.mobile_hero_btn_link || '/buy-cars',
+              ...parsed,
+            };
+          }
+        }
+      } catch (_) {}
+    }
+    return {
+      mobile_hero_video: '',
+      mobile_hero_image: '',
+      mobile_hero_badge: 'Selectt assured cover',
+      mobile_hero_heading: "Don't just buy.Selectt.",
+      mobile_hero_subheading: "India's most-trusted car home*",
+      mobile_hero_btn_text: 'Buy Car',
+      mobile_hero_btn_link: '/buy-cars',
+    };
   });
   const [isScrolled, setIsScrolled] = useState(false);
   const [city, setCity] = useState(localStorage.getItem('user_city') || 'Mumbai');
@@ -1136,7 +1165,7 @@ const NewHome = () => {
       subheading: heroContent.mobile_hero_subheading || '200-point inspection with 7-day money-back guarantee',
       btnText: heroContent.mobile_hero_btn_text || 'Explore cover',
       btnLink: heroContent.mobile_hero_btn_link || '/pricing',
-      image: resolveUrl(heroContent.mobile_hero_image || '/img/warranty_banner_1to1.webp'),
+      image: resolveUrl(heroContent.mobile_hero_image),
     },
     {
       id: 'slide-2',
@@ -1146,7 +1175,7 @@ const NewHome = () => {
       subheading: heroContent.mobile_hero_2_subheading || 'Pre-approved loans starting at 8.9% ROI',
       btnText: heroContent.mobile_hero_2_btn_text || 'Apply loan',
       btnLink: heroContent.mobile_hero_2_btn_link || '/used-car-loan',
-      image: resolveUrl(heroContent.mobile_hero_2_image || '/img/car_loan_banner_1to1.webp'),
+      image: resolveUrl(heroContent.mobile_hero_2_image),
     },
     {
       id: 'slide-3',
@@ -1156,7 +1185,7 @@ const NewHome = () => {
       subheading: heroContent.mobile_hero_3_subheading || "India's most-trusted certified pre-owned cars",
       btnText: heroContent.mobile_hero_3_btn_text || 'Buy car',
       btnLink: heroContent.mobile_hero_3_btn_link || '/buy-cars',
-      image: resolveUrl(heroContent.mobile_hero_3_image || '/img/mobile_hero_cover.webp'),
+      image: resolveUrl(heroContent.mobile_hero_3_image),
     }
   ];
 
@@ -1197,9 +1226,12 @@ const NewHome = () => {
       .then(data => {
         if (data && typeof data === 'object') {
           setHeroContent(prev => ({ ...prev, ...data }));
+          try {
+            localStorage.setItem('selectt_site_content_cache', JSON.stringify(data));
+          } catch (_) {}
         }
       })
-      .catch(() => { });
+      .catch(() => {});
 
     // Fetch buy steps
     fetch(`${API_URL}/api/banners?page=home&type=buy-step`)
@@ -1717,30 +1749,32 @@ const NewHome = () => {
       >
         {/* Background Banner Slides with Fade/Zoom Transition */}
         {mobileHeroSlides.map((slide, idx) => (
-          <div
-            key={slide.id}
-            className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out pointer-events-none ${
-              mobileHeroIdx === idx ? 'opacity-100 z-0' : 'opacity-0 z-0'
-            }`}
-          >
-            <img
-              src={slide.image}
-              alt={slide.heading}
-              width="485"
-              height="485"
-              loading={idx === 0 ? "eager" : "lazy"}
-              fetchPriority={idx === 0 ? "high" : "low"}
-              decoding={idx === 0 ? "sync" : "async"}
-              className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 scale-100"
-              onError={(e) => {
-                if (slide.image && slide.image.includes('b-cdn.net/uploads/')) {
-                  e.target.src = slide.image.replace('https://selectt-media.b-cdn.net', 'https://api.selectt.in');
-                  return;
-                }
-                e.target.src = '/img/mobile_hero_cover.webp';
-              }}
-            />
-          </div>
+          slide.image ? (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out pointer-events-none ${
+                mobileHeroIdx === idx ? 'opacity-100 z-0' : 'opacity-0 z-0'
+              }`}
+            >
+              <img
+                src={slide.image}
+                alt={slide.heading}
+                width="485"
+                height="485"
+                loading={idx === 0 ? "eager" : "lazy"}
+                fetchPriority={idx === 0 ? "high" : "low"}
+                decoding={idx === 0 ? "sync" : "async"}
+                className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 scale-100"
+                onError={(e) => {
+                  if (slide.image && slide.image.includes('b-cdn.net/uploads/')) {
+                    e.target.src = slide.image.replace('https://selectt-media.b-cdn.net', 'https://api.selectt.in');
+                    return;
+                  }
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+          ) : null
         ))}
 
         {/* Search Input with Live Typing and Submit */}

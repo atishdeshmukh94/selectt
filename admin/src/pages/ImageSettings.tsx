@@ -72,7 +72,7 @@ const MOBILE_HERO_SLIDES_CONFIG: MobileHeroSlideConfig[] = [
     subheadingKey: "mobile_hero_subheading",
     btnTextKey: "mobile_hero_btn_text",
     btnLinkKey: "mobile_hero_btn_link",
-    defaultImage: "https://selectt.in/img/warranty_banner_1to1.png",
+    defaultImage: "",
     defaultBadge: "Selectt assured cover",
     defaultHeading: "Don't just buy.Selectt.",
     defaultSubheading: "200-point inspection with 7-day money-back guarantee",
@@ -87,7 +87,7 @@ const MOBILE_HERO_SLIDES_CONFIG: MobileHeroSlideConfig[] = [
     subheadingKey: "mobile_hero_2_subheading",
     btnTextKey: "mobile_hero_2_btn_text",
     btnLinkKey: "mobile_hero_2_btn_link",
-    defaultImage: "https://selectt.in/img/car_loan_banner_1to1.png",
+    defaultImage: "",
     defaultBadge: "Low EMI · 24hr approval",
     defaultHeading: "Used car loans",
     defaultSubheading: "Pre-approved loans starting at 8.9% ROI",
@@ -102,7 +102,7 @@ const MOBILE_HERO_SLIDES_CONFIG: MobileHeroSlideConfig[] = [
     subheadingKey: "mobile_hero_3_subheading",
     btnTextKey: "mobile_hero_3_btn_text",
     btnLinkKey: "mobile_hero_3_btn_link",
-    defaultImage: "https://selectt.in/img/mobile_hero_cover.png",
+    defaultImage: "",
     defaultBadge: "India's most trusted",
     defaultHeading: "Find your dream car",
     defaultSubheading: "India's most-trusted certified pre-owned cars",
@@ -1213,7 +1213,7 @@ export default function ImageSettings() {
     const saveToast = toast.loading(`Saving Mobile Slide #${slide.slideNumber}...`);
     try {
       const payload: Record<string, string> = {
-        [slide.imageKey]: siteContent[slide.imageKey] || slide.defaultImage,
+        [slide.imageKey]: siteContent[slide.imageKey] || "",
         [slide.badgeKey]: siteContent[slide.badgeKey] || slide.defaultBadge,
         [slide.headingKey]: siteContent[slide.headingKey] || slide.defaultHeading,
         [slide.subheadingKey]: siteContent[slide.subheadingKey] || slide.defaultSubheading,
