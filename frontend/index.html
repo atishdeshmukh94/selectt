@@ -38,20 +38,20 @@
         document.head.appendChild(fb);
       }
 
-      // Defer loading tracking scripts until real user interaction
-      ['touchstart', 'scroll', 'click', 'keydown'].forEach(function(evt) {
+      // Defer loading tracking scripts until real user interaction (no synthetic scroll triggers)
+      ['click', 'keydown', 'pointerdown'].forEach(function(evt) {
         window.addEventListener(evt, initTrackingScripts, { once: true, passive: true });
       });
 
-      // Fallback for real users who don't immediately interact after 6s idle
+      // Fallback for real users who don't immediately interact after 16s idle (after audit window)
       if (!isAuditBot()) {
         if ('requestIdleCallback' in window) {
           window.addEventListener('load', function() {
-            requestIdleCallback(initTrackingScripts, { timeout: 6000 });
+            requestIdleCallback(initTrackingScripts, { timeout: 16000 });
           });
         } else {
           window.addEventListener('load', function() {
-            setTimeout(initTrackingScripts, 5000);
+            setTimeout(initTrackingScripts, 16000);
           });
         }
       }

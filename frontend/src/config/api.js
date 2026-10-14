@@ -20,7 +20,7 @@ export const DEFAULT_CAR_FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="h
 
 export const DEFAULT_BANNER_FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="280" viewBox="0 0 600 280" fill="none"><rect width="600" height="280" rx="16" fill="%23F8FAFC"/><rect x="1" y="1" width="598" height="278" rx="15" stroke="%23E2E8F0" stroke-width="1.5"/><g transform="translate(260, 100)" opacity="0.4" stroke="%2394A3B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M14 16H86L76 6H24L14 16Z"/><circle cx="30" cy="24" r="6"/><circle cx="70" cy="24" r="6"/><path d="M6 16H94V24H6V16Z"/></g><text x="300" y="165" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif" font-size="12" font-weight="600" fill="%2394A3B8" text-anchor="middle">Selectt Assured</text></svg>';
 
-export const getCarImageUrl = (img, fallback = DEFAULT_CAR_FALLBACK_IMAGE, width = 700) => {
+export const getCarImageUrl = (img, fallback = DEFAULT_CAR_FALLBACK_IMAGE, width = 400) => {
   if (!img || typeof img !== 'string' || img.trim() === '') return fallback;
   const trimmed = img.trim();
   // Filter out any 3rd party stock photography links
@@ -28,9 +28,10 @@ export const getCarImageUrl = (img, fallback = DEFAULT_CAR_FALLBACK_IMAGE, width
     return fallback;
   }
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
-    if (trimmed.includes('ik.imagekit.io') && !trimmed.includes('tr=')) {
-      const separator = trimmed.includes('?') ? '&' : '?';
-      return `${trimmed}${separator}tr=w-${width},q-75,f-auto`;
+    if (trimmed.includes('ik.imagekit.io')) {
+      const cleanUrl = trimmed.split('?')[0];
+      const q = width <= 300 ? 70 : 75;
+      return `${cleanUrl}?tr=w-${width},q-${q},f-auto`;
     }
     return trimmed;
   }

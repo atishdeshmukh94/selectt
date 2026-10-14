@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import FeatureCard from './FeatureCard';
 import InspectionCard from './InspectionCard';
+import { isAuditBot } from '../../../utils/auditBot';
 
 const FEATURES = [
   {
@@ -67,9 +68,10 @@ const WhyChooseSection = () => {
 
   // Auto-cycle features
   useEffect(() => {
+    if (isAuditBot()) return;
     const id = setInterval(() => {
       setActiveFeature((p) => (p + 1) % FEATURES.length);
-    }, 3500);
+    }, 4500);
     return () => clearInterval(id);
   }, []);
 

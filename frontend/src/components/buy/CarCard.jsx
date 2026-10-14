@@ -320,22 +320,25 @@ const CarCard = ({ car, lightBg = false }) => {
 
         {/* Image Container with Slow-Mode Image Loop */}
         <div className={`relative h-[155px] overflow-hidden shrink-0 m-3 rounded-[14px] ${lightBg ? 'bg-slate-100' : 'bg-slate-950/20'}`}>
-          {carImages.map((img, idx) => (
-            <div
-              key={`${img}-${idx}`}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                idx === activeImageIndex ? 'opacity-100 z-[1]' : 'opacity-0 z-0 pointer-events-none'
-              }`}
-            >
-              <SkeletonImage
-                src={getCarImageUrl(img)}
-                alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''} - Photo ${idx + 1}`}
-                aspectRatio="h-full w-full"
-                hoverZoom={true}
-                priority={idx === 0}
-              />
-            </div>
-          ))}
+          {carImages.map((img, idx) => {
+            if (idx !== 0 && idx !== activeImageIndex) return null;
+            return (
+              <div
+                key={`${img}-${idx}`}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  idx === activeImageIndex ? 'opacity-100 z-[1]' : 'opacity-0 z-0 pointer-events-none'
+                }`}
+              >
+                <SkeletonImage
+                  src={getCarImageUrl(img, DEFAULT_CAR_FALLBACK_IMAGE, 380)}
+                  alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''} - Photo ${idx + 1}`}
+                  aspectRatio="h-full w-full"
+                  hoverZoom={true}
+                  priority={idx === 0}
+                />
+              </div>
+            );
+          })}
 
           {/* Sold Out Overlay */}
           {(car.status === 'sold_out' || car.status === 'sold') && (

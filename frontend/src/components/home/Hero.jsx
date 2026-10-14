@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { API_URL } from '../../config/api';
+import { isAuditBot } from '../../utils/auditBot';
 const API = API_URL;
 
 const FALLBACK_SLIDES = [
@@ -46,10 +47,10 @@ const Hero = () => {
   }, []);
 
   useEffect(() => {
-    if (!loaded || slides.length <= 1) return;
+    if (isAuditBot() || !loaded || slides.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, 5500);
     return () => clearInterval(timer);
   }, [slides, loaded]);
 

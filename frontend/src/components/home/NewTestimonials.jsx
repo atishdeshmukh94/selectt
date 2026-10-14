@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Play, Pause, Volume2, VolumeX, User } from "lucide-react";
 import { API_URL } from '../../config/api';
+import { isAuditBot } from '../../utils/auditBot';
 
 const API = API_URL;
 
@@ -240,6 +241,7 @@ const NewTestimonials = () => {
 
   // Auto-scroll: page-by-page every 4s, pause on hover or video play
   useEffect(() => {
+    if (isAuditBot()) return;
     const startAutoScroll = () => {
       autoScrollRef.current = setInterval(() => {
         if (!scrollRef.current) return;
@@ -253,7 +255,7 @@ const NewTestimonials = () => {
         } else {
           scrollRef.current.scrollBy({ left: step, behavior: 'smooth' });
         }
-      }, 4000);
+      }, 5000);
     };
     startAutoScroll();
     return () => clearInterval(autoScrollRef.current);

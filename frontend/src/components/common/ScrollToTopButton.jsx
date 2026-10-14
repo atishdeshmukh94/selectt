@@ -11,27 +11,33 @@ const ScrollToTopButton = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+
+    const updateScroll = () => {
       const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
 
       // Show after scrolling down 280px
-      if (scrollY > 280) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+      setIsVisible(scrollY > 280);
 
       // Calculate 0 to 1 progress
       if (totalHeight > 0) {
         const progress = Math.min(Math.max(scrollY / totalHeight, 0), 1);
         setScrollProgress(progress);
       }
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateScroll);
+        ticking = true;
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     // Initial check
-    handleScroll();
+    updateScroll();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
