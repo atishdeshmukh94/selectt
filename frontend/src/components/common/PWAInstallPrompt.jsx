@@ -124,7 +124,19 @@ const PWAInstallPrompt = () => {
     }
   }, [isLoginModalOpen, isAnyOtherModalActive, showPrompt]);
 
-  // Trigger 15-second timer on page open (only once per session/page, respected by 30-min cooldown)
+  // Close dialog on Escape key
+  useEffect(() => {
+    if (!showPrompt) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        handleDismiss();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showPrompt]);
+
+  // Trigger 25-second timer on page open (strictly wait 25 seconds, never show immediately)
   useEffect(() => {
     if (isInstalledOrCooldown() || isAnyOtherModalActive()) {
       setShowPrompt(false);
@@ -135,7 +147,7 @@ const PWAInstallPrompt = () => {
       if (!isInstalledOrCooldown() && !isAnyOtherModalActive()) {
         setShowPrompt(true);
       }
-    }, 15000); // 15 seconds
+    }, 25000); // 25 seconds
 
     return () => clearTimeout(timer);
   }, [location.pathname, isInstalledOrCooldown, isAnyOtherModalActive]);
@@ -183,7 +195,12 @@ const PWAInstallPrompt = () => {
 
   return (
     <AnimatePresence>
-      <div className="pwa-install-overlay fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
+      <div
+        onClick={(e) => {
+          if (e.target === e.currentTarget) handleDismiss();
+        }}
+        className="pwa-install-overlay fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200"
+      >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -201,7 +218,7 @@ const PWAInstallPrompt = () => {
           </button>
 
           {/* App Icon */}
-          <div className="relative mx-auto mb-4 w-16 h-16 rounded-2xl bg-[#12273F] border border-[#12273F] p-2 shadow-md shadow-[#12273F]/25 flex items-center justify-center">
+          <div className="relative mx-auto mb-4 w-16 h-16 rounded-2xl bg-[#0B1B32] border border-[#0B1B32] p-2 shadow-md shadow-[#0B1B32]/25 flex items-center justify-center">
             <img
               src="/pwa-icon-192.png"
               alt="Selectt App"
