@@ -797,13 +797,12 @@ const HowItWorksCarousel = () => {
             <div className="flex-1 flex items-center justify-center py-4 my-auto">
               <img
                 src={item.icon}
-                alt=""
-                aria-hidden="true"
-                width="108"
-                height="135"
+                alt={item.title}
+                width="160"
+                height="200"
                 loading="lazy"
                 decoding="async"
-                className="max-h-[125px] sm:max-h-[135px] w-auto object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-md"
+                className="max-h-[135px] sm:max-h-[145px] w-auto object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-md"
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
             </div>
