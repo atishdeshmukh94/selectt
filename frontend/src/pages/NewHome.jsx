@@ -2745,6 +2745,10 @@ const NewHome = () => {
                       <img
                         src={brand.logo}
                         alt={brand.name}
+                        width="80"
+                        height="28"
+                        loading="lazy"
+                        decoding="async"
                         className={`max-h-full max-w-full object-contain filter brightness-100 group-hover:scale-105 transition-transform duration-300`}
                         onError={(e) => {
                           e.target.style.display = 'none';
@@ -2774,6 +2778,10 @@ const NewHome = () => {
                       <img
                         src={brand.logo}
                         alt={brand.name}
+                        width="80"
+                        height="32"
+                        loading="lazy"
+                        decoding="async"
                         className="max-h-full max-w-full object-contain"
                         onError={(e) => {
                           e.target.style.display = 'none';
