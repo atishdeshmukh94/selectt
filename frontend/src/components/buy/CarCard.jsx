@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, MapPin, Gauge, Fuel, ArrowUpRight, TrendingDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { API_URL, getCarImageUrl } from '../../config/api';
+import { API_URL, DEFAULT_CAR_FALLBACK_IMAGE, getCarImageUrl } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 import { shortenLocation, getCarDetailsUrl } from '../../utils/formatters';
 import { trackCarView } from '../../utils/userPreferences';

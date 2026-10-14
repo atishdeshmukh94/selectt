@@ -134,8 +134,8 @@ const WhatsAppChatButton = () => {
       document.body.appendChild(script);
     };
 
-    // Defer loading until user interaction or after idle delay (3.5s)
-    const interactionEvents = ['scroll', 'touchstart', 'click', 'keydown'];
+    // Defer loading until user interaction
+    const interactionEvents = ['click', 'keydown', 'pointerdown', 'touchstart'];
     const onUserInteraction = () => {
       interactionEvents.forEach(evt => window.removeEventListener(evt, onUserInteraction));
       injectGallabox();
@@ -154,7 +154,6 @@ const WhatsAppChatButton = () => {
 
     return () => {
       observer.disconnect();
-      clearTimeout(idleTimer);
       interactionEvents.forEach(evt => window.removeEventListener(evt, onUserInteraction));
     };
   }, [activeMode, isCheckoutPage, settings?.gallabox_widget_token]);
