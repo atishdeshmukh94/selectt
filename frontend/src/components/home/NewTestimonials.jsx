@@ -96,13 +96,22 @@ const VideoCard = ({ item, isActive, onPlayChange }) => {
         ) : (
           <div className="relative w-full h-full">
             <img
-              src={resolveUrl(item.poster_url || item.poster) || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
+              src={
+                (item.poster_url && item.poster_url !== 'null' && item.poster_url !== 'undefined' && item.poster_url.trim() !== '')
+                  ? resolveUrl(item.poster_url)
+                  : (item.poster && item.poster !== 'null' && item.poster !== 'undefined' && item.poster.trim() !== '')
+                    ? resolveUrl(item.poster)
+                    : (videoId ? `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg` : '')
+              }
               alt={item.name ? `Testimonial from ${item.name}` : "Customer Story"}
               loading="lazy"
               decoding="async"
               className="w-full h-full object-cover rounded-[2rem] transition-transform duration-500 group-hover:scale-105"
               onError={(e) => {
-                if (e.target.src !== `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`) {
+                const current = e.target.src;
+                if (videoId && current.includes('maxresdefault.jpg')) {
+                  e.target.src = `https://i.ytimg.com/vi/${videoId}/sddefault.jpg`;
+                } else if (videoId && current.includes('sddefault.jpg')) {
                   e.target.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
                 }
               }}

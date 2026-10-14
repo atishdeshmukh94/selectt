@@ -330,7 +330,7 @@ const CarCard = ({ car, lightBg = false }) => {
                 }`}
               >
                 <SkeletonImage
-                  src={getCarImageUrl(img, DEFAULT_CAR_FALLBACK_IMAGE, 320)}
+                  src={getCarImageUrl(img, DEFAULT_CAR_FALLBACK_IMAGE, 400)}
                   alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''} - Photo ${idx + 1}`}
                   aspectRatio="h-full w-full"
                   hoverZoom={true}

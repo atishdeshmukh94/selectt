@@ -55,7 +55,7 @@ export const resolveMediaUrl = (url) => {
   return `${CDN_URL}${cleanPath}`;
 };
 
-export const getCarImageUrl = (img, fallback = DEFAULT_CAR_FALLBACK_IMAGE, width = 400) => {
+export const getCarImageUrl = (img, fallback = DEFAULT_CAR_FALLBACK_IMAGE, width = null) => {
   if (!img || typeof img !== 'string' || img.trim() === '') return fallback;
   const trimmed = img.trim();
   // Filter out any 3rd party stock photography links
@@ -68,8 +68,13 @@ export const getCarImageUrl = (img, fallback = DEFAULT_CAR_FALLBACK_IMAGE, width
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
     if (trimmed.includes('ik.imagekit.io')) {
       const cleanUrl = trimmed.split('?')[0];
-      const q = width <= 250 ? 55 : (width <= 340 ? 58 : 65);
-      return `${cleanUrl}?tr=w-${width},q-${q},f-auto`;
+      if (width) {
+        // Multiply by 2 for Retina/HiDPI mobile & desktop clarity (minimum 600px, max 1600px)
+        const targetW = Math.min(Math.max(Math.round(width * 2), 600), 1600);
+        return `${cleanUrl}?tr=w-${targetW},q-85,f-auto`;
+      }
+      // Hero & Car Details main banner: crystal-clear 1400px Full HD
+      return `${cleanUrl}?tr=w-1400,q-85,f-auto`;
     }
     return trimmed;
   }
