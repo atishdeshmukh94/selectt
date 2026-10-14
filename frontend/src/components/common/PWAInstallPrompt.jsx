@@ -214,7 +214,7 @@ const PWAInstallPrompt = () => {
           </div>
 
           {/* Title & Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6FAF7] text-[#0A524A] text-[11px] font-bold uppercase tracking-wider mb-3.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0C1B33] text-[#00C9AF] border border-[#00C9AF]/30 text-[11px] font-bold uppercase tracking-wider mb-3.5">
             <Zap size={12} /> Official Mobile App
           </div>
 
@@ -268,21 +268,21 @@ const PWAInstallPrompt = () => {
           ) : (
             /* Feature Highlights Grid */
             <div className="grid grid-cols-2 gap-2.5 mb-6 text-left">
-              <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
-                <Zap size={15} className="text-[#00C9AF] shrink-0" />
-                <span className="text-xs text-slate-700 font-semibold leading-tight">Fast 1-Click Access</span>
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center gap-2">
+                <Zap size={15} className="text-[#008A77] shrink-0" />
+                <span className="text-xs text-slate-900 font-bold leading-tight">Fast 1-Click Access</span>
               </div>
-              <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
-                <ShieldCheck size={15} className="text-[#00C9AF] shrink-0" />
-                <span className="text-xs text-slate-700 font-semibold leading-tight">Verified History</span>
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center gap-2">
+                <ShieldCheck size={15} className="text-[#008A77] shrink-0" />
+                <span className="text-xs text-slate-900 font-bold leading-tight">Verified History</span>
               </div>
-              <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
-                <Bell size={15} className="text-[#00C9AF] shrink-0" />
-                <span className="text-xs text-slate-700 font-semibold leading-tight">Deal Alerts</span>
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center gap-2">
+                <Bell size={15} className="text-[#008A77] shrink-0" />
+                <span className="text-xs text-slate-900 font-bold leading-tight">Deal Alerts</span>
               </div>
-              <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
-                <Smartphone size={15} className="text-[#00C9AF] shrink-0" />
-                <span className="text-xs text-slate-700 font-semibold leading-tight">Zero Storage</span>
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center gap-2">
+                <Smartphone size={15} className="text-[#008A77] shrink-0" />
+                <span className="text-xs text-slate-900 font-bold leading-tight">Zero Storage</span>
               </div>
             </div>
           )}
@@ -307,7 +307,7 @@ const PWAInstallPrompt = () => {
 
               <button
                 onClick={handleDismiss}
-                className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 font-button font-bold text-xs transition-all active:scale-95 cursor-pointer"
+                className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-200 font-button font-extrabold text-xs transition-all active:scale-95 cursor-pointer"
               >
                 Later
               </button>

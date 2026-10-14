@@ -265,25 +265,25 @@ const Footer = () => {
       {!isCarDetailsPage && !isCheckoutPage && (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 shadow-lg">
           <div className="flex items-center justify-around h-16 px-2">
-            <Link to="/" className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/' ? 'text-[#00C9AF]' : 'text-slate-500'} hover:text-[#00C9AF] transition-colors`}>
+            <Link to="/" className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/' ? 'text-[#007A6C]' : 'text-slate-600'} hover:text-[#007A6C] transition-colors`}>
               <Home size={22} strokeWidth={2} />
               <span className="text-[10px] font-bold">Home</span>
             </Link>
-            <Link to="/buy-cars" className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/buy-cars' ? 'text-[#00C9AF]' : 'text-slate-500'} hover:text-[#00C9AF] transition-colors`}>
+            <Link to="/buy-cars" className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/buy-cars' ? 'text-[#007A6C]' : 'text-slate-600'} hover:text-[#007A6C] transition-colors`}>
               <ShoppingCart size={22} strokeWidth={2} />
               <span className="text-[10px] font-bold">Buy Car</span>
             </Link>
-            <Link to="/profile?tab=wishlisted" className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/profile' && location.search.includes('tab=wishlisted') ? 'text-[#00C9AF]' : 'text-slate-500'} hover:text-[#00C9AF] transition-colors`}>
+            <Link to="/profile?tab=wishlisted" className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/profile' && location.search.includes('tab=wishlisted') ? 'text-[#007A6C]' : 'text-slate-600'} hover:text-[#007A6C] transition-colors`}>
               <Heart size={22} strokeWidth={2} />
               <span className="text-[10px] font-bold">Shortlist</span>
             </Link>
-            <Link to="/sell-car" className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/sell-car' ? 'text-[#00C9AF]' : 'text-slate-500'} hover:text-[#00C9AF] transition-colors`}>
+            <Link to="/sell-car" className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/sell-car' ? 'text-[#007A6C]' : 'text-slate-600'} hover:text-[#007A6C] transition-colors`}>
               <TrendingUp size={22} strokeWidth={2} />
               <span className="text-[10px] font-bold">Sell</span>
             </Link>
             <button
               onClick={() => user ? navigate('/profile') : openLoginModal()}
-              className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/profile' && !location.search.includes('tab=wishlisted') ? 'text-[#00C9AF]' : 'text-slate-500'} hover:text-[#00C9AF] transition-colors`}
+              className={`flex flex-col items-center justify-center gap-1 flex-1 ${location.pathname === '/profile' && !location.search.includes('tab=wishlisted') ? 'text-[#007A6C]' : 'text-slate-600'} hover:text-[#007A6C] transition-colors`}
             >
               <User size={22} strokeWidth={2} />
               <span className="text-[10px] font-bold">{user ? "Profile" : "Account"}</span>

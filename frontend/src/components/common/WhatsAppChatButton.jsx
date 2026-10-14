@@ -250,10 +250,8 @@ const WhatsAppChatButton = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
-
         .wa-chat-font {
-          font-family: 'Varela Round', sans-serif !important;
+          font-family: inherit, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
           font-weight: 700;
         }
       `}</style>
