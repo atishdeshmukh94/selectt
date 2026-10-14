@@ -338,24 +338,7 @@ function BodyTypeButton({ type, isActive, onClick }) {
 
 // On-demand Mobile Highlight Video player with tap-to-play preview card
 function MobileVideoPlayer({ videoUrl }) {
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  if (!isPlaying) {
-    return (
-      <div
-        onClick={() => setIsPlaying(true)}
-        className="w-full aspect-video bg-gradient-to-br from-[#0C1B33] via-[#12273F] to-[#192B46] my-6 rounded-2xl overflow-hidden shadow-md relative cursor-pointer group flex flex-col items-center justify-center border border-white/10 active:scale-98 transition-transform"
-      >
-        <div className="w-14 h-14 rounded-full bg-[#00C9AF] text-[#0C1B33] flex items-center justify-center shadow-lg shadow-[#00C9AF]/30 group-hover:scale-110 transition-transform">
-          <Play size={24} fill="#0C1B33" className="ml-1 text-[#0C1B33]" />
-        </div>
-        <div className="mt-3 text-center">
-          <span className="text-xs font-black text-white block uppercase tracking-wider">Selectt Highlight Video</span>
-          <span className="text-[10px] font-semibold text-[#00C9AF]">Tap to play</span>
-        </div>
-      </div>
-    );
-  }
+  if (!videoUrl) return null;
 
   // YouTube check
   const ytMatch = videoUrl.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/);
@@ -364,7 +347,7 @@ function MobileVideoPlayer({ videoUrl }) {
     return (
       <div className="w-full aspect-video bg-black my-6 rounded-2xl overflow-hidden shadow-md relative">
         <iframe
-          src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&playsinline=1&controls=1&rel=0`}
+          src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&playsinline=1&controls=1&rel=0`}
           title="Mobile Highlight Video"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
@@ -376,7 +359,7 @@ function MobileVideoPlayer({ videoUrl }) {
 
   // Bunny Stream or generic iframe check
   if (videoUrl.includes('mediadelivery.net') || videoUrl.includes('bunnycdn.com') || videoUrl.includes('iframe')) {
-    const embedSrc = videoUrl.includes('?') ? videoUrl : `${videoUrl}?autoplay=true&loop=true&muted=false`;
+    const embedSrc = videoUrl.includes('?') ? videoUrl : `${videoUrl}?autoplay=true&loop=true&muted=true`;
     return (
       <div className="w-full aspect-video bg-black my-6 rounded-2xl overflow-hidden shadow-md relative">
         <iframe
@@ -398,8 +381,10 @@ function MobileVideoPlayer({ videoUrl }) {
       <video
         src={resolvedSrc}
         autoPlay
-        controls
+        loop
+        muted
         playsInline
+        controls
         className="w-full h-full object-cover"
       />
     </div>
