@@ -1,17 +1,19 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 /**
  * Robust ScrollToTop component:
- * Guarantees that every page navigation lands at the very top (0, 0).
+ * Guarantees that page transitions land at the very top (0, 0).
  * Handles:
  * 1. Disabling browser history.scrollRestoration ('manual')
  * 2. Overriding CSS scroll-behavior: smooth to 'instant' so animations don't get canceled mid-page
- * 3. Multi-frame scrolling (immediate, rAF, 50ms, 150ms) to ensure lazy-loaded Suspense chunks land at top
+ * 3. Never forces scroll to top if user is already actively scrolling on page reload
  * 4. Respects anchor hashes (e.g., #emi-calculator) if explicitly targeted
  */
 const ScrollToTop = () => {
   const { pathname, search, hash } = useLocation();
+  const prevPathnameRef = useRef(pathname);
+  const isInitialMount = useRef(true);
 
   // Disable default browser scroll restoration on initial mount
   useEffect(() => {
@@ -20,7 +22,7 @@ const ScrollToTop = () => {
     }
   }, []);
 
-  const resetScroll = (force = true) => {
+  const resetScroll = (force = false) => {
     if (typeof window === 'undefined') return;
 
     // If navigating to a specific hash anchor on the page, let browser target it
@@ -34,7 +36,7 @@ const ScrollToTop = () => {
       } catch (_) {}
     }
 
-    // If this is a delayed backup check and user has already started scrolling, DO NOT fight the user!
+    // If user has already started scrolling down, NEVER snap back to top
     if (!force && window.scrollY > 0) {
       return;
     }
@@ -59,8 +61,21 @@ const ScrollToTop = () => {
   };
 
   useLayoutEffect(() => {
-    // Only reset scroll immediately on route change
-    resetScroll(true);
+    // On initial mount / page reload: if the user already started scrolling, DO NOT fight them!
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (window.scrollY > 0) {
+        return;
+      }
+      resetScroll(false);
+      return;
+    }
+
+    // On actual route navigation (page A -> page B), scroll to top
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      resetScroll(true);
+    }
   }, [pathname, hash]);
 
   return null;
