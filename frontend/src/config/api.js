@@ -30,7 +30,7 @@ export const getCarImageUrl = (img, fallback = DEFAULT_CAR_FALLBACK_IMAGE, width
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
     if (trimmed.includes('ik.imagekit.io')) {
       const cleanUrl = trimmed.split('?')[0];
-      const q = width <= 300 ? 70 : 75;
+      const q = width <= 250 ? 55 : (width <= 340 ? 58 : 65);
       return `${cleanUrl}?tr=w-${width},q-${q},f-auto`;
     }
     return trimmed;

@@ -1769,7 +1769,16 @@ const NewHome = () => {
         ))}
 
         {/* Search Input with Live Typing and Submit */}
-        <div ref={mobileSearchContainerRef} className={`z-[100] px-4 w-full transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 pt-3 pb-3 bg-[#0C1B33]/95 backdrop-blur-md shadow-lg' : 'absolute top-[64px] left-0 bg-transparent'}`}>
+        <div
+          ref={mobileSearchContainerRef}
+          className={`z-[100] px-4 w-full transition-all duration-300 ease-in-out ${
+            !isScrolled
+              ? 'absolute top-[64px] left-0 bg-transparent translate-y-0 opacity-100 pointer-events-auto'
+              : scrollDirection === 'down'
+                ? 'fixed top-0 left-0 pt-3 pb-3 bg-[#0C1B33]/95 backdrop-blur-md shadow-lg translate-y-0 opacity-100 pointer-events-auto'
+                : 'fixed top-0 left-0 pt-3 pb-3 bg-[#0C1B33]/95 backdrop-blur-md shadow-lg -translate-y-full opacity-0 pointer-events-none'
+          }`}
+        >
           <Reveal direction="down" delay={0.3}>
             <div className="relative w-full">
               <form

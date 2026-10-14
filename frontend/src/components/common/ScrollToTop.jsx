@@ -59,19 +59,8 @@ const ScrollToTop = () => {
   };
 
   useLayoutEffect(() => {
+    // Only reset scroll immediately on route change
     resetScroll(true);
-
-    // Multi-phase backup: React Suspense / lazy loading can expand DOM height 50ms-150ms after route change
-    // Only execute if user hasn't already scrolled
-    const frameId = requestAnimationFrame(() => resetScroll(false));
-    const timer1 = setTimeout(() => resetScroll(false), 50);
-    const timer2 = setTimeout(() => resetScroll(false), 150);
-
-    return () => {
-      cancelAnimationFrame(frameId);
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-    };
   }, [pathname, hash]);
 
   return null;

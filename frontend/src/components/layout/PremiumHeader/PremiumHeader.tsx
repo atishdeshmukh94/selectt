@@ -337,8 +337,12 @@ export const PremiumHeader: React.FC = () => {
         <div className={styles.leftSection}>
           <Link to="/" className={styles.logoLink} aria-label="Selectt Cars Home">
             <img
-              src={logoUrl || "/img/light-logo.svg"}
+              src="/img/light-logo.svg"
               alt="Selectt Cars"
+              width="160"
+              height="44"
+              loading="eager"
+              decoding="async"
               className={styles.logoImage}
             />
           </Link>
