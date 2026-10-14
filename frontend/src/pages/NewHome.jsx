@@ -3163,6 +3163,10 @@ const NewHome = () => {
                       <img
                         src={getBuyStepImg(s.image_url)}
                         alt={s.title}
+                        width="329"
+                        height="300"
+                        loading="lazy"
+                        decoding="async"
                         className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10" />
