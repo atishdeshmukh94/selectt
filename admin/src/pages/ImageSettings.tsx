@@ -1130,6 +1130,7 @@ export default function ImageSettings() {
     const token = getAuthToken();
     const formData = new FormData();
 
+    const uploadToast = toast.loading(`Uploading ${title}...`);
     try {
       if (type === "site_content") {
         formData.append("file", file);
@@ -1144,9 +1145,21 @@ export default function ImageSettings() {
         if (res.ok) {
           const data = await res.json();
           setSiteContent((prev) => ({ ...prev, [key]: data.value }));
-          toast.success(`${title} image uploaded successfully!`);
+          // Also sync to site_settings as fallback for full ecosystem consistency
+          try {
+            await fetch(`${API}/api/settings`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ [key]: data.value }),
+            });
+          } catch (_) {}
+          toast.success(`${title} image uploaded successfully!`, { id: uploadToast });
         } else {
-          toast.error("Failed to upload image");
+          const errData = await res.json().catch(() => null);
+          toast.error(errData?.message || errData?.error || "Failed to upload image", { id: uploadToast });
         }
       } else {
         formData.append(key, file);
@@ -1164,7 +1177,7 @@ export default function ImageSettings() {
         });
 
         if (res.ok) {
-          toast.success(`${title} updated successfully!`);
+          toast.success(`${title} updated successfully!`, { id: uploadToast });
           // Auto-enable slot visibility if it has a visibility key so uploaded banner immediately displays
           const matchedSlot = BUY_CARS_SLOTS.find(s => s.key === key) || CAREERS_SLOTS.find(s => s.key === key);
           if (matchedSlot?.hasVisibility && matchedSlot.visibilityKey) {
@@ -1181,12 +1194,13 @@ export default function ImageSettings() {
           }
           loadData();
         } else {
-          toast.error("Failed to upload image");
+          const errData = await res.json().catch(() => null);
+          toast.error(errData?.message || errData?.error || "Failed to upload image", { id: uploadToast });
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Upload error:", err);
-      toast.error("Error uploading image");
+      toast.error("Error uploading image: " + (err?.message || "Network error"), { id: uploadToast });
     } finally {
       setUploadingKey(null);
       setCurrentKeyForUpload(null);

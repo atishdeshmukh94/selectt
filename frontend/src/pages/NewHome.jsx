@@ -1136,7 +1136,7 @@ const NewHome = () => {
       subheading: heroContent.mobile_hero_subheading || '200-point inspection with 7-day money-back guarantee',
       btnText: heroContent.mobile_hero_btn_text || 'Explore cover',
       btnLink: heroContent.mobile_hero_btn_link || '/pricing',
-      image: '/img/warranty_banner_1to1.webp',
+      image: resolveUrl(heroContent.mobile_hero_image || '/img/warranty_banner_1to1.webp'),
     },
     {
       id: 'slide-2',
@@ -1731,12 +1731,12 @@ const NewHome = () => {
               loading={idx === 0 ? "eager" : "lazy"}
               fetchPriority={idx === 0 ? "high" : "low"}
               decoding={idx === 0 ? "sync" : "async"}
-              className="absolute top-0 right-0 w-[85%] h-full object-cover object-center opacity-90 transition-transform duration-1000 scale-100"
-              style={{
-                maskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
-                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
-              }}
+              className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 scale-100"
               onError={(e) => {
+                if (slide.image && slide.image.includes('b-cdn.net/uploads/')) {
+                  e.target.src = slide.image.replace('https://selectt-media.b-cdn.net', 'https://api.selectt.in');
+                  return;
+                }
                 e.target.src = '/img/mobile_hero_cover.webp';
               }}
             />
@@ -1877,9 +1877,8 @@ const NewHome = () => {
             </div>
         </div>
 
-        {/* Hero Banner Gradient Mask for Content Sync */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0C1B33] via-[#0C1B33]/85 to-transparent pointer-events-none z-5" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0C1B33] via-transparent to-black/30 pointer-events-none z-5" />
+        {/* Hero Banner Subtle Vignette (No left dark mask so image is clearly visible) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0C1B33]/85 via-[#0C1B33]/25 to-black/20 pointer-events-none z-5" />
 
         {/* Hero Banner Content Slider */}
         <div className="absolute bottom-24 left-5 right-5 z-10 text-left max-w-[340px] sm:max-w-none">

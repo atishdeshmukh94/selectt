@@ -8015,11 +8015,26 @@ app.get('/api/admin/banners', authMiddleware, isAdmin, (req, res) => {
     });
 });
 
-// Admin: Create banner (with optional image upload)
-const bannerUpload = multer({ storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'public/uploads/'),
-    filename: (req, file, cb) => cb(null, `banner_${Date.now()}_${file.originalname.replace(/\s/g,'_')}`)
-}) });
+// Admin: Create banner (with robust storage and upload sanitization)
+const bannerUpload = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+            const uploadPath = path.join(__dirname, 'public/uploads');
+            if (!fs.existsSync(uploadPath)) {
+                try { fs.mkdirSync(uploadPath, { recursive: true }); } catch (_) {}
+            }
+            cb(null, uploadPath);
+        },
+        filename: (req, file, cb) => {
+            const ext = path.extname(file.originalname || '').toLowerCase() || '.png';
+            const cleanBase = (path.basename(file.originalname || 'banner', ext))
+                .replace(/[^a-zA-Z0-9_-]/g, '_')
+                .substring(0, 50);
+            cb(null, `banner_${Date.now()}_${cleanBase}${ext}`);
+        }
+    }),
+    limits: { fileSize: 50 * 1024 * 1024 }
+});
 
 app.post('/api/admin/banners', authMiddleware, isAdmin, bannerUpload.single('image'), convertRequestImagesToWebp, (req, res) => {
     const { page, type, title, subtitle, cta_text, cta_link, sort_order, image_url, flip_image } = req.body;
