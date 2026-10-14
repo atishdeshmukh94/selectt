@@ -12,6 +12,7 @@ import ScrollToTop from './components/common/ScrollToTop';
 import ScrollToTopButton from './components/common/ScrollToTopButton';
 import OneSignalInit from './components/common/OneSignalInit';
 import { useVisitorTracker } from './hooks/useVisitorTracker';
+import { PageSkeleton } from './components/skeletons';
 import { API_URL } from './config/api';
 
 function VisitorTracker() {
@@ -153,23 +154,6 @@ function MainLayout() {
   );
 }
 
-function LoadingFallback() {
-  return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#F8FAFC]/95 backdrop-blur-xs select-none">
-      <div className="relative flex items-center justify-center mb-6">
-        {/* Soft glowing ambient circle */}
-        <div className="absolute w-28 h-28 rounded-full bg-[#00C9AF]/15 blur-xl animate-pulse" />
-        {/* Outer subtle track ring */}
-        <div className="w-20 h-20 sm:w-24 sm:h-24 border-4 border-slate-200/80 rounded-full" />
-        {/* Active spinning ring */}
-        <div className="absolute w-20 h-20 sm:w-24 sm:h-24 border-4 border-transparent border-t-[#00C9AF] border-r-[#00C9AF] rounded-full animate-spin" />
-      </div>
-      <span className="text-sm sm:text-base font-extrabold text-[#0C1B33] tracking-[0.25em] uppercase animate-pulse">
-        Loading...
-      </span>
-    </div>
-  );
-}
 
 function App() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
@@ -225,7 +209,7 @@ function App() {
           <AuthProvider>
             <div className="font-sans antialiased text-slate-900 dark:text-slate-100 bg-background-light dark:bg-background-dark min-h-screen">
               <ErrorBoundary>
-                <Suspense fallback={<LoadingFallback />}>
+                <Suspense fallback={<PageSkeleton />}>
                   <Routes>
                     {/* Main website layout for normal pages */}
                     <Route element={<MainLayout />}>

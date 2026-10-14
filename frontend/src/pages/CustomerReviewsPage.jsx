@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Youtube, Sparkles, ChevronDown } from 'lucide-react';
 import PageMeta from '../components/common/PageMeta';
-import VideoPreloader from '../components/common/VideoPreloader';
 import { VideoReviewGridSkeleton } from '../components/skeletons/CommonSkeletons';
 import { API_URL } from '../config/api';
 

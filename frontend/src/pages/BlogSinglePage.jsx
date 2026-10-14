@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronRight, Calendar, User, Facebook, Twitter, Linkedin, Link as LinkIcon, MapPin, FileText } from 'lucide-react';
 import PageMeta from '../components/common/PageMeta';
-import VideoPreloader from '../components/common/VideoPreloader';
 import { BlogPostDetailSkeleton } from '../components/skeletons/BlogSkeleton';
 import { getCarDetailsUrl } from '../utils/formatters';
 

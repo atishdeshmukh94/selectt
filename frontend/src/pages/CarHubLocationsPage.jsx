@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { API_URL } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
-import VideoPreloader from '../components/common/VideoPreloader';
 import { CarHubGridSkeleton } from '../components/skeletons/CommonSkeletons';
 
 const DEFAULT_HUBS = [

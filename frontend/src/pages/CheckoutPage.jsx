@@ -10,7 +10,7 @@ import PageMeta from '../components/common/PageMeta';
 import TestDriveModal from '../components/buy/TestDriveModal';
 import carLoanIcon from '../assets/car-loan-icon.png';
 import { useSiteSettings } from '../context/SiteSettingsContext';
-import VideoPreloader from '../components/common/VideoPreloader';
+import { PageSkeleton } from '../components/skeletons';
 
 export const RupeeSignIcon = ({ className = "w-3 h-3 fill-current", ...props }) => (
   <svg
@@ -1204,7 +1204,7 @@ const CheckoutPage = () => {
   if (!car || !user) return (
     <>
       <PageMeta title="Checkout - Secure Car Booking | Selectt" description="Securely book your certified pre-owned car at Selectt." />
-      <VideoPreloader fullScreen={true} />
+      <PageSkeleton />
     </>
   );
 
