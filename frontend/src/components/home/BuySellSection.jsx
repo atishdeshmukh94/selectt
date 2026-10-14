@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Play, ChevronRight, X, Zap, Car, Banknote } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { API_URL } from '../../config/api';
+import { API_URL, resolveMediaUrl } from '../../config/api';
 const API = API_URL;
 
 const BuySellSection = () => {
@@ -34,7 +34,7 @@ const BuySellSection = () => {
       .catch(() => { });
   }, []);
 
-  const resolveUrl = (url) => url?.startsWith('/') ? `${API}${url}` : url;
+  const resolveUrl = (url) => resolveMediaUrl(url);
 
   const benefits = [
     { image: '/img/selectt-benefits-1.jpg', icon: '/img/200-points-inspection.svg', title: '200-Points Inspection', description: 'Every car is carefully handpicked after a thorough quality inspection.' },

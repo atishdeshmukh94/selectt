@@ -2,7 +2,7 @@
  * ImageKit CDN URL Generator & Optimizer for Frontend
  */
 
-import { API_URL } from '../config/api';
+import { API_URL, CDN_URL } from '../config/api';
 
 const IMAGEKIT_ENDPOINT = (import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || '').trim();
 
@@ -41,24 +41,33 @@ export function getOptimizedImageUrl(src, options = {}) {
     return `${cleanUrl}${trQuery}`;
   }
 
-  // Case 2: Relative backend path (/uploads/car-123.webp)
+  // Case 2: Rewrite VPS direct upload URL to CDN
+  if (src.startsWith('https://api.selectt.in/uploads/')) {
+    const relativePart = src.replace('https://api.selectt.in', '');
+    if (IMAGEKIT_ENDPOINT && !IMAGEKIT_ENDPOINT.includes('localhost')) {
+      return `${IMAGEKIT_ENDPOINT.replace(/\/$/, '')}${relativePart}${trQuery}`;
+    }
+    return `${CDN_URL || API_URL}${relativePart}`;
+  }
+
+  // Case 3: Relative backend path (/uploads/car-123.webp)
   if (src.startsWith('/uploads/') || src.startsWith('uploads/')) {
     const cleanPath = src.startsWith('/') ? src : `/${src}`;
     // If ImageKit endpoint is configured, pull via ImageKit CDN
     if (IMAGEKIT_ENDPOINT && !IMAGEKIT_ENDPOINT.includes('localhost')) {
       return `${IMAGEKIT_ENDPOINT.replace(/\/$/, '')}${cleanPath}${trQuery}`;
     }
-    return `${API_URL}${cleanPath}`;
+    return `${CDN_URL || API_URL}${cleanPath}`;
   }
 
-  // Case 3: Other full URL
+  // Case 4: Other full URL
   if (src.startsWith('http://') || src.startsWith('https://')) {
     return src;
   }
 
-  // Case 4: Other relative path
+  // Case 5: Other relative path
   if (src.startsWith('/')) {
-    return `${API_URL}${src}`;
+    return `${CDN_URL || API_URL}${src}`;
   }
 
   return src;

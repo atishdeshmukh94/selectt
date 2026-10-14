@@ -9,7 +9,7 @@ import {
   X,
   Maximize2
 } from 'lucide-react';
-import { API_URL, DEFAULT_CAR_FALLBACK_IMAGE } from '../../config/api';
+import { API_URL, CDN_URL, DEFAULT_CAR_FALLBACK_IMAGE } from '../../config/api';
 
 const isVideoUrl = (url) => {
   if (!url || typeof url !== 'string') return false;
@@ -34,10 +34,13 @@ const getCarImageUrl = (img) => {
   if (img.includes('images.unsplash.com') || img.includes('shutterstock.com')) {
     return DEFAULT_CAR_FALLBACK_IMAGE;
   }
+  if (img.startsWith('https://api.selectt.in/uploads/')) {
+    return img.replace('https://api.selectt.in', CDN_URL);
+  }
   if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:')) return img;
-  if (img.startsWith('/uploads/')) return `${API_URL}${img}`;
-  if (img.startsWith('/')) return `${API_URL}${img}`;
-  return `${API_URL}/uploads/${img}`;
+  if (img.startsWith('/uploads/')) return `${CDN_URL}${img}`;
+  if (img.startsWith('/')) return `${CDN_URL}${img}`;
+  return `${CDN_URL}/uploads/${img}`;
 };
 
 // Intelligently categorize images and assign view angle titles

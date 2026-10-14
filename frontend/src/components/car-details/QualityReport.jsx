@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Check, Settings, Cog, Key, ShieldCheck, FileText, Download, Lock } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { API_URL, CDN_URL } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../animation/ToastSystem';
 
@@ -62,7 +62,7 @@ const QualityReport = ({ report, car, theme = 'white' }) => {
 
       let targetUrl = '';
       if (rawReportUrl) {
-        targetUrl = rawReportUrl.startsWith('/uploads/') ? `${API_URL}${rawReportUrl}` : rawReportUrl;
+        targetUrl = rawReportUrl.startsWith('/uploads/') ? `${CDN_URL || API_URL}${rawReportUrl}` : rawReportUrl;
       } else if (car?.id) {
         targetUrl = `${API_URL}/api/cars/${car.id}/inspection-report`;
       } else {

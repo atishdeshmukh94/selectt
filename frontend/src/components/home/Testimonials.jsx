@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Play, Pause, Volume2, VolumeX, User } from "lucide-react";
-import { API_URL } from '../../config/api';
+import { API_URL, resolveMediaUrl } from '../../config/api';
 
 const API = API_URL;
 
@@ -41,7 +41,7 @@ const VideoCard = ({ item, isActive }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
-  const resolveUrl = (url) => url?.startsWith('/') ? `${API}${url}` : url;
+  const resolveUrl = (url) => resolveMediaUrl(url);
 
   const rawUrl = item.youtube_url || item.video_url || item.video;
   const videoId = extractYouTubeId(rawUrl);

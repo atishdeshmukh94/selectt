@@ -13,7 +13,7 @@ import StepsSection from './StepsSection';
 import SectionDivider from '../common/SectionDivider';
 import Reveal from '../common/Reveal';
 
-import { API_URL } from '../../config/api';
+import { API_URL, resolveMediaUrl } from '../../config/api';
 const API = API_URL;
 
 const MobileHomeLayout = () => {
@@ -63,7 +63,7 @@ const MobileHomeLayout = () => {
 
   const heroImage = heroContent.mobile_hero_image;
   const heroVideo = heroContent.mobile_hero_video;
-  const resolveUrl = (url) => url?.startsWith('/') ? `${API}${url}` : url;
+  const resolveUrl = (url) => resolveMediaUrl(url);
 
   return (
     <div className="w-full bg-slate-50 flex flex-col font-sans mb-16">

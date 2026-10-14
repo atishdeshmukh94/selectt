@@ -30,7 +30,7 @@ import {
   Star,
   Play
 } from 'lucide-react';
-import { API_URL, DEFAULT_CAR_FALLBACK_IMAGE, getCarImageUrl } from '../config/api';
+import { API_URL, CDN_URL, DEFAULT_CAR_FALLBACK_IMAGE, getCarImageUrl, resolveMediaUrl } from '../config/api';
 import NewTestimonials from '../components/home/NewTestimonials';
 import FAQ from '../components/home/FAQ';
 import CarCard from '../components/buy/CarCard';
@@ -392,7 +392,7 @@ function MobileVideoPlayer({ videoUrl }) {
   }
 
   // Direct MP4 / Video
-  const resolvedSrc = videoUrl.startsWith('/uploads/') ? `${API_URL}${videoUrl}` : videoUrl;
+  const resolvedSrc = resolveMediaUrl(videoUrl);
   return (
     <div className="w-full aspect-video bg-black my-6 rounded-2xl overflow-hidden shadow-md relative">
       <video
@@ -1039,7 +1039,8 @@ const NewHome = () => {
     if (url.includes('mobile_hero_cover')) return '/img/mobile_hero_cover.webp';
     if (url.includes('warranty_banner_1to1')) return '/img/warranty_banner_1to1.webp';
     if (url.includes('Best_car_ads_-_right_video_-_cover')) return '/img/warranty_banner_1to1.webp';
-    if (url.startsWith('/uploads/')) return `${API_URL}${url}`;
+    if (url.startsWith('https://api.selectt.in/uploads/')) return url.replace('https://api.selectt.in', CDN_URL);
+    if (url.startsWith('/uploads/')) return `${CDN_URL}${url}`;
     return url;
   };
 
@@ -1314,7 +1315,7 @@ const NewHome = () => {
             return {
               name: brandItem.name,
               count: foundCount ? foundCount.count : 0,
-              logo: brandItem.logo_url?.startsWith('/') ? `${API_URL}${brandItem.logo_url}` : (brandItem.logo_url || '')
+              logo: brandItem.logo_url?.startsWith('/') ? `${CDN_URL}${brandItem.logo_url}` : (brandItem.logo_url || '')
             };
           })
           .filter(b => b.logo);
@@ -1851,7 +1852,7 @@ const NewHome = () => {
                     <>
                       <div className="flex flex-col gap-1 max-h-[280px] overflow-y-auto divide-y divide-slate-800/60 scrollbar-none">
                         {mobileSearchResults.slice(0, 5).map((car) => {
-                          const carImg = car.image?.startsWith('/') ? `${API_URL}${car.image}` : car.image;
+                          const carImg = getCarImageUrl(car.image, DEFAULT_CAR_FALLBACK_IMAGE, 120);
                           return (
                             <Link
                               key={car.id}
@@ -2299,7 +2300,7 @@ const NewHome = () => {
                 <div className="p-3 pb-0">
                   <div className="h-[120px] w-full rounded-xl overflow-hidden relative">
                     <img
-                      src={heroCars[0]?.image?.startsWith('/') ? `${API_URL}${heroCars[0].image}` : heroCars[0]?.image}
+                      src={getCarImageUrl(heroCars[0]?.image, FALLBACK_CARS[0].image, 400)}
                       alt={`${heroCars[0]?.make} ${heroCars[0]?.model}`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
@@ -2333,7 +2334,7 @@ const NewHome = () => {
                 <div className="p-3 pb-0">
                   <div className="h-[120px] w-full rounded-xl overflow-hidden relative">
                     <img
-                      src={heroCars[1]?.image?.startsWith('/') ? `${API_URL}${heroCars[1].image}` : heroCars[1]?.image}
+                      src={getCarImageUrl(heroCars[1]?.image, FALLBACK_CARS[1].image, 400)}
                       alt={`${heroCars[1]?.make} ${heroCars[1]?.model}`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
@@ -2367,7 +2368,7 @@ const NewHome = () => {
                 <div className="p-3 pb-0">
                   <div className="h-[120px] w-full rounded-xl overflow-hidden relative">
                     <img
-                      src={heroCars[2]?.image?.startsWith('/') ? `${API_URL}${heroCars[2].image}` : heroCars[2]?.image}
+                      src={getCarImageUrl(heroCars[2]?.image, FALLBACK_CARS[2].image, 400)}
                       alt={`${heroCars[2]?.make} ${heroCars[2]?.model}`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
@@ -3115,7 +3116,7 @@ const NewHome = () => {
       {/* HOW TO BUY SLIDER (dynamic from admin, shows only when steps are uploaded) */}
       {buySteps.length > 0 && (() => {
         const total = buySteps.length;
-        const getBuyStepImg = (url) => url?.startsWith('/') ? `${API_URL}${url}` : url;
+        const getBuyStepImg = (url) => url?.startsWith('/') ? `${CDN_URL}${url}` : url;
 
         const getBuyCardClasses = (idx) => {
           const diff = idx - buyStepIdx;
