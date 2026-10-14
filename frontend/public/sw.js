@@ -1,5 +1,5 @@
 // Selectt PWA Service Worker
-const CACHE_NAME = 'selectt-pwa-v1';
+const CACHE_NAME = 'selectt-pwa-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -26,7 +26,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate Event
+// Activate Event - clean old caches and claim clients immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -42,15 +42,22 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch Event: Network-First for Navigation, Stale-While-Revalidate for static assets
+// Fetch Event: Network-First for Navigation, Stale-While-Revalidate for same-origin static assets
 self.addEventListener('fetch', (event) => {
   // Only handle http/https GET requests
   if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
     return;
   }
 
+  // Never intercept cross-origin third-party requests (Cloudflare, Google, Facebook, Gallabox, etc.)
+  // Let the browser handle cross-origin network requests natively without SW interference
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
   // Avoid caching API responses, admin calls, or backend endpoints
-  if (event.request.url.includes('/api/') || event.request.url.includes('/admin/')) {
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/admin/') || url.pathname.startsWith('/uploads/')) {
     return;
   }
 
@@ -62,20 +69,28 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets: Cache-first / Stale-While-Revalidate
+  // Same-origin static assets: Cache-first / Stale-While-Revalidate with guaranteed Response return
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
+      if (cachedResponse) {
+        // Asynchronously update cache in background (stale-while-revalidate)
+        fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+        }).catch(() => {});
+        return cachedResponse;
+      }
+
+      // Not in cache: fetch from network
+      return fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
         }
         return networkResponse;
-      }).catch(() => null);
-
-      return cachedResponse || fetchPromise;
+      });
     })
   );
 });
