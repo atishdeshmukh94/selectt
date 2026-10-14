@@ -489,6 +489,10 @@ const FinancialServicesCarousel = () => {
             <img
               src={item.image}
               alt={item.title}
+              width="240"
+              height="240"
+              loading="lazy"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover object-center brightness-[0.65] contrast-[1.05] group-hover:scale-105 transition-transform duration-700 pointer-events-none"
             />
             {/* Dark Gradient Overlay for Crisp Readability */}
@@ -631,6 +635,10 @@ const NumbersThatTrustUsCarousel = () => {
             <img
               src={item.image}
               alt={item.title}
+              width="360"
+              height="115"
+              loading="lazy"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover object-center opacity-80 group-hover:scale-105 transition-transform duration-700 pointer-events-none"
             />
             {/* Gradient Overlay for Readable Text */}
@@ -1043,6 +1051,10 @@ const NewHome = () => {
   const navigate = useNavigate();
   const resolveUrl = (url) => {
     if (!url) return '';
+    if (url.includes('car_loan_banner_1to1')) return '/img/car_loan_banner_1to1.webp';
+    if (url.includes('mobile_hero_cover')) return '/img/mobile_hero_cover.webp';
+    if (url.includes('warranty_banner_1to1')) return '/img/warranty_banner_1to1.webp';
+    if (url.includes('Best_car_ads_-_right_video_-_cover')) return '/img/warranty_banner_1to1.webp';
     if (url.startsWith('/uploads/')) return `${API_URL}${url}`;
     return url;
   };
@@ -1155,7 +1167,7 @@ const NewHome = () => {
       subheading: heroContent.mobile_hero_subheading || '200-point inspection with 7-day money-back guarantee',
       btnText: heroContent.mobile_hero_btn_text || 'Explore cover',
       btnLink: heroContent.mobile_hero_btn_link || '/pricing',
-      image: resolveUrl(heroContent.mobile_hero_image || '/img/warranty_banner_1to1.webp'),
+      image: '/img/warranty_banner_1to1.webp',
     },
     {
       id: 'slide-2',
@@ -1754,6 +1766,8 @@ const NewHome = () => {
             <img
               src={slide.image}
               alt={slide.heading}
+              width="485"
+              height="485"
               loading={idx === 0 ? "eager" : "lazy"}
               fetchPriority={idx === 0 ? "high" : "low"}
               decoding={idx === 0 ? "sync" : "async"}
@@ -2062,6 +2076,8 @@ const NewHome = () => {
             <img
               src="/img/buy_car_banner.webp"
               alt="Buy Cars"
+              width="150"
+              height="100"
               loading="lazy"
               decoding="async"
               className="absolute right-0 top-0 w-[60%] h-full object-cover object-center opacity-75 group-hover:scale-105 transition-transform duration-500 rounded-r-2xl pointer-events-none"
@@ -2093,6 +2109,8 @@ const NewHome = () => {
             <img
               src="/img/sell_car_banner.webp"
               alt="Sell Cars"
+              width="150"
+              height="100"
               loading="lazy"
               decoding="async"
               className="absolute right-0 top-0 w-[60%] h-full object-cover object-center opacity-80 group-hover:scale-105 transition-transform duration-500 rounded-r-2xl pointer-events-none"
