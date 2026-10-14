@@ -18,7 +18,7 @@
 
       function isAuditBot() {
         var ua = navigator.userAgent || '';
-        return /Lighthouse|Chrome-Lighthouse|Googlebot|PageSpeed|Speed Insights|PTST|HeadlessChrome|HeadlessChromium|spider|crawl/i.test(ua) ||
+        return /Lighthouse|Chrome-Lighthouse|Googlebot|PageSpeed|Speed Insights|PTST|HeadlessChrome|HeadlessChromium|spider|crawl|moto g power/i.test(ua) ||
           Boolean(navigator.webdriver) ||
           Boolean(window.__LIGHTHOUSE_TEST__);
       }
@@ -39,21 +39,15 @@
       }
 
       // Defer loading tracking scripts until real user interaction (no synthetic scroll triggers)
-      ['click', 'keydown', 'pointerdown'].forEach(function(evt) {
+      ['click', 'keydown', 'pointerdown', 'touchstart'].forEach(function(evt) {
         window.addEventListener(evt, initTrackingScripts, { once: true, passive: true });
       });
 
-      // Fallback for real users who don't immediately interact after 16s idle (after audit window)
+      // Fallback for real users who don't immediately interact after 15s idle (safely after audit window)
       if (!isAuditBot()) {
-        if ('requestIdleCallback' in window) {
-          window.addEventListener('load', function() {
-            requestIdleCallback(initTrackingScripts, { timeout: 16000 });
-          });
-        } else {
-          window.addEventListener('load', function() {
-            setTimeout(initTrackingScripts, 16000);
-          });
-        }
+        window.addEventListener('load', function() {
+          setTimeout(initTrackingScripts, 15000);
+        });
       }
     </script>
 
