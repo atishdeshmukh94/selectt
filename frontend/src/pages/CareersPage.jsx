@@ -339,22 +339,10 @@ const CareersPage = () => {
             <div id="apply-form" className="bg-[#0C1B33] rounded-[2rem] p-8 md:p-10 shadow-2xl text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#00C9AF] rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
 
-              <h2 className="text-2xl font-bold mb-2 text-white relative z-10">Apply Online</h2>
-              <p className="text-xs text-slate-300 mb-4 relative z-10">
+              <h2 className="text-2xl font-bold mb-3.5 text-white relative z-10">Apply Online</h2>
+              <p className="text-xs text-slate-300 mb-8 relative z-10">
                 Fill in the details below and upload your CV. Our recruitment team will review your application.
               </p>
-
-              {/* Direct HR Helpline Pill */}
-              <div className="flex flex-wrap items-center gap-3 p-3 mb-6 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-300 relative z-10">
-                <span className="text-[#00C9AF] font-bold">HR Desk:</span>
-                <a href="mailto:hr@selectt.in" className="hover:text-[#00C9AF] flex items-center gap-1.5 transition-colors font-medium">
-                  <Mail size={13} className="text-[#00C9AF]" /> hr@selectt.in
-                </a>
-                <span className="text-slate-600">•</span>
-                <a href="tel:8638078267" className="hover:text-[#00C9AF] flex items-center gap-1.5 transition-colors font-medium">
-                  <Phone size={13} className="text-[#00C9AF]" /> 8638078267
-                </a>
-              </div>
 
               {errorMessage && (
                 <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500/50 text-red-200 text-xs font-medium">
