@@ -171,7 +171,7 @@ export default function CareerManagement() {
       });
       if (res.ok) {
         setShowFormSettingsSuccessModal(true);
-        toast.success("✅ Career form controls & CTC limits saved successfully!");
+        toast.success("✅ Career form controls saved successfully!");
       } else {
         toast.error("Failed to save career form controls");
       }
@@ -409,7 +409,7 @@ export default function CareerManagement() {
                 : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
             }`}
           >
-            <Sliders className="w-4 h-4" /> Form Controls & CTC Limits
+            <Sliders className="w-4 h-4" /> Form Controls & Salary Settings
           </button>
         </div>
 
@@ -740,7 +740,7 @@ export default function CareerManagement() {
                   Frontend Career Application Form Controls
                 </h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-2xl leading-relaxed">
-                  Configure Expected CTC Min/Max limits and customize the positions available in the <strong>"Position Applying For *"</strong> dropdown on{" "}
+                  Manage Expected Salary dropdown options, preferred joining options, and customize the positions available in the <strong>"Position Applying For *"</strong> dropdown on{" "}
                   <a href="https://selectt.in/careers" target="_blank" rel="noreferrer" className="text-brand-500 underline font-semibold">
                     selectt.in/careers
                   </a>.
@@ -766,79 +766,93 @@ export default function CareerManagement() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Card 1: Expected CTC Configuration */}
+              {/* Card 1: Expected Salary & Joining Date Controls */}
               <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-5">
                 <div className="flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-gray-800">
                   <span className="text-xl">💰</span>
                   <div>
-                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">Expected CTC Range & Limits</h4>
-                    <p className="text-[11px] text-gray-500">Allowed annual salary range candidates can enter in LPA (Lakhs Per Annum)</p>
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">Expected Salary (Per Month in ₹) & Joining Date</h4>
+                    <p className="text-[11px] text-gray-500">Monthly salary dropdown ranges and preferred joining timeline options for applicants</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                      Minimum Allowed CTC (₹ LPA) *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">₹</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.5"
-                        value={minCtc}
-                        onChange={(e) => setMinCtc(e.target.value)}
-                        placeholder="e.g. 2"
-                        className="w-full pl-7 pr-12 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-brand-500"
-                      />
-                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-[11px]">LPA</span>
-                    </div>
-                    <span className="text-[10px] text-gray-400 mt-1 block">Candidates cannot enter lower than this</span>
+                {/* Salary Options Badges */}
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                    Active Expected Salary (Per Month in ₹) Dropdown Options:
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {["Under 10k", "10k - 15k", "15k - 20k", "20k - 25k", "25k - 30k", "Above 30k"].map((sal) => (
+                      <span
+                        key={sal}
+                        className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs font-bold shadow-2xs flex items-center gap-1.5"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        {sal}
+                      </span>
+                    ))}
                   </div>
+                  <span className="text-[10.5px] text-gray-400 mt-1.5 block">
+                    Candidates select their expected monthly compensation directly from this curated dropdown.
+                  </span>
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                      Maximum Allowed CTC (₹ LPA) *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">₹</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="500"
-                        step="0.5"
-                        value={maxCtc}
-                        onChange={(e) => setMaxCtc(e.target.value)}
-                        placeholder="e.g. 30"
-                        className="w-full pl-7 pr-12 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-brand-500"
-                      />
-                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-[11px]">LPA</span>
-                    </div>
-                    <span className="text-[10px] text-gray-400 mt-1 block">Candidates cannot enter higher than this</span>
+                {/* Preferred Joining Date Options */}
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                    Active Preferred Joining Date Dropdown Options:
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {["Immediate Joiner", "15 Days or less", "30 Days (1 Month)", "60 Days (2 Months)", "90 Days"].map((join) => (
+                      <span
+                        key={join}
+                        className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 rounded-xl text-xs font-bold shadow-2xs flex items-center gap-1.5"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        {join}
+                      </span>
+                    ))}
                   </div>
                 </div>
 
+                {/* Candidate Form Live Preview - EXACT MATCH TO FRONTEND */}
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-800/60 border border-slate-200 dark:border-gray-700 text-xs">
-                  <div className="font-bold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
-                    <span>👀 Candidate Form Live Preview:</span>
+                  <div className="font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5">
+                    <span>👀 Candidate Form Live Preview (selectt.in/careers):</span>
                   </div>
-                  <div className="bg-[#0C1B33] text-white p-3.5 rounded-xl mt-2">
-                    <span className="text-[11px] font-semibold text-slate-300 block mb-1.5">Expected CTC (in ₹ LPA) *</span>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#00C9AF] font-bold text-xs">₹</span>
-                      <input
-                        type="number"
-                        disabled
-                        placeholder={`e.g. ${minCtc || 2} - ${maxCtc || 30} LPA`}
-                        className="w-full bg-[#162947] border border-[#2A3E54] rounded-lg pl-7 pr-12 py-2 text-white text-xs opacity-90 cursor-not-allowed"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-[10px]">LPA</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px] text-slate-400 mt-1">
-                      <span>Min: ₹{minCtc || 2} LPA</span>
-                      <span>Max: ₹{maxCtc || 30} LPA</span>
+                  <div className="bg-[#0C1B33] text-white p-4 rounded-xl space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <span className="text-[11px] font-semibold text-slate-300 block mb-1">Expected Salary (Per Month in ₹) *</span>
+                        <div className="relative">
+                          <select
+                            disabled
+                            className="w-full bg-[#162947] border border-[#2A3E54] rounded-lg px-3 py-2 text-white text-xs opacity-90 cursor-not-allowed"
+                          >
+                            <option>Under 10k</option>
+                            <option>10k - 15k</option>
+                            <option>15k - 20k</option>
+                            <option>20k - 25k</option>
+                            <option>25k - 30k</option>
+                            <option selected>Above 30k</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-semibold text-slate-300 block mb-1">Preferred Joining Date ( If Selected)</span>
+                        <div className="relative">
+                          <select
+                            disabled
+                            className="w-full bg-[#162947] border border-[#2A3E54] rounded-lg px-3 py-2 text-white text-xs opacity-90 cursor-not-allowed"
+                          >
+                            <option>Immediate Joiner</option>
+                            <option>15 Days or less</option>
+                            <option selected>30 Days (1 Month)</option>
+                            <option>60 Days (2 Months)</option>
+                            <option>90 Days</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
