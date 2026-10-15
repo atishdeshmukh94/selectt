@@ -1051,6 +1051,9 @@ const NewHome = () => {
 
   const [activeMobileType, setActiveMobileType] = useState('All');
 
+  // Temporary toggle to hide/show mobile search bar for testing (Set to true to re-enable)
+  const SHOW_MOBILE_HERO_SEARCHBAR = false;
+
   // Mobile typing placeholder states
   const searchWords = ["year", "type", "color", "make", "km driven", "fuel type", "transmission"];
   const [searchWordIndex, setSearchWordIndex] = useState(0);
@@ -1919,13 +1922,15 @@ const NewHome = () => {
           ) : null
         ))}
 
-        {/* Search Input with Live Typing and Submit */}
-        <div
-          ref={mobileSearchContainerRef}
-          className="absolute top-[64px] left-0 z-30 px-4 w-full"
-        >
-          {renderMobileSearchForm('hero')}
-        </div>
+        {/* Search Input with Live Typing and Submit - TEMPORARILY HIDDEN IN MOBILE FOR TESTING (Do not delete) */}
+        {SHOW_MOBILE_HERO_SEARCHBAR && (
+          <div
+            ref={mobileSearchContainerRef}
+            className="absolute top-[64px] left-0 z-30 px-4 w-full"
+          >
+            {renderMobileSearchForm('hero')}
+          </div>
+        )}
 
         {/* Hero Banner Subtle Vignette (No left dark mask so image is clearly visible) */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0C1B33]/85 via-[#0C1B33]/25 to-black/20 pointer-events-none z-5" />
