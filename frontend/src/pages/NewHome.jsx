@@ -1051,8 +1051,8 @@ const NewHome = () => {
 
   const [activeMobileType, setActiveMobileType] = useState('All');
 
-  // Temporary toggle to hide/show mobile search bar for testing (Set to true to re-enable)
-  const SHOW_MOBILE_HERO_SEARCHBAR = false;
+  // Toggle to hide/show mobile search bar (true = active)
+  const SHOW_MOBILE_HERO_SEARCHBAR = true;
 
   // Mobile typing placeholder states
   const searchWords = ["year", "type", "color", "make", "km driven", "fuel type", "transmission"];

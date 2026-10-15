@@ -205,16 +205,17 @@ export const PremiumHeader: React.FC = () => {
       const delta = currentScrollY - lastScrollYRef.current;
 
       if (isMobile) {
-        // Mobile Header Behavior (Sticky searchbar hidden for testing):
+        // Mobile Header Behavior:
         if (currentScrollY <= 140) {
+          // At or near top: header is normal, slide-down search bar is hidden
           setIsHeaderVisible(true);
           setShowMobileScrollSearch(false);
         } else if (delta > 4) {
-          // Scrolling DOWN: hide header
-          setIsHeaderVisible(false);
-          setShowMobileScrollSearch(false);
+          // Scrolling DOWN: header stays visible, search bar smoothly slides down
+          setIsHeaderVisible(true);
+          setShowMobileScrollSearch(true);
         } else if (delta < -4) {
-          // Scrolling UP: show header smoothly
+          // Scrolling UP: search bar tucks away, topBar remains visible
           setShowMobileScrollSearch(false);
           setIsHeaderVisible(true);
         }
