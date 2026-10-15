@@ -49,6 +49,7 @@ export const PremiumHeader: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [showMobileScrollSearch, setShowMobileScrollSearch] = useState(false);
   const lastScrollYRef = React.useRef(0);
   const [city, setCity] = useState('Mumbai');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -200,19 +201,39 @@ export const PremiumHeader: React.FC = () => {
       const currentScrollY = window.scrollY;
       setScrolled(currentScrollY > 20);
 
-      // At top of page: always visible
-      if (currentScrollY <= 80) {
-        setIsHeaderVisible(true);
-      } else {
-        // Scrolling down: hide header
-        if (currentScrollY > lastScrollYRef.current + 8 && currentScrollY > 120) {
-          setIsHeaderVisible(false);
-          setActiveDropdown(null);
-          setShowDropdown(false);
-        } 
-        // Scrolling up: show sticky header
-        else if (currentScrollY < lastScrollYRef.current - 6) {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth <= 980;
+      const delta = currentScrollY - lastScrollYRef.current;
+
+      if (isMobile) {
+        // Mobile Header Behavior:
+        if (currentScrollY <= 140) {
+          // At or near top: header is normal, slide-down search bar is hidden
           setIsHeaderVisible(true);
+          setShowMobileScrollSearch(false);
+        } else if (delta > 4) {
+          // Scrolling DOWN: header stays visible, search bar smoothly slides down
+          setIsHeaderVisible(true);
+          setShowMobileScrollSearch(true);
+        } else if (delta < -4) {
+          // Scrolling UP: search bar tucks away, topBar remains visible
+          setShowMobileScrollSearch(false);
+          setIsHeaderVisible(true);
+        }
+      } else {
+        // Desktop Header Behavior:
+        if (currentScrollY <= 80) {
+          setIsHeaderVisible(true);
+        } else {
+          // Scrolling down: hide header
+          if (currentScrollY > lastScrollYRef.current + 8 && currentScrollY > 120) {
+            setIsHeaderVisible(false);
+            setActiveDropdown(null);
+            setShowDropdown(false);
+          } 
+          // Scrolling up: show sticky header
+          else if (currentScrollY < lastScrollYRef.current - 6) {
+            setIsHeaderVisible(true);
+          }
         }
       }
 
@@ -654,6 +675,124 @@ export const PremiumHeader: React.FC = () => {
         >
           {mobileMenuOpen ? <IconX size={24} /> : <IconMenu size={24} />}
         </button>
+      </div>
+
+      {/* Mobile Slide-Down Search Bar (Appears under topBar when scrolling down on mobile) */}
+      <div
+        className={`${styles.mobileScrollSearchWrapper} ${showMobileScrollSearch ? styles.mobileScrollSearchOpen : ''}`}
+      >
+        <div className={styles.mobileScrollSearchBox} ref={mobileSearchContainerRef}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setShowDropdown(false);
+              handleTextSearch();
+            }}
+            className={styles.mobileScrollSearchForm}
+          >
+            <button type="submit" aria-label="Search" className={styles.mobileScrollSearchSubmitBtn}>
+              <IconSearch size={18} />
+            </button>
+            <div className={styles.mobileScrollSearchInputWrap}>
+              <input
+                id="header-mobile-scroll-search-input"
+                name="search"
+                type="text"
+                value={searchText}
+                onChange={(e) => {
+                  setSearchText(e.target.value);
+                  if (e.target.value.trim().length >= 2) {
+                    setShowDropdown(true);
+                  }
+                }}
+                onFocus={handleInputFocus}
+                onKeyDown={handleKeyDownSearch}
+                aria-label="Search used cars by make, model, or body type"
+                placeholder=""
+                className={styles.mobileScrollSearchInput}
+              />
+              {!searchText && (
+                <div className={styles.animatedPlaceholder} style={{ left: 0 }}>
+                  <span className={styles.placeholderPrefix}>Search by</span>
+                  <span className={styles.placeholderTyped} style={{ color: '#00C9AF', fontWeight: 700 }}>
+                    {typingSearchText}
+                  </span>
+                  <span className={styles.placeholderCursor} />
+                </div>
+              )}
+            </div>
+            {searchText && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchText('');
+                  setShowDropdown(false);
+                }}
+                className={styles.mobileScrollSearchClearBtn}
+                aria-label="Clear search"
+              >
+                <IconX size={16} />
+              </button>
+            )}
+          </form>
+
+          {/* Autocomplete Dropdown */}
+          {showDropdown && (searchText.trim().length >= 2) && (
+            <div className={styles.searchResultsDropdown} style={{ top: 'calc(100% + 6px)' }}>
+              {searchLoading ? (
+                <div className={styles.searchStatus}>Loading related cars...</div>
+              ) : searchResults.length > 0 ? (
+                <>
+                  <div className={styles.searchResultsList}>
+                    {searchResults.slice(0, 5).map((car) => {
+                      const carImg = getCarImageUrl(car.image);
+                      return (
+                        <Link
+                          key={car.id}
+                          to={getCarDetailsUrl(car)}
+                          className={styles.searchResultItem}
+                          onClick={() => setShowDropdown(false)}
+                        >
+                          <img
+                            src={carImg}
+                            alt={`${car.make} ${car.model}`}
+                            className={styles.searchResultImg}
+                            onError={(e: any) => {
+                              e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
+                            }}
+                          />
+                          <div className={styles.searchResultInfo}>
+                            <div className={styles.searchResultTitle}>
+                              {car.year} {car.make} {car.model}
+                            </div>
+                            <div className={styles.searchResultMeta}>
+                              {(car.km || 0).toLocaleString()} km • {car.fuelType} • {car.transmission}
+                            </div>
+                          </div>
+                          <div className={styles.searchResultPrice}>
+                            ₹{(car.price / 100000).toFixed(2)} Lakh
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleTextSearch();
+                      setShowDropdown(false);
+                    }}
+                    className={styles.viewAllResultsBtn}
+                  >
+                    View all results ({searchResults.length})
+                  </button>
+                </>
+              ) : (
+                <div className={styles.searchStatus}>No cars found matching "{searchText}"</div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Sub Bar (48px) - Scrolls horizontally with hidden scrollbar */}
