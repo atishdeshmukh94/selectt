@@ -995,13 +995,13 @@ export default function CareerManagement() {
                       )}
                       {selectedApp.expected_ctc && (
                         <div>
-                          <span className="text-gray-400 font-medium block">Expected CTC:</span>
+                          <span className="text-gray-400 font-medium block">Expected Salary:</span>
                           <span className="font-bold text-gray-800 dark:text-gray-200">{selectedApp.expected_ctc}</span>
                         </div>
                       )}
                       {selectedApp.notice_period && (
                         <div>
-                          <span className="text-gray-400 font-medium block">Notice Period:</span>
+                          <span className="text-gray-400 font-medium block">Preferred Joining Date:</span>
                           <span className="font-bold text-gray-800 dark:text-gray-200">{selectedApp.notice_period}</span>
                         </div>
                       )}

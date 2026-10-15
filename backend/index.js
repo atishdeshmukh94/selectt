@@ -5768,6 +5768,8 @@ const sendCareerNotificationEmail = async (application) => {
                             <tr><td style="padding: 8px 0; color: #64748b;"><strong>Position:</strong></td><td style="color: #008f7d; font-weight: bold; font-size: 15px;">${application.position}</td></tr>
                             <tr><td style="padding: 8px 0; color: #64748b;"><strong>Email:</strong></td><td><a href="mailto:${application.email}" style="color: #0284c7; text-decoration: none;">${application.email}</a></td></tr>
                             <tr><td style="padding: 8px 0; color: #64748b;"><strong>Phone:</strong></td><td><a href="tel:${application.phone}" style="color: #0284c7; text-decoration: none;">${application.phone}</a></td></tr>
+                            ${application.expected_ctc ? `<tr><td style="padding: 8px 0; color: #64748b;"><strong>Expected Salary:</strong></td><td style="color: #0f172a; font-weight: 600;">${application.expected_ctc}</td></tr>` : ''}
+                            ${application.notice_period ? `<tr><td style="padding: 8px 0; color: #64748b;"><strong>Preferred Joining:</strong></td><td style="color: #0f172a; font-weight: 600;">${application.notice_period}</td></tr>` : ''}
                             <tr><td style="padding: 8px 0; color: #64748b;"><strong>Submitted At:</strong></td><td style="color: #334155;">${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</td></tr>
                         </table>
                         ${application.message ? `

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Send, CheckCircle, Briefcase, MapPin, Clock, X, Loader2 } from 'lucide-react';
+import { Upload, Send, CheckCircle, Briefcase, MapPin, Clock, X, Loader2, Mail, Phone } from 'lucide-react';
 import PageMeta from '../components/common/PageMeta';
 import Skeleton from 'react-loading-skeleton';
 import { API_URL } from '../config/api';
@@ -123,12 +123,9 @@ const CareersPage = () => {
       return;
     }
 
-    if (formData.expectedCtc) {
-      const ctcNum = parseFloat(formData.expectedCtc);
-      if (isNaN(ctcNum) || ctcNum < minCtc || ctcNum > maxCtc) {
-        setErrorMessage(`Expected CTC must be between ₹${minCtc} LPA and ₹${maxCtc} LPA.`);
-        return;
-      }
+    if (!formData.expectedCtc) {
+      setErrorMessage('Please select your Expected Salary.');
+      return;
     }
 
     setIsSubmitting(true);
@@ -143,7 +140,7 @@ const CareersPage = () => {
       data.append('experience', formData.experience || '');
       data.append('currentLocation', formData.currentLocation || '');
       data.append('currentCtc', formData.currentCtc || '');
-      data.append('expectedCtc', formData.expectedCtc ? `${formData.expectedCtc} LPA` : '');
+      data.append('expectedCtc', formData.expectedCtc || '');
       data.append('noticePeriod', formData.noticePeriod || '');
       data.append('linkedinUrl', formData.linkedinUrl || '');
       data.append('message', formData.message || '');
@@ -262,9 +259,47 @@ const CareersPage = () => {
                 )}
 
                 <div className="mt-8 pt-5 border-t border-slate-100">
-                  <p className="text-xs sm:text-sm text-slate-500">
+                  <p className="text-xs sm:text-sm text-slate-500 mb-5">
                     Don't see a role that fits your profile? Feel free to apply with <strong>"Other"</strong> as your position and tell us how you can make an impact.
                   </p>
+
+                  {/* Direct HR & Recruitment Contact Box */}
+                  <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80">
+                    <div className="flex items-center gap-2 mb-1 text-[#0C1B33] font-bold text-xs sm:text-sm">
+                      <Briefcase size={15} className="text-[#00C9AF]" />
+                      <span>Direct HR & Careers Contact</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mb-3">
+                      Have questions regarding job openings or your application status? Connect directly with HR:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <a
+                        href="mailto:hr@selectt.in"
+                        className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white hover:bg-[#E6FAF7] border border-slate-200/70 hover:border-[#00C9AF]/50 transition-all text-xs font-bold text-[#0C1B33] group shadow-2xs"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-[#E6FAF7] flex items-center justify-center text-[#00C9AF] group-hover:scale-110 transition-transform shrink-0">
+                          <Mail size={14} />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block text-[9.5px] text-slate-400 uppercase font-bold">Mail ID</span>
+                          <span className="text-[#008A77] group-hover:underline truncate block">hr@selectt.in</span>
+                        </div>
+                      </a>
+
+                      <a
+                        href="tel:8638078267"
+                        className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white hover:bg-[#E6FAF7] border border-slate-200/70 hover:border-[#00C9AF]/50 transition-all text-xs font-bold text-[#0C1B33] group shadow-2xs"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-[#E6FAF7] flex items-center justify-center text-[#00C9AF] group-hover:scale-110 transition-transform shrink-0">
+                          <Phone size={14} />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block text-[9.5px] text-slate-400 uppercase font-bold">Call HR</span>
+                          <span className="text-[#008A77] group-hover:underline truncate block">8638078267</span>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -304,10 +339,22 @@ const CareersPage = () => {
             <div id="apply-form" className="bg-[#0C1B33] rounded-[2rem] p-8 md:p-10 shadow-2xl text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#00C9AF] rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
 
-              <h2 className="text-2xl font-bold mb-3.5 text-white relative z-10">Apply Online</h2>
-              <p className="text-xs text-slate-300 mb-8 relative z-10">
+              <h2 className="text-2xl font-bold mb-2 text-white relative z-10">Apply Online</h2>
+              <p className="text-xs text-slate-300 mb-4 relative z-10">
                 Fill in the details below and upload your CV. Our recruitment team will review your application.
               </p>
+
+              {/* Direct HR Helpline Pill */}
+              <div className="flex flex-wrap items-center gap-3 p-3 mb-6 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-300 relative z-10">
+                <span className="text-[#00C9AF] font-bold">HR Desk:</span>
+                <a href="mailto:hr@selectt.in" className="hover:text-[#00C9AF] flex items-center gap-1.5 transition-colors font-medium">
+                  <Mail size={13} className="text-[#00C9AF]" /> hr@selectt.in
+                </a>
+                <span className="text-slate-600">•</span>
+                <a href="tel:8638078267" className="hover:text-[#00C9AF] flex items-center gap-1.5 transition-colors font-medium">
+                  <Phone size={13} className="text-[#00C9AF]" /> 8638078267
+                </a>
+              </div>
 
               {errorMessage && (
                 <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500/50 text-red-200 text-xs font-medium">
@@ -415,43 +462,33 @@ const CareersPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">Expected CTC (in ₹ LPA) *</label>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#00C9AF] font-bold text-sm">₹</span>
-                      <input
-                        type="number"
-                        name="expectedCtc"
-                        required
-                        min={minCtc}
-                        max={maxCtc}
-                        step="0.1"
-                        placeholder={`e.g. ${minCtc} - ${maxCtc}`}
-                        value={formData.expectedCtc}
-                        onChange={handleChange}
-                        className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl pl-8 pr-14 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm font-semibold"
-                      />
-                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">LPA</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10.5px] text-slate-400 mt-1">
-                      <span>Min: ₹{minCtc} LPA</span>
-                      <span>Max: ₹{maxCtc} LPA</span>
-                    </div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">Expected Salary (Per Month in ₹) *</label>
+                    <select
+                      name="expectedCtc"
+                      required
+                      value={formData.expectedCtc}
+                      onChange={handleChange}
+                      className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm cursor-pointer"
+                    >
+                      <option value="" className="bg-[#0C1B33] text-slate-400">Select Expected Salary</option>
+                      <option value="Under 10k" className="bg-[#0C1B33] text-white">Under 10k</option>
+                      <option value="10k - 15k" className="bg-[#0C1B33] text-white">10k - 15k</option>
+                      <option value="15k - 20k" className="bg-[#0C1B33] text-white">15k - 20k</option>
+                      <option value="20k - 25k" className="bg-[#0C1B33] text-white">20k - 25k</option>
+                      <option value="25k - 30k" className="bg-[#0C1B33] text-white">25k - 30k</option>
+                      <option value="Above 30k" className="bg-[#0C1B33] text-white">Above 30k</option>
+                    </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">Notice Period</label>
-                    <select
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">Preferred Joining Date ( If Selected)</label>
+                    <input
+                      type="date"
                       name="noticePeriod"
-                      className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm cursor-pointer"
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm cursor-pointer [color-scheme:dark]"
                       value={formData.noticePeriod}
                       onChange={handleChange}
-                    >
-                      <option value="" className="bg-[#0C1B33] text-slate-400">Select Notice Period</option>
-                      <option value="Immediate Joiner" className="bg-[#0C1B33] text-white">Immediate Joiner</option>
-                      <option value="15 Days or less" className="bg-[#0C1B33] text-white">15 Days or less</option>
-                      <option value="30 Days (1 Month)" className="bg-[#0C1B33] text-white">30 Days (1 Month)</option>
-                      <option value="60 Days (2 Months)" className="bg-[#0C1B33] text-white">60 Days (2 Months)</option>
-                      <option value="90 Days" className="bg-[#0C1B33] text-white">90 Days</option>
-                    </select>
+                    />
                   </div>
                 </div>
 
@@ -566,8 +603,8 @@ const CareersPage = () => {
               </div>
             </div>
 
-            <p className="text-xs text-slate-500 mb-6">
-              Our recruitment team will review your profile and reach out to you within 2–3 business days.
+            <p className="text-xs text-slate-500 mb-6 leading-relaxed">
+              Our recruitment team will review your profile and reach out within 2–3 business days. For urgent queries, reach us at <a href="mailto:hr@selectt.in" className="text-[#008A77] font-bold underline">hr@selectt.in</a> or <a href="tel:8638078267" className="text-[#008A77] font-bold underline">8638078267</a>.
             </p>
 
             <button
