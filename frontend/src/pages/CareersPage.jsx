@@ -10,6 +10,23 @@ const DEFAULT_JOBS = [
   { id: 3, title: 'Content Writer', location: 'Remote', job_type: 'Full-time' }
 ];
 
+const DEFAULT_SALARY_OPTIONS = [
+  "Under 10k",
+  "10k - 15k",
+  "15k - 20k",
+  "20k - 25k",
+  "25k - 30k",
+  "Above 30k"
+];
+
+const DEFAULT_JOINING_OPTIONS = [
+  "Immediate Joiner",
+  "15 Days or less",
+  "30 Days (1 Month)",
+  "60 Days (2 Months)",
+  "90 Days"
+];
+
 const CareersPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -30,6 +47,9 @@ const CareersPage = () => {
   const [maxCtc, setMaxCtc] = useState(30);
   const [customPositions, setCustomPositions] = useState('');
   const [allowOther, setAllowOther] = useState(true);
+
+  const [salaryOptions, setSalaryOptions] = useState(DEFAULT_SALARY_OPTIONS);
+  const [joiningOptions, setJoiningOptions] = useState(DEFAULT_JOINING_OPTIONS);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -91,6 +111,32 @@ const CareersPage = () => {
           }
           if (data && data.careers_allow_other_position !== undefined) {
             setAllowOther(data.careers_allow_other_position !== 'false' && data.careers_allow_other_position !== '0');
+          }
+          if (data && data.careers_salary_options) {
+            try {
+              const parsed = typeof data.careers_salary_options === 'string'
+                ? JSON.parse(data.careers_salary_options)
+                : data.careers_salary_options;
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setSalaryOptions(parsed.map(s => String(s).trim()).filter(Boolean));
+              }
+            } catch (_) {
+              const split = String(data.careers_salary_options).split(',').map(s => s.trim()).filter(Boolean);
+              if (split.length > 0) setSalaryOptions(split);
+            }
+          }
+          if (data && data.careers_joining_options) {
+            try {
+              const parsed = typeof data.careers_joining_options === 'string'
+                ? JSON.parse(data.careers_joining_options)
+                : data.careers_joining_options;
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setJoiningOptions(parsed.map(s => String(s).trim()).filter(Boolean));
+              }
+            } catch (_) {
+              const split = String(data.careers_joining_options).split(',').map(s => s.trim()).filter(Boolean);
+              if (split.length > 0) setJoiningOptions(split);
+            }
           }
         }
       } catch (_) {}
@@ -459,12 +505,11 @@ const CareersPage = () => {
                       className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm cursor-pointer"
                     >
                       <option value="" className="bg-[#0C1B33] text-slate-400">Select Expected Salary</option>
-                      <option value="Under 10k" className="bg-[#0C1B33] text-white">Under 10k</option>
-                      <option value="10k - 15k" className="bg-[#0C1B33] text-white">10k - 15k</option>
-                      <option value="15k - 20k" className="bg-[#0C1B33] text-white">15k - 20k</option>
-                      <option value="20k - 25k" className="bg-[#0C1B33] text-white">20k - 25k</option>
-                      <option value="25k - 30k" className="bg-[#0C1B33] text-white">25k - 30k</option>
-                      <option value="Above 30k" className="bg-[#0C1B33] text-white">Above 30k</option>
+                      {salaryOptions.map((opt) => (
+                        <option key={opt} value={opt} className="bg-[#0C1B33] text-white">
+                          {opt}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
@@ -476,11 +521,11 @@ const CareersPage = () => {
                       onChange={handleChange}
                     >
                       <option value="" className="bg-[#0C1B33] text-slate-400">Select Preferred Joining Date</option>
-                      <option value="Immediate Joiner" className="bg-[#0C1B33] text-white">Immediate Joiner</option>
-                      <option value="15 Days or less" className="bg-[#0C1B33] text-white">15 Days or less</option>
-                      <option value="30 Days (1 Month)" className="bg-[#0C1B33] text-white">30 Days (1 Month)</option>
-                      <option value="60 Days (2 Months)" className="bg-[#0C1B33] text-white">60 Days (2 Months)</option>
-                      <option value="90 Days" className="bg-[#0C1B33] text-white">90 Days</option>
+                      {joiningOptions.map((opt) => (
+                        <option key={opt} value={opt} className="bg-[#0C1B33] text-white">
+                          {opt}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>

@@ -20,11 +20,29 @@ import {
   X,
   RefreshCw,
   ExternalLink,
-  Sliders
+  Sliders,
+  Check
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import PageMeta from "../components/common/PageMeta";
 import { API_URL } from "../config/api";
+
+const DEFAULT_SALARY_OPTIONS = [
+  "Under 10k",
+  "10k - 15k",
+  "15k - 20k",
+  "20k - 25k",
+  "25k - 30k",
+  "Above 30k"
+];
+
+const DEFAULT_JOINING_OPTIONS = [
+  "Immediate Joiner",
+  "15 Days or less",
+  "30 Days (1 Month)",
+  "60 Days (2 Months)",
+  "90 Days"
+];
 
 const STATUS_BADGES: Record<string, { bg: string; text: string; icon: any }> = {
   pending: { bg: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400", text: "Pending", icon: Clock },
@@ -49,6 +67,18 @@ export default function CareerManagement() {
   const [allowOtherPosition, setAllowOtherPosition] = useState(true);
   const [savingFormSettings, setSavingFormSettings] = useState(false);
   const [showFormSettingsSuccessModal, setShowFormSettingsSuccessModal] = useState(false);
+
+  // Salary Options State
+  const [salaryOptions, setSalaryOptions] = useState<string[]>(DEFAULT_SALARY_OPTIONS);
+  const [newSalaryInput, setNewSalaryInput] = useState("");
+  const [editingSalaryIndex, setEditingSalaryIndex] = useState<number | null>(null);
+  const [editingSalaryText, setEditingSalaryText] = useState("");
+
+  // Preferred Joining Date State
+  const [joiningOptions, setJoiningOptions] = useState<string[]>(DEFAULT_JOINING_OPTIONS);
+  const [newJoiningInput, setNewJoiningInput] = useState("");
+  const [editingJoiningIndex, setEditingJoiningIndex] = useState<number | null>(null);
+  const [editingJoiningText, setEditingJoiningText] = useState("");
 
   // Applications State
   const [applications, setApplications] = useState<any[]>([]);
@@ -142,6 +172,32 @@ export default function CareerManagement() {
           if (data?.careers_allow_other_position !== undefined) {
             setAllowOtherPosition(data.careers_allow_other_position !== "false" && data.careers_allow_other_position !== "0");
           }
+          if (data?.careers_salary_options) {
+            try {
+              const parsed = typeof data.careers_salary_options === 'string'
+                ? JSON.parse(data.careers_salary_options)
+                : data.careers_salary_options;
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setSalaryOptions(parsed.map((s: any) => String(s).trim()).filter(Boolean));
+              }
+            } catch (_) {
+              const split = String(data.careers_salary_options).split(',').map((s: any) => s.trim()).filter(Boolean);
+              if (split.length > 0) setSalaryOptions(split);
+            }
+          }
+          if (data?.careers_joining_options) {
+            try {
+              const parsed = typeof data.careers_joining_options === 'string'
+                ? JSON.parse(data.careers_joining_options)
+                : data.careers_joining_options;
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setJoiningOptions(parsed.map((s: any) => String(s).trim()).filter(Boolean));
+              }
+            } catch (_) {
+              const split = String(data.careers_joining_options).split(',').map((s: any) => s.trim()).filter(Boolean);
+              if (split.length > 0) setJoiningOptions(split);
+            }
+          }
         }
       } catch (_) {}
     };
@@ -156,6 +212,100 @@ export default function CareerManagement() {
     }
   }, [activeTab, page, statusFilter]);
 
+  // Salary Options Handlers
+  const handleAddSalaryOption = () => {
+    const val = newSalaryInput.trim();
+    if (!val) {
+      toast.error("Please enter a salary option");
+      return;
+    }
+    if (salaryOptions.some(s => s.toLowerCase() === val.toLowerCase())) {
+      toast.error("This salary option already exists");
+      return;
+    }
+    setSalaryOptions([...salaryOptions, val]);
+    setNewSalaryInput("");
+    toast.success(`Added "${val}" — Remember to click Save Form Settings`);
+  };
+
+  const handleStartEditSalary = (index: number) => {
+    setEditingSalaryIndex(index);
+    setEditingSalaryText(salaryOptions[index]);
+  };
+
+  const handleSaveEditSalary = (index: number) => {
+    const val = editingSalaryText.trim();
+    if (!val) {
+      toast.error("Option cannot be empty");
+      return;
+    }
+    const updated = [...salaryOptions];
+    updated[index] = val;
+    setSalaryOptions(updated);
+    setEditingSalaryIndex(null);
+  };
+
+  const handleDeleteSalaryOption = (index: number) => {
+    const removed = salaryOptions[index];
+    setSalaryOptions(salaryOptions.filter((_, i) => i !== index));
+    if (editingSalaryIndex === index) {
+      setEditingSalaryIndex(null);
+    }
+    toast.success(`Removed "${removed}"`);
+  };
+
+  const handleResetSalaryDefaults = () => {
+    setSalaryOptions(DEFAULT_SALARY_OPTIONS);
+    toast.success("Reset salary options to defaults");
+  };
+
+  // Joining Date Options Handlers
+  const handleAddJoiningOption = () => {
+    const val = newJoiningInput.trim();
+    if (!val) {
+      toast.error("Please enter a joining date option");
+      return;
+    }
+    if (joiningOptions.some(j => j.toLowerCase() === val.toLowerCase())) {
+      toast.error("This joining option already exists");
+      return;
+    }
+    setJoiningOptions([...joiningOptions, val]);
+    setNewJoiningInput("");
+    toast.success(`Added "${val}" — Remember to click Save Form Settings`);
+  };
+
+  const handleStartEditJoining = (index: number) => {
+    setEditingJoiningIndex(index);
+    setEditingJoiningText(joiningOptions[index]);
+  };
+
+  const handleSaveEditJoining = (index: number) => {
+    const val = editingJoiningText.trim();
+    if (!val) {
+      toast.error("Option cannot be empty");
+      return;
+    }
+    const updated = [...joiningOptions];
+    updated[index] = val;
+    setJoiningOptions(updated);
+    setEditingJoiningIndex(null);
+  };
+
+  const handleDeleteJoiningOption = (index: number) => {
+    const removed = joiningOptions[index];
+    setJoiningOptions(joiningOptions.filter((_, i) => i !== index));
+    if (editingJoiningIndex === index) {
+      setEditingJoiningIndex(null);
+    }
+    toast.success(`Removed "${removed}"`);
+  };
+
+  const handleResetJoiningDefaults = () => {
+    setJoiningOptions(DEFAULT_JOINING_OPTIONS);
+    toast.success("Reset joining options to defaults");
+  };
+
   const handleSaveFormSettings = async () => {
     setSavingFormSettings(true);
     try {
@@ -166,7 +316,9 @@ export default function CareerManagement() {
           careers_min_ctc: minCtc,
           careers_max_ctc: maxCtc,
           careers_custom_positions: customPositions,
-          careers_allow_other_position: allowOtherPosition ? "true" : "false"
+          careers_allow_other_position: allowOtherPosition ? "true" : "false",
+          careers_salary_options: JSON.stringify(salaryOptions),
+          careers_joining_options: JSON.stringify(joiningOptions)
         })
       });
       if (res.ok) {
@@ -767,58 +919,250 @@ export default function CareerManagement() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Card 1: Expected Salary & Joining Date Controls */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-5">
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
                 <div className="flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-gray-800">
                   <span className="text-xl">💰</span>
                   <div>
                     <h4 className="font-bold text-sm text-gray-900 dark:text-white">Expected Salary (Per Month in ₹) & Joining Date</h4>
-                    <p className="text-[11px] text-gray-500">Monthly salary dropdown ranges and preferred joining timeline options for applicants</p>
+                    <p className="text-[11px] text-gray-500">Add, edit, or delete custom options. Remember to click "Save Form Settings" above to apply changes.</p>
                   </div>
                 </div>
 
-                {/* Salary Options Badges */}
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
-                    Active Expected Salary (Per Month in ₹) Dropdown Options:
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {["Under 10k", "10k - 15k", "15k - 20k", "20k - 25k", "25k - 30k", "Above 30k"].map((sal) => (
-                      <span
-                        key={sal}
-                        className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs font-bold shadow-2xs flex items-center gap-1.5"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        {sal}
-                      </span>
-                    ))}
+                {/* Salary Options */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                      Active Expected Salary (Per Month in ₹) Dropdown Options:
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleResetSalaryDefaults}
+                      className="text-[11px] text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 underline transition-colors"
+                      title="Reset to default options"
+                    >
+                      Reset Defaults
+                    </button>
                   </div>
-                  <span className="text-[10.5px] text-gray-400 mt-1.5 block">
+
+                  {/* Pills List */}
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {salaryOptions.map((sal, idx) => (
+                      <div
+                        key={idx}
+                        className="px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs font-semibold shadow-2xs flex items-center gap-1.5 transition-all"
+                      >
+                        {editingSalaryIndex === idx ? (
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="text"
+                              value={editingSalaryText}
+                              onChange={(e) => setEditingSalaryText(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSaveEditSalary(idx);
+                                if (e.key === "Escape") setEditingSalaryIndex(null);
+                              }}
+                              autoFocus
+                              className="px-2 py-0.5 text-xs bg-white dark:bg-gray-800 border border-emerald-400 rounded-md text-gray-900 dark:text-white focus:outline-none w-28"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveEditSalary(idx)}
+                              className="p-1 text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded"
+                              title="Save"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingSalaryIndex(null)}
+                              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded"
+                              title="Cancel"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                            <span>{sal}</span>
+                            <div className="flex items-center gap-0.5 ml-1 opacity-70 hover:opacity-100">
+                              <button
+                                type="button"
+                                onClick={() => handleStartEditSalary(idx)}
+                                className="p-0.5 hover:text-emerald-900 dark:hover:text-white rounded"
+                                title="Edit option"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteSalaryOption(idx)}
+                                className="p-0.5 hover:text-rose-600 dark:hover:text-rose-400 rounded"
+                                title="Delete option"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                    {salaryOptions.length === 0 && (
+                      <span className="text-xs text-rose-500 italic">No salary options added. Add at least one option below.</span>
+                    )}
+                  </div>
+
+                  {/* Add Input */}
+                  <div className="flex gap-2 items-center pt-1">
+                    <input
+                      type="text"
+                      placeholder="Add custom salary option (e.g. 35k - 40k or Negotiable)"
+                      value={newSalaryInput}
+                      onChange={(e) => setNewSalaryInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddSalaryOption();
+                        }
+                      }}
+                      className="flex-1 px-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddSalaryOption}
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors shrink-0 cursor-pointer shadow-sm"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Option</span>
+                    </button>
+                  </div>
+                  <span className="text-[10.5px] text-gray-400 block">
                     Candidates select their expected monthly compensation directly from this curated dropdown.
                   </span>
                 </div>
 
                 {/* Preferred Joining Date Options */}
-                <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
-                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
-                    Active Preferred Joining Date Dropdown Options:
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {["Immediate Joiner", "15 Days or less", "30 Days (1 Month)", "60 Days (2 Months)", "90 Days"].map((join) => (
-                      <span
-                        key={join}
-                        className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 rounded-xl text-xs font-bold shadow-2xs flex items-center gap-1.5"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                        {join}
-                      </span>
-                    ))}
+                <div className="space-y-2.5 pt-4 border-t border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                      Active Preferred Joining Date Dropdown Options:
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleResetJoiningDefaults}
+                      className="text-[11px] text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 underline transition-colors"
+                      title="Reset to default options"
+                    >
+                      Reset Defaults
+                    </button>
                   </div>
+
+                  {/* Pills List */}
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {joiningOptions.map((join, idx) => (
+                      <div
+                        key={idx}
+                        className="px-2.5 py-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 rounded-xl text-xs font-semibold shadow-2xs flex items-center gap-1.5 transition-all"
+                      >
+                        {editingJoiningIndex === idx ? (
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="text"
+                              value={editingJoiningText}
+                              onChange={(e) => setEditingJoiningText(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSaveEditJoining(idx);
+                                if (e.key === "Escape") setEditingJoiningIndex(null);
+                              }}
+                              autoFocus
+                              className="px-2 py-0.5 text-xs bg-white dark:bg-gray-800 border border-blue-400 rounded-md text-gray-900 dark:text-white focus:outline-none w-32"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveEditJoining(idx)}
+                              className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded"
+                              title="Save"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingJoiningIndex(null)}
+                              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded"
+                              title="Cancel"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                            <span>{join}</span>
+                            <div className="flex items-center gap-0.5 ml-1 opacity-70 hover:opacity-100">
+                              <button
+                                type="button"
+                                onClick={() => handleStartEditJoining(idx)}
+                                className="p-0.5 hover:text-blue-900 dark:hover:text-white rounded"
+                                title="Edit option"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteJoiningOption(idx)}
+                                className="p-0.5 hover:text-rose-600 dark:hover:text-rose-400 rounded"
+                                title="Delete option"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                    {joiningOptions.length === 0 && (
+                      <span className="text-xs text-rose-500 italic">No joining date options added. Add at least one option below.</span>
+                    )}
+                  </div>
+
+                  {/* Add Input */}
+                  <div className="flex gap-2 items-center pt-1">
+                    <input
+                      type="text"
+                      placeholder="Add custom joining option (e.g. 45 Days or 1st of Next Month)"
+                      value={newJoiningInput}
+                      onChange={(e) => setNewJoiningInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddJoiningOption();
+                        }
+                      }}
+                      className="flex-1 px-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddJoiningOption}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors shrink-0 cursor-pointer shadow-sm"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Option</span>
+                    </button>
+                  </div>
+                  <span className="text-[10.5px] text-gray-400 block">
+                    Candidates pick their availability timeline from these options.
+                  </span>
                 </div>
 
                 {/* Candidate Form Live Preview - EXACT MATCH TO FRONTEND */}
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-800/60 border border-slate-200 dark:border-gray-700 text-xs">
-                  <div className="font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5">
-                    <span>👀 Candidate Form Live Preview (selectt.in/careers):</span>
+                  <div className="font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <span>👀 Candidate Form Live Preview (selectt.in/careers):</span>
+                    </span>
+                    <span className="text-[10px] text-gray-400 font-normal">
+                      {salaryOptions.length} salary options • {joiningOptions.length} joining options
+                    </span>
                   </div>
                   <div className="bg-[#0C1B33] text-white p-4 rounded-xl space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -826,15 +1170,12 @@ export default function CareerManagement() {
                         <span className="text-[11px] font-semibold text-slate-300 block mb-1">Expected Salary (Per Month in ₹) *</span>
                         <div className="relative">
                           <select
-                            disabled
-                            className="w-full bg-[#162947] border border-[#2A3E54] rounded-lg px-3 py-2 text-white text-xs opacity-90 cursor-not-allowed"
+                            className="w-full bg-[#162947] border border-[#2A3E54] rounded-lg px-3 py-2 text-white text-xs cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-500"
                           >
-                            <option>Under 10k</option>
-                            <option>10k - 15k</option>
-                            <option>15k - 20k</option>
-                            <option>20k - 25k</option>
-                            <option>25k - 30k</option>
-                            <option selected>Above 30k</option>
+                            <option value="">Select Expected Salary</option>
+                            {salaryOptions.map((sal, idx) => (
+                              <option key={idx} value={sal}>{sal}</option>
+                            ))}
                           </select>
                         </div>
                       </div>
@@ -842,14 +1183,12 @@ export default function CareerManagement() {
                         <span className="text-[11px] font-semibold text-slate-300 block mb-1">Preferred Joining Date ( If Selected)</span>
                         <div className="relative">
                           <select
-                            disabled
-                            className="w-full bg-[#162947] border border-[#2A3E54] rounded-lg px-3 py-2 text-white text-xs opacity-90 cursor-not-allowed"
+                            className="w-full bg-[#162947] border border-[#2A3E54] rounded-lg px-3 py-2 text-white text-xs cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500"
                           >
-                            <option>Immediate Joiner</option>
-                            <option>15 Days or less</option>
-                            <option selected>30 Days (1 Month)</option>
-                            <option>60 Days (2 Months)</option>
-                            <option>90 Days</option>
+                            <option value="">Select Joining Timeline</option>
+                            {joiningOptions.map((join, idx) => (
+                              <option key={idx} value={join}>{join}</option>
+                            ))}
                           </select>
                         </div>
                       </div>
