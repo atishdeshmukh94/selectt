@@ -1152,8 +1152,6 @@ const NewHome = () => {
   const [mobileHeroHovered, setMobileHeroHovered] = useState(false);
   const [mobileTouchStart, setMobileTouchStart] = useState(null);
   const [mobileTouchEnd, setMobileTouchEnd] = useState(null);
-  const stickySearchRef = useRef(null);
-  const isStickyShownRef = useRef(false);
   const lastScrollYRef = useRef(0);
 
   const mobileHeroSlides = [
@@ -1191,34 +1189,10 @@ const NewHome = () => {
 
   // Fetch live backend data
   useEffect(() => {
-    // scroll listener for back-to-top button and mobile sticky search bar
+    // scroll listener for back-to-top button
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       setShowScrollTop(currentScrollY > 400);
-
-      const delta = currentScrollY - lastScrollYRef.current;
-
-      // Direct DOM update on stickySearchRef: eliminates component re-renders and touch event interference
-      if (stickySearchRef.current) {
-        if (currentScrollY > 140 && delta > 4) {
-          // Scrolling down past threshold -> slide in sticky search bar
-          if (!isStickyShownRef.current) {
-            isStickyShownRef.current = true;
-            stickySearchRef.current.style.transform = 'translateY(0)';
-            stickySearchRef.current.style.opacity = '1';
-            stickySearchRef.current.style.pointerEvents = 'auto';
-          }
-        } else if (currentScrollY <= 100 || delta < -4) {
-          // Scrolling up or near top -> hide sticky search bar
-          if (isStickyShownRef.current) {
-            isStickyShownRef.current = false;
-            stickySearchRef.current.style.transform = 'translateY(-100%)';
-            stickySearchRef.current.style.opacity = '0';
-            stickySearchRef.current.style.pointerEvents = 'none';
-          }
-        }
-      }
-
       lastScrollYRef.current = currentScrollY;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -1899,21 +1873,6 @@ const NewHome = () => {
       />
       {/* Global blueprint grid lines background */}
       <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
-
-      {/* Mobile Sticky Top Search Bar (Appears when scrolling down, hides when scrolling up) */}
-      <div
-        ref={stickySearchRef}
-        style={{
-          transform: 'translateY(-100%)',
-          opacity: 0,
-          pointerEvents: 'none',
-          overflowAnchor: 'none',
-          willChange: 'transform, opacity',
-        }}
-        className="fixed top-0 left-0 right-0 z-[100] px-3 pt-2.5 pb-2.5 bg-[#0C1B33]/95 backdrop-blur-md shadow-2xl border-b border-white/10 md:hidden transition-all duration-300 ease-out"
-      >
-        {renderMobileSearchForm('sticky')}
-      </div>
 
       {/* 1. MOBILE HERO SECTION (Hidden on Desktop) */}
       <div
