@@ -1894,7 +1894,8 @@ const NewHome = () => {
             >
               <img
                 src={slide.image}
-                alt={slide.heading}
+                alt=""
+                aria-hidden="true"
                 width="485"
                 height="485"
                 loading={idx === 0 ? "eager" : "lazy"}
@@ -1902,11 +1903,16 @@ const NewHome = () => {
                 decoding={idx === 0 ? "sync" : "async"}
                 className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 scale-100"
                 onError={(e) => {
-                  if (slide.image && slide.image.includes('b-cdn.net/uploads/')) {
-                    e.target.src = slide.image.replace('https://selectt-media.b-cdn.net', 'https://api.selectt.in');
+                  const currentSrc = e.currentTarget.src || '';
+                  if (currentSrc.includes('localhost:5000/uploads/')) {
+                    e.currentTarget.src = currentSrc.replace('http://localhost:5000', 'https://selectt-media.b-cdn.net');
                     return;
                   }
-                  e.target.style.display = 'none';
+                  if (currentSrc.includes('selectt-media.b-cdn.net/uploads/')) {
+                    e.currentTarget.src = currentSrc.replace('https://selectt-media.b-cdn.net', 'https://api.selectt.in');
+                    return;
+                  }
+                  e.currentTarget.style.display = 'none';
                 }}
               />
             </div>
