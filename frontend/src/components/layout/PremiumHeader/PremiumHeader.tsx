@@ -345,7 +345,7 @@ export const PremiumHeader: React.FC = () => {
 
   return (
     <header 
-      className={`${styles.headerContainer} ${!isHeaderVisible ? styles.headerHidden : ''} ${isCheckoutPage ? '!hidden md:!block' : ''}`} 
+      className={`${styles.headerContainer} ${!isHeaderVisible ? styles.headerHidden : ''} ${showMobileScrollSearch ? styles.mobileSearchOnlyMode : ''} ${isCheckoutPage ? '!hidden md:!block' : ''}`} 
       style={{
         background: scrolled ? 'rgba(12, 27, 51, 0.96)' : '#0c1b33',
         transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',

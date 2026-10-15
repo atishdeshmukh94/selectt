@@ -1910,6 +1910,22 @@
 }
 
 @media (max-width: 980px) {
+  .topBar {
+    transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, transform 0.3s ease;
+    overflow: hidden;
+  }
+
+  .mobileSearchOnlyMode .topBar {
+    max-height: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(-100%);
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin: 0 !important;
+  }
+
   .mobileScrollSearchWrapper {
     display: block;
     max-height: 0;
@@ -1921,10 +1937,12 @@
     background: transparent;
   }
 
+  .mobileSearchOnlyMode .mobileScrollSearchWrapper,
   .mobileScrollSearchOpen {
     max-height: 72px;
     opacity: 1;
     pointer-events: auto;
+    padding-top: 10px;
     padding-bottom: 12px;
   }
 
