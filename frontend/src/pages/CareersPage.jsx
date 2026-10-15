@@ -469,14 +469,19 @@ const CareersPage = () => {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">Preferred Joining Date ( If Selected)</label>
-                    <input
-                      type="date"
+                    <select
                       name="noticePeriod"
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm cursor-pointer [color-scheme:dark]"
+                      className="w-full bg-[#162947] border border-[#2A3E54] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00C9AF] focus:ring-1 focus:ring-[#00C9AF] transition-colors text-sm cursor-pointer"
                       value={formData.noticePeriod}
                       onChange={handleChange}
-                    />
+                    >
+                      <option value="" className="bg-[#0C1B33] text-slate-400">Select Preferred Joining Date</option>
+                      <option value="Immediate Joiner" className="bg-[#0C1B33] text-white">Immediate Joiner</option>
+                      <option value="15 Days or less" className="bg-[#0C1B33] text-white">15 Days or less</option>
+                      <option value="30 Days (1 Month)" className="bg-[#0C1B33] text-white">30 Days (1 Month)</option>
+                      <option value="60 Days (2 Months)" className="bg-[#0C1B33] text-white">60 Days (2 Months)</option>
+                      <option value="90 Days" className="bg-[#0C1B33] text-white">90 Days</option>
+                    </select>
                   </div>
                 </div>
 
