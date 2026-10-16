@@ -43,7 +43,7 @@ interface FilterOption {
 // TEMPORARY TESTING FLAG: Disable mobile header to test scroll jumping issue.
 // Set to true whenever you want to re-enable the mobile header.
 // =========================================================================
-const ENABLE_MOBILE_HEADER = false;
+const ENABLE_MOBILE_HEADER = true;
 
 export const PremiumHeader: React.FC = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
