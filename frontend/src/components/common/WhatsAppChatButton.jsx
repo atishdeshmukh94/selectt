@@ -23,6 +23,89 @@ const extractGallaboxToken = (input) => {
   return trimmed;
 };
 
+// Protect against Gallabox widget v2 mobile scroll-to-top bug.
+// Gallabox has a hardcoded scrollPosition = 0 bug: during initialization on max-device-width <= 480px,
+// its matchMedia listener immediately runs I(false) which executes `document.documentElement.scrollTop = W` (0),
+// forcefully resetting the page scroll position to 0 while the user is actively scrolling down.
+const installGallaboxScrollGuard = () => {
+  if (typeof window === 'undefined' || window.__gallaboxScrollGuardInstalled) return;
+  window.__gallaboxScrollGuardInstalled = true;
+
+  try {
+    const originalScrollTopDescriptor = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollTop');
+    if (originalScrollTopDescriptor && originalScrollTopDescriptor.set) {
+      const origSet = originalScrollTopDescriptor.set;
+      const origGet = originalScrollTopDescriptor.get;
+
+      Object.defineProperty(document.documentElement, 'scrollTop', {
+        configurable: true,
+        enumerable: true,
+        get() {
+          return origGet.call(this);
+        },
+        set(val) {
+          const stack = new Error().stack || '';
+          const isFromGallabox =
+            stack.includes('gallabox') ||
+            stack.includes('chatty') ||
+            Boolean(window.__gallaboxInitializing);
+
+          if (isFromGallabox) {
+            const widget = document.getElementById('chatty-widget');
+            const isWidgetOpen =
+              widget && (widget.dataset?.state === 'opened' || widget.getAttribute('data-state') === 'opened');
+            const currentScroll = window.scrollY || origGet.call(this) || 0;
+
+            // If Gallabox attempts to reset scroll to 0 while the widget is NOT open
+            // and the user has already scrolled down, block the reset!
+            if (!isWidgetOpen && (val === 0 || !val) && currentScroll > 0) {
+              return;
+            }
+          }
+          return origSet.call(this, val);
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('[WhatsAppChatButton] Error installing scrollTop guard:', err);
+  }
+
+  try {
+    const origScrollTo = window.scrollTo;
+    window.scrollTo = function(...args) {
+      let targetY;
+      if (typeof args[0] === 'object' && args[0] !== null) {
+        targetY = args[0].top;
+      } else {
+        targetY = args[1];
+      }
+
+      if (targetY === 0 || targetY == null) {
+        const stack = new Error().stack || '';
+        const isFromGallabox =
+          stack.includes('gallabox') ||
+          stack.includes('chatty') ||
+          Boolean(window.__gallaboxInitializing);
+
+        if (isFromGallabox) {
+          const widget = document.getElementById('chatty-widget');
+          const isWidgetOpen =
+            widget && (widget.dataset?.state === 'opened' || widget.getAttribute('data-state') === 'opened');
+          const currentScroll =
+            window.scrollY || (document.documentElement ? document.documentElement.scrollTop : 0) || 0;
+          if (!isWidgetOpen && currentScroll > 0) {
+            return;
+          }
+        }
+      }
+      return origScrollTo.apply(this, args);
+    };
+    window.scroll = window.scrollTo;
+  } catch (err) {
+    console.warn('[WhatsAppChatButton] Error installing scrollTo guard:', err);
+  }
+};
+
 const WhatsAppChatButton = () => {
   const { settings } = useSiteSettings();
   const location = useLocation();
@@ -115,6 +198,10 @@ const WhatsAppChatButton = () => {
       if (injected) return;
       injected = true;
 
+      // Ensure scroll protection is active BEFORE loading Gallabox SDK
+      installGallaboxScrollGuard();
+      window.__gallaboxInitializing = true;
+
       // Set up Gallabox queue and configuration
       window.Chatty = function(c) {
         if (!window.Chatty._) window.Chatty._ = [];
@@ -131,17 +218,42 @@ const WhatsAppChatButton = () => {
       script.id = 'gallabox-chatty-script';
       script.async = true;
       script.src = 'https://widget.gallabox.com/chatty-widget-v2.min.js';
+
+      script.onload = () => {
+        // Keep initializing flag active briefly while Gallabox executes internal matchMedia and initial render
+        setTimeout(() => {
+          window.__gallaboxInitializing = false;
+        }, 1500);
+      };
+      script.onerror = () => {
+        window.__gallaboxInitializing = false;
+      };
+
       document.body.appendChild(script);
     };
 
-    // Defer loading until user interaction
+    // Load on idle or fallback timeout in background, or on first real interaction
+    let idleTimerId = null;
+    if (typeof window !== 'undefined') {
+      idleTimerId = setTimeout(() => {
+        if (typeof window.requestIdleCallback === 'function') {
+          window.requestIdleCallback(() => injectGallabox(), { timeout: 2000 });
+        } else {
+          injectGallabox();
+        }
+      }, 3500);
+    }
+
     const interactionEvents = ['click', 'keydown', 'pointerdown', 'touchstart'];
     const onUserInteraction = () => {
-      interactionEvents.forEach(evt => window.removeEventListener(evt, onUserInteraction));
+      if (idleTimerId) clearTimeout(idleTimerId);
+      interactionEvents.forEach((evt) => window.removeEventListener(evt, onUserInteraction));
       injectGallabox();
     };
 
-    interactionEvents.forEach(evt => window.addEventListener(evt, onUserInteraction, { once: true, passive: true }));
+    interactionEvents.forEach((evt) =>
+      window.addEventListener(evt, onUserInteraction, { once: true, passive: true })
+    );
 
     // Ensure any dynamically injected iframes have an accessible title
     const observer = new MutationObserver(() => {
@@ -153,8 +265,9 @@ const WhatsAppChatButton = () => {
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
+      if (idleTimerId) clearTimeout(idleTimerId);
       observer.disconnect();
-      interactionEvents.forEach(evt => window.removeEventListener(evt, onUserInteraction));
+      interactionEvents.forEach((evt) => window.removeEventListener(evt, onUserInteraction));
     };
   }, [activeMode, isCheckoutPage, settings?.gallabox_widget_token]);
 
