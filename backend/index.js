@@ -2170,6 +2170,7 @@ app.get('/api/cars/:id', (req, res) => {
         if (!isAdminRequest && car.status === 'draft') {
             return res.status(404).json({ message: 'Car not found' });
         }
+        res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300');
         res.json(mapCar(car));
     });
 });

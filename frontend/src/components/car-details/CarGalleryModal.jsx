@@ -9,7 +9,7 @@ import {
   X,
   Maximize2
 } from 'lucide-react';
-import { API_URL, CDN_URL, DEFAULT_CAR_FALLBACK_IMAGE } from '../../config/api';
+import { API_URL, CDN_URL, DEFAULT_CAR_FALLBACK_IMAGE, getCarImageUrl, getCarThumbnailUrl, getCarOriginalImageUrl } from '../../config/api';
 
 const isVideoUrl = (url) => {
   if (!url || typeof url !== 'string') return false;
@@ -27,20 +27,6 @@ const isVideoUrl = (url) => {
     u.includes('.mp4?') ||
     u.includes('.mov?')
   );
-};
-
-const getCarImageUrl = (img) => {
-  if (!img || isVideoUrl(img)) return DEFAULT_CAR_FALLBACK_IMAGE;
-  if (img.includes('images.unsplash.com') || img.includes('shutterstock.com')) {
-    return DEFAULT_CAR_FALLBACK_IMAGE;
-  }
-  if (img.startsWith('https://api.selectt.in/uploads/')) {
-    return img.replace('https://api.selectt.in', CDN_URL);
-  }
-  if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:')) return img;
-  if (img.startsWith('/uploads/')) return `${CDN_URL}${img}`;
-  if (img.startsWith('/')) return `${CDN_URL}${img}`;
-  return `${CDN_URL}/uploads/${img}`;
 };
 
 // Intelligently categorize images and assign view angle titles
@@ -867,9 +853,11 @@ const FullscreenLightbox = ({
                 }`}
               >
                 <img
-                  src={getCarImageUrl(img)}
+                  src={getCarThumbnailUrl(img, 140)}
                   alt={`Thumbnail ${idx + 1}`}
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = DEFAULT_CAR_FALLBACK_IMAGE;
@@ -909,10 +897,10 @@ const FullscreenLightbox = ({
           </button>
         )}
 
-        {/* Centered Image with 1:1 screen-pixel translation */}
+        {/* Centered Image with 1:1 screen-pixel translation - Original High Resolution */}
         <img
           ref={imageRef}
-          src={getCarImageUrl(currentImg)}
+          src={getCarOriginalImageUrl(currentImg)}
           alt={`${carTitle} - Photo ${activeIndex + 1}`}
           className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain rounded-lg shadow-2xl pointer-events-none select-none"
           style={{
@@ -1018,9 +1006,11 @@ const FullscreenLightbox = ({
                 }`}
               >
                 <img
-                  src={getCarImageUrl(img)}
+                  src={getCarThumbnailUrl(img, 160)}
                   alt={`Thumbnail ${idx + 1}`}
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = DEFAULT_CAR_FALLBACK_IMAGE;
@@ -1227,10 +1217,11 @@ const CarGalleryModal = ({
                     }`}
                   >
                     <img
-                      src={getCarImageUrl(cat.thumbnail)}
+                      src={getCarThumbnailUrl(cat.thumbnail, 120)}
                       alt={cat.name}
                       className="w-full h-full object-cover"
-                      loading="eager"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                   {/* Label */}

@@ -82,7 +82,7 @@ const EmiCalculator = ({
         <div className="flex-1">
           <div className="flex items-start gap-4 mb-4">
             <div className="flex-1">
-              <div className="text-[11px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+              <div className="text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#00C9AF] animate-pulse"></span>
                 EMI STARTING FROM
               </div>
@@ -104,7 +104,7 @@ const EmiCalculator = ({
 
           <div className="relative h-36 w-full flex items-center justify-center mb-6">
             {/* Semi-circle Progress Gauge */}
-            <svg className="w-full h-full max-w-[200px]" viewBox="0 0 200 120">
+            <svg className="w-full h-full max-w-[200px]" viewBox="0 0 200 120" role="img" aria-label="EMI ratio gauge">
               {/* Background arc */}
               <path
                 d="M20,100 A80,80 0 0,1 180,100"
@@ -148,14 +148,14 @@ const EmiCalculator = ({
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 <div className={`w-2.5 h-2.5 rounded-sm ${theme === 'dark' ? 'bg-[#00D2B6]/30' : theme === 'white' ? 'bg-red-100' : 'bg-purple-100'}`} />
-                <span className={`font-bold text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Principal Loan Amount</span>
+                <span className={`font-bold text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Principal Loan Amount</span>
               </div>
               <span className={`font-bold text-xs md:text-sm tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{loanAmount.toLocaleString('en-IN')}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 <div className={`w-2.5 h-2.5 rounded-sm ${theme === 'dark' ? 'bg-[#00D2B6]' : theme === 'white' ? 'bg-red-400' : 'bg-purple-400'}`} />
-                <span className={`font-bold text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Total Interest Payable</span>
+                <span className={`font-bold text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Total Interest Payable</span>
               </div>
               <span className={`font-bold text-xs md:text-sm tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{totalInterest.toLocaleString('en-IN')}</span>
             </div>
@@ -165,9 +165,9 @@ const EmiCalculator = ({
                 <div className={`w-7 h-7 rounded-lg shadow-sm flex items-center justify-center ${theme === 'dark' ? 'bg-white/5 text-slate-300' : 'bg-white/80 text-slate-700'}`}>
                   <CreditCard size={14} />
                 </div>
-                <span className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-350' : 'text-slate-700'}`}>Total Amount Payable</span>
+                <span className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>Total Amount Payable</span>
               </div>
-              <span className={`text-base font-bold tracking-tighter ${theme === 'dark' || theme === 'white' ? 'text-[#00d2b6]' : 'text-purple-700'}`}>
+              <span className={`text-base font-bold tracking-tighter ${theme === 'dark' ? 'text-[#00D2B6]' : 'text-[#007A68]'}`}>
                 ₹{totalPayable.toLocaleString('en-IN')}
               </span>
             </div>
@@ -181,10 +181,12 @@ const EmiCalculator = ({
           <div className="space-y-4">
             <div>
               <div className="flex justify-between items-center mb-1.5">
-                <label className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-slate-350' : 'text-slate-700'}`}>Loan Amount</label>
+                <label htmlFor="loan-amount-slider" className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>Loan Amount</label>
                 <div className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{loanAmount.toLocaleString('en-IN')}</div>
               </div>
               <input
+                id="loan-amount-slider"
+                aria-label="Loan Amount"
                 type="range"
                 min={effectiveMin}
                 max={effectiveMax}
@@ -199,7 +201,7 @@ const EmiCalculator = ({
                 }}
                 className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
               />
-              <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-0.5">
+              <div className={`flex justify-between text-[10px] font-bold mt-0.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
                 <span>{formatIndianCompact(effectiveMin)}</span>
                 <span>{formatIndianCompact(effectiveMax)}</span>
               </div>
@@ -207,10 +209,12 @@ const EmiCalculator = ({
 
             <div>
               <div className="flex justify-between items-center mb-1.5">
-                <label className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-slate-350' : 'text-slate-700'}`}>Down Payment*</label>
+                <label htmlFor="down-payment-slider" className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>Down Payment*</label>
                 <div className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>₹{downPayment.toLocaleString('en-IN')}</div>
               </div>
               <input
+                id="down-payment-slider"
+                aria-label="Down Payment"
                 type="range"
                 min={0}
                 max={maxDownPayment}
@@ -219,7 +223,7 @@ const EmiCalculator = ({
                 onChange={(e) => setDownPayment(parseInt(e.target.value))}
                 className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
               />
-              <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-0.5">
+              <div className={`flex justify-between text-[10px] font-bold mt-0.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
                 <span>₹0</span>
                 <span>{formatIndianCompact(maxDownPayment)}</span>
               </div>
@@ -228,10 +232,12 @@ const EmiCalculator = ({
             {/* Rate of Interest */}
             <div>
               <div className="flex justify-between items-center mb-1.5">
-                <label className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-slate-350' : 'text-slate-700'}`}>Rate of Interest</label>
+                <label htmlFor="interest-rate-slider" className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>Rate of Interest</label>
                 <div className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{interestRate}%</div>
               </div>
               <input
+                id="interest-rate-slider"
+                aria-label="Rate of Interest"
                 type="range"
                 min="8"
                 max="25"
@@ -240,7 +246,7 @@ const EmiCalculator = ({
                 onChange={(e) => setInterestRate(parseFloat(e.target.value))}
                 className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
               />
-              <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-0.5">
+              <div className={`flex justify-between text-[10px] font-bold mt-0.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
                 <span>8%</span>
                 <span>25%</span>
               </div>
@@ -249,10 +255,12 @@ const EmiCalculator = ({
             {/* Duration of Loan */}
             <div>
               <div className="flex justify-between items-center mb-1.5">
-                <label className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-slate-350' : 'text-slate-700'}`}>Duration of Loan</label>
+                <label htmlFor="loan-tenure-slider" className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>Duration of Loan</label>
                 <div className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{tenure} Months</div>
               </div>
               <input
+                id="loan-tenure-slider"
+                aria-label="Duration of Loan in Months"
                 type="range"
                 min="12"
                 max="84"
@@ -261,7 +269,7 @@ const EmiCalculator = ({
                 onChange={(e) => setTenure(parseInt(e.target.value))}
                 className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer ${theme === 'dark' ? 'bg-white/10 accent-[#00D2B6]' : theme === 'white' ? 'bg-slate-200 accent-[#00D2B6]' : 'bg-slate-200 accent-purple-600'}`}
               />
-              <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-0.5">
+              <div className={`flex justify-between text-[10px] font-bold mt-0.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
                 <span>12 Months</span>
                 <span>84 Months</span>
               </div>

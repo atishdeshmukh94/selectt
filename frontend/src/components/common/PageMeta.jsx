@@ -6,15 +6,17 @@ const SITE_URL = 'https://selectt.in';
  * PageMeta — Sets page title, meta description, OG tags, Twitter card, canonical URL, and JSON-LD schema.
  * Usage: <PageMeta title="..." description="..." canonical="/page-path" image="/img/og.jpg" schema={{...}} />
  */
-const PageMeta = ({ title, description, canonical, image, schema }) => {
+const PageMeta = ({ title, description, canonical, image, preloadImage, schema }) => {
   useEffect(() => {
     const ogImage = image
       ? (image.startsWith('http') ? image : `${SITE_URL}${image}`)
       : `${SITE_URL}/img/og-image.jpg`;
 
-    const canonicalUrl = canonical
-      ? `${SITE_URL}${canonical}`
-      : SITE_URL;
+    const path = canonical 
+      ? (canonical.startsWith('/') ? canonical : `/${canonical}`)
+      : (typeof window !== 'undefined' ? window.location.pathname : '/');
+
+    const canonicalUrl = `${SITE_URL}${path}`;
 
     const fullTitle = title || 'Selectt — Buy & Sell Certified Pre-Owned Cars in Mumbai';
     const defaultDesc = 'Selectt is Mumbai\'s premier pre-owned car marketplace. Buy, sell, or finance 200+ certified used cars with 200-point inspection, warranty & doorstep test drives in Mumbai.';
@@ -35,7 +37,7 @@ const PageMeta = ({ title, description, canonical, image, schema }) => {
     };
 
     // ── Helper: upsert a link tag ──────────────────────
-    const setLink = (rel, href) => {
+    const setLink = (rel, href, extraAttrs = {}) => {
       let el = document.querySelector(`link[rel="${rel}"]`);
       if (!el) {
         el = document.createElement('link');
@@ -43,6 +45,7 @@ const PageMeta = ({ title, description, canonical, image, schema }) => {
         document.head.appendChild(el);
       }
       el.setAttribute('href', href);
+      Object.keys(extraAttrs).forEach(k => el.setAttribute(k, extraAttrs[k]));
     };
 
     // Description
@@ -50,6 +53,11 @@ const PageMeta = ({ title, description, canonical, image, schema }) => {
 
     // Canonical
     setLink('canonical', canonicalUrl);
+
+    // Preload hero image if specified
+    if (preloadImage) {
+      setLink('preload', preloadImage, { as: 'image', fetchpriority: 'high' });
+    }
 
     // Open Graph
     setMeta('property', 'og:title', fullTitle);

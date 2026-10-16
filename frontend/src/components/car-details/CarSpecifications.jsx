@@ -112,7 +112,7 @@ const CarSpecifications = ({ specifications, car = {}, theme = 'dark', onBookNow
           <button
             type="button"
             onClick={() => setIsDrawerOpen(true)}
-            className="w-full sm:w-auto px-5 py-2.5 bg-white border border-[#00C9AF] text-[#00A38D] hover:bg-[#00C9AF] hover:text-[#0C1B33] rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-5 py-2.5 bg-white border border-[#00C9AF] text-[#007A68] hover:bg-[#00C9AF] hover:text-[#0C1B33] rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
           >
             <span>View all Specifications</span>
           </button>

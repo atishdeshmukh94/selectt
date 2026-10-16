@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { API_URL, getCarImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
+import { API_URL, getCarImageUrl, getCarThumbnailUrl, getCarOriginalImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
 import { CarDetailsSkeleton } from '../components/skeletons/CarDetailsSkeleton';
 import { useToast } from '../components/animation/ToastSystem';
@@ -279,19 +279,24 @@ const CarDetailsPage = () => {
         setLoading(false);
       });
 
-    fetch(`${API_URL}/api/cars`)
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const available = data.filter(c => c.status !== 'sold_out');
-          setAllCars(available);
-          const filtered = available.filter(c => c.id.toString() !== id.toString());
-          setSimilarCars(filtered.slice(0, 4));
-        }
-      })
-      .catch(err => console.error('Error fetching similar cars', err));
+    // Defer similar cars fetch to prevent network congestion with primary car data & images
+    const similarTimer = setTimeout(() => {
+      fetch(`${API_URL}/api/cars`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const available = data.filter(c => c.status !== 'sold_out');
+            setAllCars(available);
+            const filtered = available.filter(c => c.id.toString() !== id.toString());
+            setSimilarCars(filtered.slice(0, 4));
+          }
+        })
+        .catch(err => console.error('Error fetching similar cars', err));
+    }, 300);
 
     window.scrollTo(0, 0);
+
+    return () => clearTimeout(similarTimer);
   }, [id]);
 
   const scrollToEMI = () => {
@@ -374,7 +379,7 @@ const CarDetailsPage = () => {
     const x = ((e.clientX - left) / width) * 100;
     const y = ((e.clientY - top) / height) * 100;
 
-    const imgUrl = images[activeImage]?.startsWith('/') ? `${API_URL}${images[activeImage]}` : images[activeImage];
+    const imgUrl = getCarOriginalImageUrl(images[activeImage]);
 
     setZoomStyle({
       display: 'block',
@@ -528,6 +533,8 @@ const CarDetailsPage = () => {
       <PageMeta
         title={`${car.year} ${car.make} ${car.model} ${car.variant || ''} | Selectt`}
         description={`Buy certified pre-owned ${car.year} ${car.make} ${car.model} at Selectt. 200-point inspected, warranty included.`}
+        canonical={window.location.pathname}
+        preloadImage={getCarImageUrl(images[0], DEFAULT_CAR_FALLBACK_IMAGE, 900)}
         schema={{
           "@context": "https://schema.org",
           "@type": "Product",
@@ -747,10 +754,17 @@ const CarDetailsPage = () => {
 
                       <img
                         key={activeImage}
-                        src={getCarImageUrl(images[activeImage])}
+                        src={getCarImageUrl(images[activeImage], DEFAULT_CAR_FALLBACK_IMAGE, 900)}
                         alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} ${car.variant || ''} - Photo ${activeImage + 1} | Selectt Pre-Owned`}
-                        loading="eager"
+                        loading={activeImage === 0 ? "eager" : "lazy"}
+                        fetchPriority={activeImage === 0 ? "high" : "auto"}
+                        width="800"
+                        height="533"
                         className="w-full h-full object-cover"
+                        onLoad={() => {
+                          setMainImageLoaded(true);
+                          setIsZoomEnabled(true);
+                        }}
                         onError={(e) => {
                           e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
                         }}
@@ -767,6 +781,7 @@ const CarDetailsPage = () => {
 
                           <button
                             type="button"
+                            aria-label="Open image zoom lightbox"
                             onClick={(e) => {
                               e.stopPropagation();
                               openLightbox();
@@ -784,6 +799,7 @@ const CarDetailsPage = () => {
                   <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-between px-4 pointer-events-none z-10">
                     <button
                       type="button"
+                      aria-label="Previous car photo"
                       onClick={() => setActiveImage(prev => (prev === 0 ? images.length - 1 : prev - 1))}
                       className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white/35 text-white transition-all pointer-events-auto cursor-pointer"
                     >
@@ -791,6 +807,7 @@ const CarDetailsPage = () => {
                     </button>
                     <button
                       type="button"
+                      aria-label="Next car photo"
                       onClick={() => setActiveImage(prev => (prev === images.length - 1 ? 0 : prev + 1))}
                       className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white/35 text-white transition-all pointer-events-auto cursor-pointer"
                     >
@@ -898,11 +915,13 @@ const CarDetailsPage = () => {
                         {images.map((img, idx) => {
                           const mediaType = getMediaType(img);
                           const ytId = mediaType === 'youtube' ? getYouTubeId(img) : null;
-                          const ytThumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null;
+                          const ytThumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : null;
 
                           return (
                             <button
                               key={idx}
+                              type="button"
+                              aria-label={`View photo ${idx + 1}`}
                               onClick={() => setActiveImage(idx)}
                               className={`relative w-24 h-16 sm:w-26 sm:h-17 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all cursor-pointer ${activeImage === idx
                                 ? 'border-[#00C9AF] shadow-md scale-105 ring-2 ring-[#00C9AF]/30'
@@ -941,6 +960,9 @@ const CarDetailsPage = () => {
                                       className="w-full h-full object-cover opacity-60 pointer-events-none"
                                       alt="YouTube thumbnail"
                                       loading="lazy"
+                                      decoding="async"
+                                      width="104"
+                                      height="68"
                                     />
                                   ) : (
                                     <div className="w-full h-full bg-red-600" />
@@ -951,10 +973,13 @@ const CarDetailsPage = () => {
                                 </div>
                               ) : (
                                 <img
-                                  src={getCarImageUrl(img)}
+                                  src={getCarThumbnailUrl(img, 180)}
                                   className="w-full h-full object-cover"
                                   alt={`${car.year || ''} ${car.make || ''} ${car.model || ''} - Thumbnail ${idx + 1}`}
                                   loading="lazy"
+                                  decoding="async"
+                                  width="104"
+                                  height="68"
                                   onError={(e) => {
                                     e.target.src = DEFAULT_CAR_FALLBACK_IMAGE;
                                   }}
@@ -1023,8 +1048,10 @@ const CarDetailsPage = () => {
                   </div>
                   <div className="flex flex-col items-center">
                     <button
+                      type="button"
                       onClick={handleWishlistToggle}
                       disabled={isWishlisting}
+                      aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                       className={`w-10 h-10 min-w-10 min-h-10 max-w-10 max-h-10 aspect-square p-0 rounded-full flex items-center justify-center shrink-0 transition-all ${isWishlisted ? 'text-red-500 bg-red-50' : 'bg-slate-100 text-slate-500 hover:text-red-500 hover:bg-red-50'}`}
                       style={{ borderRadius: '9999px', aspectRatio: '1 / 1', padding: 0 }}
                     >
@@ -1043,11 +1070,11 @@ const CarDetailsPage = () => {
                       {shortenLocation(car.location || car.hubLocation || 'Spinny Mini Car Hub, Rohini')}
                     </span>
                   </div>
-                  <a href="tel:+919876543210" className="flex items-center gap-2 cursor-pointer group hover:-translate-y-0.5 transition-all duration-300">
-                    <div className="w-10 h-10 bg-[#e6faf7] border border-[#00C9AF]/60 rounded-full flex items-center justify-center text-[#00A38D] group-hover:bg-[#00C9AF]/25 group-hover:text-[#008270] shadow-[0_0_18px_rgba(0,196,175,0.25)] transition-all">
+                  <a href="tel:+919876543210" aria-label="Call Selectt sales" className="flex items-center gap-2 cursor-pointer group hover:-translate-y-0.5 transition-all duration-300">
+                    <div className="w-10 h-10 bg-[#e6faf7] border border-[#00C9AF]/60 rounded-full flex items-center justify-center text-[#007A68] group-hover:bg-[#00C9AF]/25 group-hover:text-[#005a4d] shadow-[0_0_18px_rgba(0,196,175,0.25)] transition-all">
                       <Phone size={18} className="animate-phone-ring" />
                     </div>
-                    <span className="text-xs font-bold text-[#00A38D] group-hover:text-[#008270] transition-colors">Call us</span>
+                    <span className="text-xs font-bold text-[#007A68] group-hover:text-[#005a4d] transition-colors">Call us</span>
                   </a>
                 </div>
 
@@ -1078,7 +1105,7 @@ const CarDetailsPage = () => {
                   <div className="flex flex-row items-baseline justify-between w-full flex-wrap gap-1">
                     {/* Only show strikethrough if real original price exists */}
                     {(car.original_price || car.originalPrice || car.old_price || car.oldPrice) && (
-                      <span className="text-sm font-sans font-medium text-slate-400 line-through leading-none mt-1">
+                      <span className="text-sm font-sans font-medium text-slate-500 line-through leading-none mt-1">
                         ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)} Lakh
                       </span>
                     )}
@@ -1086,8 +1113,8 @@ const CarDetailsPage = () => {
                       <span className="text-2xl sm:text-3xl font-heading font-black text-slate-900 leading-none group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
                       <Info size={16} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
                       {hasPriceDrop(car) && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-sans font-bold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
-                          <TrendingDown size={12} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-sans font-bold bg-[#FFF0F3] text-[#BE123C] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
+                          <TrendingDown size={12} strokeWidth={2.5} className="shrink-0 text-[#BE123C]" />
                           <span>Price Drop</span>
                         </span>
                       )}
@@ -1119,7 +1146,7 @@ const CarDetailsPage = () => {
 
                 {/* Share with a friend (Mobile) */}
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3 px-1">
-                  <span className="text-[11px] font-bold text-slate-400 whitespace-nowrap">Share with a friend :</span>
+                  <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">Share with a friend :</span>
                   <div className="flex items-center gap-2">
                     {/* WhatsApp */}
                     <a
@@ -1129,6 +1156,7 @@ const CarDetailsPage = () => {
                       style={{ width: '32px', height: '32px', minHeight: '32px', minWidth: '32px', maxWidth: '32px', maxHeight: '32px', borderRadius: '9999px' }}
                       className="!w-8 !h-8 w-8 h-8 min-w-8 min-h-8 !rounded-full rounded-full !min-h-0 aspect-square shrink-0 bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 flex items-center justify-center text-[#25D366] hover:text-white transition-all duration-200"
                       title="Share on WhatsApp"
+                      aria-label="Share on WhatsApp"
                     >
                       <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
@@ -1142,6 +1170,7 @@ const CarDetailsPage = () => {
                       style={{ width: '32px', height: '32px', minHeight: '32px', minWidth: '32px', maxWidth: '32px', maxHeight: '32px', borderRadius: '9999px' }}
                       className="!w-8 !h-8 w-8 h-8 min-w-8 min-h-8 !rounded-full rounded-full !min-h-0 aspect-square shrink-0 bg-[#1877F2]/10 hover:bg-[#1877F2] border border-[#1877F2]/30 flex items-center justify-center text-[#1877F2] hover:text-white transition-all duration-200"
                       title="Share on Facebook"
+                      aria-label="Share on Facebook"
                     >
                       <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -1155,6 +1184,7 @@ const CarDetailsPage = () => {
                       style={{ width: '32px', height: '32px', minHeight: '32px', minWidth: '32px', maxWidth: '32px', maxHeight: '32px', borderRadius: '9999px' }}
                       className="!w-8 !h-8 w-8 h-8 min-w-8 min-h-8 !rounded-full rounded-full !min-h-0 aspect-square shrink-0 bg-slate-100 hover:bg-slate-900 border border-slate-200 flex items-center justify-center text-slate-700 hover:text-white transition-all duration-200"
                       title="Share on X"
+                      aria-label="Share on X"
                     >
                       <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -1166,6 +1196,7 @@ const CarDetailsPage = () => {
                       style={{ width: '32px', height: '32px', minHeight: '32px', minWidth: '32px', maxWidth: '32px', maxHeight: '32px', borderRadius: '9999px' }}
                       className="!w-8 !h-8 w-8 h-8 min-w-8 min-h-8 !rounded-full rounded-full !min-h-0 aspect-square shrink-0 bg-violet-50 hover:bg-violet-600 border border-violet-200 flex items-center justify-center text-violet-500 hover:text-white transition-all duration-200"
                       title="Share via Email"
+                      aria-label="Share via Email"
                     >
                       <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
                         <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
@@ -1175,6 +1206,7 @@ const CarDetailsPage = () => {
                     <button
                       type="button"
                       onClick={handleCopyCarUrl}
+                      aria-label="Copy link to clipboard"
                       style={{ width: '32px', height: '32px', minHeight: '32px', minWidth: '32px', maxWidth: '32px', maxHeight: '32px', borderRadius: '9999px' }}
                       className={`!w-8 !h-8 w-8 h-8 min-w-8 min-h-8 !rounded-full rounded-full !min-h-0 aspect-square shrink-0 border flex items-center justify-center transition-all duration-200 cursor-pointer ${
                         copied
@@ -1225,7 +1257,7 @@ const CarDetailsPage = () => {
                           {item.icon}
                         </div>
                         <div className="flex flex-col justify-center">
-                          <span className="text-[11px] text-slate-400 font-sans font-semibold uppercase tracking-wider mb-0.5">{item.label}</span>
+                          <span className="text-[11px] text-slate-500 font-sans font-semibold uppercase tracking-wider mb-0.5">{item.label}</span>
                           <span className="text-sm font-sans font-bold text-slate-900 leading-tight">{item.value}</span>
                         </div>
                       </div>
@@ -1383,14 +1415,16 @@ const CarDetailsPage = () => {
                     </div>
                     <div className="flex flex-col items-center shrink-0">
                       <button
+                        type="button"
                         onClick={handleWishlistToggle}
                         disabled={isWishlisting}
+                        aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                         className={`w-9 h-9 min-w-9 min-h-9 max-w-9 max-h-9 aspect-square p-0 rounded-full flex items-center justify-center shrink-0 transition-colors border shadow-sm ${isWishlisted ? 'text-red-500 bg-red-50 border-red-200/50' : 'bg-slate-50 text-slate-500 hover:text-red-500 hover:bg-slate-100 border-slate-200/50'}`}
                         style={{ borderRadius: '9999px', aspectRatio: '1 / 1', padding: 0 }}
                       >
                         <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
                       </button>
-                      <span className="text-[9px] text-slate-400 font-sans font-medium mt-0.5 text-center leading-tight">
+                      <span className="text-[9px] text-slate-500 font-sans font-medium mt-0.5 text-center leading-tight">
                         {car.shortlistedCount || getDynamicShortlists(car?.id)} people<br />shortlisted
                       </span>
                     </div>
@@ -1406,12 +1440,12 @@ const CarDetailsPage = () => {
                         {shortenLocation(car.location || car.hubLocation || 'Metro Walk, Rohini, Navi Mumbai')}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 cursor-pointer group hover:-translate-y-0.5 transition-all duration-300 shrink-0">
-                      <div className="w-8 h-8 bg-[#e6faf7] rounded-full flex items-center justify-center text-[#00C9AF] group-hover:bg-[#00C9AF] group-hover:text-[#0c1b33] transition-colors border border-[#00C9AF]/50 shadow-[0_0_10px_rgba(0,196,175,0.2)]">
+                    <a href="tel:+919876543210" aria-label="Call Selectt sales" className="flex items-center gap-1.5 cursor-pointer group hover:-translate-y-0.5 transition-all duration-300 shrink-0">
+                      <div className="w-8 h-8 bg-[#e6faf7] rounded-full flex items-center justify-center text-[#007A68] group-hover:bg-[#00C9AF] group-hover:text-[#0c1b33] transition-colors border border-[#00C9AF]/50 shadow-[0_0_10px_rgba(0,196,175,0.2)]">
                         <Phone size={14} className="animate-pulse" />
                       </div>
-                      <span className="text-xs font-bold text-[#00C9AF]">Call us</span>
-                    </div>
+                      <span className="text-xs font-bold text-[#007A68]">Call us</span>
+                    </a>
                   </div>
 
                   <div
@@ -1535,7 +1569,7 @@ const CarDetailsPage = () => {
                   {/* Share with a friend */}
                   <div className="pt-3 border-t border-slate-100">
                     <div className="flex items-center gap-3">
-                      <span className="text-[11px] font-bold text-slate-400 whitespace-nowrap">Share with a friend :</span>
+                      <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">Share with a friend :</span>
                       <div className="flex items-center gap-2">
                         {/* WhatsApp */}
                         <a
@@ -1545,6 +1579,7 @@ const CarDetailsPage = () => {
                           style={{ width: '32px', height: '32px', minHeight: '32px', minWidth: '32px', maxWidth: '32px', maxHeight: '32px', borderRadius: '9999px' }}
                           className="!w-8 !h-8 w-8 h-8 min-w-8 min-h-8 !rounded-full rounded-full !min-h-0 aspect-square shrink-0 bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 flex items-center justify-center text-[#25D366] hover:text-white transition-all duration-200 hover:scale-110 group"
                           title="Share on WhatsApp"
+                          aria-label="Share on WhatsApp"
                         >
                           <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
@@ -1558,6 +1593,7 @@ const CarDetailsPage = () => {
                           style={{ width: '32px', height: '32px', minHeight: '32px', minWidth: '32px', maxWidth: '32px', maxHeight: '32px', borderRadius: '9999px' }}
                           className="!w-8 !h-8 w-8 h-8 min-w-8 min-h-8 !rounded-full rounded-full !min-h-0 aspect-square shrink-0 bg-[#1877F2]/10 hover:bg-[#1877F2] border border-[#1877F2]/30 flex items-center justify-center text-[#1877F2] hover:text-white transition-all duration-200 hover:scale-110"
                           title="Share on Facebook"
+                          aria-label="Share on Facebook"
                         >
                           <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
                             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -1571,6 +1607,7 @@ const CarDetailsPage = () => {
                           style={{ width: '32px', height: '32px', minHeight: '32px', minWidth: '32px', maxWidth: '32px', maxHeight: '32px', borderRadius: '9999px' }}
                           className="!w-8 !h-8 w-8 h-8 min-w-8 min-h-8 !rounded-full rounded-full !min-h-0 aspect-square shrink-0 bg-slate-100 hover:bg-slate-900 border border-slate-200 flex items-center justify-center text-slate-700 hover:text-white transition-all duration-200 hover:scale-110"
                           title="Share on X"
+                          aria-label="Share on X"
                         >
                           <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
                             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -1582,6 +1619,7 @@ const CarDetailsPage = () => {
                           style={{ width: '32px', height: '32px', minHeight: '32px', minWidth: '32px', maxWidth: '32px', maxHeight: '32px', borderRadius: '9999px' }}
                           className="!w-8 !h-8 w-8 h-8 min-w-8 min-h-8 !rounded-full rounded-full !min-h-0 aspect-square shrink-0 bg-violet-50 hover:bg-violet-600 border border-violet-200 flex items-center justify-center text-violet-500 hover:text-white transition-all duration-200 hover:scale-110"
                           title="Share via Email"
+                          aria-label="Share via Email"
                         >
                           <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
                             <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
@@ -1591,6 +1629,7 @@ const CarDetailsPage = () => {
                         <button
                           type="button"
                           onClick={handleCopyCarUrl}
+                          aria-label="Copy link to clipboard"
                           style={{ width: '32px', height: '32px', minHeight: '32px', minWidth: '32px', maxWidth: '32px', maxHeight: '32px', borderRadius: '9999px' }}
                           className={`!w-8 !h-8 w-8 h-8 min-w-8 min-h-8 !rounded-full rounded-full !min-h-0 aspect-square shrink-0 border flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer ${
                             copied

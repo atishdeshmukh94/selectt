@@ -9,7 +9,7 @@
     {
       "identifier": "urn:air:selectt.in:services:browse-cars",
       "displayName": "Browse Certified Pre-Owned Cars",
-      "type": "text/html",
+      "type": "application/ai-catalog+json",
       "url": "https://selectt.in/cars",
       "description": "Search and filter certified used cars with 200-point inspection guarantees.",
       "tags": ["cars", "used-cars", "buy-car", "inspection"],
@@ -23,7 +23,7 @@
     {
       "identifier": "urn:air:selectt.in:services:sell-car",
       "displayName": "Sell Car Instant Valuation",
-      "type": "text/html",
+      "type": "application/ai-catalog+json",
       "url": "https://selectt.in/sell-car",
       "description": "Instant car valuation and doorstep inspection booking for selling used cars.",
       "tags": ["sell-car", "valuation", "inspection"],
@@ -37,7 +37,7 @@
     {
       "identifier": "urn:air:selectt.in:services:used-car-loan",
       "displayName": "Used Car Financing",
-      "type": "text/html",
+      "type": "application/ai-catalog+json",
       "url": "https://selectt.in/used-car-loan",
       "description": "Calculate EMIs and apply for low-interest pre-approved used car loans.",
       "tags": ["finance", "car-loan", "emi-calculator"],

@@ -144,6 +144,7 @@ export default function BenefitsAddons() {
           {/* Prev Button */}
           <button
             type="button"
+            aria-label="Previous benefit"
             onClick={() => { goPrev(); setIsPaused(true); setTimeout(() => setIsPaused(false), 4000); }}
             className="hidden sm:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:border-[#00C9AF]/50 items-center justify-center text-slate-300 hover:text-white transition-all shadow-lg cursor-pointer"
           >
@@ -186,6 +187,7 @@ export default function BenefitsAddons() {
           {/* Next Button */}
           <button
             type="button"
+            aria-label="Next benefit"
             onClick={() => { goNext(); setIsPaused(true); setTimeout(() => setIsPaused(false), 4000); }}
             className="hidden sm:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:border-[#00C9AF]/50 items-center justify-center text-slate-300 hover:text-white transition-all shadow-lg cursor-pointer"
           >
@@ -193,21 +195,24 @@ export default function BenefitsAddons() {
           </button>
         </div>
 
-        {/* Dot Indicators */}
-        <div className="flex items-center justify-center gap-1.5 mt-4">
+        {/* Dot Indicators with 28px accessible touch target */}
+        <div className="flex items-center justify-center gap-1 mt-4">
           {benefits.map((_, i) => (
             <button
               key={i}
               type="button"
               aria-label={`Go to benefit ${i + 1}`}
               onClick={() => { setCurrentIndex(i); setIsPaused(true); setTimeout(() => setIsPaused(false), 4000); }}
-              className={`p-0 border-0 outline-none appearance-none cursor-pointer rounded-full transition-all duration-300 block ${
-                i === currentIndex
-                  ? 'w-6 h-2 bg-[#00C9AF] shadow-[0_0_8px_rgba(0,201,175,0.7)]'
-                  : 'w-2 h-2 bg-slate-600 hover:bg-slate-400'
-              }`}
-              style={{ minHeight: '8px', maxHeight: '8px', padding: 0, border: 'none' }}
-            />
+              className="w-7 h-7 p-0 flex items-center justify-center cursor-pointer outline-none bg-transparent border-0 rounded-full"
+            >
+              <span
+                className={`block rounded-full transition-all duration-300 ${
+                  i === currentIndex
+                    ? 'w-6 h-2 bg-[#00C9AF] shadow-[0_0_8px_rgba(0,201,175,0.7)]'
+                    : 'w-2 h-2 bg-slate-600 hover:bg-slate-400'
+                }`}
+              />
+            </button>
           ))}
         </div>
 
@@ -218,6 +223,8 @@ export default function BenefitsAddons() {
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
           <div className="bg-[#0C1B33] border border-slate-700/80 rounded-2xl w-full max-w-md p-6 text-white relative shadow-2xl animate-in zoom-in-95 duration-200 text-left">
             <button
+              type="button"
+              aria-label="Close benefit details"
               onClick={() => setSelectedBenefit(null)}
               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-colors cursor-pointer"
             >
