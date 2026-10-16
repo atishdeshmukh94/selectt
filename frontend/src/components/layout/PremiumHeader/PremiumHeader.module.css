@@ -30,6 +30,13 @@
   transform: translateY(-100%) !important;
 }
 
+/* TEMPORARY TESTING: Temporarily disable mobile header on screens <= 980px */
+@media (max-width: 980px) {
+  .mobileHeaderDisabled {
+    display: none !important;
+  }
+}
+
 /* Top Bar Styling */
 .topBar {
   display: flex;
