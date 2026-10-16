@@ -132,7 +132,8 @@ export const getCarImageUrl = (img, fallback = DEFAULT_CAR_FALLBACK_IMAGE, width
       const cleanUrl = trimmed.split('?')[0];
       if (width) {
         const targetW = Math.max(Math.round(width), 200);
-        return `${cleanUrl}?tr=w-${targetW},q-80,f-auto`;
+        const quality = targetW <= 500 ? 70 : 80;
+        return `${cleanUrl}?tr=w-${targetW},q-${quality},f-auto`;
       }
       // Main car details view: optimized 900px (fast, lightweight, yet super crisp)
       return `${cleanUrl}?tr=w-900,q-80,f-auto`;

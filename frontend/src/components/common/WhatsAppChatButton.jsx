@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
+import { isAuditBot } from '../../utils/auditBot';
 
 const DEFAULT_GALLABOX_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJob3N0IjoiaHR0cHM6Ly9jbGluY2htb3RvcnMuY29tIiwiaWQiOiI2YWFiYWI4NmY1ZTBmZTY4MjIxNDUyY2YiLCJhY2NJZCI6IjY4NzRiNGI3ZDdkMTlmYTlmODE4ZmE0NCIsInJlZ2lvbiI6ImRlZmF1bHQiLCJ2ZXJzaW9uIjoidjIiLCJpYXQiOjE3ODk2NDUwMTR9.aOy9eKJ9eajeiHiq_FHvs46GE0r5wj_obulZYI-Vrf4";
 
@@ -183,10 +184,7 @@ const WhatsAppChatButton = () => {
     if (!token) return;
 
     // Check if audit bot or headless browser
-    const isBotOrAudit =
-      /Lighthouse|Chrome-Lighthouse|Pingdom|Googlebot|PageSpeed|HeadlessChrome|HeadlessChromium|spider|crawl|Mediapartners|AdsBot/i.test(navigator.userAgent || '') ||
-      Boolean(window.navigator?.webdriver);
-    if (isBotOrAudit) return;
+    if (isAuditBot()) return;
 
     // Check if Gallabox is already running with current token
     if (window.Chatty && window.Chatty.hash === token && document.getElementById('gallabox-chatty-script')) {
