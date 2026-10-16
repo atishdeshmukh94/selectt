@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { API_URL } from '../../config/api';
+import { API_URL, resolveMediaUrl } from '../../config/api';
 import { Facebook, Twitter, Instagram, Youtube, Phone, BarChart2, FileText, Mail, Linkedin, X, Home, ShoppingCart, Heart, TrendingUp, User, MapPin, MessageCircle, MessageSquare, ArrowUp, HelpCircle } from 'lucide-react';
 
 const Footer = () => {
@@ -68,7 +68,7 @@ const Footer = () => {
         const response = await fetch(`${API_URL}/api/settings/public`);
         const data = await response.json();
         if (data.frontend_footer_logo) {
-          setFrontendFooterLogo(`${API_URL}${data.frontend_footer_logo}`);
+          setFrontendFooterLogo(resolveMediaUrl(data.frontend_footer_logo));
         }
       } catch (err) {
         console.error("Error fetching settings:", err);
@@ -94,6 +94,10 @@ const Footer = () => {
                 <img
                   src={frontendFooterLogo || "/img/light-logo.svg"}
                   alt="Selectt Cars"
+                  width="205"
+                  height="56"
+                  loading="lazy"
+                  decoding="async"
                   className="h-14 w-auto object-contain"
                 />
               </Link>

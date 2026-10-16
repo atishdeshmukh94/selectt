@@ -24,7 +24,7 @@ import Testimonials from '../components/home/Testimonials';
 import SectionDivider from '../components/common/SectionDivider';
 import FAQ from '../components/home/FAQ';
 import { useAuth } from '../context/AuthContext';
-import { API_URL } from '../config/api';
+import { API_URL, resolveMediaUrl } from '../config/api';
 
 const MAKES_AND_MODELS = {
   'Maruti Suzuki': {
@@ -150,6 +150,8 @@ const StepCardImage = ({ src, alt }) => {
       <img
         src={imgSrc}
         alt={alt}
+        width="380"
+        height="380"
         loading="lazy"
         decoding="async"
         onLoad={() => setIsLoaded(true)}
@@ -355,7 +357,7 @@ const SellCarPage = () => {
           id: b.id,
           title: b.title || `Step ${index + 1}`,
           description: b.subtitle || '',
-          imageUrl: b.image_url?.startsWith('/') ? `${API_URL}${b.image_url}` : b.image_url,
+          imageUrl: resolveMediaUrl(b.image_url),
           badge: b.cta_text || ''
         }));
         setSteps(mapped);
@@ -368,8 +370,7 @@ const SellCarPage = () => {
 
   const getBannerImageUrl = (path) => {
     if (!path) return '';
-    if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    return `${API_URL}${path}`;
+    return resolveMediaUrl(path);
   };
 
   const prevStep = () => {
@@ -650,7 +651,7 @@ const SellCarPage = () => {
           <section className="py-14 sm:py-16 bg-slate-50 border-y border-slate-200 shadow-inner relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
               <div className="text-center mb-10 sm:mb-12 max-w-3xl mx-auto">
-                <span className="inline-flex items-center px-3.5 py-1 rounded-full bg-[#00C9AF]/15 text-[#008A79] font-medium text-[12px] leading-[1.4] mb-3.5 shadow-xs">
+                <span className="inline-flex items-center px-3.5 py-1 rounded-full bg-[#00C9AF]/15 text-[#007364] font-semibold text-[12px] leading-[1.4] mb-3.5 shadow-xs">
                   Transparent 4-step process
                 </span>
                 <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] mb-3 leading-[1.2]">
@@ -912,6 +913,10 @@ const SellCarPage = () => {
                     <img
                       src={getBannerImageUrl(sellBanner.image_url)}
                       alt="Promo Banner"
+                      width="960"
+                      height="348"
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-auto block rounded-2xl sm:rounded-3xl object-contain object-center transition-transform duration-700 group-hover/banner:scale-[1.01]"
                       style={{
                         transform: sellBanner.flip_image ? 'scaleX(-1)' : 'none',
@@ -977,7 +982,7 @@ const SellCarPage = () => {
           <section className="py-16 bg-white border-t border-slate-200">
             <div className="max-w-4xl mx-auto px-4 text-left">
               <div className="text-center mb-10">
-                <span className="text-[#00A38D] font-medium text-[12px] leading-[1.4] block mb-2">
+                <span className="text-[#007A68] font-semibold text-[12px] leading-[1.4] block mb-2">
                   Got questions?
                 </span>
                 <h2 className="text-[28px] sm:text-[40px] font-heading font-semibold text-[#0F172A] leading-[1.2]">
@@ -999,17 +1004,17 @@ const SellCarPage = () => {
                       <button
                         type="button"
                         onClick={() => setOpenFaqIndex(isOpen ? -1 : idx)}
-                        className="w-full flex items-center justify-between p-4 sm:p-5 text-left font-heading font-semibold text-[16px] sm:text-[17px] text-[#0F172A] hover:text-[#00A38D] cursor-pointer"
+                        className="w-full flex items-center justify-between p-4 sm:p-5 text-left font-heading font-semibold text-[16px] sm:text-[17px] text-[#0F172A] hover:text-[#007A68] cursor-pointer"
                       >
                         <span className="flex items-center gap-3">
-                          <span className="w-6 h-6 rounded-full bg-[#00C9AF]/15 text-[#00A38D] text-xs font-semibold flex items-center justify-center shrink-0">
+                          <span className="w-6 h-6 rounded-full bg-[#00C9AF]/15 text-[#007A68] text-xs font-bold flex items-center justify-center shrink-0">
                             Q
                           </span>
                           {faq.q}
                         </span>
                         <ChevronDown
                           size={18}
-                          className={`text-slate-500 transition-transform duration-300 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-[#00A38D]' : ''}`}
+                          className={`text-slate-500 transition-transform duration-300 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-[#007A68]' : ''}`}
                         />
                       </button>
                       {isOpen && (

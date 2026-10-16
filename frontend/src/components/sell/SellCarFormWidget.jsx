@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { API_URL } from '../../config/api';
+import { API_URL, resolveMediaUrl } from '../../config/api';
 import calculatingPreloaderGif from '../../assets/8721027.gif';
 
 const MODEL_VARIANTS_MAP = {
@@ -1165,8 +1165,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
     if (brandObj) {
       const url = brandObj.logo_url || brandObj.logo || brandObj.image_url;
       if (url) {
-        if (url.startsWith('http://') || url.startsWith('https://')) return url;
-        return `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+        return resolveMediaUrl(url);
       }
     }
     const name = brandObj?.name || targetName;
@@ -1613,7 +1612,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
     const targetBrandNames = ['Maruti Suzuki', 'Hyundai', 'Mahindra', 'Tata'];
 
     const heroImage = siteContent.sell_section_image
-      ? (siteContent.sell_section_image.startsWith('/') ? `${API_URL}${siteContent.sell_section_image}` : siteContent.sell_section_image)
+      ? resolveMediaUrl(siteContent.sell_section_image)
       : "/sell-banner.webp";
 
     const heroHeading = siteContent.sell_hero_heading || siteContent.sell_section_heading;
@@ -1627,6 +1626,10 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
           <img
             src={heroImage}
             alt="Sell Car Banner Background"
+            width="1200"
+            height="630"
+            fetchpriority="high"
+            decoding="async"
             className="w-full h-full object-cover object-center"
           />
         </div>
@@ -1657,7 +1660,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
           </h2>
 
           <form onSubmit={handlePlateSubmit} className="space-y-4">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block">
+            <label htmlFor="car-plate-input" className="text-xs font-bold text-slate-600 uppercase tracking-wide block">
               ENTER YOUR CAR PLATE NUMBER
             </label>
 
@@ -1673,6 +1676,10 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                 <img
                   src="https://static-cdn.cars24.com/qa/cms/2025/10/22/376cc907-2309-4996-a5aa-4b57e12dc4a0IND.svg"
                   alt="IND"
+                  width="16"
+                  height="14"
+                  loading="lazy"
+                  decoding="async"
                   className="h-3.5 w-auto object-contain"
                   onError={(e) => {
                     e.target.onerror = null;
@@ -1682,7 +1689,9 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
               </div>
 
               <input
+                id="car-plate-input"
                 type="text"
+                aria-label="Enter your car plate number"
                 placeholder="MH 04 AB XXXX"
                 value={plateNumber}
                 onChange={(e) => {
@@ -1694,7 +1703,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
               />
             </div>
 
-            <p className="text-[12px] text-slate-500 text-left font-medium">
+            <p className="text-[12px] text-slate-600 text-left font-medium">
               This is the same as your registration number
             </p>
 
@@ -1709,7 +1718,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
               disabled={!validatePlateNumber(plateNumber)}
               className={`w-full py-4 rounded-2xl font-black text-base transition-all flex items-center justify-center gap-2 ${validatePlateNumber(plateNumber)
                 ? 'bg-[#15E6E3] hover:bg-[#00C9AF] text-[#0C1B33] shadow-xl shadow-[#15E6E3]/30 hover:shadow-[#15E6E3]/50 active:scale-[0.99] cursor-pointer'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300/80 shadow-none'
+                : 'bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300/80 shadow-none'
                 }`}
             >
               Get instant car price
@@ -1719,7 +1728,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
           {/* OR Divider */}
           <div className="relative flex py-5 items-center">
             <div className="flex-grow border-t border-slate-200"></div>
-            <span className="flex-shrink mx-4 text-slate-400 text-xs font-bold uppercase tracking-wider">OR</span>
+            <span className="flex-shrink mx-4 text-slate-600 text-xs font-bold uppercase tracking-wider">OR</span>
             <div className="flex-grow border-t border-slate-200"></div>
           </div>
 
@@ -1730,7 +1739,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
               <button
                 type="button"
                 onClick={() => setShowAllBrandsModal(true)}
-                className="font-extrabold text-[#09B8B5] hover:underline cursor-pointer"
+                className="font-extrabold text-[#007A68] hover:underline cursor-pointer"
               >
                 View all brands
               </button>
@@ -1753,6 +1762,10 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                       <img
                         src={logoUrl}
                         alt={targetName}
+                        width="60"
+                        height="40"
+                        loading="lazy"
+                        decoding="async"
                         className="h-10 w-auto max-w-[88%] max-h-[48px] object-contain mx-auto group-hover:scale-105 transition-transform"
                       />
                     ) : (
@@ -1792,7 +1805,7 @@ const SellCarFormWidget = ({ onSubmitted, onStepChange }) => {
                       className="p-3 border border-slate-200 rounded-2xl hover:border-[#15E6E3] hover:bg-cyan-50 transition-all flex items-center justify-center h-20 bg-white group"
                     >
                       {logoUrl ? (
-                        <img src={logoUrl} alt={bName} className="h-9 w-auto max-w-[85%] max-h-[44px] object-contain group-hover:scale-105 transition-transform" />
+                        <img src={logoUrl} alt={bName} width="54" height="36" loading="lazy" decoding="async" className="h-9 w-auto max-w-[85%] max-h-[44px] object-contain group-hover:scale-105 transition-transform" />
                       ) : (
                         <div className="font-extrabold text-slate-700 text-xs">
                           {bName}

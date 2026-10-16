@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { API_URL, getCarImageUrl, getCarThumbnailUrl, getCarOriginalImageUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
+import { API_URL, getCarImageUrl, getCarThumbnailUrl, getCarOriginalImageUrl, resolveMediaUrl, DEFAULT_CAR_FALLBACK_IMAGE } from '../config/api';
 import PageMeta from '../components/common/PageMeta';
 import { CarDetailsSkeleton } from '../components/skeletons/CarDetailsSkeleton';
 import { useToast } from '../components/animation/ToastSystem';
 import {
+  Play,
   ChevronRight,
   ChevronLeft,
   ChevronDown,
@@ -117,6 +118,7 @@ const CarDetailsPage = () => {
   const [similarCars, setSimilarCars] = useState([]);
   const [allCars, setAllCars] = useState([]);
   const [activeImage, setActiveImage] = useState(0);
+  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [thumbStartIndex, setThumbStartIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(5);
   const [mainImageLoaded, setMainImageLoaded] = useState(false);
@@ -322,16 +324,29 @@ const CarDetailsPage = () => {
   }, [images]);
 
   useEffect(() => {
+    setIsPlayingVideo(false);
+  }, [activeImage]);
+
+  useEffect(() => {
     if (images.length === 0 || isHoveringMain || isLightboxOpen) return;
 
     // Do not auto-scroll if the active slide is a video or YouTube embed
     if (getMediaType(images[activeImage]) !== 'image') return;
 
     const timer = setInterval(() => {
-      setActiveImage((prev) => (prev >= images.length - 1 ? 0 : prev + 1));
+      setActiveImage((prev) => {
+        let next = prev >= images.length - 1 ? 0 : prev + 1;
+        let attempts = 0;
+        // Skip video slides during automatic transition
+        while (getMediaType(images[next]) !== 'image' && attempts < images.length) {
+          next = next >= images.length - 1 ? 0 : next + 1;
+          attempts++;
+        }
+        return next;
+      });
     }, 5000);
     return () => clearInterval(timer);
-  }, [images.length, activeImage, isHoveringMain, isLightboxOpen]);
+  }, [images, activeImage, isHoveringMain, isLightboxOpen]);
 
   const updateThumbStartIndex = (index) => {
     const maxStart = Math.max(0, images.length - visibleCount);
@@ -553,12 +568,12 @@ const CarDetailsPage = () => {
       <div className="bg-[#f9f9f9] text-[#0C1B33] min-h-screen pt-0 lg:pt-4 pb-12">
         <div className="max-w-7xl mx-auto px-4">
           {/* Breadcrumbs */}
-          <nav className="hidden lg:flex items-center gap-2 text-xs text-slate-400 mb-6 uppercase tracking-widest">
-            <Link to="/" className="hover:text-[#00C9AF] transition-colors">Home</Link>
-            <ChevronRight size={14} />
-            <Link to="/buy-cars" className="hover:text-[#00C9AF] transition-colors">Used Cars</Link>
-            <ChevronRight size={14} />
-            <span className="text-slate-800 font-bold">{car.make} {car.model}</span>
+          <nav className="hidden lg:flex items-center gap-2 text-xs text-slate-600 mb-6 uppercase tracking-widest font-semibold" aria-label="Breadcrumbs">
+            <Link to="/" className="text-slate-600 hover:text-[#007A68] transition-colors font-semibold">Home</Link>
+            <ChevronRight size={14} className="text-slate-500" />
+            <Link to="/buy-cars" className="text-slate-600 hover:text-[#007A68] transition-colors font-semibold">Used Cars</Link>
+            <ChevronRight size={14} className="text-slate-500" />
+            <span className="text-slate-900 font-bold">{car.make} {car.model}</span>
           </nav>
 
           <div className="flex flex-col lg:flex-row items-start gap-8 relative">
@@ -710,13 +725,39 @@ const CarDetailsPage = () => {
                       playsInline
                     />
                   ) : getMediaType(images[activeImage]) === 'youtube' ? (
-                    <iframe
-                      src={`https://www.youtube.com/embed/${getYouTubeId(images[activeImage])}?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1`}
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      frameBorder="0"
-                    />
+                    isPlayingVideo ? (
+                      <iframe
+                        src={`https://www.youtube-nocookie.com/embed/${getYouTubeId(images[activeImage])}?autoplay=1&mute=0&playsinline=1&rel=0&enablejsapi=1`}
+                        className="w-full h-full"
+                        title="Car Walkaround Video"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        frameBorder="0"
+                      />
+                    ) : (
+                      <div
+                        className="relative w-full h-full bg-[#050B16] flex items-center justify-center cursor-pointer group"
+                        onClick={() => setIsPlayingVideo(true)}
+                      >
+                        <img
+                          src={`https://img.youtube.com/vi/${getYouTubeId(images[activeImage])}/hqdefault.jpg`}
+                          alt="Video Walkaround Preview"
+                          width="640"
+                          height="360"
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        />
+                        <button
+                          type="button"
+                          className="absolute w-16 h-16 bg-[#00C9AF] text-[#0C1B33] rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform cursor-pointer"
+                          aria-label="Play video walkaround"
+                          onClick={() => setIsPlayingVideo(true)}
+                        >
+                          <Play size={26} className="fill-[#0C1B33] text-[#0C1B33] ml-1" />
+                        </button>
+                      </div>
+                    )
                   ) : (
                     <div
                       className="relative w-full h-full bg-[#050B16] cursor-zoom-in overflow-hidden group/zoom"
@@ -1370,8 +1411,12 @@ const CarDetailsPage = () => {
                 {sidebarBanner && sidebarBanner.image_url && (
                   <div className="rounded-2xl overflow-hidden shadow-lg">
                     <img
-                      src={sidebarBanner.image_url.startsWith('/') ? `${API_URL}${sidebarBanner.image_url}` : sidebarBanner.image_url}
+                      src={resolveMediaUrl(sidebarBanner.image_url)}
                       alt={sidebarBanner.title || 'Promotional Banner'}
+                      width="380"
+                      height="120"
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-auto object-cover"
                     />
                   </div>
@@ -1471,17 +1516,17 @@ const CarDetailsPage = () => {
                     className="border-t border-dashed border-slate-200/80 pt-3 mb-3 cursor-pointer group"
                     onClick={() => setIsPriceSummaryOpen(true)}
                   >
-                    <div className="text-[11px] font-sans font-bold text-slate-400 uppercase tracking-wider mb-1 group-hover:text-[#00C9AF] transition-colors">Fixed on road price</div>
+                    <div className="text-[11px] font-sans font-bold text-slate-600 uppercase tracking-wider mb-1 group-hover:text-[#007A68] transition-colors">Fixed on road price</div>
                     <div className="flex flex-col items-start gap-1">
                       {/* Only show strikethrough if real original price exists */}
                       {(car.original_price || car.originalPrice || car.old_price || car.oldPrice) && (
-                        <span className="text-sm font-sans font-medium text-slate-400 line-through leading-none">
+                        <span className="text-sm font-sans font-medium text-slate-500 line-through leading-none">
                           ₹{(((car.original_price || car.originalPrice || car.old_price || car.oldPrice)) / 100000).toFixed(2)} Lakh
                         </span>
                       )}
                       <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                         <span className="text-2xl xl:text-3xl font-sans font-bold text-slate-900 leading-none group-hover:text-[#00C9AF] transition-colors">₹{(car.price / 100000).toFixed(2)} Lakh</span>
-                        <Info size={15} className="text-slate-400 group-hover:text-[#00C9AF] transition-colors" />
+                        <Info size={15} className="text-slate-500 group-hover:text-[#007A68] transition-colors" />
                         {hasPriceDrop(car) && (() => {
                           const orig = Number(car.original_price || car.originalPrice || car.old_price || car.oldPrice || 0);
                           const current = Number(car.price || 0);
@@ -1494,8 +1539,8 @@ const CarDetailsPage = () => {
                             }
                           }
                           return (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-sans font-bold bg-[#FFF0F3] text-[#E11D48] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
-                              <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#E11D48]" />
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-sans font-bold bg-[#FFF0F3] text-[#BE123C] border border-[#FFE0E6] shadow-xs tracking-tight shrink-0">
+                              <TrendingDown size={11} strokeWidth={2.5} className="shrink-0 text-[#BE123C]" />
                               <span>{dropBadgeText}</span>
                             </span>
                           );
@@ -1511,7 +1556,7 @@ const CarDetailsPage = () => {
                         <div className="flex items-center gap-1.5 mb-0.5">
                           <span className="text-lg font-sans font-bold text-teal-650">₹{(car.emiStart || car.emi || 8184).toLocaleString()}/m</span>
                         </div>
-                        <div className="text-[11px] font-sans font-bold text-slate-400 uppercase tracking-wider">Special starting EMI</div>
+                        <div className="text-[11px] font-sans font-bold text-slate-600 uppercase tracking-wider">Special starting EMI</div>
                       </div>
                       <button
                         onClick={scrollToEMI}
@@ -1559,7 +1604,7 @@ const CarDetailsPage = () => {
                       className={`py-3 rounded-xl font-heading font-semibold text-xs sm:text-sm transition-all flex items-center justify-center ${
                         car?.status === 'sold_out' || car?.status === 'sold'
                           ? 'bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300'
-                          : 'bg-[#EF4444] text-white hover:bg-[#DC2626] border border-transparent shadow-lg shadow-[#EF4444]/25 hover:scale-[1.02] active:scale-[0.98] cursor-pointer'
+                          : 'bg-[#DC2626] text-white hover:bg-[#B91C1C] border border-transparent shadow-lg shadow-[#DC2626]/25 hover:scale-[1.02] active:scale-[0.98] cursor-pointer'
                       }`}
                     >
                       {car?.status === 'booked' ? 'Waitlist / Drive' : 'Free test drive'}
